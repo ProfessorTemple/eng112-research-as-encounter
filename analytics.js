@@ -10,7 +10,7 @@
   const SITE_CODE = ''; // Example: 'research-encounter' (not a password or API key).
   const OPT_OUT_KEY = 'rae-anonymous-usage-optout-v1';
   const ALLOWED_STAGES = new Set(['begin', 'explore', 'search', 'read', 'journal', 'return', 'biblio', 'writing']);
-  const ALLOWED_MEDIA = new Set(['film', 'video', 'audio', 'essay']);
+  const ALLOWED_MEDIA = new Set(['film', 'video', 'audio', 'essay', 'article']);
   const ALLOWED_LENSES = new Set(['ecocriticism', 'environmental-justice', 'neurodiversity', 'phenomenology', 'ecofeminism', 'queer-ecology', 'material-posthumanism', 'place-displacement']);
   const ACTIONS = Object.freeze({
     'start-own': ['starting/own-idea', 'Started with my own idea'],
