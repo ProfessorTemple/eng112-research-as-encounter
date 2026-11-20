@@ -52,6 +52,22 @@
 </style>
 <style>
 /* Research as Encounter 3.3: guidance without compulsory steps */
+
+/* 3.4 welcome: choice first, instruction only when requested */
+.self-guide{border:1px solid #b8cdbb;border-radius:15px;background:#f2f7ef;padding:1rem 1.1rem;margin-bottom:1.3rem}
+.self-guide-head h2{font:500 1.42rem Georgia,serif;margin:.15rem 0 .35rem}
+.self-guide-head p{font-size:.93rem;color:#486358;margin:.2rem 0 .8rem}
+.self-guide-kicker{font-size:.7rem;letter-spacing:.075em;text-transform:uppercase;font-weight:800;color:#396f58}
+.self-guide-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.self-guide-option{background:#fffefa;border:1px solid #b7cdbb;border-radius:11px;color:#204b3e;padding:.75rem .85rem;text-align:left;min-width:0}
+.self-guide-option:hover,.self-guide-option:focus-visible{background:#e6f0e4;border-color:#397a59}
+.self-guide-option strong,.self-guide-option span{display:block}
+.self-guide-option strong{font-size:.95rem}
+.self-guide-option span{font-size:.82rem;color:#546b60;margin-top:.24rem}
+.self-guide-foot{font-size:.83rem;color:#4e6659;margin:.85rem 0 0}
+.self-guide-foot .text-button{font-size:.83rem}
+@media(max-width:680px){.self-guide{padding:.85rem}.self-guide-options{grid-template-columns:1fr}.self-guide-option{padding:.68rem .75rem}}
+
 .journey-overview{background:#f3f7f1;border:1px solid #bfcec2;border-radius:15px;padding:1rem;margin:0 0 1.25rem}
 .journey-overview h2{font:500 1.25rem Georgia,serif;margin:0 0 .3rem}
 .journey-intro{color:var(--muted);font-size:.91rem;margin:.25rem 0 .7rem}
@@ -138,14 +154,24 @@
 </style></head><body>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>A companion for writing, research, and discovery.</p></header>
 <main class="shell">
-<p class="intro">Begin with an experience. Follow your questions through reading, research, and writing. Every choice remains yours.</p>
-<details class="ws-tips ws-intro-more"><summary>New here? A quick guide</summary><p>Start in Freewrite or go directly to the stage you need. The Reading Journal holds passages and your responses; the Annotated Bibliography and Writing Studio help shape them into editable Word documents. Nothing is submitted automatically. Your work saves in this browser, so <strong>download project backups regularly</strong>, especially before changing devices.</p></details>
+<p class="intro">Your experiences lead. Follow a question into research, gather voices, and write an essay that remains yours.</p>
+<details class="ws-tips ws-intro-more"><summary>How does this work? (Optional, one-minute guide)</summary><p>No need to finish eight steps or work in order. Choose where you are today. Each space offers a possible next move, and you can go backward or jump ahead at any time. The program offers questions, not answers or written paragraphs. Your work is yours and is never submitted automatically. It saves in <strong>this browser only</strong>; download both an editable Word file and a full project backup regularly, especially before changing devices.</p></details>
 <div class="nav" role="tablist" aria-label="Research companion sections">
-<button id="tab-begin" role="tab" aria-controls="page-begin" aria-selected="true" data-tab="begin">1. Freewrite</button><button id="tab-explore" role="tab" aria-controls="page-explore" aria-selected="false" data-tab="explore">2. Explore connections</button><button id="tab-search" role="tab" aria-controls="page-search" aria-selected="false" data-tab="search">3. Build a search</button><button id="tab-read" role="tab" aria-controls="page-read" aria-selected="false" data-tab="read">4. Find sources</button><button id="tab-journal" role="tab" aria-controls="page-journal" aria-selected="false" data-tab="journal">5. Reading Journal</button><button id="tab-return" role="tab" aria-controls="page-return" aria-selected="false" data-tab="return">6. Return changed &amp; export</button><button id="tab-biblio" role="tab" aria-controls="page-biblio" aria-selected="false" data-tab="biblio">7. Annotated bibliography</button><button id="tab-writing" role="tab" aria-controls="page-writing" aria-selected="false" data-tab="writing">8. Writing Studio</button>
+<button id="tab-begin" role="tab" aria-controls="page-begin" aria-selected="true" data-tab="begin">Freewrite</button><button id="tab-explore" role="tab" aria-controls="page-explore" aria-selected="false" data-tab="explore">Explore connections</button><button id="tab-search" role="tab" aria-controls="page-search" aria-selected="false" data-tab="search">Build a search</button><button id="tab-read" role="tab" aria-controls="page-read" aria-selected="false" data-tab="read">Find sources</button><button id="tab-journal" role="tab" aria-controls="page-journal" aria-selected="false" data-tab="journal">Reading Journal</button><button id="tab-return" role="tab" aria-controls="page-return" aria-selected="false" data-tab="return">Return changed &amp; export</button><button id="tab-biblio" role="tab" aria-controls="page-biblio" aria-selected="false" data-tab="biblio">Annotated bibliography</button><button id="tab-writing" role="tab" aria-controls="page-writing" aria-selected="false" data-tab="writing">Writing Studio</button>
 </div>
 <div class="ws-mobile-jumps no-print"><span class="ws-jump-label">Jump ahead when you are ready:</span><button type="button" class="secondary" data-go="biblio">Annotated bibliography</button><button type="button" class="secondary" data-go="writing">Final essay</button></div>
 <section class="panel" id="page-begin" role="tabpanel" aria-labelledby="tab-begin">
-<div class="studio-head"><div class="eyebrow studio-eyebrow">ENG 112 · Freewriting Studio · Prototype 3.4</div><h2>Begin with something that stays with you.</h2><p>You might return to a memory, a place, a conversation, or an encounter with the living world. You do not need a research question, an assumption, or a scholarly term yet. Write first. Discover later.</p></div>
+<div class="self-guide" id="self-guide">
+  <div class="self-guide-head"><span class="self-guide-kicker">Welcome to your research companion</span><h2>Where are you in your writing today?</h2><p>You don't have to complete every step. Choose a place to begin, and follow the questions that matter to you. Change direction whenever you like.</p></div>
+  <div class="self-guide-options" role="group" aria-label="Choose where to begin">
+    <button type="button" class="self-guide-option" data-tab="begin"><strong>I'm starting with an experience</strong><span>Freewrite about a memory, place, or encounter.</span></button>
+    <button type="button" class="self-guide-option" data-tab="search"><strong>I have a question to research</strong><span>Find search terms and sources worth reading.</span></button>
+    <button type="button" class="self-guide-option" data-tab="biblio"><strong>I'm working on my sources</strong><span>Build my annotated bibliography.</span></button>
+    <button type="button" class="self-guide-option" data-tab="writing"><strong>I'm ready to draft or revise</strong><span>Open the essay editor and write in my own voice.</span></button>
+  </div>
+  <p class="self-guide-foot"><strong>Your work belongs to you.</strong> Suggestions are optional. This browser saves your work locally; download a backup regularly. <button type="button" id="self-guide-backup" class="text-button">Back up my work</button></p>
+</div>
+<div class="studio-head"><div class="eyebrow studio-eyebrow">ENG 112 · Freewriting Studio</div><h2>Begin with something that stays with you.</h2><p>You might return to a memory, a place, a conversation, or an encounter with the living world. You do not need a research question, an assumption, or a scholarly term yet. Write first. Discover later.</p></div>
 <div class="studio-choice" role="group" aria-label="Choose how to begin writing"><button type="button" id="start-own" class="choice-card" aria-pressed="true"><span class="choice-icon" aria-hidden="true">✎</span><strong>I have something in mind</strong><span>Begin with your own experience or observation.</span></button><button type="button" id="start-help" class="choice-card" aria-pressed="false"><span class="choice-icon" aria-hidden="true">✳</span><strong>Help me find a starting point</strong><span>Browse optional invitations to memory and discovery.</span></button></div>
 <div id="starter-area" class="starter-area hidden"><div class="starter-heading"><strong>Choose an invitation, or keep looking.</strong><span class="hint">No obligation to follow any of these.</span></div><div class="starter-note" id="starter-card" aria-live="polite"></div><div class="actions"><button type="button" class="secondary" id="starter-next">Another invitation ↻</button><button type="button" class="secondary" id="starter-use">Keep this nearby as I write</button><button type="button" class="secondary" id="starter-close">I'll follow my own idea</button></div></div>
 <div class="field studio-write"><label for="encounter">Your freewrite</label><p class="hint">Return to the moment. What was happening? Who or what else was present? What small detail is still with you? Give the memory room to surprise you.</p><textarea id="encounter" rows="13" placeholder="I remember... / One day I noticed... / I can't stop thinking about..." aria-describedby="studio-meter studio-privacy"></textarea><div class="studio-meter" id="studio-meter" aria-live="polite"><span id="word-counter">0 words</span><span id="writing-goal">Invitation: 250–400 words, not a requirement</span></div><button type="button" id="ask-question-now" class="secondary studio-ask">✧ Need a question to continue?</button></div>
@@ -512,7 +538,7 @@ $('go-journal').onclick=()=>openReadingJournal();$('journal-to-return').onclick=
 $('download-txt').onclick=()=>download(journalText(),'ENG112_research_encounter_journal.txt','text/plain;charset=utf-8');
 $('download-json').onclick=()=>{persist();download(JSON.stringify({version:3.2,...state},null,2),'ENG112_research_encounter_backup.json','application/json');};
 $('import-json').onclick=()=>$('import-file').click();$('import-file').onchange=e=>importBackup(e.target.files[0]);
-$('print').onclick=()=>window.print();$('reset').onclick=()=>{if(confirm('Clear all of your work in this browser? Export first if you want to keep it.')){try{localStorage.removeItem(STORAGE);}catch(e){}location.reload();}};
+$('print').onclick=()=>window.print();$('self-guide-backup').onclick=()=>$('download-json').click();$('reset').onclick=()=>{if(confirm('Clear all of your work in this browser? Export first if you want to keep it.')){try{localStorage.removeItem(STORAGE);}catch(e){}location.reload();}};
 restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable-nudges').checked=!!state.studio.disableNudges;studioMode(state.studio.mode==='help'?'help':'own');studioMeter();tab('begin');
 </script>
 <script>
@@ -567,7 +593,7 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
   function buildJourney(){
     const nav=document.querySelector('.nav');if(!nav||byId('journey-overview'))return;
     const area=el('details','journey-overview');area.id='journey-overview';area.setAttribute('aria-label','My research journey');
-    area.append(el('summary','', 'My research journey · View stages and progress'),el('p','journey-intro','These stages are paths, not gates. Follow what interests you and return whenever your question changes.'));
+    area.append(el('summary','', 'See my other writing spaces and saved progress'),el('p','journey-intro','These spaces are choices, not eight required steps. Begin where you are, and return whenever your question changes.'));
     const steps=el('div','journey-steps');steps.id='journey-steps';
     STEPS.forEach(([id,name],i)=>{const b=el('button','journey-step');b.type='button';b.dataset.step=id;b.setAttribute('aria-label','Go to '+name);b.append(el('span','',name),el('span','step-status','Not started'));listening(b,'click',()=>tab(id));steps.append(b);});area.append(steps);
     const foot=el('div','journey-footer');foot.append(el('span','', 'Your work stays in this browser, not in GitHub or your instructor’s account.'));
@@ -576,7 +602,7 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
   function buildTransitions(){
     for(const [id] of STEPS){const section=byId('page-'+id);if(!section||section.querySelector('.transition-guide'))continue;
       const info=NEXT[id];const guide=el('aside','transition-guide');guide.setAttribute('aria-label','Suggested next step');
-      guide.append(el('div','transition-step','Your next possible move'),el('h3','',info.title),el('p','',info.body));
+      guide.append(el('div','transition-step','One possible next move'),el('h3','',info.title),el('p','',info.body));
       const buttons=el('div','actions');const primary=el('button','primary',info.action);primary.type='button';listening(primary,'click',()=>tab(info.next));buttons.append(primary);
       if(id==='begin'){const discover=el('button','secondary','First, notice words in my freewrite');discover.type='button';listening(discover,'click',()=>{byId('discover-threads')?.click();byId('thread-clearing')?.scrollIntoView({block:'start',behavior:'smooth'});});buttons.insertBefore(discover,primary);}
       guide.append(buttons);section.append(guide);
@@ -632,7 +658,7 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
   }
   function updateJourney(){const done=stages(),now=currentStep();document.querySelectorAll('.journey-step').forEach((button,i)=>{
       if(button.dataset.step===now)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');
-      const label=button.querySelector('.step-status');if(label)label.textContent=done[i]?'Work saved':'Explore when ready';
+      const label=button.querySelector('.step-status');if(label)label.textContent=done[i]?'Something saved here':'Available whenever you need it';
     });updateSecondVoice();updateSourceProgress();if(now==='return')updateSynthesis();if(now==='explore')updateLensSummary();
   }
   function addRewildingMemory(){if(typeof MEDIA==='undefined'||MEDIA.some(m=>m.id==='m-rewilding-memory'))return;
