@@ -1,0 +1,45 @@
+# Research as Encounter — Aggregate Usage Statistics
+
+## Current status
+The application includes optional, privacy-conscious analytics instrumentation. **No counts are transmitted until the instructor configures the `SITE_CODE` in `analytics.js`.** GitHub Pages hosts static files and does not provide a private event-storage backend. Never add a password, API token, student identifier, or private key to this public repository.
+
+## Complete one-time setup
+1. The instructor creates an account at https://www.goatcounter.com/signup (no password should be shared with anyone).
+2. Set the optional site domain to `professortemple.github.io` or the exact program URL if accepted.
+3. Copy the **public account/site code** from `https://YOURCODE.goatcounter.com`.
+4. Replace the empty `const SITE_CODE = '';` in `analytics.js` with that code only, e.g. `'my-research-tool'`.
+5. Visit the deployed application, verify the privacy notice says counts are enabled, choose a program stage, and check the account's GoatCounter dashboard after the next data refresh. Try a phone and a computer separately.
+6. In GoatCounter settings, **leave Individual pageviews disabled**, keep the dashboard private, and turn off unnecessary geo/location/language collection if available.
+7. Confirm the college's applicable privacy and educational-technology requirements before enabling collection for students.
+
+## What is counted after activation
+- Page visits (not a census of distinct students).
+- Broad device group, inferred in the browser: phone, tablet, computer.
+- Visits to the eight application areas and choices on the welcome screen.
+- Optional discovery, prompts, source-note-save **attempts**, search-build requests, and backup/export **requests**. A click does not prove completion or successful download.
+- Which **instructor-curated books** are saved, opened, or selected for notes, referenced only by their public catalog IDs and titles.
+- For instructor-curated non-book materials: film, video, audio, or essay type, not exact titles.
+- Optional predefined scholarly lens choices, counted as aggregate clicks only.
+
+## What is NEVER sent
+Student names, email addresses, personal identifiers, any written text, memories, essays, abstracts, annotations, interview information, student-added source titles or links, search terms, student search results, document file contents, project backups, fields, or question text.
+
+Usage event names are fixed in the code. No events include a personal user ID or a session ID. Events cannot be linked to a student by this app. GoatCounter is a third-party service and sees the network request, temporarily using IP/browser information to estimate visits, but its standard aggregate reports do not store IP addresses or persistent user IDs. See https://www.goatcounter.com/help/privacy .
+
+## Privacy choices and limits
+- The app provides a clear opt-out checkbox inside **Privacy and optional anonymous usage statistics** at the bottom of the page. The setting stays on that browser, separate from research projects and backups.
+- Do Not Track and Global Privacy Control are honored by the app before analytics are loaded (the hosted service's native Do Not Track behavior is different).
+- A visitor who has opted out or whose browser blocks analytics is not counted. Therefore figures are approximate.
+- Previously collected aggregate counts cannot be individually erased because the program does not collect individual identifiers.
+- The service cannot retrospectively recover sessions/clicks from before activation. Existing browser-saved research and drafts remain unaffected.
+- The provider can observe ordinary connection metadata as part of operating a website, but the app does not intentionally send a referrer URL, full visited URL/query, or student data in event fields.
+- The default provider dashboard may show browser/system/screen-width statistics. Do not use breakdowns to infer or evaluate individual students.
+
+## Disable without changing student work
+Set `SITE_CODE` back to an empty string and publish the change. This stops analytics transmission on future loads. Existing work in localStorage remains unaffected. Visitors can also disable usage counts with the checkbox.
+
+## Interpretation
+These are counts of visits, clicks, and requests. They do not measure writing quality, research understanding, or engagement by identifiable students. A page visit does not imply an assignment was completed. Avoid publicizing fine-grained breakdowns that could expose very small groups.
+
+## Developer maintenance
+The public frontend is `index.html` plus `analytics.js`. The student project storage key `eng112-research-encounter-v2` is unchanged by the analytics feature. The analytics preference key is `rae-anonymous-usage-optout-v1`. Do not add listeners for text-entry `input` events or dynamically compose event fields from student-authored data.
