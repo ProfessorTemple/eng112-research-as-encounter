@@ -287,6 +287,8 @@
 <p>It never sends your name, writing, notes, interview material, searches, custom source titles, uploaded files, or document contents. The analytics service, GoatCounter, may process network and browser information temporarily to count visits but does not store IP addresses or tracking identifiers in its standard aggregate statistics. No advertising trackers or analytics cookies are used.</p>
 <label for="analytics-optout"><input id="analytics-optout" type="checkbox"> Turn off anonymous usage counts in this browser</label>
 <p class="analytics-state" role="status" id="analytics-status">Checking anonymous usage settings…</p>
+<p class="analytics-state">Having trouble seeing statistics? <button type="button" id="analytics-test" class="secondary">Check anonymous analytics connection</button> This sends one count-only test event, never your writing.</p>
+<p class="analytics-state" role="status" aria-live="polite" id="analytics-test-result"></p>
 </details>
 <div class="footer">ENG 112 · Writing the Living World · Prototype 3.4 · Freewriting and Reading Journal · No AI connection · Browser-based autosave. External source links require internet access.</div>
 </main>
@@ -901,4 +903,4 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 })();
 
 </script>
-<script src="./analytics.js"></script></body></html>
+<script src="./analytics.js?v=20261120-connectivity"></script></body></html>
