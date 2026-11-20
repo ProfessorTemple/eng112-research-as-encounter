@@ -40,4 +40,12 @@ A future AI interpretation component must operate behind a secured service with 
 
 Evaluate the usefulness of each transition, source accuracy, accessibility, mobile behavior, and whether the program nurtures genuine original thinking. Favor optional, de-identified feedback with institutional review over invasive tracking. Never equate visiting a tab with completing research.
 
-*Version 3.3: First guided-journey implementation; preserve earlier versions for comparison.*
+## Version 3.4: Writing as student-directed discovery
+
+The annotated bibliography and final essay are **two distinct compositions**, each with its own Moodle-specific document structure. The creative nonfiction final essay requires an abstract even though APA student papers ordinarily do not. The annotated bibliography uses a Research Path Overview instead, with no separate abstract or References page.
+
+The student can save evolving drafts, explore possible revisions, and respond to source and APA prompts without having software silently change their writing. The app does not generate annotations, quotations, interpretations, or submitted prose. Document exports are editable Word files, not final authoritative APA judgments.
+
+A layered recovery plan (local autosave, explicit text snapshots, downloadable complete JSON backup, and editable .docx export) supports student ownership. There is **no automatic cloud backup**, and students are reminded to retain their originals and verify the final Word/Pages layout. Figure uploads are deliberately downscaled for browser storage.
+
+*Version 3.3: Guided transitions first appeared. Version 3.4: Authorship-focused bibliography and writing studios, local recovery and editable export.*
