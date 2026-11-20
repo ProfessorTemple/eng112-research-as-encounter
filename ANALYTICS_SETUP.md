@@ -1,13 +1,13 @@
 # Research as Encounter — Aggregate Usage Statistics
 
 ## Current status
-The application includes optional, privacy-conscious analytics instrumentation. **No counts are transmitted until the instructor configures the `SITE_CODE` in `analytics.js`.** GitHub Pages hosts static files and does not provide a private event-storage backend. Never add a password, API token, student identifier, or private key to this public repository.
+**Active:** The public GoatCounter site code is configured as `research-as-encounter` in `analytics.js`. Counts are sent only by browsers that allow the privacy-conscious tracking described below. The instructor can access aggregate reporting at `https://research-as-encounter.goatcounter.com`. GitHub Pages hosts static files and does not provide a private event-storage backend. Never add a password, API token, student identifier, or private key to this public repository.
 
-## Complete one-time setup
+## Connection setup (already completed; retained for maintenance)
 1. The instructor creates an account at https://www.goatcounter.com/signup (no password should be shared with anyone).
 2. Set the optional site domain to `professortemple.github.io` or the exact program URL if accepted.
 3. Copy the **public account/site code** from `https://YOURCODE.goatcounter.com`.
-4. Replace the empty `const SITE_CODE = '';` in `analytics.js` with that code only, e.g. `'my-research-tool'`.
+4. Set the public site name to `const SITE_CODE = 'research-as-encounter';` in `analytics.js`. This is already done.
 5. Visit the deployed application, verify the privacy notice says counts are enabled, choose a program stage, and check the account's GoatCounter dashboard after the next data refresh. Try a phone and a computer separately.
 6. In GoatCounter settings, **leave Individual pageviews disabled**, keep the dashboard private, and turn off unnecessary geo/location/language collection if available.
 7. Confirm the college's applicable privacy and educational-technology requirements before enabling collection for students.
