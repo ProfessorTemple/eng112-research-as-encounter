@@ -1,6 +1,7 @@
 /* Research as Encounter: anonymous, aggregate interaction counts.
    Student writing and input values are never read or transmitted.
    Set SITE_CODE to the non-secret site code from your own GoatCounter account.
+   Uses count-only image requests, not third-party JavaScript.
    Keep this empty until the instructor has reviewed the provider and enabled collection.
 */
 (function () {
@@ -32,10 +33,8 @@
 
   const validSite = /^[a-z0-9](?:[a-z0-9-]{0,58}[a-z0-9])?$/.test(SITE_CODE);
   const doNotTrack = navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.globalPrivacyControl === true;
-  let ready = false;
-  let loading = false;
   let pageRecorded = false;
-  let pending = [];
+  const inFlight = new Set();
 
   function isOptedOut() {
     try { return localStorage.getItem(OPT_OUT_KEY) === 'yes'; }
@@ -61,15 +60,25 @@
           : 'Anonymous usage counts are on. No writing, searches, names, or personal sources are sent.';
   }
 
+  // Only fixed-count pixels go to the provider; no remote JavaScript can read drafts.
+  function sendCount(path, title, isEvent) {
+    if (!active()) return;
+    const params = new URLSearchParams({
+      p: path, t: title, e: isEvent ? '1' : '0', r: '',
+      rnd: Math.random().toString(36).slice(2) // Cache-buster, not a visitor ID.
+    });
+    const pixel = new Image(1, 1);
+    pixel.referrerPolicy = 'no-referrer';
+    inFlight.add(pixel);
+    pixel.onload = pixel.onerror = () => inFlight.delete(pixel);
+    pixel.src = 'https://' + SITE_CODE + '.goatcounter.com/count?' + params.toString();
+  }
+
   function record(path, title) {
     if (!active()) return;
-    // Events are generated only from fixed program labels and approved curated IDs.
+    // Event strings are static or based on approved instructor-curated items.
     if (!/^[a-z0-9-]+(?:\/[a-z0-9-]+)*$/.test(path) || path.length > 120) return;
-    if (!ready || !window.goatcounter || typeof window.goatcounter.count !== 'function') {
-      if (pending.length < 40) pending.push({ path, title });
-      return;
-    }
-    window.goatcounter.count({ path, title, event: true, no_session: true, referrer: '' });
+    sendCount(path, title, true);
   }
 
   function deviceGroup() {
@@ -80,47 +89,10 @@
   }
 
   function recordPage() {
-    if (!active() || !ready || pageRecorded) return;
+    if (!active() || pageRecorded) return;
     pageRecorded = true;
-    // No URL parameters, referrer, visitor ID, or student data in these events.
-    window.goatcounter.count({
-      path: '/research-as-encounter', title: 'Research as Encounter',
-      event: false, referrer: ''
-    });
+    sendCount('/research-as-encounter', 'Research as Encounter', false);
     record('device/' + deviceGroup(), 'Approximate device type');
-  }
-
-  function loadCounter() {
-    if (!active()) { status(); return; }
-    if (ready) { recordPage(); return; }
-    if (loading) return;
-    loading = true;
-    const endpoint = 'https://' + SITE_CODE + '.goatcounter.com/count';
-    window.goatcounter = {
-      no_onload: true, no_events: true, referrer: '',
-      path: '/research-as-encounter', title: 'Research as Encounter'
-    };
-    const script = document.createElement('script');
-    script.src = 'https://gc.zgo.at/count.js';
-    script.async = true;
-    script.referrerPolicy = 'no-referrer';
-    script.setAttribute('data-goatcounter', endpoint);
-    script.addEventListener('load', function () {
-      ready = typeof window.goatcounter?.count === 'function';
-      loading = false;
-      if (!ready || !active()) { pending = []; status(); return; }
-      recordPage();
-      const queue = pending;
-      pending = [];
-      queue.forEach(item => record(item.path, item.title));
-      status();
-    });
-    script.addEventListener('error', function () {
-      loading = false;
-      pending = [];
-      status();
-    });
-    document.head.appendChild(script);
   }
 
   function curatedBook(id) {
@@ -209,14 +181,13 @@
     if (preference) preference.addEventListener('change', function () {
       try { localStorage.setItem(OPT_OUT_KEY, preference.checked ? 'yes' : 'no'); }
       catch (_error) { preference.checked = true; }
-      if (preference.checked) pending = [];
-      else loadCounter();
+      if (!preference.checked) recordPage();
       status();
     });
     document.addEventListener('click', observeClick, true);
     document.addEventListener('change', observeChange, true);
     status();
-    loadCounter();
+    recordPage();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
