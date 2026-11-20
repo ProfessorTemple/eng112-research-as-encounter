@@ -191,6 +191,26 @@
 .keyword-search-intro{margin:1rem 0 .75rem}
 .query-purpose{font-size:.87rem;color:#415d4d}
 @media(max-width:700px){.keyword-choices{grid-template-columns:1fr}.keyword-discovery{padding:.8rem}}
+
+/* Living Three-Story Thesis Studio: student-authored, revisitable argument development */
+.thesis-invitation,.living-thesis{border:1px solid #b6c9b6;border-radius:14px;background:#f4f8f1;padding:1rem 1.15rem;margin:1.15rem 0}
+.living-thesis h3{font:500 1.36rem Georgia,serif;margin:.1rem 0 .45rem}
+.living-thesis h4{font-size:1.02rem;margin:1rem 0 .3rem}
+.thesis-story-brief{padding:.55rem .8rem;border-left:4px solid #5b8266;background:#fffdfa;margin:.7rem 0}
+.thesis-story-brief p{margin:.2rem 0}
+.thesis-narrative{background:#fffdfa;border:1px solid #bbcdbd;border-radius:10px;padding:.8rem;margin:.75rem 0}
+.thesis-narrative textarea{min-height:160px}
+.thesis-stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;margin:.85rem 0}
+.thesis-stage{border:1px solid #b4c6b4;border-radius:8px;background:#fffefa;padding:.65rem;min-width:0}
+.thesis-stage strong{color:#285747;font-size:.9rem}
+.thesis-stage span{display:block;font-size:.85rem}
+.thesis-evidence{padding:.75rem;border-radius:10px;background:#fffefa;border:1px solid #c1d0c1}
+.thesis-versions{display:grid;gap:.6rem}
+.thesis-version{padding:.85rem;border:1px solid #bccdbe;border-radius:10px;background:#fffefa}
+.thesis-version p{overflow-wrap:anywhere;white-space:pre-wrap}
+.thesis-source-notice{font-size:.85rem;color:#425b4b}
+.thesis-status{min-height:1.2em;font-size:.9rem;color:#245d4c}
+@media(max-width:720px){.thesis-stages{grid-template-columns:1fr}.living-thesis{padding:.8rem}}
 </style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>A companion for writing, research, and discovery.</p></header>
 <main class="shell" id="main-content" tabindex="-1">
@@ -225,6 +245,15 @@
 <section class="panel hidden" id="page-explore" role="tabpanel" aria-labelledby="tab-explore">
 <h2>Explore connections</h2><p>These are <strong>possible directions</strong>, not claims proven by sources. Click <em>Follow this connection</em> to pursue a new thread. You can save anything that interests you.</p>
 <div id="explore-summary" class="info"></div><div class="notice" style="margin-top:.6rem">These suggestions are inquiry prompts, not research findings. Check them against your own experience and scholarly evidence.</div><details><summary>How does this program find connections?</summary><p>It does not read entire books or search PCC library databases. The program uses an instructor-curated concept index, the book descriptions supplied by the instructor, and your current encounter, uncertainty, and idea words. It does not read the full books, use live AI, or search the PCC databases. A question is a proposal for investigation, not a factual finding. Book tags are suggested research vocabulary, not official catalog subject headings. A new inquiry resets the current concept trail without deleting your saved journal.</p></details><h3>Connected concepts</h3><p class="small">Each suggestion shows why it surfaced. Follow a connection to develop it without losing your original encounter.</p><div id="connection-list" class="stack" aria-live="polite"></div><h3>Questions shaped by your encounter</h3><p class="small">Three lenses: investigate the encounter, explore a possible connection, and reconsider an assumption. Each question includes a reason.</p><div id="question-list" class="stack"></div>
+<section class="thesis-invitation" aria-labelledby="early-thesis-title">
+<h3 id="early-thesis-title">A first working question, not a final answer</h3>
+<p>What are you trying to understand about your encounter? You don't need to know what you will argue yet. Begin with a question that can change as you read and listen.</p>
+<div class="field"><label for="thesis-question">The research question I want to carry into my writing</label>
+<textarea id="thesis-question" rows="3" placeholder="I wonder whether... / How does this experience complicate..."></textarea></div>
+<div class="actions"><button type="button" id="thesis-use-question" class="secondary">Use my latest saved research question</button>
+<button type="button" id="thesis-go-studio" class="primary">Explore a working three-story thesis →</button></div>
+<p class="hint">A question opens the inquiry. A thesis will eventually offer an interpretation and explain why it matters. You can return to this question whenever research changes it.</p>
+</section>
 <div class="actions"><button class="secondary" data-tab="search">Turn ideas into searches →</button><button class="secondary" data-tab="read">Find relevant books →</button></div>
 </section>
 <section class="panel hidden" id="page-search" role="tabpanel" aria-labelledby="tab-search">
@@ -298,8 +327,55 @@
 <h3>My Research Discovery Map</h3><p class="hint">This early map shows relationships you are exploring, not established facts. Click any node to revisit that part of your work. Connect quotations and scenes to particular ideas in the Reading Journal.</p><div id="pathway-map" class="pathway-scroll" aria-live="polite"></div><p class="hint">The map changes as you save ideas, searches, quotations, and reflections. You are free to disagree with any apparent connection.</p>
 <div class="field"><label for="found">What did a passage, scene, or new question complicate?</label><textarea id="found" rows="3" placeholder="A source introduced... / I now wonder whether..."></textarea></div>
 <div class="field"><label for="shift">How has your thinking changed?</label><textarea id="shift" rows="3" placeholder="I thought... / Now I'm considering..."></textarea></div>
-<h3>My developing three-story movement</h3><div class="stack"><div class="field"><label for="what">WHAT: What did I encounter or notice?</label><textarea id="what" rows="2"></textarea></div><div class="field"><label for="soWhat">SO WHAT: What new understanding is emerging?</label><textarea id="soWhat" rows="2"></textarea></div><div class="field"><label for="nowWhat">NOW WHAT: Why might this matter to me, others, or the living world?</label><textarea id="nowWhat" rows="2"></textarea></div></div>
-<div class="sug"><strong>Keep the questions alive.</strong> A living thesis can acknowledge what research cannot yet establish. Label personal experience, interpretation, and documented evidence honestly.</div>
+<h3>My developing three-story movement</h3>
+<p>These are <strong>layers of thinking</strong>, not three mandatory essay sections. Each story must grow from the one before it. A research question is not yet a thesis; an interpretation makes a meaningful claim that can be investigated.</p>
+<div class="stack">
+<div class="field"><label for="what">FIRST STORY · Observation: What specific experience, relationship, or pattern have I noticed?</label><textarea id="what" rows="3" placeholder="Describe what happened or what you can actually observe, not a conclusion you have not verified."></textarea><p class="hint">Give readers something particular to stand on: a scene, a pattern, a place, a detail, or a documented finding.</p></div>
+<div class="field"><label for="soWhat">SECOND STORY · Interpretation: What does that observation reveal, complicate, or challenge?</label><textarea id="soWhat" rows="3" placeholder="At first this seemed to mean... but research, another voice, or a closer look suggests..."></textarea><p class="hint">This is the intellectual turn. Offer an interpretation someone could reasonably question, and one your sources can help you investigate.</p></div>
+<div class="field"><label for="nowWhat">THIRD STORY · Significance: Why does that specific interpretation matter beyond this encounter?</label><textarea id="nowWhat" rows="3" placeholder="Understanding this relationship changes how we might think about..."></textarea><p class="hint">Open the view to a human, cultural, ecological, ethical, or philosophical implication. Avoid a grand claim unsupported by your observation and evidence.</p></div>
+</div>
+<div class="sug"><strong>Keep the questions alive.</strong> A living thesis can acknowledge what research cannot yet establish. Ground each interpretation in actual evidence; the third story is an earned implication, not automatically a call to action.</div>
+<section class="living-thesis" aria-labelledby="living-thesis-title">
+<h3 id="living-thesis-title">The Living Thesis Studio</h3>
+<p>Bring your three levels together in your own voice. A strong thesis may take two to four connected sentences near the end of your opening section, or emerge through the movement of creative nonfiction. It is not three separate assignments.</p>
+<p class="thesis-source-notice">The program does not invent claims, verify sources, or write your interpretation for you. It only brings together words you have written; you must revise the resulting draft.</p>
+<div class="thesis-story-brief"><strong>My current research question</strong>
+<p id="thesis-question-preview">No question saved yet. You can start with an observation.</p>
+<button type="button" id="thesis-edit-question" class="secondary">Edit or change my research question</button></div>
+<div class="thesis-stages">
+<div class="thesis-stage"><strong>Story 1 · Observation</strong><span>What do you actually know or notice?</span></div>
+<div class="thesis-stage"><strong>Story 2 · Interpretation</strong><span>What non-obvious understanding can you defend or explore?</span></div>
+<div class="thesis-stage"><strong>Story 3 · Significance</strong><span>What larger implication follows from that understanding?</span></div>
+</div>
+<div class="thesis-evidence">
+<h4>Listen to the sources before revising</h4>
+<p>What did one source or interview <strong>support</strong>, another <strong>complicate</strong>, and a third perhaps <strong>challenge</strong>? Use a real passage, idea, or verified observation. Don't pretend a source said something it didn't.</p>
+<div class="field"><label for="thesis-evidence">The evidence or tension that matters to my thesis, with a source or locator I can verify</label><textarea id="thesis-evidence" rows="4" placeholder="A passage on page __ suggests... / My interviewee described... / This contradicts my earlier assumption because..."></textarea></div>
+<p class="thesis-source-notice" id="thesis-research-hint"></p>
+</div>
+<div class="thesis-narrative">
+<h4>My working three-story thesis</h4>
+<p>Use your three stories to make a rough draft, then revise it into connected language. You can also write directly here. This is <strong>your own interpretation</strong>, not an automatically verified answer.</p>
+<div class="actions"><button type="button" id="thesis-assemble" class="secondary">Bring my three stories together</button></div>
+<div class="field"><label for="thesis-draft">My working thesis, in connected sentences</label><textarea id="thesis-draft" rows="6" placeholder="Begin with your observation, move toward a grounded interpretation, and let the wider significance grow from that discovery."></textarea></div>
+<details><summary>How can I tell if this is really a three-story thesis?</summary>
+<p><strong>First story:</strong> Is there a particular observation or relationship, rather than just a broad topic?</p>
+<p><strong>Second story:</strong> Does my writing offer an interpretation that a thoughtful reader might question, or am I merely describing the first story again?</p>
+<p><strong>Third story:</strong> Does the larger significance grow from the interpretation, or have I made a sweeping claim that my evidence cannot support?</p>
+<p><strong>As a whole:</strong> Can I read the thesis as a coherent thought? Does it invite inquiry rather than announce certainty I have not earned?</p></details>
+</div>
+<div class="field"><label for="thesis-change">What changed in my understanding, and what caused that change?</label><textarea id="thesis-change" rows="3" placeholder="At first I believed... / After reading or interviewing... / Now I am less certain about..."></textarea></div>
+<div class="actions"><button type="button" id="thesis-save-version" class="primary">Save this stage of my thinking</button><button type="button" id="thesis-copy" class="secondary">Copy my working thesis</button><button type="button" id="thesis-to-bib" class="secondary">Continue to Annotated Bibliography →</button></div>
+<p class="thesis-status" role="status" aria-live="polite" id="thesis-status"></p>
+<h4>My thesis history</h4>
+<p class="hint">Earlier versions are preserved so you can compare your first assumptions with later discoveries. They are not graded automatically.</p>
+<div id="thesis-history" class="thesis-versions"></div>
+<details><summary>Example: a three-story thesis growing from a creek encounter</summary>
+<p><strong>First story:</strong> I had walked past the neighborhood creek for years without noticing the animals and debris gathering along its banks.</p>
+<p><strong>Second story:</strong> Hearing my father's memories of that same creek complicated my idea of it as neglected scenery, revealing it as a place shaped by labor, childhood, and environmental change.</p>
+<p><strong>Third story:</strong> This shift matters because the places we overlook may already be part of our communities' identities, and recognizing those relationships can change what we consider worthy of care.</p>
+<p>This is a <em>model of movement</em>, not wording to copy. Its interpretation and significance must be supported by the particular writer's experience and evidence.</p></details>
+</section>
 <h3>Your saved inquiry trail</h3><div id="journal-view"></div><div class="actions no-print"><button class="primary" id="download-txt">Download research journal (.txt)</button><button class="secondary" id="download-json">Backup / transfer (.json)</button><button class="secondary" id="import-json">Restore a .json backup</button><input type="file" id="import-file" accept="application/json,.json" class="hidden"><button class="secondary" id="print">Print or save as PDF</button><button class="secondary" id="reset">Clear my work</button></div>
 <p class="notice">Nothing here is submitted to your instructor. Download or print your notes before leaving this device. Do not enter private information about other people.</p>
 </section>
@@ -312,7 +388,7 @@
   <div class="ws-card"><div class="ws-card-top"><span class="ws-kicker">01 · Title page</span><span class="ws-muted">Shared with your final essay</span></div><h3>Who is writing?</h3><p class="ws-muted">These details appear on both documents. You may change them at any time.</p>
    <div class="ws-form-grid"><div><label for="ws-name">Your name</label><input id="ws-name" data-ws-field placeholder="First and last name"></div><div><label for="ws-section">Course section</label><select id="ws-section" data-ws-field><option value="ENG 112-02FX">ENG 112-02FX</option><option value="ENG 112-01FX">ENG 112-01FX</option><option value="ENG 112-10SY">ENG 112-10SY</option><option value="ENG 112">ENG 112 (other section)</option></select></div><div><label for="ws-date">Submission date</label><input id="ws-date" data-ws-field placeholder="December 8, 2026"></div><div class="ws-form-note">Word export includes Department of English, Pitt Community College and Professor Temple. Please check your Moodle assignment before submitting.</div></div>
   </div>
-  <div class="ws-card"><span class="ws-kicker">02 · Page two</span><h3>Research Path Overview</h3><p class="ws-muted">200–300 words. Introduce your lived experience, question, primary lens, what research needs to test, and an assumption you are willing to reconsider. Include your developing three-story thesis within the overview.</p><textarea id="ws-overview" data-ws-field rows="9" placeholder="My inquiry begins with..."></textarea><div class="ws-wordline"><span id="ws-overview-count">0 words</span><span>Your working thesis may change as you read.</span></div>
+  <div class="ws-card"><span class="ws-kicker">02 · Page two</span><h3>Research Path Overview</h3><p class="ws-muted">Need to revisit your living thesis? <button type="button" id="thesis-back-from-bib" class="ws-link">Return to the Living Thesis Studio</button>. Use your thesis to shape this overview; the program will not overwrite your paragraphs.</p><p class="ws-muted">200–300 words. Introduce your lived experience, question, primary lens, what research needs to test, and an assumption you are willing to reconsider. Include your developing three-story thesis within the overview.</p><textarea id="ws-overview" data-ws-field rows="9" placeholder="My inquiry begins with..."></textarea><div class="ws-wordline"><span id="ws-overview-count">0 words</span><span>Your working thesis may change as you read.</span></div>
   <label for="ws-keywords">Five to eight research keywords or phrases</label><textarea id="ws-keywords" data-ws-field rows="2" placeholder="place attachment, memory, reciprocity, ..."></textarea></div>
   <div class="ws-card"><span class="ws-kicker">03 · Page three onward</span><h3>Teach your reader about five sources</h3><p class="ws-muted">Write complete APA references and your own 150–200-word annotations. Sources should play different roles, not simply agree. At least three annotations should connect directly with another source.</p>
    <div class="ws-source-progress" id="ws-bib-progress" aria-live="polite"></div><div id="ws-annotation-cards" class="ws-annotation-cards"></div>
@@ -989,4 +1065,5 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 })();
 </script>
 <script src="./keyword-bank.js?v=20261120-keywords"></script>
+<script src="./thesis-studio.js?v=20261120-living-thesis"></script>
 <script src="./analytics.js?v=20261120-connectivity"></script></body></html>
