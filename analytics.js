@@ -10,16 +10,18 @@
   const OPT_OUT_KEY = 'rae-anonymous-usage-optout-v1';
   const ALLOWED_STAGES = new Set(['begin', 'explore', 'search', 'read', 'journal', 'return', 'biblio', 'writing']);
   const ALLOWED_MEDIA = new Set(['film', 'video', 'audio', 'essay']);
+  const ALLOWED_LENSES = new Set(['ecocriticism', 'environmental-justice', 'neurodiversity', 'phenomenology', 'ecofeminism', 'queer-ecology', 'material-posthumanism', 'place-displacement']);
   const ACTIONS = Object.freeze({
     'start-own': ['starting/own-idea', 'Started with my own idea'],
     'start-help': ['starting/prompt', 'Requested a starting invitation'],
     'starter-next': ['starting/another-prompt', 'Asked for another invitation'],
     'discover-threads': ['discovery/threads', 'Explored possible threads'],
-    'render-search': ['research/build-search', 'Requested database search suggestions'],
+    'generate-search': ['research/build-search', 'Requested database search suggestions'],
     'save-source-note': ['research/note-save-attempt', 'Tried saving a source note'],
     'add-custom-source': ['research/custom-source-attempt', 'Tried adding an outside source'],
     'ws-bib-export': ['export/bibliography', 'Requested bibliography Word export'],
     'ws-essay-export': ['export/final-essay', 'Requested essay Word export'],
+    'ws-final-export': ['export/final-essay', 'Requested essay Word export'],
     'download-json': ['export/project-backup', 'Requested project backup'],
     'self-guide-backup': ['export/project-backup', 'Requested project backup'],
     'download-txt': ['export/research-journal', 'Requested research journal export'],
@@ -197,7 +199,7 @@
     const checkbox = event.target.closest('input[data-lens]');
     if (!checkbox || !checkbox.checked) return;
     const id = checkbox.getAttribute('data-lens');
-    const predefined = typeof LENSES !== 'undefined' && LENSES.some(l => l.id === id);
+    const predefined = ALLOWED_LENSES.has(id);
     if (predefined && /^[a-z0-9-]{1,35}$/.test(id))
       record('lens/' + id, 'Selected an optional critical lens');
   }
