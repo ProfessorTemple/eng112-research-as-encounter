@@ -6,7 +6,16 @@
 /* Prototype 3.4 Freewriting Studio: visible pause and student-owned language */
 .studio-head{padding:.7rem 0 1.1rem}.studio-head h2{font-family:Georgia,serif;font-size:clamp(1.65rem,4vw,2.25rem);line-height:1.22;font-weight:500;margin:.2rem 0 .6rem}.studio-head p{max-width:760px;margin:.2rem 0}.studio-eyebrow{color:#416b58}.studio-choice{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin:1rem 0 1.25rem}.choice-card{display:flex;flex-direction:column;text-align:left;gap:.3rem;background:#fffdf7;border:2px solid #ccd8cd;border-radius:17px;padding:1.2rem;color:#203530;min-height:145px}.choice-card strong{font-size:1.06rem}.choice-card span:last-child{font-size:.92rem;color:#526b61}.choice-card[aria-pressed="true"]{border-color:#245d4c;background:#eff5ed}.choice-card:hover{border-color:#245d4c}.choice-icon{font-size:1.7rem;line-height:1.2}.studio-write{margin-top:1rem}.studio-write label{font-size:1.12rem;font-weight:700}.studio-write textarea{min-height:260px;line-height:1.75;font-size:1.05rem;background:#fffefa;resize:vertical}.studio-meter{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-top:.5rem}.starter-area,.chosen-invitation,.pause-invitation,.nudge-question,.thread-clearing{border:1px solid #b8cec0;background:#f0f5eb;border-radius:15px;padding:1rem;margin:1rem 0}.starter-area{background:#f8f6eb}.starter-heading{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}.starter-note{font-family:Georgia,serif;font-size:1.16rem;margin:.8rem 0;line-height:1.55}.starter-note small{display:block;font-family:system-ui,sans-serif;font-size:.83rem;color:var(--muted);margin-bottom:.35rem}.chosen-invitation{background:#fcf6e8}.chosen-invitation p,.nudge-question p,.pause-invitation p{margin:.35rem 0}.text-button{background:none;border:0;text-decoration:underline;color:var(--green);padding:0;cursor:pointer}.toggle-row{display:inline-flex;align-items:center;gap:.35rem;font-size:.88rem}.thread-clearing{background:#fffefa;border-color:var(--line);margin:2rem 0}.thread-clearing h3{font-family:Georgia,serif;font-weight:500;font-size:1.5rem;margin:.3rem 0}.thread-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.thread-option{border:1px solid var(--line);border-radius:12px;padding:.8rem;background:#f8faf6;display:flex;gap:.65rem;align-items:flex-start;cursor:pointer}.thread-option:has(input:checked){border-color:#245d4c;background:#e9f2e8}.thread-option input{margin-top:.35rem;flex-shrink:0}.thread-option strong{display:block}.thread-option small{color:var(--muted);display:block;margin-top:.25rem}.legacy-bridge{margin-top:2rem;padding:1rem;border-top:1px solid var(--line);color:#435b50}.legacy-bridge summary{cursor:pointer}.studio-bottom{margin-top:1rem}.studio-bottom .actions{margin:.7rem 0}.hidden{display:none!important}@media(max-width:600px){.studio-choice,.thread-results{grid-template-columns:1fr}.choice-card{min-height:0}.studio-write textarea{min-height:230px}}
 
-.ws-format-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}.ws-essay-preview{background:#fffefa;border:1px solid #b9cbbf;border-radius:9px;padding:1.2rem;font:1rem/2 Georgia,serif;white-space:pre-wrap}.ws-essay-preview p{margin:0;text-indent:.5in}.ws-essay-preview[hidden]{display:none}\n/* v3.2: distinguish a visible invitation from a demand for attention */
+.ws-format-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}.ws-essay-preview{background:#fffefa;border:1px solid #b9cbbf;border-radius:9px;padding:1.2rem;font:1rem/2 Georgia,serif;white-space:pre-wrap}.ws-essay-preview p{margin:0;text-indent:.5in}.ws-essay-preview[hidden]{display:none}
+
+/* A true WYSIWYG drafting surface; hidden textarea remains the stable autosave/export store. */
+.ws-rich-editor{min-height:360px;max-height:70vh;overflow-y:auto;padding:1rem 1.15rem;background:#fffefa;border:1px solid #9cb2a4;border-radius:9px;font:1rem/2 "Times New Roman",Georgia,serif;white-space:pre-wrap;overflow-wrap:anywhere;outline-offset:2px}
+.ws-rich-editor:focus-visible{outline:3px solid #bd8e42}
+.ws-rich-editor p,.ws-rich-editor div{margin:0;text-indent:.5in;min-height:1.5em}
+.ws-rich-editor:empty:before{content:attr(data-placeholder);color:#6a7c72;font-family:system-ui,sans-serif;font-size:.95rem}
+@media(max-width:700px){.ws-rich-editor{min-height:380px;max-height:65vh}}
+
+/* v3.2: distinguish a visible invitation from a demand for attention */
 .studio-ask{margin-top:.65rem;font-size:.86rem;padding:.38rem .65rem;border-style:dashed;background:#f5f4e8}
 .pause-invitation,.nudge-question{position:fixed;right:clamp(.7rem,2vw,2rem);bottom:calc(.75rem + env(safe-area-inset-bottom));z-index:60;max-height:min(78dvh,580px);overflow:auto;width:min(420px,calc(100vw - 1.4rem));border:2px solid #ba9147;border-left:7px solid #ba9147;box-shadow:0 12px 38px #122b2480;background:#fffaf0;margin:0;padding:1.1rem 1.2rem;animation:invitation-in .3s ease-out}
 .pause-invitation strong,.nudge-question strong{font-family:Georgia,serif;font-size:1.2rem;font-weight:600}
@@ -226,8 +235,8 @@
  <details class="ws-tips"><summary>See the final document structure and drafting advice</summary><p><strong>Page one:</strong> APA title page. <strong>Page two:</strong> your required abstract. <strong>Page three:</strong> repeat your essay title, centered and bold, then the main essay. Start References on a new page, followed by your AI Use Disclosure. Automatic page numbers run from the title page.</p><p>Draft the main essay first, perhaps beginning with your strongest scene or thematic section. Write the abstract and settle the title afterward. You may use markers such as [VERIFY PAGE] during drafting, but remove them before submission.</p></details>
  <div class="ws-card"><span class="ws-kicker">01 · Title page</span><h3>Give your essay a working title</h3><label for="ws-essay-title">Essay title</label><input id="ws-essay-title" data-ws-field placeholder="What the Creek Carries: Memory, Water, and Responsibility"><p class="ws-muted">This document uses the name, section, and date from your annotated-bibliography title-page box. <button type="button" class="ws-link" data-go="biblio">Edit those details</button>.</p></div>
  <div class="ws-card"><span class="ws-kicker">02 · Required for this course</span><h3>Abstract</h3><p class="ws-muted">Write this after the essay develops. Briefly identify the central encounter, question, research voices, and emerging discovery. Aim for approximately 100–150 words, following your Moodle directions. This paragraph is not indented.</p><textarea id="ws-abstract" data-ws-field rows="6" placeholder="Return here after drafting the essay..."></textarea><div class="ws-wordline"><span id="ws-abstract-count">0 words</span><span>The abstract is required in ENG 112, even though APA does not normally require it in student papers.</span></div></div>
- <div class="ws-card ws-body-card"><span class="ws-kicker">03 · Main essay</span><h3>Your braided creative nonfiction essay</h3><p class="ws-muted">Write or paste your complete essay here. Press Return once for each new paragraph. Do not use spaces or Tab to indent: the preview and Word export apply a half-inch first-line indent automatically. Use Bold and Italic below for selected words. The word count includes only the essay body.</p>
- <div class="ws-format-actions no-print" role="toolbar" aria-label="Draft text formatting"><button type="button" id="ws-bold" class="secondary" aria-label="Bold selected text"><strong>Bold</strong></button><button type="button" id="ws-italic" class="secondary" aria-label="Italicize selected text"><em>Italic</em></button><button type="button" id="ws-preview-toggle" class="secondary" aria-pressed="false">Show formatted preview</button></div><textarea id="ws-essay-body" data-ws-field rows="19" spellcheck="true" placeholder="Begin in the place, moment, relationship, or question that still stays with you..."></textarea>
+ <div class="ws-card ws-body-card"><span class="ws-kicker">03 · Main essay</span><h3>Your braided creative nonfiction essay</h3><p class="ws-muted">Write or paste your complete essay here. Press Return once for each new paragraph. Do not use spaces or Tab to indent: the preview and Word export apply a half-inch first-line indent automatically. Select text and use Bold or Italic to see the result immediately while drafting. The word count includes only the essay body.</p>
+ <div class="ws-format-actions no-print" role="toolbar" aria-label="Draft text formatting"><button type="button" id="ws-bold" class="secondary" aria-label="Bold selected text"><strong>Bold</strong></button><button type="button" id="ws-italic" class="secondary" aria-label="Italicize selected text"><em>Italic</em></button><button type="button" id="ws-preview-toggle" class="secondary" aria-pressed="false">Show formatted preview</button></div><textarea id="ws-essay-body" data-ws-field rows="19" spellcheck="true" class="hidden" aria-hidden="true" tabindex="-1"></textarea><div id="ws-essay-rich" class="ws-rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Main essay draft, with formatted paragraphs" spellcheck="true" data-placeholder="Begin in the place, moment, relationship, or question that still stays with you..."></div>
  <div id="ws-essay-preview" class="ws-essay-preview" aria-label="Formatted essay preview" hidden></div><div class="ws-wordline ws-count-line"><strong id="ws-essay-count">0 of 1,200–1,500 words</strong><span id="ws-word-notice">A beginning is enough for now.</span></div>
  <div class="ws-inline-actions no-print"><button type="button" class="secondary" id="ws-snapshot">Save a version of this draft</button><label for="ws-version-select" class="sr-only">Saved draft versions</label><select id="ws-version-select"><option value="">Saved versions…</option></select><button type="button" class="secondary" id="ws-restore-version">Restore chosen version</button></div>
  <p class="ws-muted">Autosave protects the latest version on this device. Save named versions at milestones and download your project backup before switching devices.</p>
@@ -690,8 +699,8 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
  }
  function snapshot(){saveWS();const w=ensure();const s={date:new Date().toISOString(),label:'Draft saved '+new Date().toLocaleString(),body:val('ws-essay-body'),abstract:val('ws-abstract'),title:val('ws-essay-title'),references:val('ws-references')};w.snapshots.push(s);w.snapshots=w.snapshots.slice(-8);persist();versions();get('ws-prompt').textContent='A version of your writing is saved in this browser. Download a backup too, especially before switching devices.';}
  function versions(){const box=get('ws-version-select');box.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Saved versions…';box.append(o);ensure().snapshots.forEach((s,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent=s.label||'Saved version '+(i+1);box.append(option);});}
- function restoreVersion(){const i=Number(get('ws-version-select').value);if(get('ws-version-select').value===''||!ensure().snapshots[i])return alert('Choose a saved version first.');if(!confirm('Restore this version? Your current draft will first be saved as a separate version.'))return;const chosen={...ensure().snapshots[i]};snapshot();get('ws-essay-body').value=chosen.body||'';get('ws-abstract').value=chosen.abstract||'';get('ws-essay-title').value=chosen.title||'';get('ws-references').value=chosen.references||'';saveWS();get('ws-prompt').textContent='Restored your chosen version. You can continue revising; your previous text remains in saved versions.';}
- function promptFor(kind){const box=get('ws-essay-body'),text=box.value.trim();const selected=(box.value.slice(box.selectionStart||0,box.selectionEnd||0)||text.split(/\n\s*\n/).find(Boolean)||'').trim().slice(0,160);const lead=selected?'In the passage beginning “'+selected.slice(0,85)+(selected.length>85?'…':'')+'”, ': 'In your draft, ';
+ function restoreVersion(){const i=Number(get('ws-version-select').value);if(get('ws-version-select').value===''||!ensure().snapshots[i])return alert('Choose a saved version first.');if(!confirm('Restore this version? Your current draft will first be saved as a separate version.'))return;const chosen={...ensure().snapshots[i]};snapshot();get('ws-essay-body').value=chosen.body||'';hydrateRichEditor();get('ws-abstract').value=chosen.abstract||'';get('ws-essay-title').value=chosen.title||'';get('ws-references').value=chosen.references||'';saveWS();get('ws-prompt').textContent='Restored your chosen version. You can continue revising; your previous text remains in saved versions.';}
+ function promptFor(kind){const box=get('ws-essay-body'),text=box.value.trim();const selected=(window.getSelection()?.toString()||text.split(/\n+/).find(Boolean)||'').trim().slice(0,160);const lead=selected?'In the passage beginning “'+selected.slice(0,85)+(selected.length>85?'…':'')+'”, ': 'In your draft, ';
    const source=(state.readingNotes||[]).find(x=>x&&x.sourceId);const src=source&&typeof lookupSource==='function'?lookupSource(source.sourceId):null;
    const prompts={experience:lead+'what did the place, person, animal, weather, or material presence actually do? Is there one remembered detail you could return to?',sources:lead+(src?'you have a Reading Journal note from '+(src.title||'a source')+(source.locator?' ('+source.locator+')':'')+'. How might this voice complicate, deepen, or disagree with your own experience?':'which course voice, interview, or outside source could deepen or challenge this idea? What would you contribute in reply?'),tension:lead+'what remains uncertain? Whose experience might differ from yours, and how could you acknowledge that without inventing an answer?',meaning:lead+'why might this matter beyond your own experience? What could a reader now notice differently about relationship, place, power, or responsibility?'};
    get('ws-prompt').textContent=prompts[kind]||'You decide what the writing needs next.';
@@ -716,9 +725,77 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
  function saveBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);}
  function xml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));}
  const WORD='http://schemas.openxmlformats.org/wordprocessingml/2006/main',REL='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
- function runs(s,forceItalic=false,forceBold=false){const chunks=String(s||'').split(/(\\*\\*[^*\\n]+\\*\\*|\\*[^*\\n]+\\*)/g);return chunks.map(ch=>{const boldMark=/^\\*\\*[^*\\n]+\\*\\*$/.test(ch),italicMark=!boldMark&&/^\\*[^*\\n]+\\*$/.test(ch);const txt=boldMark?ch.slice(2,-2):italicMark?ch.slice(1,-1):ch;const italic=forceItalic||italicMark,bold=forceBold||boldMark;const rPr=italic||bold?'<w:rPr>'+(italic?'<w:i/>':'')+(bold?'<w:b/>':'')+'</w:rPr>':'';return '<w:r>'+rPr+'<w:t xml:space="preserve">'+xml(txt)+'</w:t></w:r>';}).join('');}
- function formattedDraft(){const target=get('ws-essay-preview');if(!target||target.hidden)return;target.replaceChildren();essayParagraphs(val('ws-essay-body')).forEach(p=>{const el=document.createElement('p');const chunks=p.split(/(\\*\\*[^*\\n]+\\*\\*|\\*[^*\\n]+\\*)/g);chunks.forEach(chunk=>{let child;if(/^\\*\\*[^*\\n]+\\*\\*$/.test(chunk)){child=document.createElement('strong');child.textContent=chunk.slice(2,-2);}else if(/^\\*[^*\\n]+\\*$/.test(chunk)){child=document.createElement('em');child.textContent=chunk.slice(1,-1);}else child=document.createTextNode(chunk);el.append(child);});target.append(el);});}
- function wrapSelection(marker){const box=get('ws-essay-body');const a=box.selectionStart,b=box.selectionEnd;if(a===b){box.focus();docAlert('Select the words to format first.');return;}const selected=box.value.slice(a,b);box.setRangeText(marker+selected+marker,a,b,'select');box.dispatchEvent(new Event('input',{bubbles:true}));box.focus();formattedDraft();}
+ function styledSegments(text){
+   const pieces=String(text||'').split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*)/g);
+   return pieces.map(chunk=>{
+     const bold=/^\*\*[^*\n]+\*\*$/.test(chunk);
+     const italic=!bold&&/^\*[^*\n]+\*$/.test(chunk);
+     return {text:bold?chunk.slice(2,-2):italic?chunk.slice(1,-1):chunk,bold,italic};
+   });
+ }
+ function runs(s,forceItalic=false,forceBold=false){
+   return styledSegments(s).map(({text,bold,italic})=>{
+     const fmt=(italic||forceItalic||bold||forceBold)?'<w:rPr>'+((italic||forceItalic)?'<w:i/>':'')+((bold||forceBold)?'<w:b/>':'')+'</w:rPr>':'';
+     return '<w:r>'+fmt+'<w:t xml:space="preserve">'+xml(text)+'</w:t></w:r>';
+   }).join('');
+ }
+ function renderStyled(into,value){
+   styledSegments(value).forEach(({text,bold,italic})=>{
+     let node=document.createTextNode(text);
+     if(bold){const b=document.createElement('strong');b.append(node);node=b;}
+     if(italic){const em=document.createElement('em');em.append(node);node=em;}
+     into.append(node);
+   });
+ }
+ function formattedDraft(){
+   const target=get('ws-essay-preview');if(!target||target.hidden)return;
+   target.replaceChildren();essayParagraphs(val('ws-essay-body')).forEach(text=>{
+     const para=document.createElement('p');renderStyled(para,text);target.append(para);
+   });
+ }
+ function hydrateRichEditor(){
+   const rich=get('ws-essay-rich');if(!rich)return;
+   rich.replaceChildren();
+   essayParagraphs(val('ws-essay-body')).forEach(text=>{
+     const para=document.createElement('p');renderStyled(para,text);rich.append(para);
+   });
+   if(!rich.childNodes.length){const p=document.createElement('p');p.append(document.createElement('br'));rich.append(p);}
+ }
+ function serializeRichEditor(){
+   const editor=get('ws-essay-rich');if(!editor)return '';
+   function inline(node){
+     if(node.nodeType===3)return node.nodeValue||'';
+     if(node.nodeType!==1)return '';
+     const tag=node.tagName.toLowerCase();
+     if(tag==='br')return '\n';
+     const content=Array.from(node.childNodes).map(inline).join('');
+     if(tag==='strong'||tag==='b')return '**'+content+'**';
+     if(tag==='em'||tag==='i')return '*'+content+'*';
+     return content;
+   }
+   const lines=[];
+   Array.from(editor.childNodes).forEach(node=>{
+     if(node.nodeType===3){const t=inline(node);if(t.trim())lines.push(t);return;}
+     if(node.nodeType!==1)return;
+     const tag=node.tagName.toLowerCase();
+     let content=inline(node);
+     if(tag==='div'||tag==='p'){lines.push(...content.split('\n'));}
+     else lines.push(content);
+   });
+   return lines.join('\n').replace(/\u00a0/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+ }
+ function syncRichEditor(){
+   const box=get('ws-essay-body');box.value=serializeRichEditor();
+   box.dispatchEvent(new Event('input',{bubbles:true}));
+ }
+ function applyRichStyle(command){
+   const editor=get('ws-essay-rich');
+   if(!editor||!editor.contains(window.getSelection()?.anchorNode)){editor?.focus();return;}
+   if(window.getSelection()?.isCollapsed){editor.focus();return;}
+   document.execCommand(command,false,null);
+   syncRichEditor();editor.focus();
+ }
+ function wrapSelection(marker){applyRichStyle(marker==='**'?'bold':'italic');}
 
  function par(s,opts={}){const props=['<w:spacing w:before="0" w:after="0" w:line="480" w:lineRule="auto"/>'];if(opts.keepNext)props.push('<w:keepNext/>');if(opts.center)props.push('<w:jc w:val="center"/>');if(opts.right)props.push('<w:jc w:val="right"/>');if(opts.justify)props.push('<w:jc w:val="both"/>');if(opts.indent)props.push('<w:ind w:firstLine="720"/>');if(opts.hanging)props.push('<w:ind w:left="720" w:hanging="720"/>');if(opts.left)props.push('<w:ind w:left="720"/>');if(opts.spaceBefore)props.push('<w:spacing w:before="'+opts.spaceBefore+'"/>');const pp='<w:pPr>'+props.join('')+'</w:pPr>';
    return '<w:p>'+pp+runs(s,!!opts.italic,!!opts.bold)+'</w:p>';}
@@ -747,7 +824,7 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
    const styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="'+WORD+'"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:before="0" w:after="0" w:line="480" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:pPr><w:spacing w:before="0" w:after="0" w:line="480" w:lineRule="auto"/></w:pPr></w:style></w:styles>';
    const files=[['[Content_Types].xml',types],['_rels/.rels',rootRels],['docProps/core.xml',coreXml(kind==='essay'?val('ws-essay-title'):'Annotated Bibliography')],['word/document.xml',documentXml(content)],['word/styles.xml',styles],['word/header1.xml',header],['word/_rels/document.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+rels.join('')+'</Relationships>'],...images.map(([name,data])=>[name,data])];const blob=zip(files);saveBlob(blob,kind==='essay'?'ENG112_final_essay_editable.docx':'ENG112_annotated_bibliography_editable.docx');docAlert('Editable Word document downloaded · Open in Word or Apple Pages and verify layout, citations, and figures.');
  }
- function attach(){buildSources();buildVisuals();loadUI();ids.forEach(id=>{get(id)?.addEventListener('input',saveWS);get(id)?.addEventListener('change',saveWS);});sourceIds.forEach((_,i)=>['ws-source-ref-','ws-source-annotation-','ws-source-db-','ws-source-role-','ws-source-connection-'].forEach(pre=>{const n=get(pre+i);n.addEventListener(n.type==='checkbox'?'change':'input',saveWS);if(n.tagName==='SELECT')n.addEventListener('change',saveWS);}));visualIds.forEach((_,i)=>['ws-visual-title-','ws-visual-note-','ws-visual-after-'].forEach(pre=>get(pre+i)?.addEventListener('input',saveWS)));
+ function attach(){buildSources();buildVisuals();loadUI();hydrateRichEditor();ids.forEach(id=>{get(id)?.addEventListener('input',saveWS);get(id)?.addEventListener('change',saveWS);});sourceIds.forEach((_,i)=>['ws-source-ref-','ws-source-annotation-','ws-source-db-','ws-source-role-','ws-source-connection-'].forEach(pre=>{const n=get(pre+i);n.addEventListener(n.type==='checkbox'?'change':'input',saveWS);if(n.tagName==='SELECT')n.addEventListener('change',saveWS);}));visualIds.forEach((_,i)=>['ws-visual-title-','ws-visual-note-','ws-visual-after-'].forEach(pre=>get(pre+i)?.addEventListener('input',saveWS)));
    document.querySelectorAll('[data-ws-backup]').forEach(b=>b.addEventListener('click',backup));get('ws-bib-export').addEventListener('click',()=>docx('bibliography'));get('ws-essay-export').addEventListener('click',()=>docx('essay'));get('ws-final-export').addEventListener('click',()=>docx('essay'));get('ws-bold').addEventListener('click',()=>wrapSelection('**'));get('ws-italic').addEventListener('click',()=>wrapSelection('*'));get('ws-preview-toggle').addEventListener('click',()=>{const preview=get('ws-essay-preview'),button=get('ws-preview-toggle');preview.hidden=!preview.hidden;button.setAttribute('aria-pressed',String(!preview.hidden));button.textContent=preview.hidden?'Show formatted preview':'Hide formatted preview';formattedDraft();});get('ws-snapshot').addEventListener('click',snapshot);get('ws-restore-version').addEventListener('click',restoreVersion);get('ws-bib-review-btn').addEventListener('click',reviewBib);get('ws-review-btn').addEventListener('click',reviewEssay);document.querySelectorAll('[data-ws-question]').forEach(b=>b.addEventListener('click',()=>promptFor(b.dataset.wsQuestion)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>tab(b.dataset.go)));
    const locator=get('note-locator'),sourcePick=get('journal-source');
    if(locator&&sourcePick&&!get('ws-locator-hint')){
@@ -762,10 +839,22 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
    // The legacy importer is intentionally replaced: older 3.2/3.3 backups remain usable,
    // and the 3.4 backup may contain three compressed original visuals.
    importBackup=function(file){if(!file)return;if(!confirm('Restore this backup? It will replace the current project on this device. Download a backup of your existing work first.'))return;
-     file.text().then(txt=>{if(txt.length>9500000)throw Error('Backup is too large to restore safely');let data=JSON.parse(txt);if(!data||!data.fields||!Array.isArray(data.savedBooks)||!Array.isArray(data.followed))throw Error('Not a Research as Encounter backup');state={...state,...data};const keys=['followed','savedQuestions','savedSearches','savedBooks','savedMedia'];keys.forEach(k=>{state[k]=Array.isArray(state[k])?state[k].filter(x=>typeof x==='string').slice(0,500):[]});state.customSources=Array.isArray(state.customSources)?state.customSources.filter(x=>x&&typeof x.title==='string'&&typeof x.id==='string').slice(0,200):[];state.readingNotes=Array.isArray(state.readingNotes)?state.readingNotes.filter(x=>x&&typeof x.sourceId==='string').slice(0,500):[];FIELDS.forEach(id=>{const n=get(id);if(n)n.value=typeof state.fields[id]==='string'?state.fields[id]:'';});ensure();loadUI();saveWS();tab('biblio');alert('Your research and writing backup has been restored.');}).catch(e=>alert('Unable to restore this backup: '+e.message));};
+     file.text().then(txt=>{if(txt.length>9500000)throw Error('Backup is too large to restore safely');let data=JSON.parse(txt);if(!data||!data.fields||!Array.isArray(data.savedBooks)||!Array.isArray(data.followed))throw Error('Not a Research as Encounter backup');state={...state,...data};const keys=['followed','savedQuestions','savedSearches','savedBooks','savedMedia'];keys.forEach(k=>{state[k]=Array.isArray(state[k])?state[k].filter(x=>typeof x==='string').slice(0,500):[]});state.customSources=Array.isArray(state.customSources)?state.customSources.filter(x=>x&&typeof x.title==='string'&&typeof x.id==='string').slice(0,200):[];state.readingNotes=Array.isArray(state.readingNotes)?state.readingNotes.filter(x=>x&&typeof x.sourceId==='string').slice(0,500):[];FIELDS.forEach(id=>{const n=get(id);if(n)n.value=typeof state.fields[id]==='string'?state.fields[id]:'';});ensure();loadUI();hydrateRichEditor();saveWS();tab('biblio');alert('Your research and writing backup has been restored.');}).catch(e=>alert('Unable to restore this backup: '+e.message));};
    get('import-file').onchange=e=>{importBackup(e.target.files?.[0]);e.target.value='';};
    // Clearing a project is consequential and must also clear visual copies and snapshots.
    get('reset').onclick=()=>{if(confirm('Clear all research, essay drafts, annotations, images, and saved versions from this browser? Download a full project backup first if you want to keep them.')){try{localStorage.removeItem(WKEY);}catch(e){}location.reload();}};
+   const rich=get('ws-essay-rich');
+   rich.addEventListener('input',syncRichEditor);
+   rich.addEventListener('paste',e=>{
+     e.preventDefault();
+     const text=(e.clipboardData?.getData('text/plain')||'').replace(/\r\n?/g,'\n');
+     document.execCommand('insertText',false,text);
+     syncRichEditor();
+   });
+   rich.addEventListener('keydown',e=>{
+     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveWS();backup();}
+   });
+   [get('ws-bold'),get('ws-italic')].forEach(b=>b.addEventListener('mousedown',e=>e.preventDefault()));
    get('ws-essay-body').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveWS();backup();}});
    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&get('ws-essay-body'))saveWS();});
  }
