@@ -61,8 +61,8 @@
   }
 
   // Only fixed-count pixels go to the provider; no remote JavaScript can read drafts.
-  function sendCount(path, title, isEvent) {
-    if (!active()) return;
+  function sendCount(path, title, isEvent, finished) {
+    if (!active()) { if (finished) finished(false); return; }
     const params = new URLSearchParams({
       p: path, t: title, e: isEvent ? '1' : '0', r: '',
       rnd: Math.random().toString(36).slice(2) // Cache-buster, not a visitor ID.
@@ -70,7 +70,8 @@
     const pixel = new Image(1, 1);
     pixel.referrerPolicy = 'no-referrer';
     inFlight.add(pixel);
-    pixel.onload = pixel.onerror = () => inFlight.delete(pixel);
+    pixel.onload = () => { inFlight.delete(pixel); if (finished) finished(true); };
+    pixel.onerror = () => { inFlight.delete(pixel); if (finished) finished(false); };
     pixel.src = 'https://' + SITE_CODE + '.goatcounter.com/count?' + params.toString();
   }
 
@@ -177,11 +178,30 @@
   }
 
   function init() {
+    const testButton = document.getElementById('analytics-test');
+    const testStatus = document.getElementById('analytics-test-result');
+    if (testButton) {
+      testButton.disabled = !active();
+      testButton.addEventListener('click', () => {
+        if (!active()) {
+          if (testStatus) testStatus.textContent = 'Statistics are switched off or blocked by a privacy preference.';
+          return;
+        }
+        if (testStatus) testStatus.textContent = 'Sending a test count…';
+        sendCount('diagnostic/connection-test', 'Connection check (no student data)', true, ok => {
+          if (testStatus) testStatus.textContent = ok
+            ? 'GoatCounter responded. Refresh its dashboard after about 10 seconds. Look for the connection-test event.'
+            : 'The request was blocked or failed. Check Safari content blockers or network restrictions.';
+        });
+      });
+    }
     const preference = document.getElementById('analytics-optout');
     if (preference) preference.addEventListener('change', function () {
       try { localStorage.setItem(OPT_OUT_KEY, preference.checked ? 'yes' : 'no'); }
       catch (_error) { preference.checked = true; }
       if (!preference.checked) recordPage();
+      if (testButton) testButton.disabled = !active();
+      if (testStatus) testStatus.textContent = '';
       status();
     });
     document.addEventListener('click', observeClick, true);
