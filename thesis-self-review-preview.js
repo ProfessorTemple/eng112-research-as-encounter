@@ -37,10 +37,12 @@
       evidence:read('thesis-reader-evidence').slice(0,5000),
       bridge:read('thesis-reader-bridge').slice(0,5000)};
   }
+  let lastSavedStamp=Array.isArray(state.thesisVersions)&&state.thesisVersions.length?state.thesisVersions[state.thesisVersions.length-1].savedAt:'';
   function linkReviewToVersion(){
     const versions=Array.isArray(state.thesisVersions)?state.thesisVersions:[];
     const latest=versions[versions.length-1];
-    if(!latest||typeof latest.savedAt!=='string')return;
+    if(!latest||typeof latest.savedAt!=='string'||latest.savedAt===lastSavedStamp)return;
+    lastSavedStamp=latest.savedAt;
     // A completed save is confirmed by a new timestamp; rejected empty saves have no new version.
     const reviews=savedReviews().filter(x=>x.savedAt!==latest.savedAt);
     reviews.push({savedAt:latest.savedAt,...currentReview()});
