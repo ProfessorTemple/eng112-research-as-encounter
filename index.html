@@ -159,13 +159,18 @@
 .analytics-privacy label{display:flex;gap:.5rem;align-items:flex-start;font-weight:600;cursor:pointer}
 .analytics-privacy input{margin-top:.2rem;flex-shrink:0}
 .analytics-privacy .analytics-state{font-size:.79rem;color:#51675b}
-</style></head><body>
+
+/* Keyboard, low-motion, and skip navigation refinements. */
+.skip-to-content{position:absolute;top:-100px;left:1rem;z-index:9999;background:#fffefa;color:#173b32;padding:.7rem 1rem;border:3px solid #bd8e42;border-radius:8px;font-weight:700}
+.skip-to-content:focus{top:1rem}
+@media (prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto!important}*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>A companion for writing, research, and discovery.</p></header>
-<main class="shell">
+<main class="shell" id="main-content" tabindex="-1">
 <p class="intro">Your experiences lead. Follow a question into research, gather voices, and write an essay that remains yours.</p>
 <details class="ws-tips ws-intro-more"><summary>How does this work? (Optional, one-minute guide)</summary><p>No need to finish eight steps or work in order. Choose where you are today. Each space offers a possible next move, and you can go backward or jump ahead at any time. The program offers questions, not answers or written paragraphs. Your work is yours and is never submitted automatically. It saves in <strong>this browser only</strong>; download both an editable Word file and a full project backup regularly, especially before changing devices.</p></details>
-<div class="nav" role="tablist" aria-label="Research companion sections">
-<button id="tab-begin" role="tab" aria-controls="page-begin" aria-selected="true" data-tab="begin">Freewrite</button><button id="tab-explore" role="tab" aria-controls="page-explore" aria-selected="false" data-tab="explore">Explore connections</button><button id="tab-search" role="tab" aria-controls="page-search" aria-selected="false" data-tab="search">Build a search</button><button id="tab-read" role="tab" aria-controls="page-read" aria-selected="false" data-tab="read">Find sources</button><button id="tab-journal" role="tab" aria-controls="page-journal" aria-selected="false" data-tab="journal">Reading Journal</button><button id="tab-return" role="tab" aria-controls="page-return" aria-selected="false" data-tab="return">Return changed &amp; export</button><button id="tab-biblio" role="tab" aria-controls="page-biblio" aria-selected="false" data-tab="biblio">Annotated bibliography</button><button id="tab-writing" role="tab" aria-controls="page-writing" aria-selected="false" data-tab="writing">Writing Studio</button>
+<div class="nav" role="tablist" aria-label="Research companion sections" aria-orientation="horizontal">
+<button id="tab-begin" role="tab" aria-controls="page-begin" aria-selected="true" tabindex="0" data-tab="begin">Freewrite</button><button id="tab-explore" role="tab" aria-controls="page-explore" aria-selected="false" tabindex="-1" data-tab="explore">Explore connections</button><button id="tab-search" role="tab" aria-controls="page-search" aria-selected="false" tabindex="-1" data-tab="search">Build a search</button><button id="tab-read" role="tab" aria-controls="page-read" aria-selected="false" tabindex="-1" data-tab="read">Find sources</button><button id="tab-journal" role="tab" aria-controls="page-journal" aria-selected="false" tabindex="-1" data-tab="journal">Reading Journal</button><button id="tab-return" role="tab" aria-controls="page-return" aria-selected="false" tabindex="-1" data-tab="return">Return changed &amp; export</button><button id="tab-biblio" role="tab" aria-controls="page-biblio" aria-selected="false" tabindex="-1" data-tab="biblio">Annotated bibliography</button><button id="tab-writing" role="tab" aria-controls="page-writing" aria-selected="false" tabindex="-1" data-tab="writing">Writing Studio</button>
 </div>
 <div class="ws-mobile-jumps no-print"><span class="ws-jump-label">Jump ahead when you are ready:</span><button type="button" class="secondary" data-go="biblio">Annotated bibliography</button><button type="button" class="secondary" data-go="writing">Final essay</button></div>
 <section class="panel" id="page-begin" role="tabpanel" aria-labelledby="tab-begin">
@@ -268,7 +273,7 @@
  <div class="ws-card"><span class="ws-kicker">01 · Title page</span><h3>Give your essay a working title</h3><label for="ws-essay-title">Essay title</label><input id="ws-essay-title" data-ws-field placeholder="What the Creek Carries: Memory, Water, and Responsibility"><p class="ws-muted">This document uses the name, section, and date from your annotated-bibliography title-page box. <button type="button" class="ws-link" data-go="biblio">Edit those details</button>.</p></div>
  <div class="ws-card"><span class="ws-kicker">02 · Required for this course</span><h3>Abstract</h3><p class="ws-muted">Write this after the essay develops. Briefly identify the central encounter, question, research voices, and emerging discovery. Aim for approximately 100–150 words, following your Moodle directions. This paragraph is not indented.</p><textarea id="ws-abstract" data-ws-field rows="6" placeholder="Return here after drafting the essay..."></textarea><div class="ws-wordline"><span id="ws-abstract-count">0 words</span><span>The abstract is required in ENG 112, even though APA does not normally require it in student papers.</span></div></div>
  <div class="ws-card ws-body-card"><span class="ws-kicker">03 · Main essay</span><h3>Your braided creative nonfiction essay</h3><p class="ws-muted">Write or paste your complete essay here. Press Return once for each new paragraph. Do not use spaces or Tab to indent: the preview and Word export apply a half-inch first-line indent automatically. Select text and use Bold or Italic to see the result immediately while drafting. The word count includes only the essay body.</p>
- <div class="ws-format-actions no-print" role="toolbar" aria-label="Draft text formatting"><button type="button" id="ws-bold" class="secondary" aria-label="Bold selected text"><strong>Bold</strong></button><button type="button" id="ws-italic" class="secondary" aria-label="Italicize selected text"><em>Italic</em></button><button type="button" id="ws-preview-toggle" class="secondary" aria-pressed="false">Show formatted preview</button></div><textarea id="ws-essay-body" data-ws-field rows="19" spellcheck="true" class="hidden" aria-hidden="true" tabindex="-1"></textarea><div id="ws-essay-rich" class="ws-rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Main essay draft, with formatted paragraphs" spellcheck="true" data-placeholder="Begin in the place, moment, relationship, or question that still stays with you..."></div>
+ <p id="ws-essay-editor-help" class="hint">Write your draft here. Use Tab to leave the editor and reach formatting buttons or other controls. Select text before using Bold or Italic. Your work saves in this browser.</p><div class="ws-format-actions no-print" role="toolbar" aria-label="Draft text formatting"><button type="button" id="ws-bold" class="secondary" aria-label="Bold selected text"><strong>Bold</strong></button><button type="button" id="ws-italic" class="secondary" aria-label="Italicize selected text"><em>Italic</em></button><button type="button" id="ws-preview-toggle" class="secondary" aria-pressed="false">Show formatted preview</button></div><textarea id="ws-essay-body" data-ws-field rows="19" spellcheck="true" class="hidden" aria-hidden="true" tabindex="-1"></textarea><div id="ws-essay-rich" class="ws-rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Main essay draft, with formatted paragraphs" aria-describedby="ws-essay-editor-help" spellcheck="true" data-placeholder="Begin in the place, moment, relationship, or question that still stays with you..."></div>
  <div id="ws-essay-preview" class="ws-essay-preview" aria-label="Formatted essay preview" hidden></div><div class="ws-wordline ws-count-line"><strong id="ws-essay-count">0 of 1,200–1,500 words</strong><span id="ws-word-notice">A beginning is enough for now.</span></div>
  <div class="ws-inline-actions no-print"><button type="button" class="secondary" id="ws-snapshot">Save a version of this draft</button><label for="ws-version-select" class="sr-only">Saved draft versions</label><select id="ws-version-select"><option value="">Saved versions…</option></select><button type="button" class="secondary" id="ws-restore-version">Restore chosen version</button></div>
  <p class="ws-muted">Autosave protects the latest version on this device. Save named versions at milestones and download your project backup before switching devices.</p>
@@ -307,7 +312,7 @@ function button(text,fn,cls='secondary'){let el=document.createElement('button')
 function elt(tag,cls='',text=''){let e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;}
 function persist(){FIELDS.forEach(id=>state.fields[id]=$(id).value);try{localStorage.setItem(STORAGE,JSON.stringify(state));$('save-status').textContent='Saved in this browser. Export your work before switching devices.';}catch(e){$('save-status').textContent='Browser saving is unavailable. Please download your journal.';}}
 function restore(){try{let v=JSON.parse(localStorage.getItem(STORAGE)||'null');if(v&&typeof v==='object'){state={...state,...v};}}catch(e){} FIELDS.forEach(id=>{if(typeof state.fields?.[id]==='string')$(id).value=state.fields[id];});}
-function tab(name){['begin','explore','search','read','journal','return','biblio','writing'].forEach(x=>{$('page-'+x).classList.toggle('hidden',x!==name);$('tab-'+x).setAttribute('aria-selected',String(x===name));}); if(name==='explore')renderExplore();if(name==='read'){renderBooks();renderMedia();}if(name==='journal')renderReadingJournal();if(name==='search')prepareSearch();if(name==='return'){renderJournal();renderPathwayMap();}window.scrollTo({top:0,behavior:'instant'});}
+function tab(name){['begin','explore','search','read','journal','return','biblio','writing'].forEach(x=>{$('page-'+x).classList.toggle('hidden',x!==name);$('tab-'+x).setAttribute('aria-selected',String(x===name));$('tab-'+x).tabIndex=x===name?0:-1;}); if(name==='explore')renderExplore();if(name==='read'){renderBooks();renderMedia();}if(name==='journal')renderReadingJournal();if(name==='search')prepareSearch();if(name==='return'){renderJournal();renderPathwayMap();}window.scrollTo({top:0,behavior:'instant'});}
 // V2: score whole concepts with exact-token matching, never substring overlaps such as "man" in "human".
 const STOP=new Set(['about','along','there','where','which','these','those','with','that','this','have','from','their','some','other','often','think','thought','remember','would','could','should','like','into','then','what','more','than','human','when','were','they']);
 function normTokens(s){return norm(s).split(/\s+/).filter(t=>t&&t.length>2&&!STOP.has(t));}
@@ -902,5 +907,27 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
  try{attach();}catch(e){console.error('Writing Studio could not initialize:',e);docAlert('NOT SAVED: Writing Studio could not load. Use an existing project backup and refresh.');}
 })();
 
+</script>
+<script>
+/* Accessible tab navigation: arrow keys move between sections; Home/End jump.
+   No personal content or saved data is read or changed. */
+(function(){
+  const list=document.querySelector('.nav[role="tablist"]');
+  if(!list)return;
+  const tabs=Array.from(list.querySelectorAll('[role="tab"][data-tab]'));
+  list.addEventListener('keydown',event=>{
+    const current=tabs.indexOf(event.target);
+    if(current<0)return;
+    let target=-1;
+    if(event.key==='ArrowRight'||event.key==='ArrowDown')target=(current+1)%tabs.length;
+    else if(event.key==='ArrowLeft'||event.key==='ArrowUp')target=(current-1+tabs.length)%tabs.length;
+    else if(event.key==='Home')target=0;
+    else if(event.key==='End')target=tabs.length-1;
+    if(target<0)return;
+    event.preventDefault();
+    tabs[target].click();
+    tabs[target].focus();
+  });
+})();
 </script>
 <script src="./analytics.js?v=20261120-connectivity"></script></body></html>
