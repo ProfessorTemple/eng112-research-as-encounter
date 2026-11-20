@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const SITE_CODE = ''; // Example: 'research-encounter' (not a password or API key).
+  const SITE_CODE = 'research-as-encounter'; // Example: 'research-encounter' (not a password or API key).
   const OPT_OUT_KEY = 'rae-anonymous-usage-optout-v1';
   const ALLOWED_STAGES = new Set(['begin', 'explore', 'search', 'read', 'journal', 'return', 'biblio', 'writing']);
   const ALLOWED_MEDIA = new Set(['film', 'video', 'audio', 'essay', 'article']);
