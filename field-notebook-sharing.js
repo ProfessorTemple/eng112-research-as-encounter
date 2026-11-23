@@ -12,7 +12,8 @@ const partNames={
   sources:"Sources and reading reflections",
   thesis:"My developing living thesis",
   discoveries:"What changed in my thinking",
-  essay:"My current essay draft"
+  essay:"My current essay draft",
+  "draft-history":"Earlier saved essay drafts"
 };
 const who={peer:"A peer or writing partner",instructor:"My instructor",personal:"My personal records"};
 let report=null, history=[], returning=false;
@@ -105,6 +106,19 @@ function gather(){
   add(c,"Thesis reflection",fld("thesis-change"));
   for(const d of (Array.isArray(state.fieldNotebook?.discoveries)?state.fieldNotebook.discoveries:[]).slice(-60)){
    if(d&&d.text)add(c,"Discovery reflection"+(d.at?" · "+date(d.at):""),d.text);
+  }
+  all.push(c);
+ }
+ if(ids.includes("draft-history")){
+  const c=section("draft-history");
+  for(const [i,s] of (Array.isArray(state.writing?.snapshots)?state.writing.snapshots:[]).slice(-8).entries()){
+   if(!s||typeof s!=="object")continue;
+   let parts=[];
+   if(s.title)parts.push("Title: "+s.title);
+   if(s.abstract)parts.push("Abstract: "+s.abstract);
+   if(s.body)parts.push("Essay draft: "+s.body);
+   if(s.references)parts.push("References: "+s.references);
+   add(c,"Saved essay draft "+(i+1)+(s.date?" · "+date(s.date):""),parts.join("\n\n"));
   }
   all.push(c);
  }
