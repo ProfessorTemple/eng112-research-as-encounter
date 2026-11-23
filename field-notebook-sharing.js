@@ -15,7 +15,7 @@ const partNames={
   essay:"My current essay draft"
 };
 const who={peer:"A peer or writing partner",instructor:"My instructor",personal:"My personal records"};
-let report=null, history=[], returning=false, initial=true;
+let report=null, history=[], returning=false;
 const plain=v=>String(v??"").trim();
 const fld=id=>plain(get(id)?.value??state?.fields?.[id]??"");
 const item=(label,text)=>({label,text:plain(text)});
@@ -263,7 +263,6 @@ function init(){
  window.addEventListener("keydown",e=>{if(e.key==="Escape"&&!panel.hidden&&panel.contains(document.activeElement)){e.preventDefault();closeSharing();}});
  window.addEventListener("field:tabchange",e=>{
   const name=e.detail?.name;if(!name)return;
-  if(initial){initial=false;return;}
   if(!returning&&name!==history.at(-1))history.push(name);
   const b=get("field-quick-return");b.disabled=history.length<2;
   b.title=b.disabled?"Visit another notebook page to enable Return":"Return to "+(history.at(-2)||"the previous page");
