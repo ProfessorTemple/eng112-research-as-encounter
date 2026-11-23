@@ -104,6 +104,7 @@ function gather(){
   add(c,"What new research complicated",fld("found"));
   add(c,"My reflection on changed understanding",fld("shift"));
   add(c,"Thesis reflection",fld("thesis-change"));
+  add(c,"Thesis comparison reflection",fld("thesis-compare-reflection"));
   for(const d of (Array.isArray(state.fieldNotebook?.discoveries)?state.fieldNotebook.discoveries:[]).slice(-60)){
    if(d&&d.text)add(c,"Discovery reflection"+(d.at?" · "+date(d.at):""),d.text);
   }
