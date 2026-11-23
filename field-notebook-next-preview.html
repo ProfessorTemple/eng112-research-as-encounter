@@ -284,6 +284,16 @@
 @media(max-width:640px){.field-welcome-hero{text-align:left}.field-welcome-primary{width:100%}.field-workspace-shortcuts button{width:100%}}
 @media print{.field-welcome,.field-workspace-shortcuts{display:none!important}#field-workspace{display:block!important}}
 
+
+.field-welcome-help #jstor-welcome-import{border:2px solid #3c7562;background:#f2f7ed}
+.field-welcome-import>summary{font-weight:750;color:#214f40;cursor:pointer;font-size:1.02rem}
+.field-welcome-import-body{padding:.7rem 0 .15rem}
+.field-welcome-import-body .field{margin:.75rem 0}
+.field-welcome-import-body .field label{font-weight:700;display:block;margin-bottom:.2rem}
+.field-welcome-import-body .field input{display:block;width:100%;max-width:560px;background:white;border:1px solid #8ca999;border-radius:8px;padding:.7rem;min-height:44px}
+.field-welcome-import-body button{min-height:44px;margin-top:.2rem}
+.field-welcome-import-body #jstor-welcome-status{min-height:1.5rem}
+
 </style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>My Living Field Notebook · Instructor development preview</p></header>
 <main class="shell" id="main-content" tabindex="-1">
@@ -298,11 +308,34 @@
     <p class="field-welcome-note">Your work stays in this browser. Download a backup before switching devices.</p>
   </div>
   <div class="field-welcome-help">
+    <details id="jstor-welcome-import" class="field-welcome-import">
+      <summary>Add a JSTOR PDF from earlier work</summary>
+      <div class="field-welcome-import-body">
+        <p>Have a JSTOR article PDF from earlier research? Select the PDF from Files on this device and save it into your private article shelf. You do not need to enter the notebook first.</p>
+        <div class="field">
+          <label for="jstor-welcome-pdf">Choose a JSTOR PDF (.pdf)</label>
+          <input type="file" id="jstor-welcome-pdf" accept=".pdf,application/pdf" aria-describedby="jstor-welcome-explain">
+        </div>
+        <div class="field">
+          <label for="jstor-welcome-title">Article title</label>
+          <input type="text" id="jstor-welcome-title" autocomplete="off" placeholder="Enter the article's title" maxlength="250">
+        </div>
+        <div class="field">
+          <label for="jstor-welcome-url">JSTOR article link (optional)</label>
+          <input type="url" id="jstor-welcome-url" placeholder="https://www.jstor.org/stable/...">
+        </div>
+        <button type="button" class="primary" id="jstor-welcome-save">Save PDF on this device</button>
+        <p id="jstor-welcome-status" class="status" role="status" aria-live="polite"></p>
+        <p id="jstor-welcome-count" class="hint" role="status">Checking PDF shelf on this device…</p>
+        <p id="jstor-welcome-explain" class="hint">PDF only, maximum 20 MB. This is separate from importing a notebook backup (.json). The PDF remains in this browser, is not sent to PCC or your instructor, and is not included in a JSON backup. Keep your original PDF in Files.</p>
+      </div>
+    </details>
+    
     <details class="ws-tips ws-intro-more"><summary>How does this work? (Optional, one-minute guide)</summary><p>Start with your own words, then use <strong>Discover possible threads</strong> to find questions worth pursuing. The new Concept Explorer suggests a few critical lenses at a time; you can reject them, browse all 44, or add your own. The <strong>One possible next move</strong> guidance tells you what to try after each activity. No need to finish eight steps or work in order. Choose where you are today. Each space offers a possible next move, and you can go backward or jump ahead at any time. The program offers questions, not answers or written paragraphs. Your work is yours and is never submitted automatically. In <strong>Research</strong>, you can find scholarly articles, save JSTOR PDFs to a private shelf on this device, and record what you learn in the Reading Journal. Your notebook saves in <strong>this browser only</strong>; download an editable Word file and full project backup regularly. Keep your downloaded article PDFs separately because the notebook backup does not include them, especially before changing devices.</p></details>
     <details id="field-faq" class="field-faq no-print">
 <summary>Frequently asked questions · Saving, JSTOR, and your writing</summary>
 <div class="field-faq-body">
-<details><summary>Where do I add a JSTOR PDF?</summary><p>Choose <strong>Research → Reading Journal</strong>, then find <strong>JSTOR articles · From finding to reading</strong>. Download the PDF from JSTOR first, enter its title, choose the PDF on your device, and select <strong>Save PDF on this device</strong>. Then add the article's author, title, and link to your Reading Journal so you can record passages, page numbers, and your own response.</p><button type="button" class="secondary field-jstor-shortcut">Go to JSTOR PDF shelf</button></details>
+<details><summary>Where do I add a JSTOR PDF?</summary><p>On <strong>Start Here</strong>, open <strong>Add a JSTOR PDF from earlier work</strong>. Choose the article PDF, enter its title, and select <strong>Save PDF on this device</strong>. Once you enter the notebook, the PDF appears in Research → Reading Journal, where you can add its citation, verified passages, and your own interpretation. If your PDF is only inside an earlier browser shelf, download a copy from that earlier notebook first. A .json notebook backup does not contain PDFs.</p><button type="button" class="secondary field-jstor-shortcut">Go to JSTOR PDF shelf</button></details>
 <details><summary>Why would I use JSTOR?</summary><p>JSTOR is a source of scholarly articles that can introduce perspectives you had not considered. Read the article itself and ask what it supports, challenges, or complicates about your original experience. Finding a source is the beginning of research, not proof of a claim.</p></details>
 <details><summary>Does uploading a PDF submit it to my instructor?</summary><p>No. The optional PDF shelf stores a copy in this browser on this device only. It is not uploaded to PCC, GitHub, Moodle, Canvas, or your instructor. For instructor feedback, use <strong>Share journey</strong> to choose and review what you want to send separately.</p></details>
 <details><summary>What's the difference between Save backup and Save PDF?</summary><p><strong>Save backup</strong> downloads your notebook's research and writing data as a JSON file. It does <strong>not</strong> contain saved article PDFs. <strong>Save PDF on this device</strong> adds a downloaded article to the browser's optional shelf. Keep your original PDFs in a folder or cloud drive and make regular notebook backups too.</p></details>
