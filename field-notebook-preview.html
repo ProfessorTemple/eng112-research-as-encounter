@@ -216,6 +216,58 @@
 <main class="shell" id="main-content" tabindex="-1">
 <p class="intro">Your experiences lead. Follow a question into research, gather voices, and write an essay that remains yours.</p>
 <details class="ws-tips ws-intro-more"><summary>How does this work? (Optional, one-minute guide)</summary><p>No need to finish eight steps or work in order. Choose where you are today. Each space offers a possible next move, and you can go backward or jump ahead at any time. The program offers questions, not answers or written paragraphs. Your work is yours and is never submitted automatically. It saves in <strong>this browser only</strong>; download both an editable Word file and a full project backup regularly, especially before changing devices.</p></details>
+<div id="field-quick-actions" class="field-quick-actions no-print" role="group" aria-label="Notebook saving and sharing actions">
+  <button type="button" id="field-quick-save" aria-describedby="field-actions-note">Save backup</button>
+  <button type="button" id="field-quick-share" aria-expanded="false" aria-controls="field-share-panel">Share journey</button>
+  <button type="button" id="field-quick-return" aria-label="Return to the previous notebook page" disabled>Return</button>
+  <span id="field-actions-note" class="field-quick-help">Work saves in this browser; back up to keep a copy.</span>
+  <span id="field-action-status" class="field-screen-reader" role="status" aria-live="polite"></span>
+</div>
+<section id="field-share-panel" class="field-share-panel no-print" aria-labelledby="field-share-heading" hidden>
+ <div class="field-share-heading">
+  <div>
+   <p class="field-eyebrow">Student-controlled sharing</p>
+   <h2 id="field-share-heading" tabindex="-1">Share my journey</h2>
+   <p>Choose the parts of your notebook you want another person to read. This does not send anything automatically. Review your selections before downloading or printing.</p>
+  </div>
+  <button type="button" class="field-share-close" id="field-share-close">Close sharing</button>
+ </div>
+ <fieldset class="field-share-group">
+  <legend>Who is this report for?</legend>
+  <div class="field-share-options">
+   <label><input type="radio" name="field-share-audience" value="peer" checked> A peer or writing partner</label>
+   <label><input type="radio" name="field-share-audience" value="instructor"> My instructor</label>
+   <label><input type="radio" name="field-share-audience" value="personal"> My own records</label>
+  </div>
+ </fieldset>
+ <fieldset class="field-share-group">
+  <legend>What would you like to include?</legend>
+  <p id="field-share-select-help">Your entire notebook is never automatically included. Personal freewriting and your full essay draft are off by default.</p>
+  <div class="field-share-options field-share-checkboxes" aria-describedby="field-share-select-help">
+   <label><input type="checkbox" name="field-share-part" value="encounter"> My opening experience or question</label>
+   <label><input type="checkbox" name="field-share-part" value="keywords" checked> Keywords, questions, and searches</label>
+   <label><input type="checkbox" name="field-share-part" value="sources" checked> Sources and reading reflections</label>
+   <label><input type="checkbox" name="field-share-part" value="thesis" checked> Earlier and revised three-story thesis</label>
+   <label><input type="checkbox" name="field-share-part" value="discoveries" checked> Changes in my thinking</label>
+   <label><input type="checkbox" name="field-share-part" value="essay"> My current essay draft</label>
+  </div>
+ </fieldset>
+ <label for="field-share-request" class="field-share-label">What feedback would help? (optional)</label>
+ <textarea id="field-share-request" rows="3" maxlength="2500" placeholder="I am wondering whether my sources are actually complicating my thesis..."></textarea>
+ <p class="field-share-warning">Privacy check: passages, interview details, and reflections may include personal information. Read your report before sharing. The full editable .json backup contains more data and should usually stay private.</p>
+ <div class="field-share-controls">
+  <button type="button" id="field-share-preview-button" class="field-share-primary">Preview my selected report</button>
+  <button type="button" id="field-share-word" disabled>Download Word (.docx)</button>
+  <button type="button" id="field-share-html" disabled>Download accessible HTML</button>
+  <button type="button" id="field-share-print" disabled>Print / Save as PDF</button>
+ </div>
+ <p id="field-share-status" class="field-share-status" role="status" aria-live="polite"></p>
+ <section id="field-share-report" class="field-share-report" aria-labelledby="field-share-report-heading" hidden>
+   <h3 id="field-share-report-heading" tabindex="-1">Report preview</h3>
+   <p class="field-share-review-reminder">Read through this report before giving it to a classmate or uploading it to Moodle or Canvas.</p>
+   <div id="field-share-report-content"></div>
+ </section>
+</section>
 <section id="field-notebook-compass" class="field-notebook-compass" aria-labelledby="field-notebook-title">
   <div class="field-intro">
     <p class="field-eyebrow">A continuous notebook, not eight separate assignments</p>
@@ -1105,4 +1157,4 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 </script>
 <script src="./keyword-bank.js?v=20261120-keywords"></script>
 <script src="./thesis-studio.js?v=20261120-living-thesis"></script>
-<script src="./field-notebook-preview.js?v=1"></script></body></html>
+<script src="./field-notebook-preview.js?v=2"></script><script src="./field-notebook-sharing.js?v=1"></script></body></html>
