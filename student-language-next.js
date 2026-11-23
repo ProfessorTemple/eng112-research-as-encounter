@@ -6,7 +6,7 @@
   'use strict';
   const STOP=new Set(("a an and are as at be been being but by can could did do does doing for from had has have having he her hers him his how i if in into is it its itself just me mine my myself nor not of on or our ours out over she should so some than that the their them there these they this those through to too us very was were what when where which while who why will with would you your yours" +
     " after again also always another around before because between called came come coming each ever every first found get gets getting give given going good great here itself know knowing later like little look looked looking made make making many more most much must near never now often once one only other own perhaps quite really said say saying see seeing seemed seems several something still such sure take taken taking tell telling then thing things think thinking thought throughout today together tried trying until used using want wanted way ways well went whenever within without wonder wondered wondering years year").split(/\s+/));
-  const generic=new Set("someone anybody everybody people person experience encounter writing wrote research question questions word words idea ideas remember remembered life time moment felt feeling feel something anything nothing loved love showed show showing sees seen seeing seemed watching watched wasn't weren't couldn't wouldn't don't didn't had hadn't experienced experience provide provides provided stayed stay stays walk walking walked pass passed small side quite much really strongly does did do asked asking felt feels feeling know knowing think".split(" "));
+  const generic=new Set("someone anybody everybody people person experience encounter writing wrote research question questions word words idea ideas remember remembered life time moment felt feeling feel something anything nothing loved love showed show showing sees seen seeing seemed watching watched wasn't weren't couldn't wouldn't don't didn't had hadn't experienced experience provide provides provided stayed stay stays walk walking walked pass passed small side quite much really strongly harvested harvests mattered matters said asked said looked liked does did do asked asking felt feels feeling know knowing think".split(" "));
   const clean=s=>String(s||'').trim().replace(/^[\s"'“”‘’—:;,!?]+|[\s"'“”‘’—:;,!?]+$/g,'').replace(/\s+/g,' ').slice(0,110);
   const norm=s=>(' '+String(s||'').toLocaleLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim()+' ');
   function words(source){
@@ -41,10 +41,14 @@
       if(context.includes('?'))score+=1;
       offer(t.text,score,'keyword',frequency>=2?'A word you returned to':'A word you wrote');
     }
+    // A first-person uncertainty is a question even without a question mark.
+    for(const fragment of raw.match(/\b(?:I wonder|I am wondering|I don't know|I do not know|I cannot know|I never knew)[^.!?\n]{7,118}/gi)||[]){
+      offer(fragment,11,'question','An uncertainty you expressed');
+    }
     // Two neighboring content words often preserve an image better than an isolated noun.
     for(let i=0;i<tokens.length-1;i++){
       const a=tokens[i],b=tokens[i+1];
-      if(b.start-a.end>3||b.start-a.start>34)continue;
+      if(b.start-a.end>3||b.start-a.start>34||a.key.slice(0,5)===b.key.slice(0,5))continue;
       const phrase=raw.slice(a.start,b.end);
       offer(phrase,6+(counts.get(a.key)>1?1:0)+(counts.get(b.key)>1?1:0),'phrase','Two words next to each other in your writing');
     }
@@ -70,7 +74,10 @@
     const pairs=[];
     function overlaps(a,b){
       const ak=norm(a.text).trim(),bk=norm(b.text).trim();
-      return ak===bk||ak.includes(bk)||bk.includes(ak)||ak.slice(0,5)===bk.slice(0,5);
+      if(ak===bk||ak.includes(bk)||bk.includes(ak)||ak.slice(0,5)===bk.slice(0,5))return true;
+      // 'horse Maximo' and 'summer heat' are phrases, not conceptual tensions.
+      const combined=norm(a.text+' '+b.text).trim(),reverse=norm(b.text+' '+a.text).trim();
+      return norm(raw).includes(' '+combined+' ')||norm(raw).includes(' '+reverse+' ');
     }
     const seenPairs=new Set();
     for(let i=0;i<spans.length;i++){
@@ -84,6 +91,12 @@
         if(seenPairs.has(key))continue;seenPairs.add(key);
         const sameSentence=norm(span.text).includes(norm(a.text))&&norm(span.text).includes(norm(b.text));
         let score=a.score+b.score+(sameSentence?2:0);
+        // Repeated student language is more important than one-off incidental words.
+        const countWord=word=>(norm(raw).split(norm(word).trim()).length-1);
+        score+=Math.min(4,2*Math.max(0,countWord(a.text)-1))+Math.min(4,2*Math.max(0,countWord(b.text)-1));
+        // Avoid pairing two near-identical terms ('garden'/'gardening').
+        if(a.text.toLowerCase().startsWith(b.text.toLowerCase().slice(0,5))||
+           b.text.toLowerCase().startsWith(a.text.toLowerCase().slice(0,5)))continue;
         // Prioritize a relationship to a named being/place over incidental generic words.
         if(/^\p{Lu}/u.test(a.text)||/^\p{Lu}/u.test(b.text))score+=2;
         pairs.push({a,b,score,sameSentence});
@@ -92,7 +105,7 @@
     pairs.sort((a,b)=>b.score-a.score||a.a.text.localeCompare(b.a.text));
     const usedWords=new Map();
     for(const pair of pairs){
-      if(found.filter(x=>x.kind==='relationship').length>=4)break;
+      if(found.filter(x=>x.kind==='relationship').length>=3)break;
       // Avoid twelve combinations of the same repeated keyword.
       if((usedWords.get(pair.a.text.toLowerCase())||0)>=2||(usedWords.get(pair.b.text.toLowerCase())||0)>=2)continue;
       add(pair.a.text+' and '+pair.b.text,
@@ -101,7 +114,7 @@
       usedWords.set(pair.b.text.toLowerCase(),(usedWords.get(pair.b.text.toLowerCase())||0)+1);
     }
     for(const item of keywords){
-      if(found.length>=8)break;
+      if(found.length>=7)break;
       if(found.some(x=>x.term.includes(item.text)))continue;
       add(item.text,'A meaningful-looking word from your writing. You decide whether it deserves further attention.','keyword');
     }
