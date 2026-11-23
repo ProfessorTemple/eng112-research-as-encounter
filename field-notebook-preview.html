@@ -259,7 +259,9 @@
 #field-feedback-panel[hidden],#field-feedback-nudge[hidden]{display:none!important}
 @media(max-width:600px){.field-feedback-nudge{right:.5rem;bottom:.5rem;width:calc(100vw - 1rem)}}
 @media print{.field-feedback-panel,.field-feedback-nudge{display:none!important}}
-\n@media (prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}\n.lens-choice-wrap{border:1px solid #cbd9cc;border-radius:12px;padding:.6rem;background:#fffefa}.lens-choice-wrap .lens-choice{border:0;padding:.35rem;display:block}.lens-choice-wrap .lens-choice p{margin:.35rem 0}.lens-choice-wrap .lens-skip{margin:.4rem}.lens-family{margin:1.2rem 0}.lens-all{margin:1rem 0}.lens-student-added{margin:1.25rem 0;padding:1rem;border:1px solid var(--line);border-radius:10px}.lens-student-added label{display:block;font-weight:650;margin:.3rem 0}.lens-student-added input{font:inherit;padding:.65rem;width:100%;max-width:520px;border:1px solid #8aa596;border-radius:8px}.lens-student-added button{margin:.5rem 0}.lens-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:.65rem}.lens-choice input:focus-visible,.lens-all summary:focus-visible{outline:3px solid #bd8e42;outline-offset:3px}a.secondary{display:inline-block;text-decoration:none}a.secondary:hover{text-decoration:underline}\n</style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
+
+@media (prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}\n.lens-choice-wrap{border:1px solid #cbd9cc;border-radius:12px;padding:.6rem;background:#fffefa}.lens-choice-wrap .lens-choice{border:0;padding:.35rem;display:block}.lens-choice-wrap .lens-choice p{margin:.35rem 0}.lens-choice-wrap .lens-skip{margin:.4rem}.lens-family{margin:1.2rem 0}.lens-all{margin:1rem 0}.lens-student-added{margin:1.25rem 0;padding:1rem;border:1px solid var(--line);border-radius:10px}.lens-student-added label{display:block;font-weight:650;margin:.3rem 0}.lens-student-added input{font:inherit;padding:.65rem;width:100%;max-width:520px;border:1px solid #8aa596;border-radius:8px}.lens-student-added button{margin:.5rem 0}.lens-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:.65rem}.lens-choice input:focus-visible,.lens-all summary:focus-visible{outline:3px solid #bd8e42;outline-offset:3px}a.secondary{display:inline-block;text-decoration:none}a.secondary:hover{text-decoration:underline}
+</style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>My Living Field Notebook · ENG 112 classroom preview</p></header>
 <main class="shell" id="main-content" tabindex="-1">
 <p class="intro">Your experiences lead. Follow a question into research, gather voices, and write an essay that remains yours.</p>
@@ -973,11 +975,11 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
   }
   function buildTransitions(){
     for(const [id] of STEPS){const section=byId('page-'+id);if(!section||section.querySelector('.transition-guide'))continue;
-      const info=NEXT[id];const guide=el('aside','transition-guide');guide.setAttribute('aria-label','Suggested next step');
+      const info=NEXT[id];if(!info)continue;const guide=el('aside','transition-guide');guide.setAttribute('aria-label','Suggested next step');
       guide.append(el('div','transition-step','One possible next move'),el('h3','',info.title),el('p','',info.body));
       const buttons=el('div','actions');const primary=el('button','primary',info.action);primary.type='button';listening(primary,'click',()=>tab(info.next));buttons.append(primary);
       if(id==='begin'){const discover=el('button','secondary','First, notice words in my freewrite');discover.type='button';listening(discover,'click',()=>{byId('discover-threads')?.click();byId('thread-clearing')?.scrollIntoView({block:'start',behavior:'smooth'});});buttons.insertBefore(discover,primary);}
-      guide.append(buttons);section.append(guide);
+      if(id!=='begin'){const previous=STEPS.findIndex(pair=>pair[0]===id)-1;const back=el('button','secondary','Return to earlier work');back.type='button';listening(back,'click',()=>tab(STEPS[Math.max(0,previous)][0]));buttons.append(back);}guide.append(buttons);const context=el('p','hint');context.id='path-context-'+id;context.setAttribute('aria-live','polite');guide.append(context);section.append(guide);
     }
   }
 
@@ -1113,16 +1115,28 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
     list.slice(0,6).forEach(n=>{const card=el('div','synthesis-evidence'),b=lookupSource(n.sourceId);card.append(el('strong','',(b?.title||'Source')+' · '+(n.locator||'location missing')),el('q','',n.excerpt||''));if(n.authorIdea)card.append(el('p','', 'In my own words: '+n.authorIdea));if(n.connection)card.append(el('p','', 'My response: '+n.connection));host.append(card);});
     if(list.length>6)host.append(el('p','hint','+'+(list.length-6)+' more entries in the Reading Journal and your exported portfolio.'));
   }
+  function updatePathwayHints(){
+    const hasFreewrite=!!byId('encounter')?.value.trim(),hasLens=!!(state.lenses||[]).length,hasIdea=!!(state.followed||[]).length,hasSearch=!!(state.savedSearches||[]).length,hasSource=savedIds().length>0,hasEvidence=notes().length>0;
+    const lines={
+      begin:hasFreewrite?'Your words are here. Explore possible threads when ready, or continue freewriting. Remember to download a backup.':'Start with a memory or encounter; there is no required word count before you can explore.',
+      explore:(hasLens||hasIdea)?'You have chosen a possible direction. Carry it into a search, compare another perspective, or return to your original encounter.':'Nothing is decided for you. Explore a few lenses, add your own, or go straight to a research search.',
+      search:hasSearch?'You have saved a search direction. Open a PCC database and examine actual results; revise your terms as you learn.':'Choose two ideas, try a search, and revise the terms based on what you find.',
+      read:hasSource?'At least one source is on your shelf. Open and read it before recording its evidence, or explore another source.':'Choose a relevant source and open the actual text, catalog record, or video before saving it.',
+      journal:hasEvidence?'You have recorded evidence. Compare another voice, return to your thesis, or continue reading.':'Choose a source you have read and bring back a passage, page number or timestamp, and your own response.',
+      return:hasEvidence?'Your earlier words and source evidence can now converse. Compare what you believed with what changed.':'You may draft a thesis now, or return to reading for evidence that complicates your question.'
+    };
+    for(const [id,message] of Object.entries(lines)){const node=byId('path-context-'+id);if(node&&node.textContent!==message)node.textContent=message;}
+  }
   function updateJourney(){const done=stages(),now=currentStep();document.querySelectorAll('.journey-step').forEach((button,i)=>{
       if(button.dataset.step===now)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');
       const label=button.querySelector('.step-status');if(label)label.textContent=done[i]?'Something saved here':'Available whenever you need it';
-    });updateSecondVoice();updateSourceProgress();if(now==='return')updateSynthesis();if(now==='explore')updateLensSummary();
+    });updateSecondVoice();updateSourceProgress();updatePathwayHints();if(now==='return')updateSynthesis();if(now==='explore')updateLensSummary();
   }
   function addRewildingMemory(){if(typeof MEDIA==='undefined'||MEDIA.some(m=>m.id==='m-rewilding-memory'))return;
     MEDIA.push({id:'m-rewilding-memory',title:'Rewilding Memory',author:'Anna Reading',kind:'article',year:'2022',url:'https://doi.org/10.1017/mem.2022.2',tags:['autism','neurodiversity','animism','memory','ecocriticism','more-than-human','place','perception','material ecocriticism','phenomenology'],about:'Open-access research article examining selected autistic life writing and art to consider how memory may be made with landscapes, objects, and material environments. The author explicitly cautions against generalizing to all autistic people.',reason:'What if memory is formed with a place, object, or living being, rather than merely being about it?',access:'Open access, Creative Commons Attribution. Memory, Mind & Media 1 (2022), e9. DOI: 10.1017/mem.2022.2. Verify quotations and page numbers in the article.'});
   }
   function wrapRenders(){
-    const originalTab=tab;tab=function(name){originalTab(name);updateJourney();};
+    const originalTab=tab;tab=function(name){originalTab(name);updateJourney();const panel=byId('page-'+name);if(panel){panel.setAttribute('tabindex','-1');try{panel.focus({preventScroll:true});}catch(e){panel.focus();}}};
     const originalJournal=renderReadingJournal;renderReadingJournal=function(){originalJournal();updateSourceProgress();updateSecondVoice();};
     const originalEvidence=renderEvidence;renderEvidence=function(){originalEvidence();updateSourceProgress();updateSecondVoice();};
     const originalRestore=importBackup;importBackup=function(file){originalRestore(file);};
