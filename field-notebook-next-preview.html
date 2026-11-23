@@ -260,7 +260,8 @@
 @media(max-width:600px){.field-feedback-nudge{right:.5rem;bottom:.5rem;width:calc(100vw - 1rem)}}
 @media print{.field-feedback-panel,.field-feedback-nudge{display:none!important}}
 
-@media (prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}\n.lens-choice-wrap{border:1px solid #cbd9cc;border-radius:12px;padding:.6rem;background:#fffefa}.lens-choice-wrap .lens-choice{border:0;padding:.35rem;display:block}.lens-choice-wrap .lens-choice p{margin:.35rem 0}.lens-choice-wrap .lens-skip{margin:.4rem}.lens-family{margin:1.2rem 0}.lens-all{margin:1rem 0}.lens-student-added{margin:1.25rem 0;padding:1rem;border:1px solid var(--line);border-radius:10px}.lens-student-added label{display:block;font-weight:650;margin:.3rem 0}.lens-student-added input{font:inherit;padding:.65rem;width:100%;max-width:520px;border:1px solid #8aa596;border-radius:8px}.lens-student-added button{margin:.5rem 0}.lens-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:.65rem}.lens-choice input:focus-visible,.lens-all summary:focus-visible{outline:3px solid #bd8e42;outline-offset:3px}a.secondary{display:inline-block;text-decoration:none}a.secondary:hover{text-decoration:underline}
+@media (prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}}
+.lens-choice-wrap{border:1px solid #cbd9cc;border-radius:12px;padding:.6rem;background:#fffefa}.lens-choice-wrap .lens-choice{border:0;padding:.35rem;display:block}.lens-choice-wrap .lens-choice p{margin:.35rem 0}.lens-choice-wrap .lens-skip{margin:.4rem}.lens-family{margin:1.2rem 0}.lens-all{margin:1rem 0}.lens-student-added{margin:1.25rem 0;padding:1rem;border:1px solid var(--line);border-radius:10px}.lens-student-added label{display:block;font-weight:650;margin:.3rem 0}.lens-student-added input{font:inherit;padding:.65rem;width:100%;max-width:520px;border:1px solid #8aa596;border-radius:8px}.lens-student-added button{margin:.5rem 0}.lens-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:.65rem}.lens-choice input:focus-visible,.lens-all summary:focus-visible{outline:3px solid #bd8e42;outline-offset:3px}a.secondary{display:inline-block;text-decoration:none}a.secondary:hover{text-decoration:underline}
 
 /* v3.6: one clear entry, optional help, then the full research workspace */
 #field-welcome[hidden],#field-workspace[hidden]{display:none!important}
@@ -356,7 +357,8 @@
 <div class="field-workspace-shortcuts no-print" role="group" aria-label="Bring your earlier research into the notebook">
   <button type="button" class="secondary" id="field-workspace-import" aria-describedby="field-workspace-shortcuts-help">Import earlier notebook backup (.json)</button>
   <button type="button" class="secondary" id="field-workspace-jstor" aria-describedby="field-workspace-shortcuts-help">Add a JSTOR PDF</button>
-  <p class="hint" id="field-workspace-shortcuts-help">A notebook backup transfers writing and notes; a JSTOR PDF is added separately. Both stay on this device. Importing replaces the current test notebook, so back it up first.</p>
+  <button type="button" class="textbutton" id="field-workspace-help">Welcome &amp; help</button>
+  <p class="hint" id="field-workspace-shortcuts-help">A notebook backup transfers writing and notes, not PDF files. To move a JSTOR article from earlier work, select its PDF again from Files on this device. Importing a backup replaces current test work, so back it up first.</p>
 </div>
 
 
@@ -1517,6 +1519,13 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
     if(!confirm('Importing a backup replaces the work in this test notebook. Download a backup of this notebook first if you need it. Continue?')){return;}
     document.getElementById('import-file')?.click();
   }
+  document.getElementById('field-workspace-help')?.addEventListener('click',()=>{
+    workspace.hidden=true;welcome.hidden=false;
+    try{sessionStorage.removeItem(gate);}catch(error){}
+    const startButton=document.getElementById('field-welcome-start');
+    startButton?.focus({preventScroll:true});
+    welcome.scrollIntoView({block:'start',behavior:'auto'});
+  });
   document.getElementById('field-workspace-import')?.addEventListener('click',importBackup);
   document.getElementById('field-workspace-jstor')?.addEventListener('click',()=>{
     if(typeof tab==='function')tab('journal');
