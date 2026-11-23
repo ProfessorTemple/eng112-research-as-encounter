@@ -200,7 +200,18 @@ function init(){
  q.addEventListener("input",()=>{shown=EXTENDED_WINDOW;renderCatalog();});
  ck.addEventListener("change",()=>{shown=EXTENDED_WINDOW;renderCatalog();});
  get("field-catalog-more").addEventListener("click",()=>{shown+=EXTENDED_WINDOW;renderCatalog();});
- window.addEventListener("field:tabchange",event=>{const name=event.detail?.name;if(PAGES[name]){renderNav(name);if(!get("field-thread-detail").hidden)trail();}});
+ window.addEventListener("field:tabchange",event=>{
+  const name=event.detail?.name;
+  if(!PAGES[name])return;
+  renderNav(name);
+  if(!get("field-thread-detail").hidden)trail();
+  // Keep the visible stage identifiable for keyboard and screen-reader users.
+  window.requestAnimationFrame(()=>{
+    const panel=get("page-"+name);
+    const heading=panel?.querySelector("h2");
+    if(heading){heading.setAttribute("tabindex","-1");heading.focus({preventScroll:true});heading.scrollIntoView({block:"start"});}
+  });
+ });
  window.addEventListener("field:save",()=>{if(activeTab==="begin")renderInvitation(activeTab);if(!get("field-thread-detail").hidden)trail();});
  renderCatalog();
  const last=field().lastTab;
