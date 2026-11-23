@@ -35,7 +35,10 @@
   return {questioning:q,senses:sensory,scene,dialogue,reflection};
  }
  function inspect(state,freewrite){
-  const docs=documents(state,freewrite),evidence=new Map(),selected=(state?.studio?.selectedPhrases||[]).filter(x=>typeof x==='string');
+  const docs=documents(state,freewrite),evidence=new Map(),selected=(Array.isArray(state?.studio?.selectedPhrases)?state.studio.selectedPhrases:[]).filter(x=>typeof x==='string');
+  const themePref=Array.isArray(state?.studentGuidance?.themePreferred)?state.studentGuidance.themePreferred.filter(x=>typeof x==='string'&&x.trim()):[];
+  const themeSkip=Array.isArray(state?.studentGuidance?.themeSetAside)?state.studentGuidance.themeSetAside.filter(x=>typeof x==='string'):[];
+  const skipped=new Set(themeSkip.map(norm));
   for(const d of docs){
    const found=root.FieldStudentLanguage?.extract?.(d.text)||[];
    const unique=new Map();
@@ -53,7 +56,14 @@
     const x=evidence.get(key)||{name:phrase,places:[],chosen:false};
     x.chosen=true;evidence.set(key,x);
   }
-  const themes=[...evidence.values()].sort((a,b)=>(b.places.length*3+(b.chosen?4:0))-(a.places.length*3+(a.chosen?4:0))||a.name.length-b.name.length).slice(0,5);
+  for(const preferred of themePref){
+    const key=norm(preferred);if(key.length<4||key.length>100)continue;
+    const item=evidence.get(key)||{name:preferred,places:[],chosen:false};
+    item.preferred=true;evidence.set(key,item);
+  }
+  const themes=[...evidence.values()].filter(x=>!skipped.has(norm(x.name)))
+    .sort((a,b)=>(b.places.length*3+(b.chosen?4:0)+(b.preferred?7:0))-(a.places.length*3+(a.chosen?4:0)+(a.preferred?7:0))||a.name.length-b.name.length)
+    .slice(0,6);
   const scores={questioning:0,senses:0,scene:0,dialogue:0,reflection:0};
   for(const d of docs){
    const counts=methodsIn(d.text);
@@ -64,7 +74,7 @@
   let moves=METHODS.filter(x=>!setAside.includes(x.id)).map(x=>({...x,score:scores[x.id]+(preferred.includes(x.id)?5:0)})).sort((a,b)=>b.score-a.score);
   const needed={questioning:1,senses:2,scene:1,dialogue:1,reflection:1};
   moves=moves.filter(x=>scores[x.id]>=(needed[x.id]||1)||preferred.includes(x.id)).slice(0,3);
-  return {docs:docs.map(x=>x.place),themes,moves,preferred,setAside,hasLongitudinalData:docs.length>=2};
+  return {docs:docs.map(x=>x.place),themes,moves,preferred,setAside,themePref,themeSkip,hasLongitudinalData:docs.length>=2};
  }
  function render({state,freewrite,persist}){
   const host=$('student-style-content');if(!host)return;
@@ -77,7 +87,7 @@
   }
   const tag=profile.hasLongitudinalData?'Across these notebook spaces: '+profile.docs.join(', '):'Based on the writing currently in your freewrite.';
   host.append(el('p','hint',tag));
-  const selected=profile.themes.filter(t=>t.chosen).slice(0,3);
+  const selected=profile.themes.filter(t=>t.chosen||t.preferred).slice(0,3);
   const repeated=profile.themes.filter(t=>t.places.length>=2).slice(0,3);
   const themes=selected.length?selected:repeated.length?repeated:profile.themes.slice(0,3);
   if(themes.length){
@@ -85,7 +95,12 @@
    const list=el('ul','student-pattern-list');
    for(const t of themes){
     const why=t.chosen?'You selected these words.':t.places.length>=2?'Appears in '+t.places.length+' different writing spaces.':'Appears in your '+(t.places[0]||'current writing')+'.';
-    const item=el('li');item.append(el('strong','',t.name+' · '),document.createTextNode(why));list.append(item);
+    const item=el('li');item.append(el('strong','',t.name+' · '),document.createTextNode(why));
+    const choices=el('div','student-pattern-theme-actions');
+    const liked=el('button','secondary',t.preferred?'✓ Theme saved':'Keep this theme');
+    liked.type='button';liked.disabled=!!t.preferred;liked.addEventListener('click',()=>changeTheme(t.name,true));
+    const skip=el('button','secondary','Not my theme');skip.type='button';skip.addEventListener('click',()=>changeTheme(t.name,false));
+    choices.append(liked,skip);item.append(choices);list.append(item);
    }
    host.append(list);
   }
@@ -105,9 +120,20 @@
   host.append(msg);
   const clear=el('button','secondary','Reset only my guidance preferences');clear.type='button';
   clear.addEventListener('click',()=>{
-    state.studentGuidance={preferred:[],setAside:[]};persist();render({state,freewrite,persist});
+    state.studentGuidance={preferred:[],setAside:[],themePreferred:[],themeSetAside:[]};persist();render({state,freewrite,persist});
   });
   host.append(clear);
+  function changeTheme(theme,liked){
+    const text=String(theme||'').trim().slice(0,100),key=norm(text);
+    if(!key)return;
+    const p=state.studentGuidance&&typeof state.studentGuidance==='object'?state.studentGuidance:{};
+    const likes=Array.isArray(p.themePreferred)?p.themePreferred.filter(x=>typeof x==='string'&&norm(x)!==key):[];
+    const skips=Array.isArray(p.themeSetAside)?p.themeSetAside.filter(x=>typeof x==='string'&&norm(x)!==key):[];
+    if(liked)likes.push(text);else skips.push(text);
+    p.themePreferred=likes.slice(-30);p.themeSetAside=skips.slice(-50);
+    state.studentGuidance=p;
+    persist();render({state,freewrite,persist});
+  }
   function changePreference(id,liked){
    const p=state.studentGuidance&&typeof state.studentGuidance==='object'?state.studentGuidance:{};
    p.preferred=Array.isArray(p.preferred)?p.preferred.filter(x=>x!==id):[];
