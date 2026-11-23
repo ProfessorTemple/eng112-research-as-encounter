@@ -1,0 +1,61 @@
+/* Living Field Notebook v1 · presentation-only layer on the original ENG 112 app */
+.field-notebook-compass{margin:1.25rem 0;background:#fbfcf7;border:1px solid #b9ccb9;border-radius:16px;padding:clamp(.9rem,2.8vw,1.4rem);box-shadow:0 2px 14px rgba(20,62,42,.07);color:#223b2d}
+.field-notebook-compass .field-eyebrow,.field-notebook-compass .field-mini{font-size:.74rem;letter-spacing:.055em;text-transform:uppercase;font-weight:750;color:#43634b;margin:0}
+.field-notebook-compass .field-intro h2{font:500 clamp(1.45rem,3.3vw,1.9rem)/1.3 Georgia,serif;margin:.3rem 0 .45rem}
+.field-notebook-compass .field-intro p:last-child{color:#4a6153;margin:.25rem 0 1rem;max-width:60ch}
+.field-space-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin:.95rem 0}
+.field-space-nav button{display:flex;flex-direction:column;align-items:flex-start;gap:.18rem;border:1px solid #c4d6c4;border-radius:12px;padding:.72rem .9rem;background:#f2f6ef;color:#284d35;min-height:104px;text-align:left;cursor:pointer;font:inherit}
+.field-space-nav button strong{font-size:1.05rem;line-height:1.2}
+.field-space-nav button small{font-size:.77rem;color:#516c59;line-height:1.3}
+.field-space-nav button span{color:#477552;font-size:1.22rem}
+.field-space-nav button[aria-pressed="true"]{border:2px solid #32624a;background:#dfece0;padding:calc(.72rem - 1px) calc(.9rem - 1px)}
+.field-space-nav button:hover{background:#e8f1e4}
+.field-notebook-compass button:focus-visible,.field-notebook-compass textarea:focus-visible,.field-extra-sources :is(button,input,summary,a):focus-visible{outline:3px solid #b27d23;outline-offset:3px}
+.field-section-header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:.4rem;margin:1.15rem 0 .65rem}
+.field-section-header h3{font:500 1.2rem Georgia,serif;margin:.25rem 0}
+.field-section-header p{max-width:300px;line-height:1.4}
+.field-subnav{display:flex;gap:.4rem;flex-wrap:wrap}
+.field-subnav button{border:1px solid #adc4b2;border-radius:25px;background:white;color:#245440;padding:.45rem .75rem;font-size:.85rem;font-weight:700;cursor:pointer}
+.field-subnav button[aria-current="page"]{background:#245d46;color:white;border-color:#245d46}
+.field-thread{border:1px solid #d4e0d1;background:#f3f7f1;border-radius:12px;padding:.7rem .85rem;margin-top:1rem}
+.field-thread-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.field-thread-heading h3{margin:.1rem 0;font:500 1.1rem Georgia,serif}
+.field-thread-toggle{font:inherit;font-weight:700;font-size:.8rem;color:#245c43;border:1px solid #aac6b0;padding:.43rem .7rem;border-radius:8px;background:white;white-space:nowrap}
+.field-thread-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem .8rem;margin-top:.95rem}
+.field-trail-item{border-left:3px solid #9bb79e;background:white;border-radius:4px;padding:.48rem .65rem;min-width:0}
+.field-trail-item strong{display:block;font-size:.78rem;color:#3c6452}
+.field-trail-item p{font-size:.83rem;margin:.2rem 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#405749;line-height:1.4}
+.field-trail-item button{border:0;background:none;text-decoration:underline;color:#285a45;font-size:.75rem;padding:.1rem 0;cursor:pointer}
+.field-discovery{margin-top:1rem;border-top:1px solid #bfcfbd;padding-top:.9rem}
+.field-discovery label{display:block;font-size:.91rem;font-weight:800}
+.field-discovery label span{font-weight:400;color:#627265}
+.field-discovery textarea{display:block;box-sizing:border-box;width:100%;max-width:100%;border-radius:8px;border:1px solid #9db6a2;font:inherit;padding:.65rem;background:white;color:#233b2b;min-height:72px}
+.field-actions{display:flex;align-items:center;flex-wrap:wrap;gap:.6rem;margin:.5rem 0}
+.field-secondary{font:inherit;font-weight:700;border-radius:7px;border:1px solid #386b51;background:#fff;color:#24583d;padding:.46rem .65rem;cursor:pointer}
+.field-discovery-list{display:grid;gap:.5rem;margin-top:.6rem}
+.field-discovery-entry{border-left:3px solid #beac79;background:#fff;padding:.45rem .65rem}
+.field-discovery-entry time{font-size:.76rem;color:#5d6d62}
+.field-discovery-entry p{white-space:pre-wrap;overflow-wrap:anywhere;margin:.25rem 0;font-size:.86rem}
+.field-invitation{background:#eaf2e6;border-radius:10px;border:1px solid #cadfcd;padding:.85rem 1rem;margin:1rem 0 0;display:flex;gap:.45rem;flex-direction:column;align-items:flex-start}
+.field-invitation p{margin:.15rem 0 .2rem;font-size:.93rem}
+.field-invitation button{font:inherit;font-weight:800;padding:.52rem .82rem;border:0;border-radius:8px;color:#fff;background:#275f48;cursor:pointer}
+.field-invitation-alt{font-size:.77rem;color:#4c6955}
+.field-privacy{font-size:.76rem;color:#556b58;margin:.8rem 0 0;line-height:1.4}
+.field-original-nav,.self-guide,.ws-mobile-jumps{display:none!important}
+.field-extra-sources{margin:1.3rem 0;border:1px solid #b8cfbc;border-radius:12px;background:#f6faf5;padding:.9rem}
+.field-extra-sources summary{font-weight:760;color:#24563c;cursor:pointer}
+.field-extra-sources summary span{font-weight:400;color:#66816a}
+.field-extra-sources p{font-size:.91rem;color:#4d6053}
+.field-extended-controls{display:grid;gap:.3rem;margin:1rem 0}
+.field-extended-controls>label:first-child{font-weight:700}
+.field-extended-controls input[type=search]{font:inherit;box-sizing:border-box;width:100%;max-width:100%;border:1px solid #9db6a2;padding:.62rem;border-radius:8px;background:white;color:#233b2b}
+.field-extended-controls .field-inline-checkbox{display:flex;gap:.4rem;align-items:center;font-size:.82rem;margin:.45rem 0}
+.field-catalog-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.field-catalog-card{border:1px solid #ccdccc;background:white;border-radius:9px;padding:.8rem;min-width:0}
+.field-catalog-card strong{display:block;font:600 1.02rem/1.3 Georgia,serif;overflow-wrap:anywhere}
+.field-catalog-card p{font-size:.81rem;margin:.32rem 0}
+.field-catalog-card .field-meta{color:#637869;font-size:.75rem}
+.field-catalog-card .field-actions button{font-size:.78rem}
+.field-catalog-status{font-size:.81rem;color:#42674e}
+@media(max-width:690px){.field-space-nav button{padding:.65rem .55rem;min-height:108px}.field-space-nav button[aria-pressed="true"]{padding:calc(.65rem - 1px) calc(.55rem - 1px)}.field-space-nav button strong{font-size:.91rem}.field-space-nav button small{font-size:.67rem}.field-thread-grid,.field-catalog-results{grid-template-columns:1fr}.field-notebook-compass{padding:.85rem}}
+@media(prefers-reduced-motion:reduce){.field-notebook-compass *{scroll-behavior:auto!important}}
