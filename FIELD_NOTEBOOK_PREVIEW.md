@@ -43,3 +43,8 @@ The GitHub source and JavaScript have been inspected and basic static / simulate
 
 ## Release discipline
 Do not replace `index.html` or change existing student-facing source links until a brief student usability pilot confirms the new hierarchy is easier to understand. If migrating the preview to production later, plan an explicit storage migration / compatibility path so existing student notebooks are not lost.
+
+## Save, Share, Return controls (November 22 accessibility-aware update)
+The persistent notebook bar now offers **Save backup** (full project JSON), **Share journey** (opt-in student-selected report), and **Return** (previous notebook page). The share report offers native selection controls, preview, editable Word (.docx), semantic standalone HTML, and browser Print/Save as PDF. No direct sharing or submission is performed. Sources, thesis versions, dated discoveries, and draft snapshots can be included selectively; freewriting and all essay content default to excluded. Reports explicitly warn that dates/versions are not independent proof of authorship.
+
+The accessibility QA record is in [FIELD_NOTEBOOK_ACCESSIBILITY_QA.md](FIELD_NOTEBOOK_ACCESSIBILITY_QA.md). WCAG 2.1 AA is the applicable ADA Title II technical benchmark for public entities, and WCAG 2.2 AA was used for additional design choices. The code and mock interaction tests passed; **live Safari, VoiceOver, zoom/reflow, and exported PDF/Word accessibility validation are still required** before any compliance claim or required classroom deployment.
