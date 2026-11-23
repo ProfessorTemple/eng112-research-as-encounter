@@ -225,11 +225,21 @@
 @media(max-width:700px){.thesis-compare-columns{grid-template-columns:1fr}}
 @media print{.field-whats-new,.thesis-comparison .actions{display:none!important}}
 </style>
-</head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
+<style>
+.jstor-guide{margin:1.2rem 0;padding:1rem;background:#f4f8f1;border:1px solid #b6c9b6;border-radius:14px}
+.jstor-guide h3{margin:0 0 .5rem;font-family:Georgia,serif;font-size:1.3rem}
+.jstor-guide h4{margin:.3rem 0}
+.jstor-guide details{background:white}
+.jstor-guide ol{padding-left:1.5rem}
+.jstor-guide li{margin:.4rem 0}
+.jstor-upload{margin-top:1rem}
+.jstor-upload .field{margin-top:.65rem}
+.jstor-upload .result{margin-top:.5rem}
+</style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>My Living Field Notebook · ENG 112 classroom preview</p></header>
 <main class="shell" id="main-content" tabindex="-1">
 <p class="intro">Your experiences lead. Follow a question into research, gather voices, and write an essay that remains yours.</p>
-<details class="ws-tips ws-intro-more"><summary>How does this work? (Optional, one-minute guide)</summary><p>No need to finish eight steps or work in order. Choose where you are today. Each space offers a possible next move, and you can go backward or jump ahead at any time. The program offers questions, not answers or written paragraphs. Your work is yours and is never submitted automatically. It saves in <strong>this browser only</strong>; download both an editable Word file and a full project backup regularly, especially before changing devices.</p></details>
+<details class="ws-tips ws-intro-more"><summary>How does this work? (Optional, one-minute guide)</summary><p>No need to finish eight steps or work in order. Choose where you are today. Each space offers a possible next move, and you can go backward or jump ahead at any time. The program offers questions, not answers or written paragraphs. Your work is yours and is never submitted automatically. In <strong>Research</strong>, you can find scholarly articles, save JSTOR PDFs to a private shelf on this device, and record what you learn in the Reading Journal. Your notebook saves in <strong>this browser only</strong>; download an editable Word file and full project backup regularly. Keep your downloaded article PDFs separately because the notebook backup does not include them, especially before changing devices.</p></details>
 <div id="field-quick-actions" class="field-quick-actions no-print" role="group" aria-label="Notebook saving and sharing actions">
   <button type="button" id="field-quick-save" aria-describedby="field-actions-note">Save backup</button>
   <button type="button" id="field-quick-share" aria-expanded="false" aria-controls="field-share-panel">Share journey</button>
@@ -416,6 +426,27 @@
 <section class="panel hidden" id="page-journal" role="tabpanel" aria-labelledby="tab-journal">
 <h2>The Reading Journal</h2><p>Finding a source begins the conversation. Now <strong>read, watch, or listen</strong> and return with specific evidence. Save a passage, scene, or idea, then ask how it meets, challenges, or changes your own experience.</p>
 <div class="info"><strong>A note about citations:</strong> For books, record page numbers and edition where relevant. For films and videos, record a timestamp such as <code>00:24:30</code>. For web essays, record a section or paragraph if there are no pages. Quote only words you have verified in the source. A scene description is not a quotation.</div>
+<section class="jstor-guide" aria-labelledby="jstor-heading">
+<h3 id="jstor-heading">JSTOR articles · From finding to reading</h3>
+<p><strong>What is this for?</strong> JSTOR helps you find scholarly conversations that might illuminate, challenge, or complicate a question growing from your experience. An article is not proof that your original idea was right. It is another voice to encounter.</p>
+<details><summary>How do I save a JSTOR article? (Optional, one-minute guide)</summary>
+<ol>
+<li>Open <a href="https://www.jstor.org/" target="_blank" rel="noopener noreferrer">JSTOR</a>, preferably through PCC Library access if prompted to sign in. Search with words from your keyword bank.</li>
+<li>Read the article's abstract, and if it seems useful, choose <strong>Download PDF</strong> where JSTOR makes that available. Save the PDF to a course folder on your computer or cloud drive. If downloading is unavailable, keep its stable link and citation details.</li>
+<li>You can optionally add the PDF to the private shelf below. This saves a copy <strong>inside this browser on this device</strong>, not to Moodle, Canvas, your instructor, or a server.</li>
+<li>In the Reading Journal, choose <strong>Add a book, article, interview, video, or other source I found</strong>. Enter the article's bibliographic details, then record a verified passage with a page number and your own response.</li>
+<li>Keep the original PDF separately. Your notebook's full JSON backup includes research notes, <strong>not the PDFs</strong>, so save both before changing devices.</li>
+</ol>
+</details>
+<div class="jstor-upload">
+<h4>My article PDF shelf (optional)</h4>
+<p class="hint">Store a JSTOR PDF you have already downloaded from JSTOR or your library. Maximum 20 MB per PDF. Files stay on this device, are not transmitted, and are not included in notebook backup downloads.</p>
+<div class="two"><div class="field"><label for="jstor-title">Article title</label><input id="jstor-title" autocomplete="off" placeholder="Exact article title"></div>
+<div class="field"><label for="jstor-url">Stable JSTOR link (optional)</label><input id="jstor-url" type="url" placeholder="https://www.jstor.org/stable/..."></div></div>
+<div class="field"><label for="jstor-pdf">Choose a PDF from your device</label><input type="file" id="jstor-pdf" accept=".pdf,application/pdf"><p class="hint">PDF only. Avoid storing personal or sensitive material on shared computers.</p></div>
+<div class="actions"><button type="button" id="jstor-save-pdf" class="primary">Save PDF on this device</button><button type="button" id="jstor-refresh-pdfs" class="secondary">Refresh my PDF shelf</button></div>
+<p id="jstor-status" role="status" aria-live="polite"></p>
+<div id="jstor-list" class="stack" aria-label="Saved article PDFs"></div></div></section>
 <h3>My saved source shelf</h3><div id="source-shelf" class="stack" aria-live="polite"></div>
 <div class="field"><label for="journal-source">Choose the source you're actually reading or watching</label><select id="journal-source"><option value="">Select a saved source…</option></select></div>
 <div id="journal-source-hint" class="hint">Save a suggested source from the Reading Grove, or add your own below.</div>
@@ -1189,5 +1220,7 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 })();
 </script>
 <script src="./keyword-bank.js?v=20261120-keywords"></script>
-<script src="./thesis-studio.js?v=20261120-living-thesis"></script>\n<script src="./thesis-comparison.js?v=20261123-comparison1"></script>
+<script src="./thesis-studio.js?v=20261120-living-thesis"></script>
+<script src="./thesis-comparison.js?v=20261123-comparison1"></script>
+<script src="./jstor-pdf-shelf.js?v=20261123-jstor1"></script>
 <script src="./field-notebook-preview.js?v=20261122-share2"></script><script src="./field-notebook-sharing.js?v=20261122-share2"></script><script src="./field-notebook-analytics.js?v=20261122-pilot1"></script></body></html>
