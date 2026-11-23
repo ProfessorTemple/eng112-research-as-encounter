@@ -10,7 +10,7 @@
   // Common connectors, time fillers, and generic actions are not useful keyword seeds.
   const FILLER=new Set(("about above across along among behind beside during inside outside toward towards sometimes occasionally usually often always rarely every either neither perhaps likely possibly maybe meanwhile instead however although despite beneath besides nearly quite simply almost approximately" +
    " lived living lives love loved appears appeared seemed seeming happened happens think thinking knew known knowing seen seeing asked told answered mentioned said says wants wanted tries tried using used helps helped reveals revealed comes came comes walked walking looked looking watched watching felt feeling feels was were have has had did does done" +
-   " one two three four five six seven eight nine ten twenty thirty forty fifty hundred thousand several many few little much most less more enough nearly years year minutes days day hours hour").split(/\\s+/));
+   " one two three four five six seven eight nine ten twenty thirty forty fifty hundred thousand several many few little much most less more enough nearly years year minutes days day hours hour").split(/\s+/));
   const clean=s=>String(s||'').trim().replace(/^[\s"'“”‘’—:;,!?]+|[\s"'“”‘’—:;,!?]+$/g,'').replace(/\s+/g,' ').slice(0,110);
   const norm=s=>(' '+String(s||'').toLocaleLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim()+' ');
   function words(source){
