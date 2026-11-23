@@ -41,7 +41,7 @@
 .field-invitation button{font:inherit;font-weight:800;padding:.52rem .82rem;border:0;border-radius:8px;color:#fff;background:#275f48;cursor:pointer}
 .field-invitation-alt{font-size:.77rem;color:#4c6955}
 .field-privacy{font-size:.76rem;color:#556b58;margin:.8rem 0 0;line-height:1.4}
-.field-original-nav,.self-guide,.ws-mobile-jumps{display:none!important}
+.field-notebook-enhanced .field-original-nav,.field-notebook-enhanced .self-guide,.field-notebook-enhanced .ws-mobile-jumps{display:none!important}
 .field-extra-sources{margin:1.3rem 0;border:1px solid #b8cfbc;border-radius:12px;background:#f6faf5;padding:.9rem}
 .field-extra-sources summary{font-weight:760;color:#24563c;cursor:pointer}
 .field-extra-sources summary span{font-weight:400;color:#66816a}
