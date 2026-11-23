@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "status": "structured-library-connected-in-development-only",
   "privacy": "Static library; no student writing or analytics",
   "guidance": "Suggestions must be weighted by relevant signals and student choice, with uncertainty preserved. No student text leaves the device.",
@@ -36,7 +36,13 @@
         "community",
         "justice",
         "access",
-        "flooding"
+        "flooding",
+        "heat",
+        "shade",
+        "trees",
+        "neighborhood",
+        "communities",
+        "environmental inequality"
       ]
     },
     {
@@ -123,7 +129,12 @@
         "22 years",
         "years together",
         "relationship",
-        "live with"
+        "live with",
+        "long relationship",
+        "companionship",
+        "living creature",
+        "shared routines",
+        "human animal bond"
       ]
     },
     {
@@ -192,7 +203,13 @@
         "experience",
         "color",
         "colors",
-        "saw"
+        "saw",
+        "sounds",
+        "lights",
+        "overwhelm",
+        "sensory",
+        "sensing",
+        "sense"
       ]
     },
     {
@@ -211,7 +228,16 @@
         "see",
         "hearing",
         "smell",
-        "sensory world"
+        "sensory world",
+        "sounds",
+        "lights",
+        "sensing",
+        "sensory",
+        "sight",
+        "color vision",
+        "overwhelm",
+        "autistic",
+        "sensory worlds"
       ]
     },
     {
@@ -228,7 +254,10 @@
         "embodied",
         "senses",
         "walking",
-        "gesture"
+        "gesture",
+        "overwhelm",
+        "sensory",
+        "sound"
       ]
     },
     {
@@ -268,7 +297,15 @@
         "witness",
         "assumption",
         "misperception",
-        "unknown"
+        "unknown",
+        "cannot know",
+        "what do i not know",
+        "missed",
+        "never witnessed",
+        "unwitnessed",
+        "uncertain",
+        "uncertainty",
+        "assumptions"
       ]
     },
     {
@@ -319,7 +356,11 @@
         "happy",
         "welfare",
         "vulnerable",
-        "care"
+        "care",
+        "suffered",
+        "hurt",
+        "sick",
+        "flourishing"
       ]
     },
     {
@@ -397,12 +438,17 @@
       "definition": "Questions social assumptions about bodies, ability, and accessibility.",
       "signals": [
         "disability",
-        "access",
-        "body",
         "disabled",
-        "ability",
         "barrier",
-        "normal"
+        "normal",
+        "autistic",
+        "neurodivergent",
+        "sensory overload",
+        "accessibility",
+        "overwhelm",
+        "sensory difference",
+        "public spaces",
+        "designed for"
       ]
     },
     {
@@ -431,9 +477,6 @@
       "signals": [
         "colonial",
         "indigenous",
-        "knowledge",
-        "power",
-        "land",
         "decolonial"
       ]
     },
@@ -452,7 +495,9 @@
         "creek",
         "garden",
         "familiar",
-        "memory"
+        "memory",
+        "grandmother",
+        "sense of home"
       ]
     },
     {
@@ -469,7 +514,9 @@
         "home",
         "map",
         "place",
-        "community"
+        "community",
+        "communities",
+        "park"
       ]
     },
     {
@@ -546,13 +593,12 @@
       "definition": "Asks how different durations and rhythms affect lives and relationships.",
       "signals": [
         "22 years",
-        "years",
         "decades",
-        "time",
         "aging",
         "old",
         "long time",
-        "seasons"
+        "seasons",
+        "lifelong"
       ]
     },
     {
