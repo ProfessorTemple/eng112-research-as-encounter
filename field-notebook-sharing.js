@@ -290,7 +290,9 @@ function init(){
   get("field-action-status").textContent="Returned to the previous notebook page.";
  });
  // Original tab('begin') ran before the preview scripts loaded. Its state is our first history item.
- history=["begin"];get("field-quick-return").disabled=true;
+ const startTab=state.fieldNotebook?.lastTab;
+ history=[["begin","explore","search","read","journal","return","biblio","writing"].includes(startTab)?startTab:"begin"];
+ get("field-quick-return").disabled=true;
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
