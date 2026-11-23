@@ -211,7 +211,21 @@
 .thesis-source-notice{font-size:.85rem;color:#425b4b}
 .thesis-status{min-height:1.2em;font-size:.9rem;color:#245d4c}
 @media(max-width:720px){.thesis-stages{grid-template-columns:1fr}.living-thesis{padding:.8rem}}
-</style><link rel="stylesheet" href="./field-notebook-preview.css?v=20261122-share2"><script defer src="../eng112-research-connections-library/data/sources.js"></script></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
+</style><link rel="stylesheet" href="./field-notebook-preview.css?v=20261122-share2"><script defer src="../eng112-research-connections-library/data/sources.js"></script><style>
+.field-whats-new{margin:.85rem 0 1rem;background:#f0f5ed;border:1px solid #afc9b6;border-radius:12px;padding:.7rem 1rem}
+.field-whats-new summary{font-weight:700;color:#235747}
+.thesis-comparison{border:1px solid #b6c9b6;border-radius:14px;padding:1rem;margin:1.3rem 0;background:#f8faf4}
+.thesis-comparison h4{font-family:Georgia,serif;font-size:1.24rem;font-weight:500;margin:.25rem 0}
+.thesis-comparison select{width:100%;padding:.55rem;border:1px solid #9cb2a4;border-radius:8px;background:#fff}
+.thesis-compare-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin:1rem 0}
+.thesis-compare-card{border:1px solid #c5d4c6;background:#fffefa;border-radius:10px;padding:.9rem;min-width:0}
+.thesis-compare-card h5{margin:.8rem 0 .2rem}
+.thesis-compare-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font-size:.93rem}
+.thesis-compare-prompts{padding:.75rem 1rem;background:#eff4eb;border-radius:10px}
+@media(max-width:700px){.thesis-compare-columns{grid-template-columns:1fr}}
+@media print{.field-whats-new,.thesis-comparison .actions{display:none!important}}
+</style>
+</head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>My Living Field Notebook · ENG 112 classroom preview</p></header>
 <main class="shell" id="main-content" tabindex="-1">
 <p class="intro">Your experiences lead. Follow a question into research, gather voices, and write an essay that remains yours.</p>
@@ -270,6 +284,10 @@
    <div id="field-share-report-content"></div>
  </section>
 </section>
+<details id="field-whats-new" class="field-whats-new no-print"><summary>What's new in your notebook? · Thesis Comparison</summary>
+<p>You can now put an earlier saved thesis beside a later version or your current draft. Notice what an encounter, reading, or interview changed. Your original work stays in place, and comparison never replaces your drafts.</p>
+<button type="button" id="field-whats-new-go" class="secondary">Explore Thesis Comparison</button>
+<p class="hint">Your work still saves only in this browser. Download a full project backup before changing devices, clearing browser data, or importing a different project.</p></details>
 <section id="field-notebook-compass" class="field-notebook-compass" aria-labelledby="field-notebook-title">
   <div class="field-intro">
     <p class="field-eyebrow">A continuous notebook, not eight separate assignments</p>
@@ -460,6 +478,19 @@
 <div class="field"><label for="thesis-change">What changed in my understanding, and what caused that change?</label><textarea id="thesis-change" rows="3" placeholder="At first I believed... / After reading or interviewing... / Now I am less certain about..."></textarea></div>
 <div class="actions"><button type="button" id="thesis-save-version" class="primary">Save this stage of my thinking</button><button type="button" id="thesis-copy" class="secondary">Copy my working thesis</button><button type="button" id="thesis-to-bib" class="secondary">Continue to Annotated Bibliography →</button></div>
 <p class="thesis-status" role="status" aria-live="polite" id="thesis-status"></p>
+<section class="thesis-comparison" aria-labelledby="thesis-comparison-title">
+<h4 id="thesis-comparison-title" tabindex="-1">Compare how my thesis has changed</h4>
+<p>Every version is part of your inquiry. Compare two stages without overwriting either one. You decide what changed and why.</p>
+<div class="two">
+<div class="field"><label for="thesis-compare-earlier">An earlier saved stage</label><select id="thesis-compare-earlier"></select></div>
+<div class="field"><label for="thesis-compare-later">A later stage or my current draft</label><select id="thesis-compare-later"></select></div></div>
+<div class="actions"><button type="button" id="thesis-compare-button" class="primary">Compare these stages</button><button type="button" id="thesis-compare-refresh" class="secondary">Refresh version choices</button></div>
+<p id="thesis-compare-empty" class="hint" hidden>Save at least one version of your thesis above to compare it with the current draft.</p>
+<div id="thesis-compare-output" aria-label="Thesis comparison results"></div>
+<div class="field"><label for="thesis-compare-reflection">What do I understand differently now? (optional reflection)</label><textarea id="thesis-compare-reflection" rows="4" placeholder="Earlier I thought… A source, experience, or conversation complicated that belief because… Now my interpretation…"></textarea></div>
+<p class="hint">This reflection saves with your notebook and full JSON backup. You can also share your developing thesis through “Share journey” above. No answer is generated for you.</p>
+<p role="status" aria-live="polite" id="thesis-compare-status"></p>
+</section>
 <h4>My thesis history</h4>
 <p class="hint">Earlier versions are preserved so you can compare your first assumptions with later discoveries. They are not graded automatically.</p>
 <div id="thesis-history" class="thesis-versions"></div>
@@ -1158,5 +1189,5 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 })();
 </script>
 <script src="./keyword-bank.js?v=20261120-keywords"></script>
-<script src="./thesis-studio.js?v=20261120-living-thesis"></script>
+<script src="./thesis-studio.js?v=20261120-living-thesis"></script>\n<script src="./thesis-comparison.js?v=20261123-comparison1"></script>
 <script src="./field-notebook-preview.js?v=20261122-share2"></script><script src="./field-notebook-sharing.js?v=20261122-share2"></script><script src="./field-notebook-analytics.js?v=20261122-pilot1"></script></body></html>
