@@ -181,6 +181,10 @@ function init(){
  });
  get("field-thread-toggle").addEventListener("click",()=>showTrail(get("field-thread-detail").hidden));
  get("field-save-discovery").addEventListener("click",saveDiscovery);
+ get("field-import-backup").addEventListener("click",()=>{
+  if(!confirm("Import an existing Research as Encounter backup into this preview? Existing preview work will be replaced. Download your preview backup first if needed. Your regular Research as Encounter site will not be changed."))return;
+  get("import-json").click();
+ });
  const q=get("field-catalog-query"),ck=get("field-catalog-all");
  q.addEventListener("input",()=>{shown=EXTENDED_WINDOW;renderCatalog();});
  ck.addEventListener("change",()=>{shown=EXTENDED_WINDOW;renderCatalog();});
