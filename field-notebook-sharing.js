@@ -236,6 +236,7 @@ function download(kind){
  const obj=render();if(!obj)return;
  if(kind==="word"){blobSave(makeDocx(obj),fileName(obj,"docx"));notify("Word report downloaded. Open it in Word and run Accessibility Checker before sharing.");}
  if(kind==="html"){blobSave(new Blob([toHTML(obj)],{type:"text/html;charset=utf-8"}),fileName(obj,"html"));notify("Readable HTML report downloaded. It can be opened in a browser or shared as an attachment.");}
+ if(kind==="word"||kind==="html")window.dispatchEvent(new CustomEvent("field:document-exported",{detail:{kind:"share-"+kind}}));
 }
 function printReport(){
  const obj=render();if(!obj)return;
