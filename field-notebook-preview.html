@@ -244,6 +244,21 @@
 .field-jstor-quick{display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap;margin:.8rem 0;padding:.75rem .9rem;background:#f0f5ed;border:1px solid #b6c9b6;border-radius:12px}
 .field-jstor-quick span{flex:1 1 240px;font-size:.91rem}
 @media print{.field-faq,.field-jstor-quick{display:none!important}}
+</style><style>
+.field-feedback-panel{margin:.75rem 0 1.1rem;padding:1rem 1.2rem;border:1px solid #a6c2b2;border-radius:12px;background:#fbfcf6}
+.field-feedback-panel h2{font:500 1.45rem Georgia,serif;margin:0 0 .5rem}
+.field-feedback-choices{border:0;padding:.2rem 0;display:flex;gap:.6rem;flex-wrap:wrap}
+.field-feedback-choices legend{font-weight:700;margin-bottom:.55rem}
+.field-feedback-choices label{display:inline-flex;align-items:center;gap:.4rem;border:1px solid #b9d0bf;padding:.5rem .7rem;border-radius:8px;background:white}
+.field-feedback-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0}
+.field-feedback-comment-details{margin:.7rem 0;padding:.7rem;border:1px solid #c4d1c6;border-radius:10px;background:#fff}
+.field-feedback-comment-details label{display:block;margin:.75rem 0 .25rem;font-weight:600}
+.field-feedback-comment-details textarea{width:100%;box-sizing:border-box;min-height:6rem}
+.field-feedback-nudge{position:fixed;z-index:80;bottom:1rem;right:1rem;width:min(370px,calc(100vw - 2rem));max-height:80vh;overflow:auto;background:#fffefa;border:2px solid #2c6851;border-radius:14px;padding:1rem;box-shadow:0 6px 32px rgba(22,54,35,.24)}
+.field-feedback-nudge p{margin:.35rem 0}
+#field-feedback-panel[hidden],#field-feedback-nudge[hidden]{display:none!important}
+@media(max-width:600px){.field-feedback-nudge{right:.5rem;bottom:.5rem;width:calc(100vw - 1rem)}}
+@media print{.field-feedback-panel,.field-feedback-nudge{display:none!important}}
 </style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>My Living Field Notebook · ENG 112 classroom preview</p></header>
 <main class="shell" id="main-content" tabindex="-1">
@@ -260,16 +275,47 @@
 <details><summary>Must I complete every section in order?</summary><p>No. Discover, Research, and Write are flexible spaces. Follow the path that helps you today, return to an earlier question whenever you need to, and use the Living Thesis Studio to reflect on how your thinking changes.</p></details>
 <details><summary>Can I compare thesis versions without losing a draft?</summary><p>Yes. Save a stage of your thinking in the Living Thesis Studio. Thesis Comparison displays two stages side by side without overwriting either one. Loading an earlier version for editing is a separate action that asks for confirmation.</p></details>
 <details><summary>What if JSTOR does not let me download the PDF?</summary><p>Keep the article's stable link and citation information, and add the source directly in the Reading Journal. Access may depend on the article and your PCC Library sign-in. You can still record notes based on an article you can legitimately read online.</p></details>
+<details><summary>Is my feedback anonymous? Can I skip it?</summary><p>Feedback is optional and does not affect your grade. After exporting a document, the notebook may invite you once to rate it. You can choose Not now, and the invitation will not appear automatically again in this browser. If analytics are allowed, GoatCounter receives only predefined counts of invitations, ratings, and dismissals, never your writing. Optional written comments are not submitted by this notebook: you may copy them and decide whether to share them separately. We do not use the ratings to identify students, though aggregate counts cannot guarantee complete anonymity at the network level.</p></details>
 </div>
 </details>
 <div class="field-jstor-quick no-print" role="group" aria-label="Quick access to JSTOR articles"><span><strong>Working with a JSTOR article?</strong> You can save its PDF in Research and bring evidence into your Reading Journal.</span><button type="button" class="secondary field-jstor-shortcut">Open JSTOR PDF shelf</button></div>
 <div id="field-quick-actions" class="field-quick-actions no-print" role="group" aria-label="Notebook saving and sharing actions">
   <button type="button" id="field-quick-save" aria-describedby="field-actions-note">Save backup</button>
   <button type="button" id="field-quick-share" aria-expanded="false" aria-controls="field-share-panel">Share journey</button>
+  <button type="button" id="field-feedback-open" aria-controls="field-feedback-panel" aria-expanded="false">Rate this notebook</button>
   <button type="button" id="field-quick-return" aria-label="Return to the previous notebook page" disabled>Return</button>
   <span id="field-actions-note" class="field-quick-help">Work saves in this browser; back up to keep a copy.</span>
   <span id="field-action-status" class="field-screen-reader" role="status" aria-live="polite"></span>
 </div>
+<section id="field-feedback-panel" class="field-feedback-panel no-print" aria-labelledby="field-feedback-title" hidden>
+ <h2 id="field-feedback-title" tabindex="-1">Rate your experience</h2>
+ <p>How has My Living Field Notebook worked for you? This is optional, not graded, and separate from your writing.</p>
+ <fieldset class="field-feedback-choices"><legend>Choose one answer</legend>
+  <label><input type="radio" name="field-feedback-rating" value="great"> Works great!</label>
+  <label><input type="radio" name="field-feedback-rating" value="okay"> It's okay.</label>
+  <label><input type="radio" name="field-feedback-rating" value="improve"> Some things could be improved.</label>
+ </fieldset>
+ <div class="field-feedback-actions">
+  <button type="button" id="field-feedback-submit" class="primary">Submit my rating</button>
+  <button type="button" id="field-feedback-dismiss" class="secondary">Not now</button>
+ </div>
+ <details class="field-feedback-comment-details"><summary>Optional written comment</summary>
+  <label for="field-feedback-comment">Anything you would like us to know?</label>
+  <textarea id="field-feedback-comment" rows="3" placeholder="A feature that helped me... / One thing I found difficult..."></textarea>
+  <p class="hint"><strong>Comments are not sent automatically.</strong> Copy yours if you want to share it separately with your instructor. A message you send yourself may identify you.</p>
+  <button type="button" id="field-feedback-copy" class="secondary">Copy my comment</button>
+ </details>
+ <p class="hint">Only a fixed, anonymous count of your rating or dismissal is requested when usage statistics are enabled. No comment, name, essay, source, PDF, or notebook contents are transmitted to GoatCounter. Feedback is voluntary and has no effect on your grade.</p>
+ <p id="field-feedback-status" role="status" aria-live="polite"></p>
+</section>
+<section id="field-feedback-nudge" class="field-feedback-nudge no-print" aria-labelledby="field-feedback-nudge-title" hidden>
+ <strong id="field-feedback-nudge-title">Before you go, how did the notebook work for you?</strong>
+ <p>Your feedback is optional and takes about 10 seconds.</p>
+ <div class="field-feedback-actions">
+  <button type="button" id="field-feedback-nudge-open" class="primary">Rate this notebook</button>
+  <button type="button" id="field-feedback-nudge-dismiss" class="secondary">Not now</button>
+ </div>
+</section>
 <section id="field-share-panel" class="field-share-panel no-print" aria-labelledby="field-share-heading" hidden>
  <div class="field-share-heading">
   <div>
@@ -601,7 +647,7 @@
 <details class="analytics-privacy" id="analytics-privacy">
 <summary>Privacy and optional anonymous usage statistics</summary>
 <p>When enabled, this Field Notebook preview counts approximate visits, which of the three spaces or eight notebook sections are opened, and requests for backup or sharing reports. These are <strong>aggregate counts, not individual student profiles or proof of participation</strong>. This preview does not report individual source titles, device type, typed keywords, or student-selected report contents.</p>
-<p>No student names, writing, notes, interview material, searches, source titles, uploaded files, or document contents are sent to GoatCounter. The provider temporarily processes network details to count visits. It does not store full IP addresses or individual tracking identifiers in its default aggregated statistics. No external analytics JavaScript or analytics cookies are used. You can turn off counts below. Browser Do Not Track and Global Privacy Control are respected.</p>
+<p>Feedback invitations, "Not now" dismissals, and fixed rating choices may also be counted in aggregate. Those are approximate event counts, not confirmed numbers of unique students. No written comments are sent through the rating form. No student names, writing, notes, interview material, searches, source titles, uploaded files, or document contents are sent to GoatCounter. The provider temporarily processes network details to count visits. It does not store full IP addresses or individual tracking identifiers in its default aggregated statistics. No external analytics JavaScript or analytics cookies are used. You can turn off counts below. Browser Do Not Track and Global Privacy Control are respected.</p>
 <label for="analytics-optout"><input id="analytics-optout" type="checkbox"> Turn off anonymous usage counts in this browser</label>
 <p class="analytics-state" role="status" id="analytics-status">Checking anonymous usage settings…</p>
 <p class="analytics-state">Having trouble seeing statistics? <button type="button" id="analytics-test" class="secondary">Check anonymous analytics connection</button> This sends one count-only test event, never your writing.</p>
@@ -1181,6 +1227,7 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
    const header='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr xmlns:w="'+WORD+'"><w:p><w:pPr><w:jc w:val="right"/></w:pPr><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>1</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p></w:hdr>';
    const styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="'+WORD+'"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/><w:sz w:val="24"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:before="0" w:after="0" w:line="480" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:pPr><w:spacing w:before="0" w:after="0" w:line="480" w:lineRule="auto"/></w:pPr></w:style></w:styles>';
    const files=[['[Content_Types].xml',types],['_rels/.rels',rootRels],['docProps/core.xml',coreXml(kind==='essay'?val('ws-essay-title'):'Annotated Bibliography')],['word/document.xml',documentXml(content)],['word/styles.xml',styles],['word/header1.xml',header],['word/_rels/document.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+rels.join('')+'</Relationships>'],...images.map(([name,data])=>[name,data])];const blob=zip(files);saveBlob(blob,kind==='essay'?'ENG112_final_essay_editable.docx':'ENG112_annotated_bibliography_editable.docx');docAlert('Editable Word document downloaded · Open in Word or Apple Pages and verify layout, citations, and figures.');
+   window.dispatchEvent(new CustomEvent("field:document-exported",{detail:{kind:kind==="essay"?"essay":"bibliography"}}));
  }
  function attach(){buildSources();buildVisuals();loadUI();hydrateRichEditor();ids.forEach(id=>{get(id)?.addEventListener('input',saveWS);get(id)?.addEventListener('change',saveWS);});sourceIds.forEach((_,i)=>['ws-source-ref-','ws-source-annotation-','ws-source-db-','ws-source-role-','ws-source-connection-'].forEach(pre=>{const n=get(pre+i);n.addEventListener(n.type==='checkbox'?'change':'input',saveWS);if(n.tagName==='SELECT')n.addEventListener('change',saveWS);}));visualIds.forEach((_,i)=>['ws-visual-title-','ws-visual-note-','ws-visual-after-'].forEach(pre=>get(pre+i)?.addEventListener('input',saveWS)));
    document.querySelectorAll('[data-ws-backup]').forEach(b=>b.addEventListener('click',backup));get('ws-bib-export').addEventListener('click',()=>docx('bibliography'));get('ws-essay-export').addEventListener('click',()=>docx('essay'));get('ws-final-export').addEventListener('click',()=>docx('essay'));get('ws-bold').addEventListener('click',()=>wrapSelection('**'));get('ws-italic').addEventListener('click',()=>wrapSelection('*'));get('ws-preview-toggle').addEventListener('click',()=>{const preview=get('ws-essay-preview'),button=get('ws-preview-toggle');preview.hidden=!preview.hidden;button.setAttribute('aria-pressed',String(!preview.hidden));button.textContent=preview.hidden?'Show formatted preview':'Hide formatted preview';formattedDraft();});get('ws-snapshot').addEventListener('click',snapshot);get('ws-restore-version').addEventListener('click',restoreVersion);get('ws-bib-review-btn').addEventListener('click',reviewBib);get('ws-review-btn').addEventListener('click',reviewEssay);document.querySelectorAll('[data-ws-question]').forEach(b=>b.addEventListener('click',()=>promptFor(b.dataset.wsQuestion)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>tab(b.dataset.go)));
@@ -1246,7 +1293,8 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 <script src="./thesis-studio.js?v=20261120-living-thesis"></script>
 <script src="./thesis-comparison.js?v=20261123-comparison1"></script>
 <script src="./jstor-pdf-shelf.js?v=20261123-jstor1"></script>
-<script src="./field-notebook-preview.js?v=20261122-share2"></script><script src="./field-notebook-sharing.js?v=20261122-share2"></script><script src="./field-notebook-analytics.js?v=20261122-pilot1"></script><script>
+<script src="./field-notebook-preview.js?v=20261122-share2"></script><script src="./field-notebook-sharing.js?v=20261122-share2"></script><script src="./field-notebook-analytics.js?v=20261123-feedback1"></script>
+<script src="./field-notebook-feedback.js?v=20261123-ratings1"></script><script>
 /* FAQ and JSTOR shortcuts only navigate; they never mutate saved student work. */
 (function(){
   function jumpToJstor(){
