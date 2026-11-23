@@ -306,6 +306,16 @@
 .student-concept-chips span{background:white;border:1px solid #9cb8a6;padding:.3rem .55rem;border-radius:8px;font-weight:600}
 @media(max-width:650px){.field-edit-writing-route{align-items:stretch;flex-direction:column}.field-edit-writing-route button{width:100%}}
 
+
+.student-style-companion{margin:.8rem 0 1.3rem;border:1px solid #bccfbd;border-radius:12px;background:#fffefa;padding:.75rem 1rem}
+.student-style-companion summary{font-weight:700;color:#245c47;cursor:pointer}
+.student-style-content{padding:.6rem 0 .2rem}
+.student-style-content h4{font-size:1rem;margin:1rem 0 .4rem}
+.student-pattern-list{padding-left:1.4rem;margin:.5rem 0}
+.student-pattern-card{border:1px solid #d0decf;border-radius:10px;padding:.7rem 1rem;margin:.65rem 0;background:#f7faf4}
+.student-pattern-card p{margin:.45rem 0}
+.student-pattern-card button{min-height:44px}
+
 </style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>My Living Field Notebook · Instructor development preview</p></header>
 <main class="shell" id="main-content" tabindex="-1">
@@ -529,6 +539,10 @@
 <h2>Explore connections</h2>
 <p>Your research begins with <strong>your own words and questions</strong>. You choose which ideas to carry forward. Afterward, the notebook may offer related scholarly language. None of these are proven claims.</p>
 <div id="student-owned-concepts" class="student-owned-concepts" aria-live="polite"></div>
+<details id="student-style-companion" class="student-style-companion">
+  <summary>How my writing themes and questions are developing (optional)</summary>
+  <div id="student-style-content" class="student-style-content" aria-live="polite"></div>
+</details>
 <div id="explore-summary" class="info"></div><div class="notice" style="margin-top:.6rem">These suggestions are inquiry prompts, not research findings. Check them against your own experience and scholarly evidence.</div><details><summary>How does the program find and connect my words?</summary><p>It first scans <strong>your own freewrite</strong> for repeated terms, distinctive phrases, questions, and words that occur near one another. You choose which are meaningful. It then uses a separate instructor-curated vocabulary library to offer <strong>optional scholarly connections</strong>. It does not understand your experience like a person, use live AI, read entire books, or search PCC databases. No suggestion is a research finding. The words you choose remain editable.</p></details><h3>Optional scholarly connections</h3><p class="small">These research concepts are suggested <em>after</em> your own inquiry. Each one explains why it surfaced. You can follow a concept, ignore it, or return to edit your freewrite.</p><div id="connection-list" class="stack" aria-live="polite"></div><h3>Questions shaped by your encounter</h3><p class="small">Three lenses: investigate the encounter, explore a possible connection, and reconsider an assumption. Each question includes a reason.</p><div id="question-list" class="stack"></div>
 <section class="thesis-invitation" aria-labelledby="early-thesis-title">
 <h3 id="early-thesis-title">A first working question, not a final answer</h3>
@@ -838,6 +852,7 @@ function renderExplore(){
    if(chosen.length)host.append(chips);
    host.append(elt('p','hint',chosen.length?'These are the words you chose. You can reconsider them, return to your writing, or explore optional scholarly language below.':'No ideas chosen yet. Return to your freewrite and decide what matters before exploring scholarly terms.'));
  }
+ if(window.FieldWritingPatterns)window.FieldWritingPatterns.render({state,freewrite:$('encounter').value,persist});
  const list=$('connection-list');list.replaceChildren();suggestConcepts().forEach(x=>{let d=elt('div','result');d.appendChild(elt('strong','',x.term));d.appendChild(elt('p','small','Why this appeared: '+x.reason));let a=elt('div','actions');a.appendChild(button('Follow this connection',()=>{if(!state.followed.includes(x.term))state.followed.push(x.term);persist();renderExplore();}));d.appendChild(a);list.appendChild(d);});
  const qs=$('question-list');qs.replaceChildren();questionObjects().forEach(obj=>{let row=elt('div','result');row.appendChild(elt('span','topic',obj.kind));row.appendChild(elt('p','',obj.q));row.appendChild(elt('p','small','Why this appeared: '+obj.why));row.appendChild(button(state.savedQuestions.includes(obj.q)?'✓ Saved question':'Save this question',()=>{saveArray('savedQuestions',obj.q);renderExplore();}));qs.appendChild(row);});
 }
@@ -1527,6 +1542,7 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 })();
 </script>
 <script src="./student-language-next.js?v=student-20261123-v3"></script>
+<script src="./student-patterns-next.js?v=style-20261123-v1"></script>
 <script src="./keyword-bank.js?v=20261120-keywords"></script>
 <script src="./thesis-studio.js?v=20261120-living-thesis"></script>
 <script src="./thesis-comparison.js?v=20261123-comparison1"></script>
