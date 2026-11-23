@@ -1,0 +1,288 @@
+{
+  "version": "0.1.0",
+  "status": "draft-not-wired-into-interface",
+  "privacy": "Static library; no student writing or analytics",
+  "guidance": "Suggest at most 2–4 lenses at once. Explain connections to the student's own questions. Do not infer feelings or claim access to nonhuman experience.",
+  "lenses": [
+    {
+      "id": "ecocriticism",
+      "name": "Ecocriticism",
+      "family": "Ecology and environment",
+      "question": "How does a story portray relationships between people and environments?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "environmental-justice",
+      "name": "Environmental justice",
+      "family": "Ecology and environment",
+      "question": "Who experiences environmental benefits and harms?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "deep-ecology",
+      "name": "Deep ecology",
+      "family": "Ecology and environment",
+      "question": "What changes when nonhuman life has value beyond human usefulness?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "material-ecocriticism",
+      "name": "Material ecocriticism",
+      "family": "Ecology and environment",
+      "question": "How might matter, bodies, and landscapes participate in meaning?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "queer-ecology",
+      "name": "Queer ecology",
+      "family": "Ecology and environment",
+      "question": "Which assumptions about what is natural deserve questioning?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "multispecies-studies",
+      "name": "Multispecies studies",
+      "family": "Multispecies relationships",
+      "question": "How do lives across species shape one another?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "companion-species",
+      "name": "Companion species",
+      "family": "Multispecies relationships",
+      "question": "How does living alongside another species change both partners?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "animal-studies",
+      "name": "Animal studies",
+      "family": "Multispecies relationships",
+      "question": "What assumptions do humans make when interpreting animals?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "ethology",
+      "name": "Ethology",
+      "family": "Multispecies relationships",
+      "question": "What can careful observation reveal about animal behavior?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "indigenous-relational-philosophies",
+      "name": "Indigenous relational philosophies",
+      "family": "Multispecies relationships",
+      "question": "Which specific Indigenous thinkers or traditions describe responsibilities among beings?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "phenomenology",
+      "name": "Phenomenology",
+      "family": "Perception and consciousness",
+      "question": "What is an experience like from within a particular body or perspective?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "sensory-ecology",
+      "name": "Sensory ecology",
+      "family": "Perception and consciousness",
+      "question": "How might another species sense a shared environment differently?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "embodied-cognition",
+      "name": "Embodied cognition",
+      "family": "Perception and consciousness",
+      "question": "How do movement and bodily experience shape understanding?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "animal-cognition",
+      "name": "Animal cognition",
+      "family": "Perception and consciousness",
+      "question": "What evidence helps us ask how nonhuman animals learn and perceive?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "epistemology",
+      "name": "Epistemology",
+      "family": "Perception and consciousness",
+      "question": "What can we know, and what remains beyond our access?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "ethics-of-care",
+      "name": "Ethics of care",
+      "family": "Ethics and responsibility",
+      "question": "What responsibilities grow through ongoing relationships?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "reciprocity",
+      "name": "Reciprocity",
+      "family": "Ethics and responsibility",
+      "question": "What is given, received, or owed within a relationship?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "animal-welfare-ethics",
+      "name": "Animal welfare ethics",
+      "family": "Ethics and responsibility",
+      "question": "How can we recognize suffering or flourishing without assuming?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "relational-ontology",
+      "name": "Relational ontology",
+      "family": "Ethics and responsibility",
+      "question": "What changes when beings are understood through relationships?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "interdependence",
+      "name": "Interdependence",
+      "family": "Ethics and responsibility",
+      "question": "Whose well-being depends on whose actions?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "critical-ethnography",
+      "name": "Critical ethnography",
+      "family": "Culture identity and power",
+      "question": "Whose account is centered and who has power to represent others?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "feminist-theory",
+      "name": "Feminist theory",
+      "family": "Culture identity and power",
+      "question": "How do gender and power shape experience and knowledge?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "disability-studies",
+      "name": "Disability studies",
+      "family": "Culture identity and power",
+      "question": "Which norms about bodies and access are being assumed?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "postcolonial-studies",
+      "name": "Postcolonial studies",
+      "family": "Culture identity and power",
+      "question": "How do colonial histories shape current representations?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "decolonial-thought",
+      "name": "Decolonial thought",
+      "family": "Culture identity and power",
+      "question": "Whose knowledge systems have been marginalized, and by whom?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "place-attachment",
+      "name": "Place attachment",
+      "family": "Place and belonging",
+      "question": "How does a place become meaningful through lived experience?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "cultural-geography",
+      "name": "Cultural geography",
+      "family": "Place and belonging",
+      "question": "How do spaces reflect social relations and identities?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "environmental-history",
+      "name": "Environmental history",
+      "family": "Place and belonging",
+      "question": "How has a landscape changed across generations?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "land-ethics",
+      "name": "Land ethics",
+      "family": "Place and belonging",
+      "question": "What obligations follow from living within a land community?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "bioregionalism",
+      "name": "Bioregionalism",
+      "family": "Place and belonging",
+      "question": "What can local watersheds and ecosystems teach about belonging?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "memory-studies",
+      "name": "Memory studies",
+      "family": "Memory and transformation",
+      "question": "How does remembering reshape an event?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "temporality",
+      "name": "Temporality",
+      "family": "Memory and transformation",
+      "question": "How do different rhythms and timescales intersect?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "grief-studies",
+      "name": "Grief studies",
+      "family": "Memory and transformation",
+      "question": "How does loss change attention and relationships?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "life-writing",
+      "name": "Life writing",
+      "family": "Memory and transformation",
+      "question": "How does telling a personal experience shape its meaning?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "intergenerational-studies",
+      "name": "Intergenerational studies",
+      "family": "Memory and transformation",
+      "question": "What knowledge passes between generations, and what changes?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "hermeneutics",
+      "name": "Hermeneutics",
+      "family": "Language and interpretation",
+      "question": "How do our assumptions influence what we interpret?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "narrative-theory",
+      "name": "Narrative theory",
+      "family": "Language and interpretation",
+      "question": "How does the shape of a story affect what readers notice?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "semiotics",
+      "name": "Semiotics",
+      "family": "Language and interpretation",
+      "question": "How do signs and signals carry meaning across contexts?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "rhetorical-criticism",
+      "name": "Rhetorical criticism",
+      "family": "Language and interpretation",
+      "question": "How does language invite an audience to see differently?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    },
+    {
+      "id": "ecopoetics",
+      "name": "Ecopoetics",
+      "family": "Language and interpretation",
+      "question": "How might language make room for more-than-human presence?",
+      "studentChoice": "Explore, revise, combine, or set aside this lens; it is a possibility, not a diagnosis."
+    }
+  ]
+}
