@@ -109,6 +109,21 @@
 .field-share-panel .field-eyebrow{margin:0}
 .field-share-panel h2,.field-share-report h3,[id^=page-] h2{scroll-margin-top:7rem}
 @media(max-width:700px){.field-quick-actions{gap:.3rem;padding:.45rem}.field-quick-actions button{flex:1 1 auto;padding:.48rem .55rem;font-size:.86rem}.field-quick-help{width:100%;text-align:center}.field-share-heading{flex-direction:column}.field-share-close{align-self:flex-start}.field-share-checkboxes{grid-template-columns:1fr}.field-share-controls button{flex:1 1 100%}}
+/* Phone: free up reading space. Scrolling down tucks the sticky actions
+   above the viewport; scrolling up restores them. Never change desktop layout. */
+@media (max-width:700px){
+ .field-quick-actions{
+  transition:transform .22s ease-out,opacity .22s ease-out;
+ }
+ .field-quick-actions.is-mobile-hidden{
+  transform:translateY(calc(-100% - 1rem));
+  opacity:0;
+  pointer-events:none;
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ .field-quick-actions{transition:none!important}
+}
 @media print{
  .field-quick-actions,.field-share-panel{display:none!important}
  body.field-share-printing{background:white!important;color:black!important}
