@@ -58,6 +58,13 @@
     }
     return [...items.values()].sort((a,b)=>b.score-a.score||a.text.length-b.text.length).slice(0,30);
   }
+  // Only pair substantive words. Possible pairings are questions, not interpretations.
+  const PAIR_SKIP=new Set('times time years year day days appeared appears seem seemed suffered lived placed noticed folded carried baking arrives arrived recedes receded hear heard sees saw see tend taught pass walked walking looking knows knew held put becomes became was were happened happens feel felt'.split(' '));
+  function pairCandidate(term){
+    const word=String(term||'').toLowerCase().trim().replace(/'s$/,'');
+    if(word.length<4||word.includes(' ')||PAIR_SKIP.has(word))return false;
+    return !(/ed$/.test(word)&&!/(seed|weed|thread|bed|field)$/.test(word));
+  }
   function concepts(source,selected){
     const raw=String(source||''),all=extract(raw),picked=Array.isArray(selected)?selected.filter(x=>typeof x==='string'&&x.trim()):[];
     const found=[],seen=new Set();
@@ -72,7 +79,7 @@
     for(const item of all.filter(x=>x.kind==='question').slice(0,2)){
       add(item.text,'This is a question you asked yourself. It can stay open as you research.','question');
     }
-    const keywords=all.filter(x=>x.kind==='keyword').slice(0,18);
+    const keywords=all.filter(x=>x.kind==='keyword'&&pairCandidate(x.text)).slice(0,18);
     // Build connections from co-occurrence, not predefined topic-to-concept mappings.
     const spans=[...(raw.matchAll(/[^.!?\n]+[.!?]?/gu))].map(m=>({text:m[0],start:m.index,end:m.index+m[0].length}));
     const pairs=[];
@@ -106,14 +113,24 @@
         pairs.push({a,b,score,sameSentence});
       }
     }
+    // Long relationships can connect subjects and questions across sentences.
+    const subject=keywords.find(x=>/^\p{Lu}/u.test(x.text));
+    if(subject){
+      for(const other of keywords.filter(x=>x!==subject&&!overlaps(subject,x)).slice(0,7)){
+        const key=[subject.text.toLowerCase(),other.text.toLowerCase()].sort().join(':');
+        if(seenPairs.has(key))continue;
+        pairs.push({a:subject,b:other,score:subject.score+other.score+10,sameSentence:false});
+        seenPairs.add(key);
+      }
+    }
     pairs.sort((a,b)=>b.score-a.score||a.a.text.localeCompare(b.a.text));
     const usedWords=new Map();
     for(const pair of pairs){
       if(found.filter(x=>x.kind==='relationship').length>=2)break;
       // Avoid twelve combinations of the same repeated keyword.
       if((usedWords.get(pair.a.text.toLowerCase())||0)>=2||(usedWords.get(pair.b.text.toLowerCase())||0)>=2)continue;
-      add(pair.a.text+' and '+pair.b.text,
-        'These are words you used '+(pair.sameSentence?'in the same sentence':'near one another')+'. Do they belong together, or is a different connection more useful?','relationship');
+      add(pair.a.text+' + '+pair.b.text+'?',
+        'Both terms come from your freewrite. Is there a useful question between them? A pairing is not evidence of a connection.','relationship');
       usedWords.set(pair.a.text.toLowerCase(),(usedWords.get(pair.a.text.toLowerCase())||0)+1);
       usedWords.set(pair.b.text.toLowerCase(),(usedWords.get(pair.b.text.toLowerCase())||0)+1);
     }
