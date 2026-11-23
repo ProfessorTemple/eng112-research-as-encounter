@@ -14,6 +14,7 @@
   let previousY=Math.max(0,window.scrollY);
   let accumulated=0;
   let scheduled=false;
+  let keyboardNavigating=false;
   function panelOpen(){
     return (!!share&&!share.hidden)||(!!feedback&&!feedback.hidden);
   }
@@ -23,7 +24,7 @@
     bar.removeAttribute("aria-hidden");
   }
   function hide(){
-    if(bar.contains(document.activeElement))return;
+    if(keyboardNavigating&&bar.contains(document.activeElement))return;
     bar.classList.add("is-mobile-hidden");
     bar.inert=true;
     bar.setAttribute("aria-hidden","true");
@@ -33,7 +34,7 @@
     const currentY=Math.max(0,window.scrollY);
     const delta=currentY-previousY;
     previousY=currentY;
-    if(!mobile.matches||currentY<MIN_SCROLL||panelOpen()||bar.contains(document.activeElement)){
+    if(!mobile.matches||currentY<MIN_SCROLL||panelOpen()||(keyboardNavigating&&bar.contains(document.activeElement))){
       accumulated=0;
       show();
       return;
@@ -62,6 +63,10 @@
     if(!mobile.matches)show();
     requestMeasure();
   },{passive:true});
+  document.addEventListener("keydown",event=>{
+    if(["Tab","ArrowUp","ArrowDown","Home","End"].includes(event.key))keyboardNavigating=true;
+  });
+  window.addEventListener("pointerdown",()=>{keyboardNavigating=false;},{passive:true});
   document.addEventListener("focusin",event=>{
     if(bar.contains(event.target))show();
   });
