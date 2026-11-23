@@ -51,6 +51,8 @@
  async function render(){
   try{
    const records=(await all()).sort((a,b)=>b.created.localeCompare(a.created));
+   const welcomeCount=$('jstor-welcome-count');
+   if(welcomeCount)welcomeCount.textContent=records.length+' JSTOR PDF'+(records.length===1?'':'s')+' saved in this browser.';
    list.replaceChildren();
    if(!records.length){const p=document.createElement('p');p.className='hint';p.textContent='No PDFs added yet. Your article notes can still be saved without uploading a file.';list.append(p);return;}
    for(const record of records){
@@ -74,23 +76,38 @@
    }
   }catch(e){say('PDF shelf unavailable: '+e.message);}
  }
- $('jstor-save-pdf').addEventListener('click',async()=>{
-  const pdf=file.files?.[0],name=title.value.trim();
-  if(!pdf){say('Choose a PDF you have downloaded from JSTOR first.');file.focus();return;}
-  if(!name){say('Enter the article title so you can recognize this PDF later.');title.focus();return;}
-  if(pdf.size>MAX){say('This PDF is over 20 MB. Keep it in your files and enter its citation in the Reading Journal instead.');return;}
-  if(!pdf.size){say('The file is empty. Choose a complete PDF.');return;}
-  const signature=new Uint8Array(await pdf.slice(0,5).arrayBuffer());
-  if(String.fromCharCode(...signature)!=='%PDF-'){say('This does not appear to be a PDF. Choose the original JSTOR PDF.');return;}
-  const link=url.value.trim();
-  if(link){try{const u=new URL(link);if(u.protocol!=='https:'&&u.protocol!=='http:')throw Error();}catch(e){say('Use a valid https:// article link or leave the link blank.');url.focus();return;}}
+
+ // The welcome screen and Reading Journal deliberately share one private PDF shelf.
+ // Neither file chooser sends data to a server or changes the notebook's JSON backup.
+ async function savePdfFrom(pdfInput,titleInput,urlInput,messageElement){
+  const announce=message=>{messageElement.textContent=message;};
+  const pdf=pdfInput.files?.[0],name=titleInput.value.trim();
+  if(!pdf){announce('Choose a PDF that you downloaded from JSTOR first.');pdfInput.focus();return;}
+  if(!name){announce('Enter the article title so you can recognize this PDF later.');titleInput.focus();return;}
+  if(pdf.size>MAX){announce('This PDF is over 20 MB. Keep it in Files and add its citation in the Reading Journal.');return;}
+  if(!pdf.size){announce('This file is empty. Please select the complete PDF.');return;}
+  const link=urlInput.value.trim();
+  if(link){try{const u=new URL(link);if(!['https:','http:'].includes(u.protocol))throw Error();}catch(error){announce('Use a valid https:// article link or leave the link blank.');urlInput.focus();return;}}
   try{
+   const signature=new Uint8Array(await pdf.slice(0,5).arrayBuffer());
+   if(String.fromCharCode(...signature)!=='%PDF-'){announce('This is not a valid PDF. Select the downloaded JSTOR article PDF.');return;}
    const id=(globalThis.crypto?.randomUUID?.()||'article-'+Date.now()+'-'+Math.random().toString(36).slice(2));
    await put({id,title:name,url:link,filename:pdf.name,created:new Date().toISOString(),pdf});
-   say('PDF saved in this browser only. Add its citation in the Reading Journal and keep an external PDF backup.');
-   file.value='';title.value='';url.value='';await render();
-  }catch(e){say('PDF was not saved: '+e.message+'. Keep your downloaded PDF and try a smaller file or another browser.');}
- });
+   pdfInput.value='';titleInput.value='';urlInput.value='';
+   await render();
+   announce(messageElement.id==='jstor-welcome-status'?'PDF saved privately in this browser. Choose Start Here, then Research → Reading Journal to find your article and record notes. Keep the original PDF in Files.':'PDF saved privately in this browser. Add its citation in the Reading Journal and keep the original file separately.');
+  }catch(error){announce('PDF could not be saved: '+error.message+'. Keep your original PDF and try again.');}
+ }
+ $('jstor-save-pdf').addEventListener('click',()=>savePdfFrom(file,title,url,status));
+ const welcomeFile=$('jstor-welcome-pdf'),welcomeTitle=$('jstor-welcome-title'),welcomeUrl=$('jstor-welcome-url');
+ const welcomeButton=$('jstor-welcome-save'),welcomeStatus=$('jstor-welcome-status');
+ if(welcomeFile&&welcomeTitle&&welcomeUrl&&welcomeButton&&welcomeStatus){
+  welcomeButton.addEventListener('click',()=>savePdfFrom(welcomeFile,welcomeTitle,welcomeUrl,welcomeStatus));
+  welcomeFile.addEventListener('change',()=>{
+   const chosen=welcomeFile.files?.[0];
+   welcomeStatus.textContent=chosen?'Selected '+chosen.name+'. Add its article title and choose Save PDF on this device.':'No file selected.';
+  });
+ }
  $('jstor-refresh-pdfs')?.addEventListener('click',render);
  render();
 })();
