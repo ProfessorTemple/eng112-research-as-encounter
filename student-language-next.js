@@ -6,7 +6,7 @@
   'use strict';
   const STOP=new Set(("a an and are as at be been being but by can could did do does doing for from had has have having he her hers him his how i if in into is it its itself just me mine my myself nor not of on or our ours out over she should so some than that the their them there these they this those through to too us very was were what when where which while who why will with would you your yours" +
     " after again also always another around before because between called came come coming each ever every first found get gets getting give given going good great here itself know knowing later like little look looked looking made make making many more most much must near never now often once one only other own perhaps quite really said say saying see seeing seemed seems several something still such sure take taken taking tell telling then thing things think thinking thought throughout today together tried trying until used using want wanted way ways well went whenever within without wonder wondered wondering years year").split(/\s+/));
-  const generic=new Set("someone anybody everybody people person experience encounter writing wrote research question questions word words idea ideas remember remembered life time moment felt feeling feel something anything nothing".split(" "));
+  const generic=new Set("someone anybody everybody people person experience encounter writing wrote research question questions word words idea ideas remember remembered life time moment felt feeling feel something anything nothing loved love showed show showing sees seen seeing seemed watching watched wasn't weren't couldn't wouldn't don't didn't had hadn't experienced experience provide provides provided stayed stay stays walk walking walked pass passed small side quite much really strongly does did do asked asking felt feels feeling know knowing think".split(" "));
   const clean=s=>String(s||'').trim().replace(/^[\s"'“”‘’—:;,!?]+|[\s"'“”‘’—:;,!?]+$/g,'').replace(/\s+/g,' ').slice(0,110);
   const norm=s=>(' '+String(s||'').toLocaleLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim()+' ');
   function words(source){
@@ -51,42 +51,61 @@
     return [...items.values()].sort((a,b)=>b.score-a.score||a.text.length-b.text.length).slice(0,30);
   }
   function concepts(source,selected){
-    const raw=String(source||''),extracts=extract(raw),picked=Array.isArray(selected)?selected.filter(x=>typeof x==='string'&&x.trim()):[];
-    const chosen=[],seen=new Set();
+    const raw=String(source||''),all=extract(raw),picked=Array.isArray(selected)?selected.filter(x=>typeof x==='string'&&x.trim()):[];
+    const found=[],seen=new Set();
     function add(term,reason,kind){
       term=clean(term);const key=norm(term);if(!term||seen.has(key)||term.length>105)return;
-      seen.add(key);chosen.push({term,reason,kind:kind||'student'});
+      seen.add(key);found.push({term,reason,kind:kind||'student'});
     }
-    // A student-selected phrase counts more than any automated score.
-    for(const phrase of picked.slice(0,5)){
-      add(phrase,'You selected these exact words from your freewrite. What might they help you investigate?','chosen');
+    // Start with a small number of the exact passages the writer chose.
+    for(const phrase of picked.slice(0,2)){
+      add(phrase,'You selected these words from your own writing. What would you like to learn about them?','chosen');
     }
-    for(const item of extracts.filter(x=>x.kind==='question').slice(0,3)){
-      add(item.text,'You asked this question yourself. It can remain open while you research.','question');
+    for(const item of all.filter(x=>x.kind==='question').slice(0,2)){
+      add(item.text,'This is a question you asked yourself. It can stay open as you research.','question');
     }
-    const singles=extracts.filter(x=>x.kind==='keyword').slice(0,18);
-    const sentences=raw.split(/[.!?\n]+/).filter(x=>x.trim());
+    const keywords=all.filter(x=>x.kind==='keyword').slice(0,18);
+    // Build connections from co-occurrence, not predefined topic-to-concept mappings.
+    const spans=[...(raw.matchAll(/[^.!?\n]+[.!?]?/gu))].map(m=>({text:m[0],start:m.index,end:m.index+m[0].length}));
     const pairs=[];
-    for(const sentence of sentences){
-      const local=singles.filter(x=>norm(sentence).includes(norm(x.text)));
-      for(let i=0;i<local.length;i++)for(let j=i+1;j<local.length;j++){
-        const a=local[i],b=local[j];
-        if(norm(a.text).includes(norm(b.text).trim())||norm(b.text).includes(norm(a.text).trim()))continue;
-        pairs.push({a,b,score:a.score+b.score});
+    function overlaps(a,b){
+      const ak=norm(a.text).trim(),bk=norm(b.text).trim();
+      return ak===bk||ak.includes(bk)||bk.includes(ak)||ak.slice(0,5)===bk.slice(0,5);
+    }
+    const seenPairs=new Set();
+    for(let i=0;i<spans.length;i++){
+      const span=spans[i];if(span.text.trim().length<10)continue;
+      // Adjacent sentences may continue the same encounter. Keep near topics connected.
+      const windowText=span.text+' '+(spans[i+1]?.text||'');
+      const local=keywords.filter(x=>norm(windowText).includes(norm(x.text))).slice(0,12);
+      for(let j=0;j<local.length;j++)for(let k=j+1;k<local.length;k++){
+        const a=local[j],b=local[k];if(overlaps(a,b))continue;
+        const key=[a.text.toLowerCase(),b.text.toLowerCase()].sort().join(':');
+        if(seenPairs.has(key))continue;seenPairs.add(key);
+        const sameSentence=norm(span.text).includes(norm(a.text))&&norm(span.text).includes(norm(b.text));
+        let score=a.score+b.score+(sameSentence?2:0);
+        // Prioritize a relationship to a named being/place over incidental generic words.
+        if(/^\p{Lu}/u.test(a.text)||/^\p{Lu}/u.test(b.text))score+=2;
+        pairs.push({a,b,score,sameSentence});
       }
     }
-    pairs.sort((a,b)=>b.score-a.score);
-    for(const pair of pairs.slice(0,12)){
-      if(chosen.length>=8)break;
+    pairs.sort((a,b)=>b.score-a.score||a.a.text.localeCompare(b.a.text));
+    const usedWords=new Map();
+    for(const pair of pairs){
+      if(found.filter(x=>x.kind==='relationship').length>=4)break;
+      // Avoid twelve combinations of the same repeated keyword.
+      if((usedWords.get(pair.a.text.toLowerCase())||0)>=2||(usedWords.get(pair.b.text.toLowerCase())||0)>=2)continue;
       add(pair.a.text+' and '+pair.b.text,
-        'These words occur in the same sentence of your freewrite. Is there a relationship worth questioning? Neither word proves a connection.','relationship');
+        'These are words you used '+(pair.sameSentence?'in the same sentence':'near one another')+'. Do they belong together, or is a different connection more useful?','relationship');
+      usedWords.set(pair.a.text.toLowerCase(),(usedWords.get(pair.a.text.toLowerCase())||0)+1);
+      usedWords.set(pair.b.text.toLowerCase(),(usedWords.get(pair.b.text.toLowerCase())||0)+1);
     }
-    // Preserve single words when the student does not yet have a second idea.
-    for(const item of singles.slice(0,7)){
-      if(chosen.length>=9)break;
-      add(item.text,'A keyword you used in your freewrite. Consider what it means in your particular encounter.','keyword');
+    for(const item of keywords){
+      if(found.length>=8)break;
+      if(found.some(x=>x.term.includes(item.text)))continue;
+      add(item.text,'A meaningful-looking word from your writing. You decide whether it deserves further attention.','keyword');
     }
-    return chosen.slice(0,9);
+    return found.slice(0,8);
   }
   root.FieldStudentLanguage=Object.freeze({extract,concepts});
 })(window);
