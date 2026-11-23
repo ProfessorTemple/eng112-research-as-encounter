@@ -7,13 +7,17 @@
   const STOP=new Set(("a an and are as at be been being but by can could did do does doing for from had has have having he her hers him his how i if in into is it its itself just me mine my myself nor not of on or our ours out over she should so some than that the their them there these they this those through to too us very was were what when where which while who why will with would you your yours" +
     " after again also always another around before because between called came come coming each ever every first found get gets getting give given going good great here itself know knowing later like little look looked looking made make making many more most much must near never now often once one only other own perhaps quite really said say saying see seeing seemed seems several something still such sure take taken taking tell telling then thing things think thinking thought throughout today together tried trying until used using want wanted way ways well went whenever within without wonder wondered wondering years year").split(/\s+/));
   const generic=new Set("someone anybody everybody people person experience encounter writing wrote research question questions word words idea ideas remember remembered life time moment felt feeling feel something anything nothing loved love showed show showing sees seen seeing seemed watching watched wasn't weren't couldn't wouldn't don't didn't had hadn't experienced experience provide provides provided stayed stay stays walk walking walked pass passed small side quite much really strongly harvested harvests mattered matters said asked said looked liked does did do asked asking felt feels feeling know knowing think".split(" "));
+  // Common connectors, time fillers, and generic actions are not useful keyword seeds.
+  const FILLER=new Set(("about above across along among behind beside during inside outside toward towards sometimes occasionally usually often always rarely every either neither perhaps likely possibly maybe meanwhile instead however although despite beneath besides nearly quite simply almost approximately" +
+   " lived living lives love loved appears appeared seemed seeming happened happens think thinking knew known knowing seen seeing asked told answered mentioned said says wants wanted tries tried using used helps helped reveals revealed comes came comes walked walking looked looking watched watching felt feeling feels was were have has had did does done" +
+   " one two three four five six seven eight nine ten twenty thirty forty fifty hundred thousand several many few little much most less more enough nearly years year minutes days day hours hour").split(/\\s+/));
   const clean=s=>String(s||'').trim().replace(/^[\s"'“”‘’—:;,!?]+|[\s"'“”‘’—:;,!?]+$/g,'').replace(/\s+/g,' ').slice(0,110);
   const norm=s=>(' '+String(s||'').toLocaleLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim()+' ');
   function words(source){
     const result=[];
     for(const m of String(source||'').matchAll(/[\p{L}][\p{L}\p{M}'’\-]*/gu)){
       const text=m[0], key=text.toLowerCase().replace(/^[^\p{L}]+|[^\p{L}]+$/gu,'');
-      if(key.length<4||STOP.has(key)||generic.has(key)||/^\d+$/.test(key))continue;
+      if(key.length<4||STOP.has(key)||generic.has(key)||FILLER.has(key)||/^\d+$/.test(key))continue;
       result.push({text,key,start:m.index,end:m.index+text.length,proper:/^\p{Lu}/u.test(text)});
     }
     return result;
@@ -105,7 +109,7 @@
     pairs.sort((a,b)=>b.score-a.score||a.a.text.localeCompare(b.a.text));
     const usedWords=new Map();
     for(const pair of pairs){
-      if(found.filter(x=>x.kind==='relationship').length>=3)break;
+      if(found.filter(x=>x.kind==='relationship').length>=2)break;
       // Avoid twelve combinations of the same repeated keyword.
       if((usedWords.get(pair.a.text.toLowerCase())||0)>=2||(usedWords.get(pair.b.text.toLowerCase())||0)>=2)continue;
       add(pair.a.text+' and '+pair.b.text,
