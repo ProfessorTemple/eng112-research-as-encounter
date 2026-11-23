@@ -62,8 +62,8 @@
   const preferred=Array.isArray(state?.studentGuidance?.preferred)?state.studentGuidance.preferred:[];
   const setAside=Array.isArray(state?.studentGuidance?.setAside)?state.studentGuidance.setAside:[];
   let moves=METHODS.filter(x=>!setAside.includes(x.id)).map(x=>({...x,score:scores[x.id]+(preferred.includes(x.id)?5:0)})).sort((a,b)=>b.score-a.score);
-  moves=moves.filter(x=>x.score>0).slice(0,3);
-  if(!moves.length&&docs.length) moves=[METHODS[0]];
+  const needed={questioning:1,senses:2,scene:1,dialogue:1,reflection:1};
+  moves=moves.filter(x=>scores[x.id]>=(needed[x.id]||1)||preferred.includes(x.id)).slice(0,3);
   return {docs:docs.map(x=>x.place),themes,moves,preferred,setAside,hasLongitudinalData:docs.length>=2};
  }
  function render({state,freewrite,persist}){
@@ -90,6 +90,7 @@
    host.append(list);
   }
   host.append(el('h4','','Possible writing moves to carry forward'));
+  if(!profile.moves.length)host.append(el('p','hint','No clear writing tendency is visible yet. Keep writing, or choose a direction that feels useful to you. The notebook will not invent a pattern.'));
   for(const move of profile.moves){
    const card=el('div','student-pattern-card');card.append(el('strong','',move.name),el('p','hint',move.description),el('p','',move.guide));
    const controls=el('div','actions');
