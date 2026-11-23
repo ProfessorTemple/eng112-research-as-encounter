@@ -64,6 +64,20 @@ function onTab(e){
  const name=e.detail?.name;
  if(active()&&VALID_STAGES.has(name))event("stage-"+name,"Opened "+name+" notebook section");
 }
+const FEEDBACK=Object.freeze({
+ "shown":"Feedback invitation displayed",
+ "dismissed":"Feedback invitation dismissed",
+ "submitted":"Notebook rating submitted",
+ "rating-great":"Notebook rating: worked great",
+ "rating-okay":"Notebook rating: okay",
+ "rating-improve":"Notebook rating: needs improvement",
+ "opened-manually":"Manual feedback panel opened"
+});
+function onFeedback(e){
+ const kind=e.detail?.action;
+ // Use only fixed categories. Never send comments or any student-generated text.
+ if(active()&&Object.hasOwn(FEEDBACK,kind))event("feedback-"+kind,FEEDBACK[kind]);
+}
 function init(){
  if(initDone)return;initDone=true;
  const pref=$("analytics-optout"),test=$("analytics-test"),out=$("analytics-test-result");
@@ -84,6 +98,7 @@ function init(){
  });
  document.addEventListener("click",onClick,true);
  window.addEventListener("field:tabchange",onTab);
+ window.addEventListener("field:feedback-event",onFeedback);
  announce();
  page();
 }
