@@ -55,7 +55,7 @@ function page(){
 function onClick(e){
  if(!active()||!(e.target instanceof Element))return;
  const b=e.target.closest("button");if(!b)return;
- const item=ACTIONS[b.id];if(item){event(item[0],item[1]);return;}
+ const item=ACTIONS[b.id];if(item){if(b.id==="field-quick-share"&&b.getAttribute("aria-expanded")==="true")return;event(item[0],item[1]);return;}
  // Track only the three fixed notebook areas; no question or search text.
  if(b.dataset.fieldSpace&&VALID_SPACES.has(b.dataset.fieldSpace))
   event("space-"+b.dataset.fieldSpace,"Opened "+b.dataset.fieldSpace+" notebook space");
