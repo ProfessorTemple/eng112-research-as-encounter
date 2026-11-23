@@ -827,7 +827,17 @@ function questionObjects(){let raw=terms();if(!raw.length)return [{kind:'Start h
 }
 function questions(){return questionObjects().map(x=>x.q);}
 function saveArray(key,value){if(!Array.isArray(state[key]))state[key]=[];if(!state[key].includes(value))state[key].push(value);persist();}
-function renderExplore(){let base=terms(),ms=conceptMatches();$('explore-summary').textContent=base.length?'Your current ideas: '+base.join(' · ')+(state.followed.length?' | Following: '+state.followed.join(' · '):''):'Begin with an encounter and one or more ideas. The program can suggest research paths but cannot verify claims.';
+function renderExplore(){
+ let base=terms(),ms=conceptMatches();
+ $('explore-summary').textContent=base.length?'Ideas you selected from your writing: '+base.join(' · ')+(state.followed.length?' | Optional connections followed: '+state.followed.join(' · '):''):'Your inquiry begins with your words. Return to the freewrite to choose a question, image, or phrase.';
+ const host=$('student-owned-concepts');
+ if(host){
+   host.replaceChildren();host.append(elt('h3','','Your ideas come first'));
+   const chosen=base.length?base:(state.studio?.selectedPhrases||[]).slice(0,5);
+   const chips=elt('div','student-concept-chips');for(const term of chosen.slice(0,6))chips.append(elt('span','',term));
+   if(chosen.length)host.append(chips);
+   host.append(elt('p','hint',chosen.length?'These are the words you chose. You can reconsider them, return to your writing, or explore optional scholarly language below.':'No ideas chosen yet. Return to your freewrite and decide what matters before exploring scholarly terms.'));
+ }
  const list=$('connection-list');list.replaceChildren();suggestConcepts().forEach(x=>{let d=elt('div','result');d.appendChild(elt('strong','',x.term));d.appendChild(elt('p','small','Why this appeared: '+x.reason));let a=elt('div','actions');a.appendChild(button('Follow this connection',()=>{if(!state.followed.includes(x.term))state.followed.push(x.term);persist();renderExplore();}));d.appendChild(a);list.appendChild(d);});
  const qs=$('question-list');qs.replaceChildren();questionObjects().forEach(obj=>{let row=elt('div','result');row.appendChild(elt('span','topic',obj.kind));row.appendChild(elt('p','',obj.q));row.appendChild(elt('p','small','Why this appeared: '+obj.why));row.appendChild(button(state.savedQuestions.includes(obj.q)?'✓ Saved question':'Save this question',()=>{saveArray('savedQuestions',obj.q);renderExplore();}));qs.appendChild(row);});
 }
@@ -952,9 +962,15 @@ function meaningfulPhrases(source){
  for(const match of source.matchAll(/\b(?:[A-Za-z]{4,}\s+){1,3}(?:feet|bodies|heads|feathers|seeds|pods|plants|light|sky|water|air|soil|hands|eyes|sounds?|colors?|insects?|wind|birds?|voices?|doorway|world|silence)\b/gi))add(match[0],8,'senses');
  const words=(source.match(/[A-Za-z][A-Za-z'-]{3,}/g)||[]),count=new Map();for(const w of words){let k=w.toLowerCase();if(!V31_COMMON.has(k))count.set(k,(count.get(k)||0)+1)}
  for(const [w,n] of [...count.entries()].sort((a,b)=>b[1]-a[1]).slice(0,7)){if(n>=2)add(source.match(new RegExp('\\b'+w+'\\b','i'))?.[0]||w,3+n,'repeated')}
+ if(window.FieldStudentLanguage){
+   for(const phrase of window.FieldStudentLanguage.extract(source)){
+     const kind=phrase.kind==='question'?'student-question':phrase.kind==='keyword'?'student-keyword':'student-phrase';
+     add(phrase.text,phrase.score+4,kind);
+   }
+ }
  found.sort((a,b)=>b.score-a.score||a.text.length-b.text.length);
  // A balanced reading: leave room for sensory detail and metaphor, not only topic keywords.
- const quotas={metaphor:2,attention:1,naming:2,movement:2,senses:4,place:1,reflection:1,questions:2,repeated:1};const used={};const result=[];
+ const quotas={metaphor:2,attention:1,naming:2,movement:2,senses:3,place:1,reflection:1,questions:2,repeated:1,'student-question':3,'student-keyword':7,'student-phrase':5};const used={};const result=[];
  for(const item of found){let usedCount=used[item.kind]||0;if(usedCount>=(quotas[item.kind]||1))continue;
    if(result.some(q=>q.key.includes(item.key)&&q.score>=item.score))continue;
    if(result.some(q=>item.key.includes(q.key)&&q.kind===item.kind&&q.score>=item.score))continue;
@@ -970,33 +986,49 @@ function paintHighlights(){let target=$('highlighted-preview'),txt=$('encounter'
 function addPhrase(v){let val=v.trim().replace(/\s+/g,' ').slice(0,115);if(!val)return false;let list=$('phrase-results');if([...list.querySelectorAll('input')].some(e=>norm(e.value)===norm(val)))return false;
  let label=elt('label','phrase-option');let check=document.createElement('input');check.type='checkbox';check.value=val;check.checked=true;check.addEventListener('change',saveChosenPhrases);label.append(check,document.createTextNode(' “'+val+'”'));list.append(label);saveChosenPhrases();return true;
 }
-function renderPhrases(){let saved=Array.isArray(state.studio?.selectedPhrases)?state.studio.selectedPhrases:[];const auto=meaningfulPhrases($('encounter').value),list=$('phrase-results');list.replaceChildren();const selections=[...new Set([...auto.map(o=>o.text),...saved])];
- for(const p of selections.slice(0,16)){let label=elt('label','phrase-option'),cb=document.createElement('input');cb.type='checkbox';cb.value=p;cb.checked=state.studio?.phrasesReviewed?saved.some(v=>norm(v)===norm(p)):true;cb.addEventListener('change',saveChosenPhrases);label.append(cb,document.createTextNode(' “'+p+'”'));list.append(label)}
- if(!selections.length)list.append(elt('p','hint','No phrases recognized yet. Add a phrase that matters to you below.'));
+function renderPhrases(){
+ const saved=Array.isArray(state.studio?.selectedPhrases)?state.studio.selectedPhrases:[];
+ const auto=meaningfulPhrases($('encounter').value),list=$('phrase-results');list.replaceChildren();
+ const candidates=[...new Set([...saved,...auto.map(x=>x.text)])].slice(0,16);
+ for(const [i,p] of candidates.entries()){
+   const label=elt('label','phrase-option'),cb=document.createElement('input');cb.type='checkbox';cb.value=p;
+   cb.checked=state.studio?.phrasesReviewed?saved.some(v=>norm(v)===norm(p)):i<5;
+   cb.addEventListener('change',saveChosenPhrases);
+   label.append(cb,document.createTextNode(' “'+p+'”'));list.append(label);
+ }
+ if(!candidates.length)list.append(elt('p','hint','Nothing extracted yet. Add an image, word, or question that matters to you.'));
  saveChosenPhrases();
 }
-function studioThreads(){let input=$('encounter').value.trim();if(!input){$('thread-clearing').classList.add('hidden');$('encounter').focus();$('save-status').textContent='Start with a sentence or memory, then discover possible threads.';return;}
- let ranked=DATA.concept_index.map(c=>({c,hits:c.triggers.filter(t=>triggerScore(t,input)>0)})).filter(x=>x.hits.length).sort((a,b)=>b.hits.length-a.hits.length);
- renderPhrases();let out=$('thread-results');out.replaceChildren();let opts=[];
- const sourceLanguage=[
- [/\b(?:tribe|clan|naming|called|categories)\b/i,'language and classification','You questioned how the words we use shape what we notice.'],
- [/\b(?:being watched|watching me|watched me|watched by|being studied)\b/i,'mutual attention','You wondered whether the encounter might have more than one observer.'],
- [/\b(?:fleeing|following|leader|leading|escape|chasing)\b/i,'animal movement and uncertainty','You left several possible explanations open rather than claiming to know.'],
- [/\b(?:invisible doorway|another world|as if)\b/i,'thresholds and imagined worlds','Your imagery hints at a difference between worlds of perception.'],
- [/\b(?:tiny feet|low to the ground|small insects|ground level|height of everything|hight of everything)\b/i,'scale and perspective','You considered how the world might appear from a different height or body.']
- ];
- sourceLanguage.push(
-    [/\b(?:don't know|do not know|not know|never saw|never seen|never witnessed|unwitnessed|unaware|misperception)\b/i,'the limits of what I can know','Your words question the difference between familiarity and knowledge. What remains uncertain?'],
-    [/\b(?:color vision|colors|vision|different senses|sensory world|perceive|how does .* see)\b/i,'different sensory worlds','You wonder whether another body senses the same surroundings differently.'],
-    [/\b(?:\d+ years?|decades?|long relationship|so many years|growing older|aging)\b/i,'relationships across time','What might have happened outside the moments you witnessed?'],
-    [/\b(?:always seems|seems happy|seems healthy|suffering|pain|never seemed)\b/i,'appearance and lived well-being','Observation and speculation are not the same. Which evidence would help you ask carefully?']
- );
- for(const [pattern,term,reason] of sourceLanguage)if(pattern.test(input))opts.push({term,reason});
- ranked.slice(0,5).forEach((x,i)=>{let accessible={wildlife:'animal perception',fear:'fear and vigilance',posthuman:'animal agency',family:'family memory',gender:'care and unseen labor',garden:'gardening knowledge',forest:'forest relationships',water:'water and place',senses:'embodied perception',reciprocity:'reciprocity and care',climate:'environmental change',writing:'storytelling and attention',urban:'place-based observation'};let term=accessible[x.c.id]||x.c.concepts[0];if(x.c.id==='garden'&&!/\b(?:garden|gardening|cultivat|farming|farm|vegetable|planting)\b/i.test(input))term='plants, seeds, and soil';let reason='Possibly connected to words such as '+x.hits.slice(0,3).join(', ')+'.';if(!opts.some(o=>norm(o.term)===norm(term)))opts.push({term,reason});});
- for(let t of terms()){if(!opts.some(x=>norm(x.term)===norm(t)))opts.unshift({term:t,reason:'You named this idea yourself.'});}
- if(!opts.length){for(let t of ['place and memory','attention and perception','relationships and responsibility'])opts.push({term:t,reason:'An open direction to consider, not a conclusion about your writing.'});}
- opts.slice(0,9).forEach((o,i)=>{let label=elt('label','thread-option');let cb=document.createElement('input');cb.type='checkbox';cb.value=o.term;cb.checked=terms().some(x=>norm(x)===norm(o.term))||i<2;let wrap=elt('span');wrap.append(elt('strong','',o.term),elt('small','',o.reason));label.append(cb,wrap);out.append(label);});
- $('thread-clearing').classList.remove('hidden');$('thread-status').textContent='These are starting directions, not conclusions. Your selected phrases will also be saved in your research journal.';persist();$('thread-clearing').scrollIntoView({behavior:'smooth',block:'start'});
+function studioThreads(){
+ const input=$('encounter').value.trim();
+ if(!input){
+  $('thread-clearing').classList.add('hidden');$('encounter').focus();
+  $('save-status').textContent='Begin with your own words, then return here to explore them.';return;
+ }
+ renderPhrases();
+ const out=$('thread-results');out.replaceChildren();
+ const selected=chosenPhrases();
+ const studentIdeas=window.FieldStudentLanguage
+  ?window.FieldStudentLanguage.concepts(input,selected)
+  :selected.map(term=>({term,reason:'These are words you selected from your writing.',kind:'chosen'}));
+ const possible=[],seen=new Set();
+ function include(term,reason){
+   const t=String(term||'').trim();if(!t||seen.has(norm(t)))return;
+   seen.add(norm(t));possible.push({term:t,reason});
+ }
+ for(const t of terms())include(t,'You named this idea yourself. Keep or revise it.');
+ for(const entry of studentIdeas)include(entry.term,entry.reason);
+ if(!possible.length)for(const t of selected.slice(0,4))include(t,'A phrase you chose. What question could grow from it?');
+ if(!possible.length)include(input.split(/[.!?\n]/)[0].trim().slice(0,100),'Your opening sentence. What still feels unresolved?');
+ possible.slice(0,9).forEach((entry,i)=>{
+   const label=elt('label','thread-option'),check=document.createElement('input'),content=elt('span');
+   check.type='checkbox';check.value=entry.term;
+   check.checked=terms().some(t=>norm(t)===norm(entry.term))||(!terms().length&&i<2);
+   content.append(elt('strong','',entry.term),elt('small','',entry.reason));label.append(check,content);out.append(label);
+ });
+ $('thread-clearing').classList.remove('hidden');
+ $('thread-status').textContent='Your possible concepts come from your writing, not an instructor keyword list. Choose, set aside, or add your own, and return to edit your writing at any time.';
+ persist();$('thread-clearing').scrollIntoView({behavior:'auto',block:'start'});
 }
 function addThread(){let t=$('custom-thread').value.trim();if(!t)return;let already=[...$('thread-results').querySelectorAll('input')].some(e=>norm(e.value)===norm(t));if(already){$('thread-status').textContent='That idea is already here; select it to follow.';return;}let lab=elt('label','thread-option');let check=document.createElement('input');check.type='checkbox';check.value=t;check.checked=true;let sp=elt('span');sp.append(elt('strong','',t),elt('small','','Your own language'));lab.append(check,sp);$('thread-results').append(lab);$('custom-thread').value='';$('thread-status').textContent='Added. You can now follow this idea.';}
 function followThreads(){saveChosenPhrases();let picked=[...$('thread-results').querySelectorAll('input:checked')].map(e=>e.value);if(!picked.length){$('thread-status').textContent='Choose at least one idea, or add your own before following a path.';return;}let selection=picked.slice(0,3);['idea1','idea2','idea3'].forEach((id,i)=>$(id).value=selection[i]||'');state.followed=[];persist();tab('explore');}
@@ -1494,6 +1526,7 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
   });
 })();
 </script>
+<script src="./student-language-next.js?v=student-20261123-v3"></script>
 <script src="./keyword-bank.js?v=20261120-keywords"></script>
 <script src="./thesis-studio.js?v=20261120-living-thesis"></script>
 <script src="./thesis-comparison.js?v=20261123-comparison1"></script>
