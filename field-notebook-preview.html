@@ -235,11 +235,34 @@
 .jstor-upload{margin-top:1rem}
 .jstor-upload .field{margin-top:.65rem}
 .jstor-upload .result{margin-top:.5rem}
+</style><style>
+.field-faq{margin:.8rem 0;background:#fffdf8;border:1px solid #bacfbe;border-radius:12px;padding:.75rem 1rem}
+.field-faq>summary{color:#235747;font-weight:700}
+.field-faq-body{margin-top:.65rem}
+.field-faq-body details{margin:.4rem 0;padding:.65rem .8rem;background:#f5f8f2;border-color:#c8d8c9}
+.field-faq-body p{margin:.55rem 0}
+.field-jstor-quick{display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap;margin:.8rem 0;padding:.75rem .9rem;background:#f0f5ed;border:1px solid #b6c9b6;border-radius:12px}
+.field-jstor-quick span{flex:1 1 240px;font-size:.91rem}
+@media print{.field-faq,.field-jstor-quick{display:none!important}}
 </style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>My Living Field Notebook · ENG 112 classroom preview</p></header>
 <main class="shell" id="main-content" tabindex="-1">
 <p class="intro">Your experiences lead. Follow a question into research, gather voices, and write an essay that remains yours.</p>
 <details class="ws-tips ws-intro-more"><summary>How does this work? (Optional, one-minute guide)</summary><p>No need to finish eight steps or work in order. Choose where you are today. Each space offers a possible next move, and you can go backward or jump ahead at any time. The program offers questions, not answers or written paragraphs. Your work is yours and is never submitted automatically. In <strong>Research</strong>, you can find scholarly articles, save JSTOR PDFs to a private shelf on this device, and record what you learn in the Reading Journal. Your notebook saves in <strong>this browser only</strong>; download an editable Word file and full project backup regularly. Keep your downloaded article PDFs separately because the notebook backup does not include them, especially before changing devices.</p></details>
+<details id="field-faq" class="field-faq no-print">
+<summary>Frequently asked questions · Saving, JSTOR, and your writing</summary>
+<div class="field-faq-body">
+<details><summary>Where do I add a JSTOR PDF?</summary><p>Choose <strong>Research → Reading Journal</strong>, then find <strong>JSTOR articles · From finding to reading</strong>. Download the PDF from JSTOR first, enter its title, choose the PDF on your device, and select <strong>Save PDF on this device</strong>. Then add the article's author, title, and link to your Reading Journal so you can record passages, page numbers, and your own response.</p><button type="button" class="secondary field-jstor-shortcut">Go to JSTOR PDF shelf</button></details>
+<details><summary>Why would I use JSTOR?</summary><p>JSTOR is a source of scholarly articles that can introduce perspectives you had not considered. Read the article itself and ask what it supports, challenges, or complicates about your original experience. Finding a source is the beginning of research, not proof of a claim.</p></details>
+<details><summary>Does uploading a PDF submit it to my instructor?</summary><p>No. The optional PDF shelf stores a copy in this browser on this device only. It is not uploaded to PCC, GitHub, Moodle, Canvas, or your instructor. For instructor feedback, use <strong>Share journey</strong> to choose and review what you want to send separately.</p></details>
+<details><summary>What's the difference between Save backup and Save PDF?</summary><p><strong>Save backup</strong> downloads your notebook's research and writing data as a JSON file. It does <strong>not</strong> contain saved article PDFs. <strong>Save PDF on this device</strong> adds a downloaded article to the browser's optional shelf. Keep your original PDFs in a folder or cloud drive and make regular notebook backups too.</p></details>
+<details><summary>Will my work be there on another computer?</summary><p>Not automatically. Notebook writing and optional PDF copies are stored locally in the browser. Export the full notebook backup, bring it to the other device, and use <strong>Import an existing Research as Encounter backup</strong>. Importing replaces the notebook project currently open in that browser, so back it up first. Transfer your article PDFs separately.</p></details>
+<details><summary>Must I complete every section in order?</summary><p>No. Discover, Research, and Write are flexible spaces. Follow the path that helps you today, return to an earlier question whenever you need to, and use the Living Thesis Studio to reflect on how your thinking changes.</p></details>
+<details><summary>Can I compare thesis versions without losing a draft?</summary><p>Yes. Save a stage of your thinking in the Living Thesis Studio. Thesis Comparison displays two stages side by side without overwriting either one. Loading an earlier version for editing is a separate action that asks for confirmation.</p></details>
+<details><summary>What if JSTOR does not let me download the PDF?</summary><p>Keep the article's stable link and citation information, and add the source directly in the Reading Journal. Access may depend on the article and your PCC Library sign-in. You can still record notes based on an article you can legitimately read online.</p></details>
+</div>
+</details>
+<div class="field-jstor-quick no-print" role="group" aria-label="Quick access to JSTOR articles"><span><strong>Working with a JSTOR article?</strong> You can save its PDF in Research and bring evidence into your Reading Journal.</span><button type="button" class="secondary field-jstor-shortcut">Open JSTOR PDF shelf</button></div>
 <div id="field-quick-actions" class="field-quick-actions no-print" role="group" aria-label="Notebook saving and sharing actions">
   <button type="button" id="field-quick-save" aria-describedby="field-actions-note">Save backup</button>
   <button type="button" id="field-quick-share" aria-expanded="false" aria-controls="field-share-panel">Share journey</button>
@@ -1223,4 +1246,18 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 <script src="./thesis-studio.js?v=20261120-living-thesis"></script>
 <script src="./thesis-comparison.js?v=20261123-comparison1"></script>
 <script src="./jstor-pdf-shelf.js?v=20261123-jstor1"></script>
-<script src="./field-notebook-preview.js?v=20261122-share2"></script><script src="./field-notebook-sharing.js?v=20261122-share2"></script><script src="./field-notebook-analytics.js?v=20261122-pilot1"></script></body></html>
+<script src="./field-notebook-preview.js?v=20261122-share2"></script><script src="./field-notebook-sharing.js?v=20261122-share2"></script><script src="./field-notebook-analytics.js?v=20261122-pilot1"></script><script>
+/* FAQ and JSTOR shortcuts only navigate; they never mutate saved student work. */
+(function(){
+  function jumpToJstor(){
+    if(typeof tab==='function')tab('journal');
+    const section=document.getElementById('jstor-heading');
+    if(section){
+      section.setAttribute('tabindex','-1');
+      section.focus({preventScroll:true});
+      section.scrollIntoView({block:'start',behavior:'smooth'});
+    }
+  }
+  document.querySelectorAll('.field-jstor-shortcut').forEach(button=>button.addEventListener('click',jumpToJstor));
+})();
+</script></body></html>
