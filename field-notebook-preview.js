@@ -38,12 +38,21 @@ function renderNav(id){
    const b=make("button",null,name);b.type="button";if(tabId===id)b.setAttribute("aria-current","page");
    b.addEventListener("click",()=>navigate(tabId));nav.append(b);
  }
- const next=NEXT[id];
- get("field-next-text").textContent=next[1]+" whenever it feels useful. You may also return to something earlier.";
- get("field-next-button").textContent=next[1]+" →";
- get("field-next-button").onclick=()=>navigate(next[0]);
+ renderInvitation(id);
  field().lastTab=id;
  try{persist();}catch(err){/* Continue even if browser storage is blocked. */}
+}
+function renderInvitation(id){
+ const next=NEXT[id];
+ if(id==="begin"&&!get("encounter")?.value?.trim()){
+  get("field-next-text").textContent="Begin by describing something that stays with you. You can discover research language afterward.";
+  get("field-next-button").textContent="Begin my freewriting ↓";
+  get("field-next-button").onclick=()=>{const el=get("encounter");el.scrollIntoView({block:"center"});el.focus();};
+ }else{
+  get("field-next-text").textContent=next[1]+" whenever it feels useful. You may also return to something earlier.";
+  get("field-next-button").textContent=next[1]+" →";
+  get("field-next-button").onclick=()=>navigate(next[0]);
+ }
 }
 function trailItem(host,title,txt,page){
  const cell=make("div","field-trail-item");
@@ -173,6 +182,7 @@ function renderCatalog(){
  get("field-catalog-more").hidden=items.length<=shown;
 }
 function init(){
+ document.body.classList.add('field-notebook-enhanced');
  if(typeof tab!=="function"||typeof persist!=="function"||!state){get("field-section-help").textContent="The notebook tools were not able to load. Refresh the page.";return;}
  for(const b of document.querySelectorAll("[data-field-space]"))b.addEventListener("click",()=>{
   const id=b.dataset.fieldSpace;
@@ -190,7 +200,7 @@ function init(){
  ck.addEventListener("change",()=>{shown=EXTENDED_WINDOW;renderCatalog();});
  get("field-catalog-more").addEventListener("click",()=>{shown+=EXTENDED_WINDOW;renderCatalog();});
  window.addEventListener("field:tabchange",event=>{const name=event.detail?.name;if(PAGES[name]){renderNav(name);if(!get("field-thread-detail").hidden)trail();}});
- window.addEventListener("field:save",()=>{if(!get("field-thread-detail").hidden)trail();});
+ window.addEventListener("field:save",()=>{if(activeTab==="begin")renderInvitation(activeTab);if(!get("field-thread-detail").hidden)trail();});
  renderCatalog();
  const last=field().lastTab;
  if(PAGES[last]&&last!=="begin")navigate(last);else renderNav("begin");
