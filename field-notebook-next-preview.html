@@ -1247,11 +1247,13 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
     });
     custom.append(label,input,add,note,added);box.append(custom);
     const status=el('p','lens-summary');status.id='lens-summary';status.setAttribute('aria-live','polite');box.append(status);
-    const action=el('button','secondary','Take my chosen perspective into a search');action.type='button';
-    listening(action,'click',()=>{const chosen=allLenses().find(x=>state.lenses?.includes(x.id));tab('search');
-      if(chosen&&!byId('termB').value.trim()){byId('termB').value=chosen.label;persist();}
-      byId('termB').focus();
-    });box.append(action);
+    const action=el('button','primary ux-next','Take my selected lenses into research →');action.type='button';
+    const go=()=>{persist();tab('search');const target=byId('research-studio-next');if(target){target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}};
+    listening(action,'click',go);box.append(action);
+    const next=el('div','lens-next-step');const recap=el('p','hint');recap.id='lens-next-recap';recap.setAttribute('role','status');
+    const nextButton=el('button','primary ux-next','Take my selected lenses into research →');nextButton.type='button';listening(nextButton,'click',go);
+    next.append(recap,nextButton);suggested.after(next);
+    window.fieldSelectedLensLabels=()=>allLenses().filter(x=>(state.lenses||[]).includes(x.id)).map(x=>x.label);
     refreshLensRecommendations=()=>{
       suggested.replaceChildren();
       const picks=recommendedLenses();
@@ -1260,13 +1262,14 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
       document.querySelectorAll('[data-lens]').forEach(node=>node.checked=(state.lenses||[]).includes(node.value));
     };
     const host=byId('explore-summary');if(host)host.after(box);else explore.prepend(box);
-    refreshLensRecommendations();
+    updateLensSummary();
   }
   function updateLensSummary(){
     const chosen=new Set(state.lenses||[]);
     document.querySelectorAll('[data-lens]').forEach(node=>node.checked=chosen.has(node.value));
     const added=byId('lens-custom-list');if(added){added.replaceChildren();(state.customLenses||[]).forEach(x=>added.append(makeLensChoice({id:x.id,label:x.label,family:'Student perspectives',definition:'A lens you named from your own experience.',help:'What might this help you notice?'},null)));}
     const summary=byId('lens-summary');if(summary)summary.textContent=chosen.size?'You have chosen '+chosen.size+' perspective'+(chosen.size===1?'':'s')+'. You can revise your choices, or continue without settling on an interpretation.':'No lens chosen yet. You can browse, add your own, or continue without one.';
+    const recap=byId('lens-next-recap');if(recap){const labels=window.fieldSelectedLensLabels?.()||[];recap.textContent=labels.length?'Selected: '+labels.join(' · ')+'. These will appear alongside your own words in the Research Studio.':'Choose any lenses that interest you, or continue without one.';}
     refreshLensRecommendations();
   }
     function progressBadge(id){const [label,kind]=labelForSource(id);const badge=el('span','source-progress '+kind,label);badge.setAttribute('aria-label','Source stage: '+label);return badge;}
@@ -1699,7 +1702,7 @@ const catalog=[
 function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x)n.textContent=x;return n;}
 function status(t){g('rs-status').textContent=t;}
 function words(){
- const vals=[...(Array.isArray(state.studio?.selectedPhrases)?state.studio.selectedPhrases:[]),...(Array.isArray(state.keywordBank)?state.keywordBank:[]),...terms(),...(Array.isArray(state.followed)?state.followed:[])];
+ const vals=[...(window.fieldSelectedLensLabels?.()||[]),...(Array.isArray(state.studio?.selectedPhrases)?state.studio.selectedPhrases:[]),...(Array.isArray(state.keywordBank)?state.keywordBank:[]),...terms(),...(Array.isArray(state.followed)?state.followed:[])];
  return [...new Set(vals.filter(x=>typeof x==='string'&&x.trim()))].slice(0,24);
 }
 function draw(){
@@ -1776,4 +1779,4 @@ function uxWritingStage(stage,focus=true){
  g('return-freewrite').onclick=()=>uxWritingStage('writing');
  uxWritingStage('writing',false);
 })();
-</script><style>#ux-writing-view .studio-head{margin:0 0 .5rem;padding:0}#ux-writing-view .studio-write{margin-top:.35rem}#ux-writing-view .studio-write textarea{min-height:230px}#ux-start-help{margin:.7rem 0}#ux-start-help summary{cursor:pointer;padding:.5rem 0}#ux-writing-view .self-guide{margin:.6rem 0}@media(max-width:600px){#ux-writing-view .studio-head h2{font-size:1.3rem}#ux-writing-view .studio-write textarea{min-height:210px}#ux-journey{margin-bottom:.45rem}}</style></body></html>
+</script><style>#ux-writing-view .studio-head{margin:0 0 .5rem;padding:0}#ux-writing-view .studio-write{margin-top:.35rem}#ux-writing-view .studio-write textarea{min-height:230px}#ux-start-help{margin:.7rem 0}#ux-start-help summary{cursor:pointer;padding:.5rem 0}#ux-writing-view .self-guide{margin:.6rem 0}@media(max-width:600px){#ux-writing-view .studio-head h2{font-size:1.3rem}#ux-writing-view .studio-write textarea{min-height:210px}#ux-journey{margin-bottom:.45rem}}</style><style>.lens-next-step{margin:1rem 0;padding:.8rem;border-top:1px solid var(--line)}.lens-choice strong+span{display:block;font-size:.85rem;margin-left:1.5rem}.lens-next-step .ux-next{margin:.5rem 0}</style></body></html>
