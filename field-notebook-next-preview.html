@@ -2110,4 +2110,15 @@ const quick=[...document.querySelectorAll('#ux-context button')].find(x=>x.textC
 g('tc-map').addEventListener('click',()=>{show('Refine',null,false);research.open=true;map.scrollIntoView({block:'center'});});g('tc-compare').addEventListener('click',()=>show('History',null,true));
 window.addEventListener('field:tabchange',e=>{if(e.detail.name==='return')show(current,null,false);});show(fields.some(x=>x.value.trim())?'Build':'Understand',0,false);
 })();
+</script><script>
+document.addEventListener('click',function(e){
+const button=e.target.closest('button');if(!button||button.textContent.trim()!=='Start writing my first story')return;
+e.preventDefault();e.stopImmediatePropagation();
+if(typeof tab==='function')tab('return');
+const build=document.querySelector('#lts-nav button:nth-child(2)');if(build)build.click();
+const field=document.getElementById('what');if(!field)return;
+const first=document.querySelector('.lts-floor-nav button');if(first)first.click();
+function reveal(){field.scrollIntoView({block:'center',behavior:'instant'});}
+field.focus({preventScroll:true});reveal();requestAnimationFrame(()=>requestAnimationFrame(reveal));setTimeout(reveal,350);
+},true);
 </script></body></html>
