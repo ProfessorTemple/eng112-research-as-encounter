@@ -321,6 +321,8 @@
 .student-pattern-theme-actions button{min-height:44px}
 .student-pattern-list li{margin-bottom:.65rem}
 .student-style-companion summary:focus-visible{outline:3px solid #b58d43;outline-offset:3px}
+
+.rs-step{padding:1rem;margin:1rem 0;border:1px solid #bccfbd;border-radius:13px;background:#f5f8f0}.rs-step h3{margin-top:0;font-size:1.15rem}.rs-primary{display:block;width:100%;min-height:48px;margin-top:1rem;font-size:1.05rem}.rs-words{display:flex;gap:.45rem;flex-wrap:wrap;margin:.5rem 0 1rem}.rs-words button,.rs-step button{min-height:44px}.rs-db{padding:.8rem 0;border-bottom:1px solid #c4d5c8}.rs-db h4{margin:0}.rs-db a{display:inline-block;padding:.55rem 0}.rs-advanced{margin-top:1rem}.rs-advanced>summary{font-weight:700;cursor:pointer;padding:.7rem 0}.rs-step[hidden],#rs-output[hidden]{display:none!important}
 </style></head><body><a class="skip-to-content" href="#main-content">Skip to main writing content</a>
 <header class="top"><div class="eyebrow">Pitt Community College · ENG 112</div><h1>Research as Encounter</h1><p>My Living Field Notebook · Instructor development preview</p></header>
 <main class="shell" id="main-content" tabindex="-1">
@@ -558,10 +560,22 @@
 <button type="button" id="thesis-go-studio" class="primary">Explore a working three-story thesis →</button></div>
 <p class="hint">A question opens the inquiry. A thesis will eventually offer an interpretation and explain why it matters. You can return to this question whenever research changes it.</p>
 </section>
-<div class="actions"><button class="secondary" data-tab="search">Turn ideas into searches →</button><button class="secondary" data-tab="read">Find relevant books →</button></div>
+<div class="actions"><button class="secondary" data-tab="search">Take My Ideas into Research →</button><button class="secondary" data-tab="read">Find relevant books →</button></div>
 </section>
 <section class="panel hidden" id="page-search" role="tabpanel" aria-labelledby="tab-search">
-<h2>Discover keywords and build a research search</h2>
+<h2>Research Studio</h2>
+<section id="research-studio-next" aria-label="Guided research studio">
+ <p>Turn your words into a search, choose where to look, and bring new discoveries back.</p>
+ <div class="rs-step"><h3>1. Build my search</h3><p class="hint">Choose two distinct ideas to connect. Your original writing stays unchanged.</p>
+ <div id="rs-words" class="rs-words"></div>
+ <div class="two"><div class="field"><label for="rs-a">First idea</label><input id="rs-a"></div><div class="field"><label for="rs-b">Second idea (optional)</label><input id="rs-b"></div></div>
+ <button type="button" class="primary rs-primary" id="rs-build">Build my search →</button>
+ <div id="rs-output" hidden><div class="field"><label for="rs-query">My editable search</label><textarea id="rs-query" rows="2"></textarea></div><p class="hint" id="rs-connection"></p><button type="button" class="secondary" id="rs-copy">Copy search</button> <button type="button" class="secondary" id="rs-save-query">Save search to journal</button></div></div>
+ <div class="rs-step" id="rs-database-step" hidden><h3>2. Find the right database</h3><div id="rs-databases"></div><details><summary>Broaden, narrow, or try another database</summary><p>Too few results? Remove a concept or try synonyms joined by OR. Too many? Add a distinct concept with AND. Start broad when you are unsure, and move to a subject database when you know your focus.</p><a href="https://libguides.pittcc.edu/az/databases" target="_blank" rel="noopener">Browse all PCC databases by subject</a></details></div>
+ <div class="rs-step" id="rs-discovery-step" hidden><h3>3. Bring back a discovery</h3><div class="field"><label for="rs-discovery">What new word or phrase did you encounter?</label><input id="rs-discovery" maxlength="100"></div><button type="button" class="secondary" id="rs-add">Add to my keyword bank</button> <button type="button" class="secondary" data-tab="journal">Record a source in my Reading Journal</button></div>
+ <p role="status" id="rs-status" class="hint"></p>
+</section>
+<details class="rs-advanced" id="rs-advanced"><summary>Explore more keywords and advanced search options</summary>
 <p>Research often starts in ordinary language. A scholarly article may use different words for something you witnessed or wondered about. Explore those vocabularies without losing the words that began your inquiry.</p>
 <section class="keyword-discovery" aria-labelledby="keyword-discovery-title">
   <h3 id="keyword-discovery-title">1. Build your own keyword bank</h3><p class="hint">Did a critical lens change your search question? Return to Discover to reconsider it, or combine one idea from your writing with a second term here. No search is final.</p>
@@ -582,7 +596,7 @@
   </div>
   <p id="keyword-message" class="keyword-message" role="status" aria-live="polite"></p>
   <div class="actions">
-    <button type="button" id="keyword-fill" class="primary">Use my selected keywords in the search builder</button>
+    <button type="button" id="keyword-fill" class="primary">Take my selected keywords into the advanced search builder →</button>
     <button type="button" id="keyword-bib" class="secondary">Carry keywords into my Annotated Bibliography</button>
   </div>
   <div class="keyword-note field">
@@ -599,6 +613,7 @@
 <div id="search-list" aria-live="polite"></div><p class="hint"><a href="https://libguides.pittcc.edu/nature/eng112/writing" target="_blank" rel="noopener noreferrer">Open the ENG 112 PCC Library guide ↗</a> (internet and PCC login may be required).</p>
 <details><summary>Search operators: AND, OR, NOT, quotes, parentheses</summary><p><strong>AND</strong> narrows by requiring both concepts. <strong>OR</strong> broadens by allowing alternatives. <strong>NOT</strong> is available only through the separate exclusion field, since it can hide important results. Quotes search an exact phrase where the database supports it, and parentheses keep alternatives grouped. Database behavior varies.</p><p>Example: <code>("grandmothers" OR "intergenerational knowledge") AND gardening</code></p></details>
 <details><summary>Too many or too few results?</summary><p><strong>Too many:</strong> add one specific concept using AND, or use a phrase in quotation marks. <strong>Too few:</strong> remove one concept, add synonyms with OR, or try broader terms. Check article abstracts for better vocabulary. The program does not query PCC databases or verify subject headings.</p></details>
+</details>
 </section>
 <section class="panel hidden" id="page-read" role="tabpanel" aria-labelledby="tab-read">
 <div class="info" id="pcc-source-access-guide" aria-labelledby="pcc-source-access-title"><h3 id="pcc-source-access-title">How to reach a source</h3><p>Choose the route that matches the material. Opening a link is not the same as having read the source. Record evidence only after you have actually read, watched, or listened.</p><div class="actions"><a class="secondary" href="https://libguides.pittcc.edu/books" target="_blank" rel="noopener noreferrer">PCC Library: find books</a><a class="secondary" href="https://libguides.pittcc.edu/az/databases" target="_blank" rel="noopener noreferrer">PCC Library: browse databases</a></div><p class="hint"><strong>Books:</strong> Search the exact title or author in the catalog; check the location and availability. <strong>Course reserves:</strong> Ask at the service desk and read the book in the library; reserve copies cannot be checked out to take home. <strong>Database articles:</strong> Select the named database through PCC Library, sign in if asked, and search the exact article title. <strong>Open-web texts:</strong> Follow the original publication link. If a link is unavailable, do not treat it as a source you have read.</p></div>
@@ -1659,6 +1674,59 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
  window.addEventListener('field:tabchange',e=>{
    if(route)route.hidden=e.detail?.name==='begin';
  });
+})();
+</script>
+
+<script>
+(function(){
+'use strict';
+const g=id=>document.getElementById(id),directory='https://libguides.pittcc.edu/az/databases';
+const catalog=[
+{name:'Academic Search Complete',scope:'Broad · first search',why:'Explore academic articles across disciplines before narrowing your inquiry.',url:'https://libguides.pittcc.edu/articles'},
+{name:'ProQuest Central',scope:'Broad · alternative search',why:'Try a second multidisciplinary collection if your first search is too limited.',url:'https://libguides.pittcc.edu/articles'},
+{name:'JSTOR [Limited Collection]',scope:'Focused · humanities and interpretation',why:'Explore cultural, historical and philosophical scholarship. PCC provides limited full-text coverage.',match:/ethic|philosoph|literat|cultur|histor|relationship|indigenous|meaning|memory|identity|animal|human/i},
+{name:'Psychology Database',scope:'Focused · psychology and behavior',why:'Explore cognition, perception, behavior and psychological research.',match:/perception|cognit|emotion|psycholog|behavior|memory|trauma|vision|sensory/i},
+{name:'Social Science Database',scope:'Focused · society and community',why:'Explore social relationships, communities and institutions.',match:/community|gender|social|inequal|race|family|identity|labor|power/i},
+{name:'Education Database',scope:'Focused · education',why:'Explore learning, schools and educational experience.',match:/school|educat|teach|learn|student/i},
+{name:'PubMed',scope:'Focused · biomedical and life sciences',why:'Try biological or physiological questions; not every result offers full text.',match:/vision|color|colour|neuro|physiol|disease|health|biology|sensory|equine|horse/i},
+{name:'Credo Reference',scope:'Background · definitions',why:'Clarify an unfamiliar concept before searching for research articles.'}
+];
+function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x)n.textContent=x;return n;}
+function status(t){g('rs-status').textContent=t;}
+function words(){
+ const vals=[...(Array.isArray(state.keywordBank)?state.keywordBank:[]),...terms(),...(Array.isArray(state.followed)?state.followed:[])];
+ return [...new Set(vals.filter(x=>typeof x==='string'&&x.trim()))].slice(0,24);
+}
+function draw(){
+ const host=g('rs-words');host.replaceChildren();
+ const ws=words();
+ for(const w of ws){const b=node('button','secondary',w);b.type='button';b.addEventListener('click',()=>{const target=!g('rs-a').value.trim()?g('rs-a'):g('rs-b');target.value=w;target.focus();status('Added '+w+' to your search ideas.');});host.append(b);}
+ if(!ws.length)host.append(node('p','hint','No saved keywords yet. Type your own ideas below or return to Discover.'));
+}
+function recommendations(){
+ const query=g('rs-query').value,host=g('rs-databases');host.replaceChildren();
+ const matched=catalog.filter(x=>x.match?.test(query)).slice(0,2);
+ const entries=[catalog[0],...(matched.length?matched:[catalog[1]])];
+ for(const d of entries){const card=node('div','rs-db');card.append(node('h4','',d.name),node('p','hint',d.scope),node('p','',d.why));const link=node('a','','Open PCC guide to '+d.name+' ↗');link.href=d.url||directory;link.target='_blank';link.rel='noopener noreferrer';card.append(link,node('p','hint','Find '+d.name+' on the PCC page and sign in if required. Paste your copied search into the database.'));host.append(card);}
+ host.append(node('p','hint','Recommendations use keyword matching, not live search results. Database listings checked November 23, 2026. Access may require myPittCC login.'));
+}
+function build(){
+ const a=g('rs-a').value.trim(),b=g('rs-b').value.trim();
+ if(!a&&!b){status('Choose or enter at least one idea.');g('rs-a').focus();return;}
+ const quote=w=>/\s/.test(w)?'"'+w.replace(/"/g,'')+'"':w;
+ g('rs-query').value=[a,b].filter(Boolean).map(quote).join(' AND ');
+ g('rs-connection').textContent=a&&b?'Connection: '+a+' + '+b+'. AND asks the database for both ideas.':'Start broadly with your one idea; add a second if the results are too broad.';
+ ['rs-output','rs-database-step','rs-discovery-step'].forEach(id=>g(id).hidden=false);
+ recommendations();g('rs-query').focus();status('Your search is ready. Copy it and choose a database.');
+}
+g('rs-build').addEventListener('click',build);
+g('rs-query').addEventListener('change',recommendations);
+g('rs-copy').addEventListener('click',()=>copy(g('rs-query').value));
+g('rs-save-query').addEventListener('click',()=>{saveArray('savedSearches',g('rs-query').value);status('Saved to your journal.');});
+g('rs-add').addEventListener('click',()=>{const w=g('rs-discovery').value.trim();if(!w){status('Enter a new word first.');return;}const bank=Array.isArray(state.keywordBank)?state.keywordBank:[];if(!bank.some(x=>String(x).toLowerCase()===w.toLowerCase()))state.keywordBank=[...bank,w];persist();draw();g('rs-discovery').value='';status('Your discovery is now in your keyword bank.');});
+window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='search')draw();});
+document.addEventListener('toggle',e=>{if(e.target.id==='rs-advanced'&&e.target.open)draw();},true);
+draw();
 })();
 </script>
 </body></html>
