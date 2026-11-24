@@ -2055,4 +2055,36 @@ g('tc-save').onclick=()=>{const word=value('tc-word'),intent=value('tc-intent');
 function refresh(){g('tc-writing-text').textContent=draft()||'Your working thesis will appear here after you write one in Thesis Studio.';}
 g('tc-write').onclick=()=>{persist();tab('writing');};g('tc-map').onclick=()=>g('pathway-map')?.scrollIntoView({block:'start'});g('tc-compare').onclick=()=>{g('thesis-comparison-title')?.focus();g('thesis-comparison-title')?.scrollIntoView({block:'start'});};
 g('thesis-draft').addEventListener('input',refresh);window.addEventListener('field:tabchange',()=>{refresh();profile();context();});refresh();profile();context();
-})();</script><style>#thesis-conference [hidden]{display:none!important}#tc-notices button{display:block;width:100%;text-align:left;margin:.5rem 0;white-space:normal}#tc-profile>div{border-bottom:1px solid #ccd8cd;padding:.7rem 0}#tc-step2,#tc-step3{padding:.7rem 0}#thesis-conference button:focus-visible{outline:3px solid #245d4c;outline-offset:3px}</style></body></html>
+})();</script><style>#thesis-conference [hidden]{display:none!important}#tc-notices button{display:block;width:100%;text-align:left;margin:.5rem 0;white-space:normal}#tc-profile>div{border-bottom:1px solid #ccd8cd;padding:.7rem 0}#tc-step2,#tc-step3{padding:.7rem 0}#thesis-conference button:focus-visible{outline:3px solid #245d4c;outline-offset:3px}</style><style>
+#ux-entry,#ux-context,#ux-evidence{border:1px solid #9cb2a4;border-radius:12px;padding:1rem;margin:1rem 0;background:#fffefa;color:#203530}#ux-entry button,#ux-context button,#ux-evidence button{min-height:44px;white-space:normal}#ux-entry .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}#ux-evidence article{overflow-wrap:anywhere}#ux-context p{margin:.4rem 0}@media print{#ux-entry,#ux-context,#ux-evidence{display:none!important}}
+</style><script>
+(function(){
+'use strict';
+const g=id=>document.getElementById(id);
+function node(parent,tag,text){const e=document.createElement(tag);e.textContent=text;parent.append(e);return e;}
+function btn(parent,label,fn){const b=node(parent,'button',label);b.type='button';b.className='secondary';b.addEventListener('click',fn);return b;}
+function region(id,heading){const e=document.createElement('section');e.id=id;const h=node(e,'h3',heading);h.id=id+'-title';h.tabIndex=-1;e.setAttribute('aria-labelledby',h.id);return e;}
+const entry=region('ux-entry','Where are you in your journey?');
+node(entry,'p','Unlike a grammar or rewriting assistant, this notebook helps you explore what you mean. It offers questions and research possibilities, not finished essay sentences. You can start anywhere.');
+const choices=node(entry,'div','');choices.className='actions';
+const routes=[['I have an experience or memory','begin'],['I have a topic and need sources','search'],['I have a source and want to take notes','journal'],['I need to develop or reconsider my thesis','return'],['I need to plan or draft my essay','writing']];
+function go(name){if(g('field-workspace').hidden)g('field-welcome-start').click();tab(name);const h=g('field-section-title');h.tabIndex=-1;h.focus();}
+routes.forEach(([label,name])=>btn(choices,label,()=>go(name)));
+g('field-welcome-start').after(entry);
+const context=region('ux-context','What can I do here?');
+const help=node(context,'p','');const save=node(context,'p','Your work is stored in this browser, not in Moodle or an online account. Download a backup before changing devices.');save.setAttribute('role','status');
+g('field-subnav').after(context);
+const guidance={begin:'Start with your own words. An encounter is a lived experience or observation that raises a question.',explore:'A concept is an idea that helps name a pattern. A lens is a way of interpreting that pattern. Suggestions are possible connections, not conclusions; keep only what fits your experience.',search:'Combine ideas with AND to narrow a search, OR to include alternatives, and NOT carefully to exclude a term. Search the library database, then read the actual source.',read:'A suggested source is a starting point, not evidence until you read it. Use the library to locate the full text.',journal:'Record the author’s idea, a passage and its page or time, and your own response. A PDF on your shelf is not automatically read or analyzed.',return:'Observation means what you noticed. Interpretation means what you think it means. Significance means why it matters beyond the original moment. Your thesis can change.',biblio:'An annotation explains a source’s argument, usefulness and relationship to your inquiry. Check citation details against the original source.',writing:'Synthesis means bringing your experience and sources into conversation. Ask where they agree, differ, or change your understanding.'};
+const evidence=region('ux-evidence','Bring your reading into your writing');
+node(evidence,'p','Choose a saved Reading Journal entry to view its passage, source and your response beside your draft. Nothing is inserted into your essay automatically.');
+const label=node(evidence,'label','Choose a reading note');label.htmlFor='ux-note-select';const select=node(evidence,'select','');select.id='ux-note-select';select.style.maxWidth='100%';const output=node(evidence,'div','');output.setAttribute('aria-live','polite');
+btn(evidence,'Open Reading Journal',()=>go('journal'));
+g('tc-writing-companion').after(evidence);
+function show(){output.replaceChildren();const n=(state.readingNotes||[]).find(x=>String(x.id)===select.value);if(!n)return;const b=lookupSource(n.sourceId);const a=node(output,'article','');node(a,'h4',b?.title||'Saved source');node(a,'p',[b?.author,n.locator].filter(Boolean).join(' · '));node(a,'p','Recorded passage or note ('+(n.kind||'note')+'): '+(n.excerpt||''));node(a,'p','Author’s idea in my words: '+(n.authorIdea||''));node(a,'p','My response: '+(n.connection||''));node(a,'p','Writing question: Does this source support, complicate or challenge your interpretation? Explain the relationship in your own words.');}
+select.addEventListener('change',show);
+function refresh(){const old=select.value;select.replaceChildren();const first=node(select,'option','Choose a saved note…');first.value='';for(const n of state.readingNotes||[]){const b=lookupSource(n.sourceId);const o=node(select,'option',(b?.title||'Source')+' · '+(n.locator||'No locator'));o.value=String(n.id);}if([...select.options].some(o=>o.value===old))select.value=old;show();}
+window.addEventListener('field:tabchange',e=>{help.textContent=guidance[e.detail.name]||'';if(e.detail.name==='writing')refresh();});
+window.addEventListener('field:save',()=>{save.textContent='Notebook saved in this browser. Download a backup before switching devices.';});
+help.textContent=guidance.begin;refresh();
+})();
+</script></body></html>
