@@ -1729,4 +1729,22 @@ document.addEventListener('toggle',e=>{if(e.target.id==='rs-advanced'&&e.target.
 draw();
 })();
 </script>
+<script>
+(function(){
+document.addEventListener('click',function(e){
+ const b=e.target.closest('button');
+ if(!b)return;
+ const label=b.textContent.trim();
+ if(b.dataset.tab!=='begin' && label!=='Freewrite' && !b.classList.contains('edit-my-freewrite'))return;
+ const panel=document.getElementById('page-begin');
+ if(!panel)return;
+ try{if(typeof tab==='function')tab('begin');}catch(err){console.warn('Freewrite navigation fallback',err);}
+ for(const p of document.querySelectorAll('section.panel[id^="page-"]'))p.classList.toggle('hidden',p!==panel);
+ panel.hidden=false;
+ panel.classList.remove('hidden');
+ const clearing=document.getElementById('thread-clearing');if(clearing)clearing.classList.add('hidden');
+ panel.scrollIntoView({block:'start',behavior:'auto'});
+},false);
+})();
+</script>
 </body></html>
