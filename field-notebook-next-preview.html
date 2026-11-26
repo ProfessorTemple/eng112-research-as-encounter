@@ -570,7 +570,7 @@
  <div id="rs-words" class="rs-words"></div>
  <div class="two"><div class="field"><label for="rs-a">First idea</label><input id="rs-a"></div><div class="field"><label for="rs-b">Second idea (optional)</label><input id="rs-b"></div></div>
  <button type="button" class="primary rs-primary" id="rs-build">Build my search →</button>
- <div id="rs-output" hidden><div class="field"><label for="rs-query">My editable search</label><textarea id="rs-query" rows="2"></textarea></div><p class="hint" id="rs-connection"></p><button type="button" class="secondary" id="rs-copy">Copy search</button> <button type="button" class="secondary" id="rs-save-query">Save search to journal</button></div></div>
+ <div id="rs-output" hidden><div class="field"><label for="rs-query">My editable search</label><textarea id="rs-query" rows="2"></textarea></div><p class="hint" id="rs-connection"></p><button type="button" class="secondary" id="rs-copy">Copy search</button> <button type="button" class="secondary" id="rs-save-query">Save search to journal</button><p id="rs-local-status" role="status" class="hint"></p></div></div>
  <div class="rs-step" id="rs-database-step" hidden><h3>2. Find the right database</h3><div id="rs-databases"></div><details><summary>Broaden, narrow, or try another database</summary><p>Too few results? Remove a concept or try synonyms joined by OR. Too many? Add a distinct concept with AND. Start broad when you are unsure, and move to a subject database when you know your focus.</p><a href="https://libguides.pittcc.edu/az/databases" target="_blank" rel="noopener">Browse all PCC databases by subject</a></details></div>
  <div class="rs-step" id="rs-discovery-step" hidden><h3>3. Bring back a discovery</h3><div class="field"><label for="rs-discovery">What new word or phrase did you encounter?</label><input id="rs-discovery" maxlength="100"></div><button type="button" class="secondary" id="rs-add">Add to my keyword bank</button> <button type="button" class="secondary" data-tab="journal">Record a source in my Reading Journal</button></div>
  <p role="status" id="rs-status" class="hint"></p>
@@ -1932,7 +1932,7 @@ const catalog=[
 {name:'Credo Reference',scope:'Background · definitions',why:'Clarify an unfamiliar concept before searching for research articles.'}
 ];
 function node(t,c,x){const n=document.createElement(t);if(c)n.className=c;if(x)n.textContent=x;return n;}
-function status(t){g('rs-status').textContent=t;}
+function status(t){g('rs-status').textContent=t;g('rs-local-status').textContent=t;}
 function words(){
  const vals=[...(window.fieldSelectedLensLabels?.()||[]),...(Array.isArray(state.studio?.selectedPhrases)?state.studio.selectedPhrases:[]),...(Array.isArray(state.keywordBank)?state.keywordBank:[]),...terms(),...(Array.isArray(state.followed)?state.followed:[])];
  return [...new Set(vals.filter(x=>typeof x==='string'&&x.trim()))].slice(0,24);
@@ -1947,7 +1947,7 @@ function recommendations(){
  const query=g('rs-query').value,host=g('rs-databases');host.replaceChildren();
  const matched=catalog.filter(x=>x.match?.test(query)).slice(0,2);
  const entries=[catalog[0],...(matched.length?matched:[catalog[1]])];
- for(const d of entries){const card=node('div','rs-db');card.append(node('h4','',d.name),node('p','hint',d.scope),node('p','',d.why));const direct=!!d.url;const cp=node('button','secondary','Copy my search terms');cp.type='button';cp.onclick=()=>copy(g('rs-query').value);const link=node('a','primary rs-launch',direct?'Open '+d.name+' ↗':'Find '+d.name+' in PCC’s database directory ↗');link.href=d.url||directory;link.target='_blank';link.rel='noopener noreferrer';card.append(cp,link,node('p','hint',(direct?'Sign in with your myPittCC email and password if prompted.':'Search the PCC directory for '+d.name+'.')+' Paste your copied search into the database. Return to this notebook tab to record a discovery.'));host.append(card);}
+ for(const d of entries){const card=node('div','rs-db');card.append(node('h4','',d.name),node('p','hint',d.scope),node('p','',d.why),node('p','hint',d===catalog[0]?'Suggested for every inquiry as a broad starting point.':matched.includes(d)?'Suggested because your search contains: '+(query.match(d.match)?.[0]||'a related subject term')+'.':'General alternative, not a specific match to your words.'));const direct=!!d.url;const cp=node('button','secondary','Copy my search terms');cp.type='button';cp.onclick=()=>copy(g('rs-query').value);const link=node('a','primary rs-launch',direct?'Open '+d.name+' ↗':'Find '+d.name+' in PCC’s database directory ↗');link.href=d.url||directory;link.target='_blank';link.rel='noopener noreferrer';card.append(cp,link,node('p','hint',(direct?'Sign in with your myPittCC email and password if prompted.':'Search the PCC directory for '+d.name+'.')+' Paste your copied search into the database. Return to this notebook tab to record a discovery.'));host.append(card);}
  host.append(node('p','hint','Recommendations use keyword matching, not live search results. Direct links for Academic Search Complete and ProQuest Central come from PCC’s library guide. Other recommendations use the directory until their direct links are verified.'));
 }
 function build(){
@@ -1957,12 +1957,12 @@ function build(){
  g('rs-query').value=[a,b].filter(Boolean).map(quote).join(' AND ');
  g('rs-connection').textContent=a&&b?'Connection: '+a+' + '+b+'. AND asks the database for both ideas.':'Start broadly with your one idea; add a second if the results are too broad.';
  ['rs-output','rs-database-step','rs-discovery-step'].forEach(id=>g(id).hidden=false);
- recommendations();g('rs-query').focus();status('Your search is ready. Copy it and choose a database.');
+ recommendations();g('rs-save-query').textContent='Save search to journal';g('rs-query').focus();status('Your search is ready. Copy it, save it, then choose a database below.');
 }
 g('rs-build').addEventListener('click',build);
 g('rs-query').addEventListener('change',recommendations);
 g('rs-copy').addEventListener('click',()=>copy(g('rs-query').value));
-g('rs-save-query').addEventListener('click',()=>{saveArray('savedSearches',g('rs-query').value);status('Saved to your journal.');});
+g('rs-save-query').addEventListener('click',()=>{const q=g('rs-query').value.trim();if(!q){status('Build or enter a search first.');return;}saveArray('savedSearches',q);const ok=g('save-status')?.textContent.includes('Saved in this browser');status(ok?'Saved to your journal in this browser. You can find it under Searches to try.':'Search recorded for this session; browser saving may be unavailable. Download a backup.');g('rs-save-query').textContent=ok?'✓ Search saved':'Save search to journal';});g('rs-query').addEventListener('input',()=>{g('rs-save-query').textContent='Save search to journal';g('rs-local-status').textContent='';});
 g('rs-add').addEventListener('click',()=>{const w=g('rs-discovery').value.trim();if(!w){status('Enter a new word first.');return;}const bank=Array.isArray(state.keywordBank)?state.keywordBank:[];if(!bank.some(x=>String(x).toLowerCase()===w.toLowerCase()))state.keywordBank=[...bank,w];persist();draw();g('rs-discovery').value='';status('Your discovery is now in your keyword bank.');});
 window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='search')draw();});
 document.addEventListener('toggle',e=>{if(e.target.id==='rs-advanced'&&e.target.open)draw();},true);
@@ -2195,7 +2195,7 @@ const first=document.querySelector('.lts-floor-nav button');if(first)first.click
 function reveal(){field.scrollIntoView({block:'center',behavior:'instant'});}
 field.focus({preventScroll:true});reveal();requestAnimationFrame(()=>requestAnimationFrame(reveal));setTimeout(reveal,350);
 },true);
-</script><style>.lts-floor-feedback:not(:empty){border:1px solid #9cb2a4;border-radius:10px;padding:1rem;margin:.75rem 0;background:#fffefa;overflow-wrap:anywhere}.lts-floor-feedback blockquote{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid #245d4c}.lts-floor-feedback h4{margin:.8rem 0 .3rem}</style><script>(function(){const p=document.createElement('p');p.textContent='Experimental notebook · Version 9.2 · Inquiry Companion';p.className='hint';p.style.textAlign='center';document.body.append(p);const n=document.getElementById('lts-nav');if(n){const v=document.createElement('small');v.textContent='Thesis Studio v9.2';n.before(v);}})();</script>
+</script><style>.lts-floor-feedback:not(:empty){border:1px solid #9cb2a4;border-radius:10px;padding:1rem;margin:.75rem 0;background:#fffefa;overflow-wrap:anywhere}.lts-floor-feedback blockquote{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid #245d4c}.lts-floor-feedback h4{margin:.8rem 0 .3rem}</style><script>(function(){const p=document.createElement('p');p.textContent='Experimental notebook · Version 9.3 · Research navigation';p.className='hint';p.style.textAlign='center';document.body.append(p);const n=document.getElementById('lts-nav');if(n){const v=document.createElement('small');v.textContent='Thesis Studio v9.2';n.before(v);}})();</script>
 <script>
 (function(){
 const g=id=>document.getElementById(id), normL=x=>String(x||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim(), val=id=>g(id)?.value||'';
