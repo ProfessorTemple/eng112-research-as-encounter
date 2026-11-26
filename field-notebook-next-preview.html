@@ -570,9 +570,9 @@
  <div id="rs-words" class="rs-words"></div>
  <div class="two"><div class="field"><label for="rs-a">First idea</label><input id="rs-a"></div><div class="field"><label for="rs-b">Second idea (optional)</label><input id="rs-b"></div></div>
  <button type="button" class="primary rs-primary" id="rs-build">Build my search →</button>
- <div id="rs-output" hidden><div class="field"><label for="rs-query">My editable search</label><textarea id="rs-query" rows="2"></textarea></div><p class="hint" id="rs-connection"></p><button type="button" class="secondary" id="rs-copy">Copy search</button> <button type="button" class="secondary" id="rs-save-query">Save search to journal</button><p id="rs-local-status" role="status" class="hint"></p></div></div>
+ <div id="rs-output" hidden><div class="field"><label for="rs-query">My editable search</label><textarea id="rs-query" rows="2"></textarea></div><p class="hint" id="rs-connection"></p><button type="button" class="secondary" id="rs-copy">Copy search</button> <button type="button" class="secondary" id="rs-save-query">Save search to journal</button><p id="rs-local-status" role="status" class="hint"></p><details id="rs-alternatives"><summary>Explore alternative searches (optional)</summary><p class="hint">Try a broader search or a related concept. These are possibilities, not search results. Your original ideas stay unchanged.</p><div id="rs-alternative-list"></div><p id="rs-alt-status" role="status"></p></details></div></div>
  <div class="rs-step" id="rs-database-step" hidden><h3>2. Find the right database</h3><div id="rs-databases"></div><details><summary>Broaden, narrow, or try another database</summary><p>Too few results? Remove a concept or try synonyms joined by OR. Too many? Add a distinct concept with AND. Start broad when you are unsure, and move to a subject database when you know your focus.</p><a href="https://libguides.pittcc.edu/az/databases" target="_blank" rel="noopener">Browse all PCC databases by subject</a></details></div>
- <div class="rs-step" id="rs-discovery-step" hidden><h3>3. Bring back a discovery</h3><div class="field"><label for="rs-discovery">What new word or phrase did you encounter?</label><input id="rs-discovery" maxlength="100"></div><button type="button" class="secondary" id="rs-add">Add to my keyword bank</button> <button type="button" class="secondary" data-tab="journal">Record a source in my Reading Journal</button></div>
+ <div class="rs-step" id="rs-discovery-step" hidden><h3>3. Bring back a discovery</h3><div class="field"><label for="rs-discovery">What new word or phrase did you encounter?</label><input id="rs-discovery" maxlength="100"></div><button type="button" class="secondary" id="rs-add">Save discovery to my Living Lexicon</button><p id="rs-discovery-status" role="status" class="hint"></p> <button type="button" class="secondary" data-tab="journal">Record a source in my Reading Journal</button></div>
  <p role="status" id="rs-status" class="hint"></p>
 </section>
 <details class="rs-advanced" id="rs-advanced"><summary>Explore more keywords and advanced search options</summary>
@@ -1943,6 +1943,18 @@ function draw(){
  for(const w of ws){const b=node('button','secondary',w);b.type='button';b.addEventListener('click',()=>{const target=!g('rs-a').value.trim()?g('rs-a'):g('rs-b');target.value=w;target.focus();status('Added '+w+' to your search ideas.');});host.append(b);}
  if(!ws.length)host.append(node('p','hint','No saved keywords yet. Type your own ideas below or return to Discover.'));
 }
+function saveDiscovery(w,origin){if(!Array.isArray(state.keywordBank))state.keywordBank=[];if(!state.keywordBank.some(x=>String(x).toLowerCase()===w.toLowerCase()))state.keywordBank.push(w);if(!Array.isArray(state.livingLexicon))state.livingLexicon=[];let entry=state.livingLexicon.find(x=>String(x.word).toLowerCase()===w.toLowerCase());if(!entry){entry={word:w,origins:[],reflection:''};state.livingLexicon.push(entry);}if(!entry.origins.includes(origin))entry.origins.push(origin);entry.dismissed=false;persist();}
+function alternatives(){
+const host=g('rs-alternative-list');host.replaceChildren();g('rs-alt-status').textContent='';
+const a=g('rs-a').value.trim(),b=g('rs-b').value.trim(),q=[a,b].filter(Boolean).join(' ');if(!q)return;
+const quote=w=>/\s/.test(w)?'"'+w.replace(/"/g,'')+'"':w;
+const rows=[];if(a&&b)rows.push({term:'',query:quote(a),why:'Start with one idea to see the vocabulary used in the field.'});
+if(a&&b&&/\band\b/i.test(b)){const parts=b.split(/\s+and\s+/i).filter(Boolean);rows.push({term:'',query:quote(a)+' AND ('+parts.map(quote).join(' OR ')+')',why:'Try either part of your second idea instead of requiring the entire phrase.'});}
+const concepts=[[/animal|firefl|perception|sensory|nonhuman/i,'Umwelt','Explore the perceptual world of a particular organism.'],[/animal|firefl|perception|sensory/i,'sensory ecology','Investigate how organisms sense and respond to their surroundings.'],[/animal|cognit|intelligence|knowing/i,'animal cognition','Explore information processing; this is not identical to perception.'],[/threshold|imagined world|embodi|perception/i,'phenomenology','Explore lived experience and perception as a philosophical approach.'],[/garden|plant|care|reciproc|interdepend/i,'ecological interdependence','Investigate relationships and mutual reliance.'],[/grandmother|family|ancestr|memory|tradition/i,'intergenerational knowledge','Explore how knowledge travels across generations.'],[/gender|labor|care|family/i,'care work','Investigate the social meaning and distribution of care.']];
+for(const [pattern,term,why] of concepts.filter(x=>x[0].test(q)).slice(0,4)){if(q.toLowerCase().includes(term.toLowerCase()))continue;rows.push({term,query:[a||b,term].map(quote).join(' AND '),why});}
+if(!rows.length)host.append(node('p','hint','Try a related term from your reading, or search your first idea alone.'));
+for(const row of rows){const box=node('div','rs-db');box.append(node('strong','',row.query),node('p','hint',row.why));const use=node('button','secondary','Try this search');use.type='button';use.onclick=()=>{g('rs-query').value=row.query;g('rs-query').dispatchEvent(new Event('input',{bubbles:true}));recommendations();g('rs-alt-status').textContent='Search updated above. Save or copy it when ready.';};box.append(use);if(row.term){const keep=node('button','secondary','Keep '+row.term+' in my Lexicon');keep.type='button';keep.onclick=()=>{saveDiscovery(row.term,'Suggested research concept');keep.textContent='✓ Kept '+row.term;g('rs-alt-status').textContent='Concept recorded. Check its meaning in a source before using it in your essay.';draw();};box.append(keep);}host.append(box);}
+}
 function recommendations(){
  const query=g('rs-query').value,host=g('rs-databases');host.replaceChildren();
  const matched=catalog.filter(x=>x.match?.test(query)).slice(0,2);
@@ -1957,13 +1969,13 @@ function build(){
  g('rs-query').value=[a,b].filter(Boolean).map(quote).join(' AND ');
  g('rs-connection').textContent=a&&b?'Connection: '+a+' + '+b+'. AND asks the database for both ideas.':'Start broadly with your one idea; add a second if the results are too broad.';
  ['rs-output','rs-database-step','rs-discovery-step'].forEach(id=>g(id).hidden=false);
- recommendations();g('rs-save-query').textContent='Save search to journal';g('rs-query').focus();status('Your search is ready. Copy it, save it, then choose a database below.');
+ recommendations();alternatives();g('rs-save-query').textContent='Save search to journal';g('rs-query').focus();status('Your search is ready. Copy it, save it, then choose a database below.');
 }
 g('rs-build').addEventListener('click',build);
 g('rs-query').addEventListener('change',recommendations);
 g('rs-copy').addEventListener('click',()=>copy(g('rs-query').value));
 g('rs-save-query').addEventListener('click',()=>{const q=g('rs-query').value.trim();if(!q){status('Build or enter a search first.');return;}saveArray('savedSearches',q);const ok=g('save-status')?.textContent.includes('Saved in this browser');status(ok?'Saved to your journal in this browser. You can find it under Searches to try.':'Search recorded for this session; browser saving may be unavailable. Download a backup.');g('rs-save-query').textContent=ok?'✓ Search saved':'Save search to journal';});g('rs-query').addEventListener('input',()=>{g('rs-save-query').textContent='Save search to journal';g('rs-local-status').textContent='';});
-g('rs-add').addEventListener('click',()=>{const w=g('rs-discovery').value.trim();if(!w){status('Enter a new word first.');return;}const bank=Array.isArray(state.keywordBank)?state.keywordBank:[];if(!bank.some(x=>String(x).toLowerCase()===w.toLowerCase()))state.keywordBank=[...bank,w];persist();draw();g('rs-discovery').value='';status('Your discovery is now in your keyword bank.');});
+g('rs-add').addEventListener('click',()=>{const w=g('rs-discovery').value.trim();if(!w){status('Enter a new word first.');return;}saveDiscovery(w,'Research discovery');draw();g('rs-discovery').value='';g('rs-discovery-status').textContent='Recorded: '+w+'. Revisit it in your Living Lexicon when developing your thesis.';});
 window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='search')draw();});
 document.addEventListener('toggle',e=>{if(e.target.id==='rs-advanced'&&e.target.open)draw();},true);
 draw();
@@ -2195,7 +2207,7 @@ const first=document.querySelector('.lts-floor-nav button');if(first)first.click
 function reveal(){field.scrollIntoView({block:'center',behavior:'instant'});}
 field.focus({preventScroll:true});reveal();requestAnimationFrame(()=>requestAnimationFrame(reveal));setTimeout(reveal,350);
 },true);
-</script><style>.lts-floor-feedback:not(:empty){border:1px solid #9cb2a4;border-radius:10px;padding:1rem;margin:.75rem 0;background:#fffefa;overflow-wrap:anywhere}.lts-floor-feedback blockquote{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid #245d4c}.lts-floor-feedback h4{margin:.8rem 0 .3rem}</style><script>(function(){const p=document.createElement('p');p.textContent='Experimental notebook · Version 9.3 · Research navigation';p.className='hint';p.style.textAlign='center';document.body.append(p);const n=document.getElementById('lts-nav');if(n){const v=document.createElement('small');v.textContent='Thesis Studio v9.2';n.before(v);}})();</script>
+</script><style>.lts-floor-feedback:not(:empty){border:1px solid #9cb2a4;border-radius:10px;padding:1rem;margin:.75rem 0;background:#fffefa;overflow-wrap:anywhere}.lts-floor-feedback blockquote{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid #245d4c}.lts-floor-feedback h4{margin:.8rem 0 .3rem}</style><script>(function(){const p=document.createElement('p');p.textContent='Experimental notebook · Version 9.4 · Search discovery';p.className='hint';p.style.textAlign='center';document.body.append(p);const n=document.getElementById('lts-nav');if(n){const v=document.createElement('small');v.textContent='Thesis Studio v9.2';n.before(v);}})();</script>
 <script>
 (function(){
 const g=id=>document.getElementById(id), normL=x=>String(x||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim(), val=id=>g(id)?.value||'';
@@ -2210,7 +2222,7 @@ function add(w,origin){w=String(w||'').trim().slice(0,100);if(!w)return;let a=le
 function collect(){
 const entries=[['Freewriting',val('encounter')],['Search reflection',val('search-reflection')],['Thesis',[val('what'),val('soWhat'),val('nowWhat'),val('thesis-draft')].join(' ')],['Essay',val('ws-essay-body')]];
 for(const id of ['idea1','idea2','idea3','termA','termB','termC','altA','altB','rs-a','rs-b'])add(val(id),'Search / inquiry term');
-for(const w of state.followed||[])if(typeof w==='string')add(w,'Concept Explorer');
+for(const w of state.followed||[])if(typeof w==='string')add(w,'Concept Explorer');for(const w of state.keywordBank||[])if(typeof w==='string')add(w,'Research keyword bank');
 for(const n of state.readingNotes||[])entries.push(['Reading Journal',[n.authorIdea,n.connection,n.excerpt].filter(Boolean).join(' ')]);
 for(const [origin,t] of entries)for(const group of groups)for(const w of group)if(has(t,w))add(w,origin);
 }
