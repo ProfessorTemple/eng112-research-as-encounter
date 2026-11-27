@@ -59,3 +59,15 @@ for(const [query,expected] of fresh){
  const accepted=ranked[0].score>=threshold;
  console.log('LENS',JSON.stringify({query,expected,top:ranked.slice(0,2),top2:expected?ranked.slice(0,2).some(x=>x.id===expected):null,accepted,threshold}));
 }
+
+ // Compare separate concept anchors against concatenated profiles.
+const anchorTexts=lenses.flatMap(l=>[l.description,...l.anchors].map(x=>({id:l.id,text:x})));
+const av=(await embed(anchorTexts.map(a=>prefix(a.text,false)),{pooling:'mean',normalize:true})).tolist();
+for(const [query,expected] of fresh){
+ const q=(await embed([prefix(query,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const ranked=lenses.map(l=>{
+  const scores=anchorTexts.map((a,i)=>a.id===l.id?cosine(q,av[i]):-Infinity).filter(Number.isFinite).sort((a,b)=>b-a);
+  return {id:l.id,score:+((scores[0]+scores[1])/2).toFixed(4)};
+ }).sort((a,b)=>b.score-a.score);
+ console.log('ANCHOR',JSON.stringify({query,expected,top:ranked.slice(0,2),top2:expected?ranked.slice(0,2).some(x=>x.id===expected):null}));
+}
