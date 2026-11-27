@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {buildContext} from './ai-inquiry-context.mjs';
+const records=[{id:'a',kind:'encounter',text:'Grandmother saved seeds.'},{id:'b',kind:'reading',text:'My note on reciprocity.'},{id:'c',kind:'interview',text:'Private family memory.'}];
+assert.deepEqual(buildContext(records,[]),[]);
+assert.deepEqual(buildContext(records,['b','a']),[records[1],records[0]]);
+assert.equal(buildContext(records,['a']).some(r=>r.id==='c'),false);
+const snapshot=buildContext(records,['a']);records[0].text='Changed';assert.equal(snapshot[0].text,'Grandmother saved seeds.');
+assert.throws(()=>buildContext(records,['unknown']));
+assert.throws(()=>buildContext(records,['a','a']));
+assert.throws(()=>buildContext([...records,records[0]],['a']));
+assert.throws(()=>buildContext([{id:'x',kind:'inferred-belief',text:'Invented'}],['x']));
+assert.throws(()=>buildContext([{id:'x',kind:'draft',text:'x'.repeat(1501)}],['x']));
+assert.throws(()=>buildContext(records,['a','b','c','d']));
+console.log('10 context selection checks passed');
