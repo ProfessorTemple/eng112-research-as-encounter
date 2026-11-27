@@ -16,8 +16,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-save @huggingface/transformers@3.7.2
-      - run: node tests/semantic-model-evaluation.mjs | tee semantic-results.txt
+      - run: npm install --no-save @huggingface/transformers@3.7.2 --onnxruntime-node-install-cuda=skip
+      - run: set -o pipefail; node tests/semantic-model-evaluation.mjs | tee semantic-results.txt
         shell: bash
       - uses: actions/upload-artifact@v4
         if: always()
