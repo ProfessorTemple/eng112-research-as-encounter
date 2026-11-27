@@ -4,6 +4,29 @@ const url=process.env.NOTEBOOK_URL || 'https://professortemple.github.io/eng112-
 for(const viewport of [{width:390,height:844},{width:1440,height:900}]){
 test.describe('Notebook '+viewport.width,()=>{
 test.use({viewport});
+test('interdisciplinary invitations recognize philosophy and cultural studies without imposing ecological interpretations',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const lenses=page.locator('#lens-recommendations');
+ async function examine(passage){
+  await page.locator('[data-field-space="discover"]').click();
+  if(await page.locator('#encounter').isHidden()){await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Freewrite',exact:true}).click();}
+  await page.locator('#encounter').fill(passage);
+  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();
+ }
+ for(const [passage,id] of [
+ ['I wondered about the nature of reality and what exists. What is real?','ontology'],
+ ['I faced a moral dilemma about a moral obligation and what ought to happen.','moral-philosophy'],
+ ['I noticed stereotypes and a media portrayal that shaped cultural identity.','cultural-representation'],
+ ['Our family traditions preserve collective memory and shared history.','cultural-memory'],
+ ['My grandfather handed down knowledge and taught me how to repair a clock.','cultural-transmission'],
+ ['The students described peer pressure and social expectations.','socialization']
+ ]){
+  await examine(passage);
+  await expect(lenses.locator('[data-lens="'+id+'"]')).toHaveCount(1);
+  expect(await lenses.locator('[data-lens]').count()).toBeLessThanOrEqual(2);
+  await expect(lenses).not.toContainText('Ecology and environment');
+ }
+});
 test('contextual lenses distinguish family conversation from ecology and abstain on vague language',async({page})=>{
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  const lenses=page.locator('#lens-recommendations');
