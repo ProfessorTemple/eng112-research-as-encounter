@@ -336,10 +336,10 @@ test('interrupted thesis work resumes at the exact floor and returns there after
  await page.reload({waitUntil:'domcontentloaded'});
  await expect(page.locator('#field-welcome-saved')).toContainText('Three-Story Thesis');
  await page.locator('#field-welcome-start').click();
- await expect(significance).toBeVisible();await expect(significance).toBeFocused();
+ await expect(significance).toBeVisible();await expect(page.locator('#page-return h2').first()).toBeFocused();
  await expect(significance).toHaveValue('My unfinished wider implication.');
  await page.locator('#field-revisit-earlier').click();await page.locator('#field-return-current').click();
- await expect(significance).toBeFocused();
+ await expect(page.locator('#page-return h2').first()).toBeFocused();
  await page.locator('#lts-nav').getByRole('button',{name:'Refine',exact:true}).click();
  await page.reload({waitUntil:'domcontentloaded'});
  await expect(page.locator('#lts-refine')).toBeVisible();await expect(page.locator('#lts-build')).toBeHidden();
@@ -1053,6 +1053,33 @@ test('activity-specific help stays optional and moves with the student without c
  await expect(help).not.toHaveAttribute('open','');await expect(help).toHaveCount(1);
  expect(errors).toEqual([]);
 });
+
+test('first-time route resumes chosen words and unfinished searches without reopening the keyboard',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('#encounter').fill('I watched fireflies near the creek with my grandmother.');
+ await page.locator('#discover-threads').click();
+ await page.locator('#custom-phrase').fill('fireflies');await page.locator('#add-custom-phrase').click();
+ await page.reload({waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await expect(page.locator('#ux-words-heading')).toBeVisible();
+ await expect(page.locator('#ux-words-heading')).toBeFocused();
+ await expect(page.locator('#phrase-results input[value="fireflies"]')).toBeChecked();
+ await page.locator('#ux-to-concepts').click();
+ await page.locator('#thesis-question').fill('How do fireflies communicate?');
+ await page.locator('#explore-continue').click();
+ await page.locator('#rs-a').fill('fireflies');await page.locator('#rs-b').fill('communication');
+ await page.locator('#rs-build').click();await expect(page.locator('#rs-ready-heading')).toBeFocused();
+ await page.locator('#rs-query').fill('fireflies AND signaling');await page.locator('#rs-outcome').selectOption('many');
+ await page.reload({waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await expect(page.locator('#page-search h2')).toBeFocused();
+ await expect(page.locator('#rs-a')).toHaveValue('fireflies');await expect(page.locator('#rs-b')).toHaveValue('communication');
+ await expect(page.locator('#rs-query')).toHaveValue('fireflies AND signaling');await expect(page.locator('#rs-output')).toBeVisible();
+ await expect(page.locator('#rs-outcome')).toHaveValue('many');
+ expect(errors).toEqual([]);
+});
 test('optional earlier work is a reversible detour and a resumed notebook identifies the activity',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});
@@ -1063,14 +1090,14 @@ test('optional earlier work is a reversible detour and a resumed notebook identi
  await page.locator('#field-revisit-earlier').click();
  await expect(page.locator('#field-earlier-title')).toBeFocused();
  await page.locator('#field-return-current').click();
- await expect(draft).toBeFocused();
+ await expect(page.locator('#page-writing h2')).toBeFocused();
  await expect(draft).toHaveText('A synthetic paragraph that belongs to the student.');
  await page.evaluate(()=>sessionStorage.removeItem('eng112-next-preview-workspace-open-v1'));
  await page.reload({waitUntil:'domcontentloaded'});
  await expect(page.locator('#field-welcome-start')).toHaveText('Continue my notebook');
  await expect(page.locator('#field-welcome-saved')).toContainText('Return to Essay draft');
  await page.locator('#field-welcome-start').click();
- await expect(draft).toBeFocused();
+ await expect(page.locator('#page-writing h2')).toBeFocused();
  await expect(draft).toHaveText('A synthetic paragraph that belongs to the student.');
  await page.locator('[data-field-space="research"]').click();
  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();
