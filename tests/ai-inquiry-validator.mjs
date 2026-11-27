@@ -13,5 +13,8 @@ export function validateInquiryResponse(value, suppliedText) {
   if(status==='question' && (!question.trim().endsWith('?')||(question.match(/\?/g)||[]).length!==1)) return reject('single question required');
   if(status==='question' && /(?:^|[.!]\s+)(?:the|your) (?:thesis|interpretation|argument|main claim) (?:is|should be)\b/i.test(question)) return reject('explicit answer giving');
   if(status==='question' && /^(?:here is|here's) (?:your|a) (?:thesis|paragraph|essay)\b/i.test(question.trim())) return reject('explicit answer giving');
+  if(status==='question' && evidence.length===0) return reject('missing grounding');
+  if(status==='question' && /^(?:don't you agree|wouldn't you agree|isn't it obvious|surely you agree)\b/i.test(question.trim())) return reject('leading question');
+  if(status==='question' && /^(?:ignore (?:all |the )?(?:previous|prior)|disregard (?:all |the )?(?:previous|prior))/i.test(question.trim())) return reject('instruction override');
   return {ok:true,response:{status,question,evidence:[...evidence],rationale_type}};
 }
