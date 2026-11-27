@@ -34,6 +34,6 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+\/field-notebook-next-preview\.html
   }
  }finally{await browser.close();}
  fs.writeFileSync('notebook-accessibility-report.json',JSON.stringify(report,null,2));
- console.log(JSON.stringify(report.map(r=>({viewport:r.viewport.width,screen:r.name,horizontalOverflow:r.reflow.scrollWidth>r.reflow.viewport+1,rules:r.violations.map(v=>({id:v.id,nodes:v.nodes.length,impact:v.impact})),manualReview:r.manualReview.map(v=>v.id)})),null,2));
+ console.log(JSON.stringify(report.map(r=>({viewport:r.viewport.width,screen:r.name,horizontalOverflow:r.reflow.scrollWidth>r.reflow.viewport+1,rules:r.violations.map(v=>({id:v.id,nodes:v.nodes,impact:v.impact})),manualReview:r.manualReview.map(v=>({id:v.id,nodes:v.nodes}))})),null,2));
  console.log('Report only: successful execution does not mean accessibility conformance.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
