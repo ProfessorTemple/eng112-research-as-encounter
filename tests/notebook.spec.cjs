@@ -4,6 +4,23 @@ const url=process.env.NOTEBOOK_URL || 'https://professortemple.github.io/eng112-
 for(const viewport of [{width:390,height:844},{width:1440,height:900}]){
 test.describe('Notebook '+viewport.width,()=>{
 test.use({viewport});
+test('contextual lenses distinguish family conversation from ecology and abstain on vague language',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const lenses=page.locator('#lens-recommendations');
+ async function examine(passage){
+  await page.locator('[data-field-space="discover"]').click();
+  if(await page.locator('#encounter').isHidden()){await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Freewrite',exact:true}).click();}
+  await page.locator('#encounter').fill(passage);
+  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();
+ }
+ await examine('I talked with my grandfather about his childhood. We shared a conversation about what matters.');
+ await expect(lenses).toContainText('Intergenerational');await expect(lenses.locator('[data-lens]')).toHaveCount(1);
+ await examine('We shared a relationship. It was a matter of care.');
+ await expect(lenses).toContainText('Not enough specific clues');
+ await examine('I watched birds beside the creek and noticed their movement.');
+ await expect(lenses.locator('[data-lens]')).not.toHaveCount(0);
+ expect(await lenses.locator('[data-lens]').count()).toBeLessThanOrEqual(2);
+});
 test('guided route shows actual work and a single next task while optional detours remain available',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
