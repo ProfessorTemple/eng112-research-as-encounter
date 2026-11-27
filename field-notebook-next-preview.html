@@ -2316,7 +2316,7 @@ let essayRange=null;
 function rememberEssayRange(){const selection=window.getSelection();if(!selection||!selection.rangeCount)return;const range=selection.getRangeAt(0);if(editor.contains(range.startContainer)&&editor.contains(range.endContainer))essayRange=range.cloneRange();}
 document.addEventListener('selectionchange',rememberEssayRange);
 editor.addEventListener('focusout',rememberEssayRange);
-function returnToEssay(){const range=essayRange;editor.focus({preventScroll:true});if(range&&editor.contains(range.startContainer)&&editor.contains(range.endContainer)){const selection=window.getSelection();if(selection){selection.removeAllRanges();selection.addRange(range);}}else{const end=document.createRange();end.selectNodeContents(editor);end.collapse(false);const selection=window.getSelection();if(selection){selection.removeAllRanges();selection.addRange(end);}}editor.scrollIntoView({block:'nearest'});}
+function returnToEssay(){const range=essayRange;editor.focus({preventScroll:true});if(range&&editor.contains(range.startContainer)&&editor.contains(range.endContainer)){const selection=window.getSelection();if(selection){const point=range.cloneRange();point.collapse(false);selection.removeAllRanges();selection.addRange(point);}}else{const end=document.createRange();end.selectNodeContents(editor);end.collapse(false);const selection=window.getSelection();if(selection){selection.removeAllRanges();selection.addRange(end);}}editor.scrollIntoView({block:'nearest'});}
 
 const card=document.createElement('section');card.className='ws-card';card.setAttribute('aria-label','My Inquiry Companion');make('h3','My Inquiry Companion',card);make('p','Keep your earlier discoveries within reach as you write. Start with any paragraph that feels meaningful.',card);
 const d=make('details','',card);make('summary','Open my inquiry, sources and paragraph directions',d);const host=make('div','',d);host.setAttribute('aria-live','polite');
@@ -2479,13 +2479,13 @@ button(review,'I am ready to continue',()=>stopReflection('I am ready to continu
 button(review,'A boundary on what I can share',()=>stopReflection('A boundary on what I can share','You can leave private or restricted knowledge out. Continue with what you have permission to discuss. This choice does not erase saved notebook material.'));
 invalidateReview(ai,ar,x=>reviewedPassage=x);invalidateReview(input,result,x=>{reviewedParagraph=x;if(!x){chosenReflection=null;relationSelection=null;}});if(reviewedPassage)exploreButton.click();if(reviewedParagraph)reflectButton.click();for(const x of host.querySelectorAll('details'))if(opened.has(x.querySelector('summary')?.textContent))x.open=true;}
 const draftStatus=make('p','Passages for review are temporary until you save them to this notebook. Unfinished trail reflections save locally as you type.',card);draftStatus.setAttribute('role','status');button(card,'Save working passages',()=>{if(!d.open&&!host.querySelector('#attentive-passage')){draftStatus.textContent='Open your inquiry companion first.';return;}draftStatus.textContent=saveInquiryDrafts()?'Working passages saved in this browser. They are not Reading Journal entries.':'Browser saving failed. Keep a separate copy of your passages.';});restoreInquiryDrafts();
-window.addEventListener('field:save',()=>{if(draftOwner!==state){if(host.childNodes.length)refresh();else restoreInquiryDrafts();}});d.addEventListener('toggle',()=>{if(d.open)refresh();});button(card,'Refresh my inquiry companion',()=>{if(d.open)refresh();else d.open=true;});const body=editor.closest('.ws-body-card');if(body)body.after(card);
+window.addEventListener('field:save',()=>{if(draftOwner!==state){if(host.childNodes.length)refresh();else restoreInquiryDrafts();}});d.addEventListener('toggle',()=>{if(d.open&&!host.contains(document.activeElement))refresh();});button(card,'Refresh my inquiry companion',()=>{if(d.open)refresh();else d.open=true;});const body=editor.closest('.ws-body-card');if(body)body.after(card);
  const toolbar=g('ws-bold')?.parentElement;
  if(toolbar){
   const openReview=button(toolbar,'Reflect on a passage',()=>{
    const range=essayRange;const selected=range&&!range.collapsed&&editor.contains(range.startContainer)&&editor.contains(range.endContainer)?range.toString().trim():'';
-   if(!d.open)d.open=true;
-   if(!host.querySelector('#ic-paragraph'))refresh();
+   if(!d.open){d.open=true;refresh();}
+   else if(!host.querySelector('#ic-paragraph'))refresh();
    const target=host.querySelector('#ic-paragraph');if(!target)return;
    const reviewPanel=target.closest('details');reviewPanel.open=true;
    if(selected&&target.value!==selected){
