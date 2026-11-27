@@ -2963,6 +2963,49 @@ function setCarriedInquiryPractice(next){
     }
   ]
 };
+ // One temporary, student-selected invitation at the existing writing field.
+ // No draft, reflection, learner profile or backup is written by this feature.
+ const integrationTargets=[
+  {id:'what',label:'My observation (first story)',question:'What particular detail can you describe before interpreting it through this concept?'},
+  {id:'soWhat',label:'My interpretation (second story)',question:'How might this concept change or complicate your interpretation, and what evidence could support that change?'},
+  {id:'nowWhat',label:'My significance (third story)',question:'What wider implication follows from your interpretation, and where might its reach be limited?'},
+  {id:'thesis-draft',label:'My working thesis',question:'How does this concept change the relationship between your observation, interpretation and significance?'},
+  {id:'ws-essay-rich',label:'My essay draft',question:'Which part of your own paragraph, if any, becomes more precise through this concept? What would support that interpretation?'}
+ ];
+ let activeIntegration=null, integrationOwner=state;
+ function clearIntegration(){if(activeIntegration){activeIntegration.remove();activeIntegration=null;}}
+ function openIntegration(target,concept,distinction){
+  const field=g(target.id);if(!field)return;
+  if(target.id==='ws-essay-rich'){
+   if(g('page-writing').classList.contains('hidden'))tab('writing');
+  }else{
+   if(g('page-return').classList.contains('hidden'))tab('return');
+   const nav=g('lts-nav'),buttons=nav?.querySelectorAll('button');
+   if(target.id==='thesis-draft')buttons?.[2]?.click();
+   else{buttons?.[1]?.click();const index=['what','soWhat','nowWhat'].indexOf(target.id);g('lts-build')?.querySelectorAll('.lts-floor-nav button')[index]?.click();}
+  }
+  clearIntegration();integrationOwner=state;
+  const invitation=make('aside','',null);invitation.id='thinking-writing-invitation';invitation.className='no-print';invitation.setAttribute('aria-label','My chosen conceptual question');
+  const heading=make('strong','My chosen conceptual question · '+concept.term,invitation);
+  if(distinction){make('p','Distinction: '+distinction.a+' and '+distinction.b,invitation);make('p',distinction.question,invitation);}
+  make('p',target.question,invitation);
+  make('p','Use this only if it serves your writing. Your draft is unchanged, and you do not need to use the term itself.',invitation);
+  const dismiss=make('button','Continue without this question',invitation);dismiss.type='button';dismiss.className='secondary';
+  const back=make('button','Record my discovery in the intellectual trail',invitation);back.type='button';back.className='secondary';
+  const focusWriting=()=>{if(target.id==='ws-essay-rich'){g('field-resume-draft')?.click();}else{field.focus({preventScroll:true});field.scrollIntoView({block:'center',behavior:'auto'});}};
+  dismiss.addEventListener('click',()=>{clearIntegration();focusWriting();});
+  back.addEventListener('click',()=>{
+   clearIntegration();
+   if(g('page-writing').classList.contains('hidden'))tab('writing');
+   requestAnimationFrame(()=>document.querySelector('section[aria-label="My Inquiry Companion"]')?.dispatchEvent(new CustomEvent('field:revisit-trail',{detail:{kind:'unfinished'}})));
+  });
+  field.before(invitation);activeIntegration=invitation;
+  concepts.open=false;panel.open=false;
+  // Focus the invitation first so keyboard and screen-reader users encounter
+  // the chosen question before returning to the existing writing field.
+  invitation.tabIndex=-1;invitation.focus({preventScroll:true});invitation.scrollIntoView({block:'center',behavior:'auto'});
+ }
+ window.addEventListener('field:save',()=>{if(integrationOwner!==state){clearIntegration();integrationOwner=state;}});
  const concepts=make('details','',panel);concepts.id='thinking-concept-encounter';concepts.hidden=true;
  make('summary','Is there a concept for what I am exploring? (optional)',concepts);
  make('p','Begin with a question that feels relevant to your chosen piece. These curated resources are not automatic interpretations of your writing.',concepts);
@@ -3009,6 +3052,14 @@ function setCarriedInquiryPractice(next){
    });
   });
   transfer.addEventListener('toggle',()=>{if(!transfer.open)clearTransfer();});
+  const integrate=make('details','',conceptOut);integrate.id='thinking-concept-integration';make('summary','Bring this concept into my writing (optional)',integrate);
+  make('p','Choose a place where this concept might help you think. You can bring a distinction with you if you have selected one above. Your writing stays in its original field.',integrate);
+  const il=make('label','Where do I want to think further?',integrate),is=make('select','',integrate);is.id='thinking-integration-target';il.htmlFor=is.id;
+  is.add(new Option('Choose a writing space…',''));for(const target of integrationTargets)is.add(new Option(target.label,target.id));
+  const go=make('button','Bring my question to this writing space',integrate);go.type='button';go.className='secondary';go.disabled=true;
+  is.addEventListener('change',()=>{go.disabled=!integrationTargets.some(t=>t.id===is.value);});
+  go.addEventListener('click',()=>{const target=integrationTargets.find(t=>t.id===is.value);if(!target)return;const distinction=depth.open?pairs.find(p=>p.id===sel.value):null;openIntegration(target,c,distinction);});
+  integrate.addEventListener('toggle',()=>{if(!integrate.open){is.value='';go.disabled=true;}});
   const copy=make('button','Copy term for my research',conceptOut);copy.type='button';copy.className='secondary';
   const msg=make('p','',conceptOut);msg.setAttribute('role','status');
   copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(c.term);msg.textContent='Term copied. You can use it in a search or your own notes.';}catch(e){msg.textContent='Copy unavailable. Select the term above to copy it yourself.';}});
@@ -3083,5 +3134,5 @@ function setCarriedInquiryPractice(next){
  controls.forEach(c=>c.addEventListener('change',show));panel.addEventListener('toggle',()=>{if(panel.open)refresh();else{controls.forEach(c=>{c.value='';});views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;prompts.hidden=true;practice.open=false;practice.hidden=true;resetPractice();signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;concepts.open=false;concepts.hidden=true;clearConcept();}});
  window.addEventListener('field:save',refresh);
 })();
-</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-concept-encounter{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-concept-encounter select{width:100%;max-width:100%}#thinking-concept-encounter label{display:block}#thinking-concept-depth{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-distinction-result{overflow-wrap:anywhere}#thinking-concept-transfer{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-transfer-result{overflow-wrap:anywhere}#thinking-transfer-result details{margin:.4rem 0}#thinking-distinction-result .thinking-compare-grid>div{padding:.55rem;border:1px solid #c3d2c5;border-radius:8px}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
+</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-concept-encounter{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-concept-encounter select{width:100%;max-width:100%}#thinking-concept-encounter label{display:block}#thinking-concept-depth{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-distinction-result{overflow-wrap:anywhere}#thinking-concept-transfer{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-transfer-result{overflow-wrap:anywhere}#thinking-transfer-result details{margin:.4rem 0}#thinking-concept-integration{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-writing-invitation{border:1px solid #9cb2a4;border-radius:9px;padding:.65rem;margin:.65rem 0;overflow-wrap:anywhere}#thinking-writing-invitation p{margin:.35rem 0}#thinking-writing-invitation button{min-height:44px;margin:.25rem}#thinking-writing-invitation:focus-visible{outline:2px solid #245d4c;outline-offset:3px}#thinking-distinction-result .thinking-compare-grid>div{padding:.55rem;border:1px solid #c3d2c5;border-radius:8px}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
 </body></html>
