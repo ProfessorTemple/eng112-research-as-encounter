@@ -46,6 +46,31 @@ await page.reload({waitUntil:'domcontentloaded'});console.log('Opening journal')
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
 expect(errors).toEqual([]);
 });
+test('interrupted thesis work resumes at the exact floor and returns there after an optional detour',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="thesis"]').click();
+ await page.locator('#lts-nav').getByRole('button',{name:'Build',exact:true}).click();
+ await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact:true}).click();
+ await page.locator('#what').fill('A particular scene beside the creek.');
+ await page.locator('#lts-build').getByRole('button',{name:'3. Significance',exact:true}).click();
+ const significance=page.locator('#nowWhat');await significance.fill('My unfinished wider implication.');
+ await page.evaluate(()=>sessionStorage.removeItem('eng112-next-preview-workspace-open-v1'));
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect(page.locator('#field-welcome-saved')).toContainText('Three-Story Thesis');
+ await page.locator('#field-welcome-start').click();
+ await expect(significance).toBeVisible();await expect(significance).toBeFocused();
+ await expect(significance).toHaveValue('My unfinished wider implication.');
+ await page.locator('#field-revisit-earlier').click();await page.locator('#field-return-current').click();
+ await expect(significance).toBeFocused();
+ await page.locator('#lts-nav').getByRole('button',{name:'Refine',exact:true}).click();
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect(page.locator('#lts-refine')).toBeVisible();await expect(page.locator('#lts-build')).toBeHidden();
+ await page.locator('#lts-nav').getByRole('button',{name:'Build',exact:true}).click();
+ await expect(significance).toBeVisible();await expect(significance).toHaveValue('My unfinished wider implication.');
+ expect(errors).toEqual([]);
+});
 test('a complete student-led inquiry preserves evidence, authorship and reversible thesis handoffs',async({page})=>{
  test.setTimeout(60000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
