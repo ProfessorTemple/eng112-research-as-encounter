@@ -542,25 +542,28 @@
 <details class="legacy-bridge" id="ux-manual"><summary>Optional: enter research ideas yourself or revisit the earlier Prototype 2 approach</summary><p class="hint">You can still name three concepts manually or write about an assumption. This is optional and never required before you freewrite.</p><div class="field"><label for="assumption">An assumption or uncertainty, if one emerges</label><textarea id="assumption" rows="2" placeholder="At first I thought... / Now I wonder..."></textarea></div><div class="grid"><div class="field"><label for="idea1">Idea 1</label><input id="idea1" placeholder="An idea in your own language"></div><div class="field"><label for="idea2">Idea 2</label><input id="idea2" placeholder="A second idea"></div><div class="field"><label for="idea3">Idea 3</label><input id="idea3" placeholder="A third idea"></div></div><div class="actions"><button class="secondary" id="go-explore">Explore these ideas →</button><button class="secondary" id="example">Load grandmother's garden example</button></div></details>
 </section>
 <section class="panel hidden" id="page-explore" role="tabpanel" aria-labelledby="tab-explore">
-<div class="field-inline-return no-print"><button type="button" class="secondary edit-my-freewrite">← Edit My Freewrite</button></div>
-<h2>4. Explore different ways of seeing</h2><p class="hint">Optional scholarly lenses can deepen your own ideas. You may skip directly to research.</p><button type="button" class="primary ux-next" data-tab="search">Take my ideas into research →</button>
-<p>Your research begins with <strong>your own words and questions</strong>. You choose which ideas to carry forward. Afterward, the notebook may offer related scholarly language. None of these are proven claims.</p>
-<div id="student-owned-concepts" class="student-owned-concepts" aria-live="polite"></div>
+<h2>What do I want to understand?</h2>
+<div id="student-owned-concepts" class="student-owned-concepts"></div>
+<div class="field">
+<label for="thesis-question">My working research question</label>
+<textarea id="thesis-question" rows="3" placeholder="What makes me curious about this experience?"></textarea>
+<p class="hint" id="explore-question-hint">Begin with a question, not an answer.</p>
+</div>
+<button type="button" class="primary ux-next" id="explore-continue">Continue to research →</button>
+<details id="explore-extra-tools">
+<summary>Need help with my question? Explore ideas</summary>
+<p>Choose a perspective only if it helps you understand your experience.</p>
+<div id="explore-summary" hidden></div>
 <details id="student-style-companion" class="student-style-companion">
   <summary>My Writing Compass: recurring themes and writing habits (optional)</summary>
   <div id="student-style-content" class="student-style-content" aria-live="polite"></div>
 </details>
-<div id="explore-summary" class="info"></div><div class="notice" style="margin-top:.6rem">These suggestions are inquiry prompts, not research findings. Check them against your own experience and scholarly evidence.</div><details><summary>How does the program find and connect my words?</summary><p>It first scans <strong>your own freewrite</strong> for repeated terms, distinctive phrases, questions, and words that occur near one another. You choose which are meaningful. It then uses a separate instructor-curated vocabulary library to offer <strong>optional scholarly connections</strong>. It does not understand your experience like a person, use live AI, read entire books, or search PCC databases. No suggestion is a research finding. The words you choose remain editable.</p></details><h3>Optional scholarly connections</h3><p class="small">These research concepts are suggested <em>after</em> your own inquiry. Each one explains why it surfaced. You can follow a concept, ignore it, or return to edit your freewrite.</p><div id="connection-list" class="stack" aria-live="polite"></div><details><summary>Optional questions and working thesis</summary><h3>Questions shaped by your encounter</h3><p class="small">Three lenses: investigate the encounter, explore a possible connection, and reconsider an assumption. Each question includes a reason.</p><div id="question-list" class="stack"></div>
-<section class="thesis-invitation" aria-labelledby="early-thesis-title">
-<h3 id="early-thesis-title">A first working question, not a final answer</h3>
-<p>What are you trying to understand about your encounter? You don't need to know what you will argue yet. Begin with a question that can change as you read and listen.</p>
-<div class="field"><label for="thesis-question">The research question I want to carry into my writing</label>
-<textarea id="thesis-question" rows="3" placeholder="I wonder whether... / How does this experience complicate..."></textarea></div>
-<div class="actions"><button type="button" id="thesis-use-question" class="secondary">Use my latest saved research question</button>
-<button type="button" id="thesis-go-studio" class="primary">Explore a working three-story thesis →</button></div>
-<p class="hint">A question opens the inquiry. A thesis will eventually offer an interpretation and explain why it matters. You can return to this question whenever research changes it.</p>
-</section></details>
-<div class="actions"><button class="secondary" data-tab="search">Take My Ideas into Research →</button><button class="secondary" data-tab="read">Find relevant books →</button></div>
+<details><summary>More research concepts</summary><p class="hint">These are possibilities to investigate, not research findings.</p><div id="connection-list" class="stack"></div></details>
+<details><summary>Possible research questions</summary><div id="question-list" class="stack"></div><button type="button" id="thesis-use-question" class="secondary">Use my latest saved research question</button></details>
+<details><summary>How does the program find and connect my words?</summary><p>It first scans <strong>your own freewrite</strong> for repeated terms, distinctive phrases, questions, and words that occur near one another. You choose which are meaningful. It then uses a separate instructor-curated vocabulary library to offer <strong>optional scholarly connections</strong>. It does not understand your experience like a person, use live AI, read entire books, or search PCC databases. No suggestion is a research finding. The words you choose remain editable.</p></details>
+<button type="button" class="secondary edit-my-freewrite">Edit my freewrite</button>
+<button type="button" id="thesis-go-studio" class="secondary">Explore the three-story thesis</button>
+</details>
 </section>
 <section class="panel hidden" id="page-search" role="tabpanel" aria-labelledby="tab-search">
 <h2>Research Studio</h2>
@@ -879,11 +882,10 @@ function renderExplore(){
  $('explore-summary').textContent=base.length?'Ideas you selected from your writing: '+base.join(' · ')+(state.followed.length?' | Optional connections followed: '+state.followed.join(' · '):''):'Your inquiry begins with your words. Return to the freewrite to choose a question, image, or phrase.';
  const host=$('student-owned-concepts');
  if(host){
-   host.replaceChildren();host.append(elt('h3','','Your ideas come first'));
+   host.replaceChildren();
    const chosen=base.length?base:(state.studio?.selectedPhrases||[]).slice(0,5);
-   const chips=elt('div','student-concept-chips');for(const term of chosen.slice(0,6))chips.append(elt('span','',term));
-   if(chosen.length)host.append(chips);
-   host.append(elt('p','hint',chosen.length?'These are the words you chose. You can reconsider them, return to your writing, or explore optional scholarly language below.':'No ideas chosen yet. Return to your freewrite and decide what matters before exploring scholarly terms.'));
+   host.hidden=!chosen.length;
+   if(chosen.length){const line=elt('p','');line.append(elt('strong','','Words I chose: '),document.createTextNode(chosen.slice(0,6).join(' · ')));host.append(line);}
  }
  if(window.FieldWritingPatterns)window.FieldWritingPatterns.render({state,freewrite:$('encounter').value,persist});
  const list=$('connection-list');list.replaceChildren();suggestConcepts().forEach(x=>{let d=elt('div','result');d.appendChild(elt('strong','',x.term));d.appendChild(elt('p','small','Why this appeared: '+x.reason));let a=elt('div','actions');a.appendChild(button('Follow this connection',()=>{if(!state.followed.includes(x.term))state.followed.push(x.term);persist();renderExplore();}));d.appendChild(a);list.appendChild(d);});
@@ -1173,7 +1175,7 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('enable-
     const backup=el('button','secondary','Back up my work (.json)');backup.type='button';listening(backup,'click',()=>byId('download-json')?.click());foot.append(backup);area.append(foot);nav.after(area);
   }
   function buildTransitions(){
-    for(const [id] of STEPS){const section=byId('page-'+id);if(!section||section.querySelector('.transition-guide'))continue;
+    for(const [id] of STEPS){if(id==='explore')continue;const section=byId('page-'+id);if(!section||section.querySelector('.transition-guide'))continue;
       const info=NEXT[id];if(!info)continue;const guide=el('aside','transition-guide');guide.setAttribute('aria-label','Suggested next step');
       guide.append(el('div','transition-step','One possible next move'),el('h3','',info.title),el('p','',info.body));
       const buttons=el('div','actions');const primary=el('button','primary',info.action);primary.type='button';listening(primary,'click',()=>tab(info.next));buttons.append(primary);
@@ -1269,10 +1271,10 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('enable-
     const status=el('p','lens-summary');status.id='lens-summary';status.setAttribute('aria-live','polite');box.append(status);
     const action=el('button','primary ux-next','Take my selected lenses into research →');action.type='button';
     const go=()=>{persist();tab('search');const target=byId('research-studio-next');if(target){target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}};
-    listening(action,'click',go);box.append(action);
+    listening(action,'click',go); // The page has one primary Continue action; do not insert this duplicate.
     const next=el('div','lens-next-step');const recap=el('p','hint');recap.id='lens-next-recap';recap.setAttribute('role','status');
     const nextButton=el('button','primary ux-next','Take my selected lenses into research →');nextButton.type='button';listening(nextButton,'click',go);
-    next.append(recap,nextButton);suggested.after(next);
+    next.append(recap);suggested.after(next);
     window.fieldSelectedLensLabels=()=>allLenses().filter(x=>(state.lenses||[]).includes(x.id)).map(x=>x.label);
     window.fieldResearchTranslation=question=>{
       if(!String(question||'').trim())return null;
@@ -1689,12 +1691,12 @@ function renderRoute(id){
  writing:[f.draft?'Continue your own essay. Use evidence and your experience to develop the interpretation.':'Begin with a passage of your own writing. You can draft before every part of the inquiry is settled.','Continue my essay',()=>routeFocus('ws-essay-rich')]
  };
  const task=actions[id];if(!task)return;
- get('field-route-instruction').textContent=task[0];const action=get('field-route-action');action.textContent=task[1];action.onclick=task[2];
+ get('field-route-task').hidden=id==='explore';get('field-route-instruction').textContent=task[0];const action=get('field-route-action');action.textContent=task[1];action.onclick=task[2];
 }
 function renderInvitation(id){
  renderRoute(id);
  const next=NEXT[id];
- if(id==="writing"){get("field-next-invitation").hidden=true;return;}
+ if(id==="writing"||id==="explore"){get("field-next-invitation").hidden=true;return;}
  get("field-next-invitation").hidden=false;
  if(id==="begin"&&!get("encounter")?.value?.trim()){
   get("field-next-text").textContent="Begin by describing something that stays with you. You can discover research language afterward.";
@@ -3323,7 +3325,7 @@ function setCarriedInquiryPractice(next){
    // Freewriting already has its own starting-help disclosure and question button.
    guidance.hidden=name==='begin';title.textContent=questions[name]||'Help with this activity';
    const anchor=h.closest('.studio-head,.writing-head')||h;
-   anchor.after(guidance);
+   if(name==='explore')g('explore-extra-tools').append(guidance);else anchor.after(guidance);
   }
   window.addEventListener('field:tabchange',e=>locate(e.detail.name));
   locate(workspace.querySelector('.field-original-nav [aria-selected="true"]')?.dataset.tab||'begin');
@@ -3472,4 +3474,20 @@ function setCarriedInquiryPractice(next){
 #field-route-detours summary{cursor:pointer;min-height:44px;padding:.55rem 0}
 #field-route-detours[hidden]{display:none!important}
 @media(max-width:650px){#field-route-action{width:100%}}
-</style><style>#rs-translation{border-left:3px solid #3e6d56;padding:.55rem .7rem;margin:.65rem 0;background:#fffefa;overflow-wrap:anywhere}#rs-translation[hidden]{display:none!important}#rs-translation h4,#rs-translation p{margin:.3rem 0}#rs-saved-words>summary{cursor:pointer;min-height:44px;padding:.55rem 0}#rs-term-gloss p{margin:.3rem 0}</style></body></html>
+</style><style>#rs-translation{border-left:3px solid #3e6d56;padding:.55rem .7rem;margin:.65rem 0;background:#fffefa;overflow-wrap:anywhere}#rs-translation[hidden]{display:none!important}#rs-translation h4,#rs-translation p{margin:.3rem 0}#rs-saved-words>summary{cursor:pointer;min-height:44px;padding:.55rem 0}#rs-term-gloss p{margin:.3rem 0}</style><style>
+#page-explore #student-owned-concepts{margin:.45rem 0 .8rem;padding:.55rem .7rem;border-radius:8px}
+#page-explore #student-owned-concepts p{margin:0;overflow-wrap:anywhere}
+#page-explore #student-owned-concepts[hidden],#page-explore #explore-summary[hidden],#field-route-task[hidden]{display:none!important}
+#page-explore #explore-continue{margin:.65rem 0;min-height:48px}
+#explore-extra-tools>summary{cursor:pointer;min-height:44px;padding:.6rem 0;font-weight:600;color:#245d4c}
+#page-explore #thesis-question{min-height:6rem}
+</style><script>
+(function(){
+ const g=id=>document.getElementById(id),extra=g('explore-extra-tools'),question=g('thesis-question'),go=g('explore-continue');
+ go.addEventListener('click',()=>{
+  if(!question.value.trim()){g('explore-question-hint').textContent='Write one thing you want to find out. You can change it later.';question.focus();return;}
+  persist();tab('search');const target=g('rs-a');target.focus({preventScroll:true});target.scrollIntoView({block:'center',behavior:'auto'});
+ });
+ window.addEventListener('field:tabchange',e=>{if(e.detail?.name!=='explore')extra.open=false;});
+})();
+</script></body></html>
