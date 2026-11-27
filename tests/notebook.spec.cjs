@@ -46,5 +46,37 @@ await page.reload({waitUntil:'domcontentloaded'});console.log('Opening journal')
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
 expect(errors).toEqual([]);
 });
+test('thesis and writing continuity',async({page})=>{
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="thesis"]').click();
+await page.locator('#lts-nav').getByRole('button',{name:'Build',exact:true}).click();
+await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact:true}).click();
+await page.locator('#what').fill('I observed fireflies flashing along a road but not near a deer.');
+await page.locator('#lts-build').getByRole('button',{name:'Review my observation',exact:true}).click();
+await expect(page.locator('.lts-floor-feedback')).not.toBeEmpty();
+await page.locator('#lts-build').getByRole('button',{name:'2. Interpretation',exact:true}).click();
+await page.locator('#soWhat').fill('The pattern may reflect responsiveness to nearby animals.');
+await page.locator('#lts-build').getByRole('button',{name:'3. Significance',exact:true}).click();
+await page.locator('#nowWhat').fill('This raises questions about agency in shared environments.');
+await page.locator('[data-field-space="write"]').click();
+await page.locator('#ws-abstract').fill('A synthetic abstract for browser testing.');
+await page.locator('#ws-final-keywords').fill('agency, fireflies, responsiveness');
+await page.locator('#ws-essay-rich').fill('I watched fireflies along the road. Their flashing raised questions about agency.');
+await page.locator('#ws-review-btn').click();
+await expect(page.locator('#ws-essay-review')).not.toBeEmpty();
+await page.reload({waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+await expect(page.locator('#ws-abstract')).toHaveValue('A synthetic abstract for browser testing.');
+await expect(page.locator('#ws-final-keywords')).toHaveValue('agency, fireflies, responsiveness');
+await expect(page.locator('#ws-essay-rich')).toContainText('I watched fireflies');
+await page.locator('[data-field-space="thesis"]').click();
+await page.locator('#lts-nav').getByRole('button',{name:'Build',exact:true}).click();
+await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact:true}).click();
+await expect(page.locator('#what')).toHaveValue('I observed fireflies flashing along a road but not near a deer.');
+expect(errors).toEqual([]);
+});
 });
 }
