@@ -387,7 +387,7 @@
   </div>
   <p class="field-welcome-testing"><strong>Instructor test preview:</strong> This page keeps separate writing and PDF storage from the version students currently use. Avoid actual student records while testing.</p>
 </section>
-<div id="field-workspace" hidden aria-label="Living Field Notebook workspace">
+<div id="field-workspace" hidden role="region" aria-label="Living Field Notebook workspace">
 <section id="field-notebook-compass" class="field-notebook-compass" aria-labelledby="field-notebook-title">
   <div class="field-intro">
     <h2 id="field-notebook-title" tabindex="-1">My Living Field Notebook</h2><p>Follow your inquiry. Return to earlier work whenever it helps.</p>
@@ -415,7 +415,7 @@
       </div>
     </div>
   </section>
-  <div class="field-invitation" id="field-next-invitation"><span class="field-mini">A possible next move</span><p id="field-next-text">Write about a memory, place, relationship, or unanswered question.</p><button type="button" id="field-next-button">Discover possible ideas in my words →</button><span class="field-invitation-alt">Or follow a different thread using the notebook navigation above.</span></div>
+  <div class="field-invitation" id="field-next-invitation"><span class="field-mini">A possible next move</span><p id="field-next-text">Write about a memory, place, relationship, or unanswered question.</p><button type="button" id="field-next-button">Discover possible ideas in my words →</button></div>
   <p class="field-privacy"><button class="field-import-link" type="button" id="field-download-backup">Back up my notebook</button> · <button class="field-import-link" type="button" id="field-import-backup">Import an existing Research as Encounter backup</button> · Importing replaces only preview work.</p><p class="field-privacy">Separate preview: work stays in this browser. The regular Research as Encounter application is not changed or overwritten. <a href="./index.html">Return to the regular application</a>.</p>
 </section>
 <div class="field-workspace-shortcuts no-print" role="group" aria-label="Bring your earlier research into the notebook">
@@ -654,7 +654,7 @@
 <div class="field"><label for="jstor-pdf">Choose a PDF from your device</label><input type="file" id="jstor-pdf" accept=".pdf,application/pdf"><p class="hint">PDF only. Avoid storing personal or sensitive material on shared computers.</p></div>
 <div class="actions"><button type="button" id="jstor-save-pdf" class="primary">Save PDF on this device</button><button type="button" id="jstor-refresh-pdfs" class="secondary">Refresh my PDF shelf</button></div>
 <p id="jstor-status" role="status" aria-live="polite"></p>
-<div id="jstor-list" class="stack" aria-label="Saved article PDFs"></div></div></section>
+<div id="jstor-list" class="stack" role="group" aria-label="Saved article PDFs"></div></div></section>
 <h3>My saved source shelf</h3><div id="source-shelf" class="stack" aria-live="polite"></div>
 <div class="field"><label for="journal-source">Choose the source you're actually reading or watching</label><select id="journal-source"><option value="">Select a saved source…</option></select></div>
 <div id="journal-source-hint" class="hint">Save a suggested source from the Reading Grove, or add your own below.</div>
@@ -780,7 +780,7 @@
  <div class="ws-card"><span class="ws-kicker">01 · Title page</span><h3>Give your essay a working title</h3><label for="ws-essay-title">Essay title</label><input id="ws-essay-title" data-ws-field placeholder="What the Creek Carries: Memory, Water, and Responsibility"><p class="ws-muted">This document uses the name, section, and date from your annotated-bibliography title-page box. <button type="button" class="ws-link" data-go="biblio">Edit those details</button>.</p></div>
  <div class="ws-card"><span class="ws-kicker">02 · Required for this course</span><h3>Abstract</h3><p class="ws-muted">Write this after the essay develops. Briefly identify the central encounter, question, research voices, and emerging discovery. Aim for approximately 100–150 words, following your Moodle directions. This paragraph is not indented.</p><details id="ws-trail-abstract"><summary>Revisit a discovery for my abstract (optional)</summary><p>Consult a reflection you already saved. No new reflection is required, and nothing is inserted into your draft.</p><label for="ws-trail-abstract-choice">My saved discovery</label><select id="ws-trail-abstract-choice"><option value="">Choose a discovery</option></select><p data-trail-preview></p><p data-trail-prompt hidden>Which discovery best summarizes what your inquiry revealed? Briefly connect it to your central question and research voices.</p></details><textarea id="ws-abstract" data-ws-field rows="6" placeholder="Return here after drafting the essay..."></textarea><div class="ws-wordline"><span id="ws-abstract-count">0 words</span><span>The abstract is required in ENG 112, even though APA does not normally require it in student papers.</span></div></div><div class="ws-card"><h3>Living Keywords · Required</h3><label for="ws-final-keywords">Keywords for your final essay</label><p class="hint">Choose terms that represent your actual inquiry. Separate them with commas. Your earlier research terms are not automatically your final keywords.</p><textarea id="ws-final-keywords" data-ws-field rows="2"></textarea><div id="lex-final"></div></div>
  <div class="ws-card ws-body-card"><span class="ws-kicker">03 · Main essay</span><h3>Your braided creative nonfiction essay</h3><p class="ws-muted">Write or paste your essay. Press Return for each paragraph; indentation is automatic. Select text before formatting.</p>
- <p id="ws-essay-editor-help" class="hint">Tab leaves the editor for other controls. Check the save notice above.</p><div class="ws-format-actions no-print" role="toolbar" aria-label="Draft text formatting"><button type="button" id="ws-bold" class="secondary" aria-label="Bold selected text"><strong>Bold</strong></button><button type="button" id="ws-italic" class="secondary" aria-label="Italicize selected text"><em>Italic</em></button><button type="button" id="ws-preview-toggle" class="secondary" aria-pressed="false">Show formatted preview</button></div><aside id="tc-writing-companion" class="thesis-comparison"><h3>My living thesis</h3><p id="tc-writing-text"></p><button type="button" class="secondary" data-tab="return">Revisit my thesis</button></aside><details id="ws-trail-conclusion"><summary>Revisit a discovery for my conclusion (optional)</summary><p>Consult a reflection you already saved. No new reflection is required, and nothing is inserted into your draft.</p><label for="ws-trail-conclusion-choice">My saved discovery</label><select id="ws-trail-conclusion-choice"><option value="">Choose a discovery</option></select><p data-trail-preview></p><p data-trail-prompt hidden>What wider significance does this discovery reveal? What remains unresolved or worth exploring?</p></details><textarea id="ws-essay-body" data-ws-field rows="19" spellcheck="true" class="hidden" aria-hidden="true" tabindex="-1"></textarea><div id="ws-essay-rich" class="ws-rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Main essay draft, with formatted paragraphs" aria-describedby="ws-essay-editor-help" spellcheck="true" data-placeholder="Begin in the place, moment, relationship, or question that still stays with you..."></div>
+ <p id="ws-essay-editor-help" class="hint">Tab leaves the editor for other controls. Check the save notice above.</p><div class="ws-format-actions no-print" role="toolbar" aria-label="Draft text formatting"><button type="button" id="ws-bold" class="secondary" aria-label="Bold selected text"><strong>Bold</strong></button><button type="button" id="ws-italic" class="secondary" aria-label="Italic selected text"><em>Italic</em></button><button type="button" id="ws-preview-toggle" class="secondary" aria-pressed="false">Show formatted preview</button></div><aside id="tc-writing-companion" class="thesis-comparison"><h3>My living thesis</h3><p id="tc-writing-text"></p><button type="button" class="secondary" data-tab="return">Revisit my thesis</button></aside><details id="ws-trail-conclusion"><summary>Revisit a discovery for my conclusion (optional)</summary><p>Consult a reflection you already saved. No new reflection is required, and nothing is inserted into your draft.</p><label for="ws-trail-conclusion-choice">My saved discovery</label><select id="ws-trail-conclusion-choice"><option value="">Choose a discovery</option></select><p data-trail-preview></p><p data-trail-prompt hidden>What wider significance does this discovery reveal? What remains unresolved or worth exploring?</p></details><textarea id="ws-essay-body" data-ws-field rows="19" spellcheck="true" class="hidden" aria-hidden="true" tabindex="-1"></textarea><div id="ws-essay-rich" class="ws-rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Main essay draft, with formatted paragraphs" aria-describedby="ws-essay-editor-help" spellcheck="true" data-placeholder="Begin in the place, moment, relationship, or question that still stays with you..."></div>
  <div id="ws-essay-preview" class="ws-essay-preview" aria-label="Formatted essay preview" hidden></div><div class="ws-wordline ws-count-line"><strong id="ws-essay-count">0 of 1,200–1,500 words</strong><span id="ws-word-notice">A beginning is enough for now.</span></div>
  <div class="ws-inline-actions no-print"><button type="button" class="secondary" id="ws-snapshot">Save a version of this draft</button><label for="ws-version-select" class="sr-only">Saved draft versions</label><select id="ws-version-select"><option value="">Saved versions…</option></select><button type="button" class="secondary" id="ws-restore-version">Restore chosen version</button></div>
  <p class="ws-muted">Autosave protects the latest version on this device. Save versions at milestones and download a backup before switching devices.</p><p id="ws-version-status" class="ws-muted" role="status"></p>
@@ -1641,7 +1641,7 @@ function renderInvitation(id){
   get("field-next-button").textContent="Begin my freewriting ↓";
   get("field-next-button").onclick=()=>{const el=get("encounter");el.scrollIntoView({block:"center"});el.focus();};
  }else{
-  get("field-next-text").textContent=next[1]+" whenever it feels useful. You may also return to something earlier.";
+  get("field-next-text").textContent="When you are ready, you can move on or stay with this activity.";
   get("field-next-button").textContent=next[1]+" →";
   get("field-next-button").onclick=()=>navigate(next[0]);
  }
@@ -1880,7 +1880,13 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     if(title){title.focus({preventScroll:true});title.scrollIntoView({block:'start',behavior:'auto'});}
     else workspace.scrollIntoView({block:'start',behavior:'auto'});
   }
-  start.addEventListener('click',enterNotebook);
+  const activityNames={begin:'Freewriting',explore:'Exploring ideas',search:'Building a search',read:'Finding sources',journal:'Reading Journal',return:'Three-Story Thesis',biblio:'Annotated bibliography',writing:'Essay draft'};
+  function currentPage(){const selected=workspace.querySelector('.field-original-nav [aria-selected="true"]');return activityNames[selected?.dataset.tab]?selected.dataset.tab:'begin';}
+  function describeResume(){if(!hasExistingWork())return;const name=activityNames[currentPage()];saved.hidden=false;start.textContent='Continue my notebook';saved.textContent='Return to '+name+'. Your saved work stays here.';}
+  window.addEventListener('field:tabchange',describeResume);
+  workspace.querySelector('#field-workspace-help')?.addEventListener('click',describeResume);
+  start.addEventListener('click',()=>{enterNotebook();const page=currentPage();const target=page==='writing'?document.getElementById('ws-essay-rich'):document.querySelector('#page-'+page+' h2');if(target){if(page!=='writing')target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}});
+  describeResume();
   // FAQ and What's New shortcuts can still open their destinations.
   welcome.querySelectorAll('.field-jstor-shortcut, #field-whats-new-go').forEach(button=>{
     button.addEventListener('click',enterNotebook,{capture:true});
@@ -3198,6 +3204,9 @@ function setCarriedInquiryPractice(next){
  for(const node of [...compass.querySelectorAll(':scope > .field-privacy')])utility.append(node);
  const context=g('ux-context');if(context){const guidance=document.createElement('details');guidance.id='field-context-help';const title=document.createElement('summary');title.textContent='Help with this activity';guidance.append(title,context);support.append(guidance);}
  support.append(utility);
+ const back=document.createElement('button');back.type='button';back.id='field-return-current';back.className='secondary';back.textContent='Return to my current activity';
+ function returnToCurrent(){const selected=workspace.querySelector('.field-original-nav [aria-selected="true"]');const panel=selected&&g(selected.getAttribute('aria-controls'));if(!panel||panel.classList.contains('hidden'))return;const target=panel.id==='page-writing'?g('ws-essay-rich'):panel.querySelector('h2');if(!target)return;if(panel.id!=='page-writing')target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}
+ back.addEventListener('click',returnToCurrent);intro.after(back);
  const next=g('field-next-invitation');if(next)writing.after(next,support);else writing.after(support);
  const link=document.createElement('button');link.type='button';link.id='field-revisit-earlier';link.className='secondary';link.textContent='Revisit earlier work';link.addEventListener('click',()=>{heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'auto'});});
  g('field-subnav').after(link);
@@ -3234,5 +3243,8 @@ function setCarriedInquiryPractice(next){
 @media(max-width:360px){#field-workspace .field-space-nav{grid-template-columns:repeat(2,minmax(0,1fr))}#field-workspace .field-activity-entry{padding:.5rem}#page-writing .ws-rich-editor{padding:.55rem;min-height:260px;max-height:none}#field-workspace .ws-inline-actions select{min-width:0;width:100%}}
 @media(prefers-reduced-motion:reduce){#field-workspace *,#field-welcome *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 @media(forced-colors:active){#field-workspace :focus-visible,#field-welcome :focus-visible,#skip-current-activity:focus-visible{outline:3px solid Highlight!important;outline-offset:3px}#field-workspace [aria-pressed="true"],#field-workspace [aria-current="page"]{border:2px solid Highlight!important}}
+#page-writing > .writing-head > .eyebrow{color:#3d6956}
+#field-return-current{min-height:44px;margin:.3rem 0 .6rem}
+@media(forced-colors:active){#field-workspace :focus,#field-welcome :focus,#skip-current-activity:focus{outline:3px solid Highlight!important;outline-offset:3px}}
 </style>
 </body></html>
