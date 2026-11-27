@@ -7,7 +7,7 @@
  const $=id=>document.getElementById(id);
  const file=$('jstor-pdf'),title=$('jstor-title'),url=$('jstor-url'),list=$('jstor-list'),status=$('jstor-status');
  if(!file||!title||!list||!status)return;
- const DB='eng112-field-notebook-next-preview-pdfs-20261123',STORE='articles',MAX=20*1024*1024;
+ const DB='eng112-field-notebook-next-preview-pdfs-20261123'+(typeof NOTEBOOK_PRACTICE!=='undefined'&&NOTEBOOK_PRACTICE?'-practice':''),STORE='articles',MAX=20*1024*1024;
  const say=t=>{status.textContent=t;};
  function openDB(){
   return new Promise((resolve,reject)=>{
