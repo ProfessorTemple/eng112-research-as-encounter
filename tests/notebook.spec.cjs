@@ -857,9 +857,26 @@ test('concept encounters start with a chosen question and never alter student wr
   if(id==='umwelt'){await distinction.selectOption('response-intention');await expect(result).toContainText('A response alone does not establish conscious purpose.');}
   await depth.locator(':scope > summary').click();await expect(distinction).toHaveValue('');await expect(result).toBeEmpty();
  }
+ for(const [id,cases] of [['umwelt',['night-flight','missed-call']],['reciprocity',['shared-tools','paid-repair']],['knowing-in-action',['kitchen','instruction-card']],['consent',['community-photo','public-story']]]){
+  await choice.selectOption(id);
+  const transfer=concept.locator('#thinking-concept-transfer'),encounter=concept.locator('#thinking-transfer-choice'),result=concept.locator('#thinking-transfer-result');
+  await expect(transfer).not.toHaveAttribute('open','');await transfer.locator(':scope > summary').click();await expect(encounter).toHaveValue('');
+  for(const item of [...cases,'own']){
+   await encounter.selectOption(item);
+   await expect(result).toContainText('Try the idea in your own words');
+   const hint=result.locator('details');await expect(hint).not.toHaveAttribute('open','');await hint.locator('summary').click();await expect(hint.locator('p')).toBeVisible();
+   if(item==='own')await expect(result).toContainText('You do not need to enter it here');
+   else await expect(result).toContainText('An illustrative encounter (not your writing)');
+  }
+  await transfer.locator(':scope > summary').click();await expect(encounter).toHaveValue('');await expect(result).toBeEmpty();
+ }
  expect(await stored()).toEqual(before);
  await page.locator('#thinking-piece-0').selectOption('field:assumption');await expect(concept).not.toHaveAttribute('open','');
  await concept.locator(':scope > summary').click();await expect(choice).toHaveValue('');
+ await choice.selectOption('umwelt');const transfer=concept.locator('#thinking-concept-transfer');await transfer.locator(':scope > summary').click();await transfer.locator('select').selectOption('own');
+ await transfer.getByRole('button',{name:'Open my intellectual trail'}).click();
+ await expect(page.locator('#ic-trail-entry')).toBeFocused();await expect(page.locator('#ic-trail-entry')).toHaveValue('');
+ expect((await stored()).fields.encounter).toBe(data.fields.encounter);
 });
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
