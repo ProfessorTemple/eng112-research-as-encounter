@@ -215,6 +215,18 @@ for(const id of ['abstract','conclusion']){
  expect(await page.locator('#ws-abstract').inputValue()).toBe(before);
  expect(await page.locator('#ws-essay-body').inputValue()).toBe(essayBefore);
 }
+await page.locator('[data-field-space="thesis"]').click();
+const thesisPanel=page.locator('#tc-trail');
+await thesisPanel.evaluate(el=>{el.open=true;});
+await expect(thesisPanel.locator('select option')).toHaveCount(2);
+const originalThesis=await page.locator('#thesis-draft').inputValue();
+await thesisPanel.locator('select').evaluate(el=>{el.value='1';el.dispatchEvent(new Event('change',{bubbles:true}));});
+await expect(thesisPanel.locator('#tc-trail-text')).toHaveText(synthetic);
+for(const [floor,phrase] of [['observation','previously overlooked'],['interpretation','complicate or challenge'],['significance','why your interpretation matters'],['none','keep your thesis']]){
+ await thesisPanel.locator('[data-trail-floor="'+floor+'"]').evaluate(el=>el.click());
+ await expect(thesisPanel.locator('#tc-trail-question')).toContainText(phrase);
+}
+expect(await page.locator('#thesis-draft').inputValue()).toBe(originalThesis);
 const downloadPromise=page.waitForEvent('download');
 await page.locator('#download-txt').evaluate(el=>el.click());
 const downloaded=await downloadPromise;
