@@ -70,5 +70,71 @@
     ],
     "question": "What can your evidence establish, and what remains open?",
     "caution": "Never infer agreement, intent or causation from similarity alone."
+  },
+  {
+    "id": "reciprocity",
+    "family": "more-than-human relationships",
+    "description": "Relationships involve mutual obligations and responses.",
+    "anchors": [
+      "Returning nutrients to soil",
+      "Receiving care and offering care"
+    ],
+    "question": "What responsibilities arise from what you receive?",
+    "caution": "Do not assume equal exchange."
+  },
+  {
+    "id": "umwelt",
+    "family": "perception",
+    "description": "Different organisms inhabit different perceptual worlds.",
+    "anchors": [
+      "A moth responds to ultraviolet light",
+      "A dog follows a scent invisible to people"
+    ],
+    "question": "What might this organism perceive that you cannot?",
+    "caution": "Avoid claiming access to another organism's experience."
+  },
+  {
+    "id": "autonomy",
+    "family": "power and ethics",
+    "description": "People negotiate freedom and constraints on their choices.",
+    "anchors": [
+      "Choosing how to spend one's time",
+      "Rules limit independent decisions"
+    ],
+    "question": "What makes choice possible or difficult here?",
+    "caution": "Do not assume all constraints are oppressive."
+  },
+  {
+    "id": "embodied-skill",
+    "family": "ways of knowing",
+    "description": "Practical knowledge develops through bodily practice.",
+    "anchors": [
+      "Hands learn the rhythm of weaving",
+      "Balance improves through repeated movement"
+    ],
+    "question": "What does your body know before you can explain it?",
+    "caution": "Distinguish learned skill from innate ability."
+  },
+  {
+    "id": "naming",
+    "family": "language",
+    "description": "Names and categories influence attention and value.",
+    "anchors": [
+      "Calling a plant a weed",
+      "Describing an animal as a pest"
+    ],
+    "question": "What changes when you name it differently?",
+    "caution": "Do not assume a label explains every action."
+  },
+  {
+    "id": "temporal-change",
+    "family": "memory and time",
+    "description": "Repeated encounters reveal changes across time.",
+    "anchors": [
+      "A familiar tree changes through seasons",
+      "Returning to a place after years"
+    ],
+    "question": "What becomes visible only through repeated encounters?",
+    "caution": "Do not assume change has one cause."
   }
 ]
