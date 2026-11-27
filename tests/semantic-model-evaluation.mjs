@@ -237,3 +237,25 @@ for(const {q,ok} of indirectCases){
  const chosen=candidates.filter(x=>x.score>neutralMax).map(x=>x.id);
  console.log('INDIRECT',JSON.stringify({q,ok,chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
 }
+
+ // Compare isolated sentences with bounded adjacent-sentence context.
+const scenes=[
+ {parts:['My grandmother kept a jar of seeds above the stove.','She taught me how to save them for the following spring.'],ok:['inheritance']},
+ {parts:['A fence appeared along the path to the creek.','We were no longer allowed to gather there.'],ok:['autonomy']},
+ {parts:['I always thought the stump was useless.','Then I noticed beetles living beneath its bark.'],ok:['naming','situated-perception']},
+ {parts:['The clay was wetter than I expected.','It resisted my hands and the bowl changed shape.'],ok:['material-agency']},
+ {parts:['My grandmother bought a jar.','The receipt is on the counter.'],ok:[]},
+ {parts:['The office installed a new password system.','We were not allowed to enter the password twice.'],ok:[]},
+ {parts:['The dishes were dirty.','I noticed the clock said noon.'],ok:[]},
+ {parts:['The weather report mentioned clay soil.','My hands were cold in the office.'],ok:[]}
+];
+for(const {parts,ok} of scenes){
+ const q=parts.join(' ');
+ const v=(await embed([prefix(q,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const neutralMax=Math.max(...nv.map(x=>cosine(v,x)));
+ const ranked=lenses.map((l,i)=>({id:l.id,score:cosine(v,lv[i])})).sort((a,b)=>b.score-a.score);
+ const candidates=[...new Set([...specific,...indirect].filter(r=>r.patterns.every(t=>t.test(q))).map(r=>r.id))];
+ const chosen=candidates.filter(id=>ranked.find(x=>x.id===id).score>neutralMax).slice(0,2);
+ const isolated=parts.flatMap(t=>specific.filter(r=>r.patterns.every(p=>p.test(t))).map(r=>r.id));
+ console.log('SCENE',JSON.stringify({parts,ok,isolated,chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
+}
