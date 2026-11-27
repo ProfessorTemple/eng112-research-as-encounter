@@ -2181,7 +2181,19 @@ el('h4','Your next intellectual move',response);
 if(floor===0)el('p',topic?topic.q:'What specific detail could another observer recognize?',response);
 else if(floor===1)el('p',causal?'Identify one piece of evidence that could test your proposed cause against a different explanation.':purpose?'Identify evidence that could test the proposed function.':'What evidence would help a reader choose your interpretation over another?',response);
 else el('p','What would a reader understand differently, and how does that follow from your second floor?',response);
-trailReview(t,response);const words=details(response,'Explore language choices');const vague=[...new Set((t.match(/\b(important|things|stuff|good|bad|interesting|nature|relationship)\b/gi)||[]).map(x=>x.toLowerCase()))];if(vague.length)el('p','Clarify what you intend by: '+vague.join(', ')+'.',words);
+trailReview(t,response);
+const lenses=[
+[/\b(threat|danger|defen[cs]e|safe|unsafe|predator)\w*\b/i,'Threat and perception','What makes something a threat in this encounter: your interpretation, an observable response, or evidence about the other being’s sensory world? Consider a non-threat explanation such as light, movement or distance.'],
+[/\b(natural|normal|traditional|always|supposed to|should|women|men|gender)\b/i,'Inherited expectations','Whose expectations shape this interpretation? Can you identify a particular memory, practice or source that complicates what seems natural or normal?'],
+[/\b(weeds?|useless|valuable|beautiful|ugly|dirty|clean)\b/i,'Naming and value','What does your chosen label make visible, and what does it leave out? Would a different participant in this encounter describe the same thing differently?'],
+[/\b(silence|silent|quiet|nothing|absence)\b/i,'Attention and absence','Is something absent, or simply beyond what you noticed? What other senses, times or perspectives might change the encounter?'],
+[/\b(intelligen\w*|know\w*|conscious\w*|agency|intent\w*)\b/i,'Agency and interpretation','Distinguish observable responsiveness from an inference about knowledge or intention. What evidence would help you explore the difference without dismissing the other being?'],
+[/\b(memory|remember\w*|grandmother|grandma|childhood|heritage)\b/i,'Memory and inheritance','Which detail comes from lived memory, and which meaning have you given it since? Could another person’s account complicate or enrich that memory?']
+];
+const inquiry=[fields[0].value,fields[1].value,t].join(' ');
+const matches=lenses.filter(([re])=>re.test(t)).concat(lenses.filter(([re])=>!re.test(t)&&re.test(inquiry))).slice(0,2);
+if(matches.length){const d=details(response,'Beneath the familiar · Explore another perspective');el('p','These are invitations prompted by your wording, not conclusions about your beliefs. Choose only what helps your inquiry.',d);for(const [,name,prompt] of matches){el('strong',name,d);el('p',prompt,d);}el('p','Find one detail or source that might challenge your current interpretation. What would you change if it did?',d);}
+const words=details(response,'Explore language choices');const vague=[...new Set((t.match(/\b(important|things|stuff|good|bad|interesting|nature|relationship)\b/gi)||[]).map(x=>x.toLowerCase()))];if(vague.length)el('p','Clarify what you intend by: '+vague.join(', ')+'.',words);
 if(causal){for(const [w,d] of [['prevent','Stops a behavior; a strong causal claim.'],['inhibit','Suppresses or reduces a behavior; still requires evidence.'],['influence','Suggests an effect without specifying its mechanism.'],['be associated with','Describes a relationship without establishing causation.']]){el('strong',w,words);el('p',d,words);}}
 if(purpose)el('p','Distinguish an observed response from an inferred function or intention.',words);
 if(topic)for(const [w,d] of topic.words){el('strong',w,words);el('p',d,words);}
@@ -2217,7 +2229,7 @@ const first=document.querySelector('.lts-floor-nav button');if(first)first.click
 function reveal(){field.scrollIntoView({block:'center',behavior:'instant'});}
 field.focus({preventScroll:true});reveal();requestAnimationFrame(()=>requestAnimationFrame(reveal));setTimeout(reveal,350);
 },true);
-</script><style>.lts-floor-feedback:not(:empty){border:1px solid #9cb2a4;border-radius:10px;padding:1rem;margin:.75rem 0;background:#fffefa;overflow-wrap:anywhere}.lts-floor-feedback blockquote{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid #245d4c}.lts-floor-feedback h4{margin:.8rem 0 .3rem}</style><script>(function(){const p=document.createElement('p');p.textContent='Experimental notebook · Version 9.6.4 · Audit repairs';p.className='hint';p.style.textAlign='center';document.body.append(p);const n=document.getElementById('lts-nav');if(n){const v=document.createElement('small');v.textContent='Experimental notebook 9.6.4';n.before(v);}})();</script>
+</script><style>.lts-floor-feedback:not(:empty){border:1px solid #9cb2a4;border-radius:10px;padding:1rem;margin:.75rem 0;background:#fffefa;overflow-wrap:anywhere}.lts-floor-feedback blockquote{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid #245d4c}.lts-floor-feedback h4{margin:.8rem 0 .3rem}</style><script>(function(){const p=document.createElement('p');p.textContent='Experimental notebook · Version 9.7 · Inquiry lenses';p.className='hint';p.style.textAlign='center';document.body.append(p);const n=document.getElementById('lts-nav');if(n){const v=document.createElement('small');v.textContent='Experimental notebook 9.7';n.before(v);}})();</script>
 <script>
 (function(){
 const g=id=>document.getElementById(id), normL=x=>String(x||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim(), val=id=>g(id)?.value||'';
