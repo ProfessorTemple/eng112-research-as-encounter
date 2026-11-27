@@ -179,7 +179,7 @@ await expect(result).not.toContainText('Respecting a boundary');
 });
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(60000);
-const {cases}=require('./ai-inquiry-challenge-cases.json');
+const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases];
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
 await page.locator('[data-field-space="write"]').click();
