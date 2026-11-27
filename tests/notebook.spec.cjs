@@ -827,6 +827,7 @@ test('relational suggestions show grounded clues and leave the choice to the stu
  expect(errors).toEqual([]);
 });
 test('concept encounters start with a chosen question and never alter student writing',async({page})=>{
+ page.on('dialog',d=>d.accept());
  await page.goto(url,{waitUntil:'domcontentloaded'});
  if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  const key='eng112-living-field-notebook-next-preview-20261123';
