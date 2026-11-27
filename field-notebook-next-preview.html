@@ -2335,6 +2335,14 @@ for(let i=0;i<sentences.length-2;i++){
  const next=sentences[k];if(!later.test(next))continue;
  const contrast=/\b(?:stayed|remained|left|kept|stopped|instead|did not|didn't|no longer|rather than)\b/i;
  if(!contrast.test(next))continue;
+ // Require a shared referent across all three moments, or a bounded chain of referents.
+ // These are evidence cues, not proof of causation.
+ const families=[/\b(?:rake[ds]?|raking|leaves|leaf|leaf litter)\b/i,/\b(?:birds?|birdseed|feeders?|fed|feeding|hawks?)\b/i];
+ const stop=new Set('always usually never would used this that year time next morning day afterward since then now stayed remained left kept stopped instead rather watched heard noticed observed listened saw there their about after before with from into have were they them'.split(' '));
+ const keys=x=>new Set((x.toLowerCase().match(/[a-z]{4,}/g)||[]).filter(w=>!stop.has(w)));
+ const related=(x,y)=>{const a=keys(x),b=keys(y);return [...a].some(w=>b.has(w))||families.some(f=>f.test(x)&&f.test(y));};
+ if(!related(sentences[i],sentences[j])||!related(sentences[j],next))continue;
+
  return ['Change in practice',null,'Your narrative places an earlier habit, an observation, and a later action in sequence. Are they connected, or did something else explain the change? Show what the encounter meant to you, if anything.'];
  }
  }
