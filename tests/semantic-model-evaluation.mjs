@@ -190,3 +190,27 @@ for(const {q,ok} of relationalCases){
  const chosen=evidence.filter(id=>p.slice(0,8).some(x=>x.id===id)).slice(0,2);
  console.log('RELATION',JSON.stringify({q,ok,evidence,chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
 }
+
+ // Require evidence of the relationship's participants and consequences.
+const specific=[
+ {id:'autonomy',patterns:[/\b(owner|landlord|supervisor|manager|employer|teacher|parents?)\b/i,/\b(forbids?|refuses?|decides?|allows?|permission|controls?)\b/i,/\b(tenants?|workers?|employees?|students?|whether I|whether we|let us|let me)\b/i]},
+ {id:'naming',patterns:[/\b(I|we)\s+(?:once\s+|used to\s+)?(?:thought|considered|called|labeled|labelled|believed)\b/i,/\b(useless|worthless|dirty|ugly|pest|weed|nuisance)\b/i,/\b(until|but|before)\b/i,/\b(discovered|noticed|learned|saw|realized|emerged)\b/i]},
+ {id:'material-agency',patterns:[/\b(wind|tide|current|clay|river|water|mud|ice)\b/i,/\b(pulled|pushed|forced|resisted|redirected|carried|slipped)\b/i,/\b(my|our|me|us)\b/i]},
+ {id:'inheritance',patterns:[/\b(grandmother|grandfather|mother|father|aunt|uncle|elder)\b/i,/\b(taught|showed|passed down|learned from|handed down)\b/i,/\b(method|skill|tradition|story|stories|song|recipe|how to|recognize|learned)\b/i]}
+];
+const freshRelations=[
+ {q:'Our landlord refuses to let us keep a vegetable garden.',ok:['autonomy']},
+ {q:'I once believed the pond worthless until I noticed its frogs.',ok:['naming']},
+ {q:'The current pushed our raft away from the landing.',ok:['material-agency']},
+ {q:'My grandfather taught me how to weave baskets.',ok:['inheritance']},
+ {q:'The teacher decides what color to paint her own desk.',ok:[]},
+ {q:'I called the shop until someone answered.',ok:[]},
+ {q:'The wind pushed a cloud across the sky.',ok:[]},
+ {q:'My uncle showed me his new phone.',ok:[]},
+ {q:'We were not permitted to gather on the land where we grew up.',ok:['autonomy']},
+ {q:'The tree I dismissed became a refuge for nesting birds.',ok:['naming','situated-perception']}
+];
+for(const {q,ok} of [...relationalCases,...freshRelations]){
+ const evidence=specific.filter(r=>r.patterns.every(t=>t.test(q))).map(r=>r.id);
+ console.log('SPECIFIC',JSON.stringify({q,ok,split:relationalCases.some(x=>x.q===q)?'development':'fresh',chosen:evidence,hit:evidence.some(x=>ok.includes(x)),abstained:!evidence.length}));
+}
