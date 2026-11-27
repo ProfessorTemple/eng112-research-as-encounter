@@ -251,7 +251,7 @@ try{
  restored.on('dialog',d=>d.accept());
  await restored.goto(url,{waitUntil:'domcontentloaded'});
  await restored.locator('#import-file').setInputFiles({name:'notebook-backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...data,intellectualTrail:[entry,{text:'',relationship:'Extends'},{text:'oversized'.repeat(300),relationship:'Challenges'},{text:'A valid second discovery',relationship:'Forged',created:'invalid'}]}))});
- await expect.poll(async()=>restored.evaluate(()=>Object.values(localStorage).some(value=>value.includes(synthetic)))).toBeTruthy();
+ await expect.poll(async()=>restored.evaluate(text=>Object.values(localStorage).some(value=>value.includes(text)),synthetic)).toBeTruthy();
  await restored.reload({waitUntil:'domcontentloaded'});
  if(await restored.locator('#field-workspace').isHidden())await restored.locator('#field-welcome-start').click();
  await restored.locator('[data-field-space="write"]').click();
