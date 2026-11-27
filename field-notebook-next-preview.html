@@ -814,6 +814,7 @@ const FIELDS=['encounter','assumption','idea1','idea2','idea3','termA','termB','
 const NOTEBOOK_PRACTICE=new URLSearchParams(location.search).get('workspace')==='practice';
 const STORAGE='eng112-living-field-notebook-next-preview-20261123'+(NOTEBOOK_PRACTICE?'-practice':'');
 const NOTEBOOK_SESSION_GATE='eng112-next-preview-workspace-open-v1'+(NOTEBOOK_PRACTICE?'-practice':'');
+let notebookResetting=false;
 let state={fields:{},followed:[],savedQuestions:[],savedSearches:[],savedBooks:[],savedMedia:[],customSources:[],readingNotes:[],showAll:false,studio:{mode:'own',disableNudges:false}};
 const norm=s=>String(s||'').normalize('NFKD').toLowerCase().replace(/[^a-z0-9\s-]/g,' ').replace(/\s+/g,' ').trim();
 const unique=a=>[...new Set(a.filter(Boolean))];
@@ -822,7 +823,7 @@ function tokens(s){return norm(s).split(' ').filter(x=>x.length>2);}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function button(text,fn,cls='secondary'){let el=document.createElement('button');el.type='button';el.className=cls;el.textContent=text;el.addEventListener('click',fn);return el;}
 function elt(tag,cls='',text=''){let e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;}
-function persist(){FIELDS.forEach(id=>state.fields[id]=$(id).value);const status=$('save-status');const notice=message=>{if(status.textContent!==message)status.textContent=message;};try{localStorage.setItem(STORAGE,JSON.stringify(state));notice('Saved in this browser. Export your work before switching devices.');window.dispatchEvent(new Event('field:save'));return true;}catch(e){notice('Browser saving is unavailable. Please download your journal.');return false;}}
+function persist(){if(notebookResetting)return false;FIELDS.forEach(id=>state.fields[id]=$(id).value);const status=$('save-status');const notice=message=>{if(status.textContent!==message)status.textContent=message;};try{localStorage.setItem(STORAGE,JSON.stringify(state));notice('Saved in this browser. Export your work before switching devices.');window.dispatchEvent(new Event('field:save'));return true;}catch(e){notice('Browser saving is unavailable. Please download your journal.');return false;}}
 function restore(){try{let v=JSON.parse(localStorage.getItem(STORAGE)||'null');if(v&&typeof v==='object'){state={...state,...v};state.intellectualTrail=cleanIntellectualTrail(state.intellectualTrail);}}catch(e){} FIELDS.forEach(id=>{if(typeof state.fields?.[id]==='string')$(id).value=state.fields[id];});}
 function tab(name){if(name==='begin'&&typeof uxWritingStage==='function')uxWritingStage('writing',false);['begin','explore','search','read','journal','return','biblio','writing'].forEach(x=>{$('page-'+x).classList.toggle('hidden',x!==name);$('tab-'+x).setAttribute('aria-selected',String(x===name));$('tab-'+x).tabIndex=x===name?0:-1;}); if(name==='explore')renderExplore();if(name==='read'){renderBooks();renderMedia();}if(name==='journal')renderReadingJournal();if(name==='search')prepareSearch();if(name==='return'){renderJournal();renderPathwayMap();}window.dispatchEvent(new CustomEvent('field:tabchange',{detail:{name}}));window.scrollTo({top:0,behavior:'instant'});}
 // V2: score whole concepts with exact-token matching, never substring overlaps such as "man" in "human".
@@ -1869,11 +1870,11 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       const fields=item.fields||{},w=item.writing||{};
       const meaningful=v=>typeof v==='string'&&v.trim().length>0;
       return !!(
-        Object.entries(fields).some(([id,value])=>!['joinOp','note-kind','note-relationship','custom-kind'].includes(id)&&meaningful(value)) ||
+        Object.entries(fields).some(([id,value])=>{const input=document.getElementById(id);return input&&['INPUT','TEXTAREA'].includes(input.tagName)&&meaningful(value)&&value!==input.defaultValue;}) ||
         ['followed','savedQuestions','savedSearches','savedBooks','savedMedia','customSources','readingNotes','thesisVersions','intellectualTrail','lenses','rejectedLenses','sourceConversations'].some(id=>Array.isArray(item[id])&&item[id].length) ||
-        (item.studio?.selectedPhrases||[]).length || (item.fieldNotebook?.discoveries||[]).length ||
-        meaningful(item.inquiryPortrait?.question)||Object.values(item.inquiryWorkingDrafts||{}).some(meaningful)||
-        !!item.carriedInquiryPractice||Object.entries(w.fields||{}).some(([id,value])=>id!=='ws-section'&&meaningful(value)) ||
+        (item.studio?.selectedPhrases||[]).length || (item.fieldNotebook?.discoveries||[]).length || (item.keywordBank||[]).length || ['preferred','setAside','themePreferred','themeSetAside'].some(k=>Array.isArray(item.studentGuidance?.[k])&&item.studentGuidance[k].length) ||
+        meaningful(item.inquiryPortrait?.question)||['passage','paragraph','trail'].some(k=>meaningful(item.inquiryWorkingDrafts?.[k]))||
+        !!item.carriedInquiryPractice||Object.entries(w.fields||{}).some(([id,value])=>{const input=document.getElementById(id);return input&&['INPUT','TEXTAREA'].includes(input.tagName)&&meaningful(value)&&value!==input.defaultValue;}) ||
         (w.sources||[]).some(v=>v&&[v.reference,v.annotation,v.role,v.connection].some(meaningful))||
         (w.visuals||[]).some(v=>v&&[v.title,v.note,v.after,v.dataUrl].some(meaningful))||(w.snapshots||[]).length
       );
@@ -3364,10 +3365,11 @@ function setCarriedInquiryPractice(next){
  d.addEventListener('close',()=>{ack.checked=false;clear.disabled=true;if(opener?.isConnected)opener.focus();});
  clear.addEventListener('click',()=>{
   if(!ack.checked)return;
+  notebookResetting=true;
   try{
    localStorage.removeItem(STORAGE);
    if(localStorage.getItem(STORAGE)!==null)throw Error('Notebook storage could not be cleared.');
-  }catch(e){status.textContent='Unable to clear this notebook. Your current work remains open. Keep your backup and try again.';return;}
+  }catch(e){notebookResetting=false;status.textContent='Unable to clear this notebook. Your current work remains open. Keep your backup and try again.';return;}
   try{sessionStorage.removeItem(NOTEBOOK_SESSION_GATE);}catch(e){}
   location.reload();
  });
