@@ -1,0 +1,42 @@
+[
+  {
+    "id": "explicit-direction-transfer",
+    "passage": "I don't need another question. My next paragraph will examine the interview.",
+    "expected": "Release; respect explicit direction."
+  },
+  {
+    "id": "quoted-direction",
+    "passage": "My interviewee said, 'I have enough material for this paragraph.' I wondered why she described the garden as a paragraph.",
+    "expected": "Do not attribute the interviewee's direction to the student."
+  },
+  {
+    "id": "observation-transfer",
+    "passage": "I am describing the shoreline before drawing conclusions.",
+    "expected": "Respect deliberate observation."
+  },
+  {
+    "id": "negated-sufficiency",
+    "passage": "I thought I had enough material for this paragraph, but the interview exposed a gap.",
+    "expected": "Do not release based on an earlier assumption."
+  },
+  {
+    "id": "developed-fragment",
+    "passage": "Fence. Shelter for seedlings. Barrier for rabbits. Protection depends on whose life I mean.",
+    "expected": "Recognize a developed distinction despite fragments; optional acknowledgment."
+  },
+  {
+    "id": "fluent-empty",
+    "passage": "The multifaceted and interconnected dimensions of nature demonstrate the profound significance of ecological interconnectedness.",
+    "expected": "Do not infer developed interpretation from fluency."
+  },
+  {
+    "id": "uncertainty-transfer",
+    "passage": "I cannot tell whether the birds stopped calling or whether I stopped listening.",
+    "expected": "Invite exploration without resolving uncertainty."
+  },
+  {
+    "id": "permission-transfer",
+    "passage": "My neighbor asked me not to share the location of the nesting birds.",
+    "expected": "Respect third-party boundary."
+  }
+]
