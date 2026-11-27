@@ -2190,6 +2190,26 @@ const lenses=[
 [/\b(intelligen\w*|know\w*|conscious\w*|agency|intent\w*)\b/i,'Agency and interpretation','Distinguish observable responsiveness from an inference about knowledge or intention. What evidence would help you explore the difference without dismissing the other being?'],
 [/\b(memory|remember\w*|grandmother|grandma|childhood|heritage)\b/i,'Memory and inheritance','Which detail comes from lived memory, and which meaning have you given it since? Could another person’s account complicate or enrich that memory?']
 ];
+lenses.push(
+[/\b(reciproc\w*|mutual|exchange|gift|giving|receiving)\b/i,'Reciprocity','What moves between participants in this relationship? Is the exchange mutual, unequal, or difficult to recognize?'],
+[/\b(control|ownership|owning|property|authority|power|dominat\w*)\b/i,'Power and ownership','Who can make decisions here, and who bears their consequences? What changes if ownership is understood as responsibility?'],
+[/\b(care|caring|labor|work|tending|maintenance)\b/i,'Care and invisible labor','Whose work sustains this relationship? Which forms of care are noticed, and which remain unrecognized?'],
+[/\b(language|words?|naming|voice|speaking|communication|signals?)\b/i,'Language and communication','What counts as communication in this encounter? What evidence supports your reading of a gesture, sound, word or material trace?'],
+[/\b(body|bodily|touch|smell|scent|hearing|senses|embodied)\b/i,'Embodied knowledge','How does your bodily position or sensory capacity shape what you know? What might another body perceive differently?'],
+[/\b(soil|rocks?|stone|water|weather|wind|material\w*)\b/i,'Material participation','How do material conditions participate in what happens? Which changes can you observe without assuming human-like intentions?'],
+[/\b(season\w*|cycles?|time|temporary|permanent|change)\b/i,'Time and transformation','Would this interpretation hold in another season, generation or moment? What changes when you consider a longer timescale?'],
+[/\b(place|home|belong\w*|land|territory|displacement)\b/i,'Place and belonging','Whose histories and relationships shape this place? How does your own position affect what you notice?'],
+[/\b(indigenous|ancestral|sacred|spirit\w*|cosmolog\w*)\b/i,'Situated cosmologies','Which specific community or thinker informs this understanding? Avoid treating distinct traditions as interchangeable; attend to their context and authority.'],
+[/\b(human|nonhuman|animal|nature|culture)\b/i,'Human and more-than-human boundaries','Does your argument assume a sharp division between humans and other beings? What particular encounter supports or complicates that distinction?'],
+[/\b(independent|depend\w*|connect\w*|network|interdepend\w*)\b/i,'Interdependence','Which actual relationships sustain the participants? What evidence distinguishes a connection from mutual dependence?'],
+[/\b(but|however|although|yet|contradict\w*|tension)\b/i,'Productive contradiction','What two ideas are in tension? Can you preserve that tension long enough to investigate rather than resolve it prematurely?'],
+[/\b(proof|prove\w*|certain\w*|obvious|everyone|never)\b/i,'Uncertainty and counterexamples','What observation would make you reconsider this claim? Does your evidence support its full scope?'],
+[/\b(ethic\w*|responsib\w*|justice|fair\w*|harm)\b/i,'Ethics and responsibility','Who or what is affected by this interpretation? What obligations follow from the evidence rather than from an assumption?'],
+[/\b(grief|loss|death|mourning|sad\w*|joy|fear)\b/i,'Emotion and encounter','How does emotion shape attention and meaning? Which sensory detail grounds the feeling, and what remains open to another interpretation?'],
+[/\b(technology|machine|digital|screen|artificial)\b/i,'Technology and mediation','How does a tool or medium change what becomes visible, measurable or meaningful? What might it obscure?'],
+[/\b(expert|science|scientific|research|authority|knowledge)\b/i,'Ways of knowing','How do lived experience, scholarly evidence and community knowledge differ in what they can establish? Where might they challenge one another?'],
+[/\b(same|different|similar|difference|compare)\b/i,'Difference and comparison','What makes the comparison meaningful? Which differences might be lost if you treat the participants as equivalent?']
+);
 const inquiry=[fields[0].value,fields[1].value,t].join(' ');
 const matches=lenses.filter(([re])=>re.test(t)).concat(lenses.filter(([re])=>!re.test(t)&&re.test(inquiry))).slice(0,2);
 if(matches.length){const d=details(response,'Beneath the familiar · Explore another perspective');el('p','These are invitations prompted by your wording, not conclusions about your beliefs. Choose only what helps your inquiry.',d);for(const [,name,prompt] of matches){el('strong',name,d);el('p',prompt,d);}el('p','Find one detail or source that might challenge your current interpretation. What would you change if it did?',d);}
@@ -2229,7 +2249,7 @@ const first=document.querySelector('.lts-floor-nav button');if(first)first.click
 function reveal(){field.scrollIntoView({block:'center',behavior:'instant'});}
 field.focus({preventScroll:true});reveal();requestAnimationFrame(()=>requestAnimationFrame(reveal));setTimeout(reveal,350);
 },true);
-</script><style>.lts-floor-feedback:not(:empty){border:1px solid #9cb2a4;border-radius:10px;padding:1rem;margin:.75rem 0;background:#fffefa;overflow-wrap:anywhere}.lts-floor-feedback blockquote{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid #245d4c}.lts-floor-feedback h4{margin:.8rem 0 .3rem}</style><script>(function(){const p=document.createElement('p');p.textContent='Experimental notebook · Version 9.7 · Inquiry lenses';p.className='hint';p.style.textAlign='center';document.body.append(p);const n=document.getElementById('lts-nav');if(n){const v=document.createElement('small');v.textContent='Experimental notebook 9.7';n.before(v);}})();</script>
+</script><style>.lts-floor-feedback:not(:empty){border:1px solid #9cb2a4;border-radius:10px;padding:1rem;margin:.75rem 0;background:#fffefa;overflow-wrap:anywhere}.lts-floor-feedback blockquote{margin:.5rem 0;padding:.5rem .75rem;border-left:3px solid #245d4c}.lts-floor-feedback h4{margin:.8rem 0 .3rem}</style><script>(function(){const p=document.createElement('p');p.textContent='Experimental notebook · Version 9.7.1 · Expanded inquiry lenses';p.className='hint';p.style.textAlign='center';document.body.append(p);const n=document.getElementById('lts-nav');if(n){const v=document.createElement('small');v.textContent='Experimental notebook 9.7.1';n.before(v);}})();</script>
 <script>
 (function(){
 const g=id=>document.getElementById(id), normL=x=>String(x||'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim(), val=id=>g(id)?.value||'';
