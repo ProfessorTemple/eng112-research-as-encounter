@@ -16,3 +16,6 @@ Start with Attentive Reader optional candidate ranking. Show actual student exce
 
 ## Release
 Resolve dedicated source synthesis and writing integration audits first. Prototype separately from production. Record model version, license, test results, known limitations and rollback. Do not claim semantic understanding or release readiness from regression tests alone.
+
+## Expanded lens evaluation
+Run 45918778963: six of six intended lenses in top two for both models; MiniLM top one 6/6, E5 5/6. E5 direct pairwise 16/24 vs MiniLM 9/24. Six-lens experiment is small and not representative. Twelve structured lenses now committed; evaluation expanded to twelve positive cases and three unrelated controls. Provisional thresholds MiniLM 0.12, E5 0.77 are exploratory, selected after inspecting first experiment, not calibrated confidence. Record false abstentions and false suggestions separately. Do not deploy thresholds until fresh validation across a larger competing library. Model scores are not probabilities. Target 180 curated lenses, with provenance, example anchors, questions and safeguards; maintain maximum two suggestions and student choice.
