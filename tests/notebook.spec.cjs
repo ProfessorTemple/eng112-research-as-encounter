@@ -267,6 +267,11 @@ try{
 test('failed backup storage does not announce success or reload',async({page})=>{
  await page.goto(url,{waitUntil:'domcontentloaded'});
  if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="thesis"]').click();
+ await page.locator('#lts-nav').getByRole('button',{name:'Build',exact:true}).click();
+ await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact:true}).click();
+ await page.locator('#what').fill('Original student observation before failed import');
+ const previous=await page.locator('#what').inputValue();
  const messages=[];
  page.on('dialog',async d=>{messages.push(d.message());await d.accept();});
  await page.evaluate(()=>{
@@ -281,6 +286,7 @@ test('failed backup storage does not announce success or reload',async({page})=>
  await expect.poll(()=>messages.some(m=>m.includes('Could not restore this file'))).toBeTruthy();
  expect(messages.some(m=>m.includes('Backup restored into the preview'))).toBeFalsy();
  expect(await page.evaluate(()=>window.__auditNoReload)).toBe(true);
+ await expect(page.locator('#what')).toHaveValue(previous);
 });
 test('selected context and relational reflection remain student directed',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
