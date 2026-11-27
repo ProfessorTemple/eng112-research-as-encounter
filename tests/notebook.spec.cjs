@@ -264,6 +264,24 @@ try{
  await expect(restoredCompanion.getByText('oversized'.repeat(300),{exact:true})).toHaveCount(0);
 }finally{await fresh.close();}
 });
+test('failed backup storage does not announce success or reload',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const messages=[];
+ page.on('dialog',async d=>{messages.push(d.message());await d.accept();});
+ await page.evaluate(()=>{
+  window.__auditNoReload=true;
+  const original=Storage.prototype.setItem;
+  Storage.prototype.setItem=function(key,value){
+   if(this===localStorage&&key==='eng112-living-field-notebook-next-preview-20261123')throw new DOMException('Simulated storage failure','QuotaExceededError');
+   return original.call(this,key,value);
+  };
+ });
+ await page.locator('#import-file').setInputFiles({name:'failure-test.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({fields:{},followed:[],savedBooks:[],intellectualTrail:[{text:'Synthetic restoration failure test',relationship:'Extends'}]}))});
+ await expect.poll(()=>messages.some(m=>m.includes('Could not restore this file'))).toBeTruthy();
+ expect(messages.some(m=>m.includes('Backup restored into the preview'))).toBeFalsy();
+ expect(await page.evaluate(()=>window.__auditNoReload)).toBe(true);
+});
 test('selected context and relational reflection remain student directed',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
