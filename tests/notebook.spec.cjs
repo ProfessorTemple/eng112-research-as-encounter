@@ -878,6 +878,51 @@ test('concept encounters start with a chosen question and never alter student wr
  await expect(page.locator('#ic-trail-entry')).toBeFocused();await expect(page.locator('#ic-trail-entry')).toHaveValue('');
  expect((await stored()).fields.encounter).toBe(data.fields.encounter);
 });
+test('concept integration returns to original writing fields without inserting or grading text',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const key='eng112-living-field-notebook-next-preview-20261123';
+ const stored=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}'),key);
+ const initial=await stored(),data={...initial,fields:{...initial.fields,encounter:'My dog stopped to investigate a scent.',what:'The dog paused beside a hedge.',soWhat:'I thought the dog was waiting for me.',nowWhat:'We perceive shared places differently.'},inquiryWorkingDrafts:{trail:'An unfinished discovery I want to keep.'}};
+ await page.locator('#import-file').setInputFiles({name:'integration.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+ await expect.poll(async()=>(await stored()).fields?.encounter).toBe(data.fields.encounter);
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="write"]').click();const editor=page.locator('#ws-essay-rich');
+ await editor.fill('My draft remains my own.');
+ await page.locator('[data-field-space="thesis"]').click();
+ const portrait=page.locator('#living-inquiry-portrait'),panel=page.locator('#portrait-compare-thinking'),concept=page.locator('#thinking-concept-encounter');
+ const invitation=page.locator('#thinking-writing-invitation');
+ async function choose(target,distinction=false){
+  if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
+  if(!(await panel.evaluate(e=>e.open)))await panel.locator(':scope > summary').click();
+  await page.locator('#thinking-piece-0').selectOption('field:encounter');
+  await concept.locator(':scope > summary').click();
+  await concept.locator('#thinking-concept-choice').selectOption('umwelt');
+  if(distinction){const depth=concept.locator('#thinking-concept-depth');await depth.locator(':scope > summary').click();await depth.locator('select').selectOption('response-intention');}
+  const integration=concept.locator('#thinking-concept-integration');await expect(integration).not.toHaveAttribute('open','');await integration.locator(':scope > summary').click();
+  const select=integration.locator('#thinking-integration-target');await expect(select).toHaveValue('');
+  const go=integration.getByRole('button',{name:'Bring my question to this writing space',exact:true});await expect(go).toBeDisabled();
+  await select.selectOption(target);await go.click();await expect(invitation).toBeVisible();
+  await expect(invitation).toBeFocused();await expect(invitation).toContainText('Umwelt');
+  if(distinction)await expect(invitation).toContainText('Responsiveness and Intention');
+  await expect(invitation).toContainText('Your draft is unchanged');
+  await expect(invitation.locator('xpath=following-sibling::*[1]')).toHaveAttribute('id',target);
+ }
+ for(const [id,original] of [['what',data.fields.what],['soWhat',data.fields.soWhat],['nowWhat',data.fields.nowWhat],['thesis-draft',''],['ws-essay-rich','My draft remains my own.']]){
+  const field=page.locator('#'+id);const before=id==='thesis-draft'?await field.inputValue():original;
+  await choose(id,id==='soWhat');await expect(field).toBeVisible();
+  if(id==='ws-essay-rich')await expect(field).toHaveText(before);else await expect(field).toHaveValue(before);
+  await invitation.getByRole('button',{name:'Continue without this question',exact:true}).click();
+  await expect(invitation).toHaveCount(0);await expect(field).toBeFocused();
+ }
+ await choose('soWhat',true);
+ await invitation.getByRole('button',{name:'Record my discovery in the intellectual trail',exact:true}).click();
+ await expect(invitation).toHaveCount(0);await expect(page.locator('#ic-trail-entry')).toBeFocused();
+ await expect(page.locator('#ic-trail-entry')).toHaveValue(data.inquiryWorkingDrafts.trail);
+ const final=await stored();expect(final.fields.what).toBe(data.fields.what);expect(final.fields.soWhat).toBe(data.fields.soWhat);expect(final.fields.nowWhat).toBe(data.fields.nowWhat);
+ expect(errors).toEqual([]);
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
