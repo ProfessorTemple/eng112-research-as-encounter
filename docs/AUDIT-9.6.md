@@ -18,3 +18,6 @@ Local environment has Playwright but GitHub DNS retrieval failed. GitHub Actions
 Not student-ready verified. Freeze feature development. Review Actions results, repair test harness and application failures, expand coverage and rerun. Production HTML unchanged.
 ## First browser run and repairs
 Run 45914434534: four tests timed out, zero passed. Root cause not established. Experimental 9.6.1 commit afca0132ea07cc2c1fe4c2a7eac84242ae139f79 repairs note save confirmation, reflection feedback and version labels. Test harness now uses DOMContentLoaded, bounded action/navigation timeouts, runtime logging and failure traces. Await rerun; no release approval.
+
+## Subsequent diagnostics
+Run 45914982913: missing source-library script and hidden legacy tab targets. Replaced legacy navigation with visible controls and checked out library dependency. Run 45915295151: all four tests failed because Research navigation was hidden at entry. Source inspection confirms welcome screen hides field-workspace until entry. Tests now click welcome start when needed, assert workspace visibility, then use Research navigation. Await rerun. No application change in this step.
