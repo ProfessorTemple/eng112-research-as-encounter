@@ -136,6 +136,26 @@ await companion.getByRole('button',{name:'Explore connections',exact:true}).clic
 await expect(companion).toContainText('Shared language:');
 expect(errors).toEqual([]);
 });
+test('inquiry working passages survive refresh and reload',async({page})=>{
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await companion.getByText('Attentive Reader · Revisit a passage',{exact:true}).click();
+const passage='The oak remembered me before I remembered myself.';
+await page.locator('#attentive-passage').fill(passage);
+await companion.getByRole('button',{name:'Save working passages',exact:true}).click();
+await companion.getByRole('button',{name:'Refresh my inquiry companion',exact:true}).click();
+await expect(page.locator('#attentive-passage')).toHaveValue(passage);
+await page.reload({waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await expect(page.locator('#attentive-passage')).toHaveValue(passage);
+expect(errors).toEqual([]);
+});
 test('living inquiry portrait continuity',async({page})=>{
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(url,{waitUntil:'domcontentloaded'});
