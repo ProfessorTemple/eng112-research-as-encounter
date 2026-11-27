@@ -33,6 +33,40 @@ test('model a conceptual connection and land at the research heading with no tex
  await expect(page.locator('#rs-a')).toHaveValue('');await expect(page.locator('#rs-b')).toHaveValue('');await expect(page.locator('#rs-search-help')).not.toHaveAttribute('open','');
  await expect(page.locator('#field-next-invitation')).toBeHidden();
 });
+
+test('guidance gradually recedes after real saved searches and remains available without changing student work',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('#encounter').fill('A synthetic test of how fireflies and the body respond to their surroundings.');
+ await page.evaluate(()=>{state.studio=state.studio||{};state.studio.selectedPhrases=['fireflies','body'];for(const id of ['idea1','idea2','idea3'])document.getElementById(id).value='';persist();});
+ await page.locator('#field-route-action').click();
+ const question=page.locator('#thesis-question'),example=page.locator('#explore-question-example'),searchExample=page.locator('#rs-search-example');
+ await expect(example.locator('.model-question')).toBeVisible();await expect(example).toContainText('Sensory ecology studies');
+ const inquiry='How do mammals and fireflies interact?';
+ await question.fill(inquiry);await page.locator('#explore-continue').click();
+ const heading=page.locator('#page-search h2');await expect(heading).toBeFocused();await expect(heading).toBeInViewport();
+ await expect(searchExample.locator('.model-question')).toBeVisible();
+ await page.locator('#rs-a').fill('mammals');await page.locator('#rs-b').fill('fireflies');await page.locator('#rs-build').click();await page.locator('#rs-save-query').click();
+ await page.locator('[data-field-space="discover"]').click();await expect(page.locator('#page-explore h2')).toBeFocused();
+ await expect(question).toHaveValue(inquiry);await expect(example.locator('.model-question')).toBeHidden();
+ const help=example.locator('details');await expect(help).not.toHaveAttribute('open','');await help.locator('summary').click();await expect(example.locator('.model-question')).toBeVisible();
+ await page.evaluate(()=>renderExplore());await expect(example.locator('.model-question')).toBeVisible();
+ await page.locator('#explore-continue').click();await expect(heading).toBeFocused();await expect(searchExample.locator('.model-question')).toBeHidden();
+ await page.locator('#rs-a').fill('fireflies');await page.locator('#rs-b').fill('animal behavior');await page.locator('#rs-build').click();await page.locator('#rs-save-query').click();
+ await page.locator('[data-field-space="discover"]').click();await expect(example).toContainText('What relationship do you want to investigate next?');await expect(question).toHaveValue(inquiry);
+ await expect(example.locator('.model-question')).toBeHidden();await expect(page.locator('#page-explore button.primary:visible')).toHaveCount(1);
+ await page.locator('#explore-continue').click();await expect(searchExample).toContainText('Choose your own search terms');await expect(page.locator('#rs-a')).toHaveValue('fireflies');await expect(page.locator('#rs-b')).toHaveValue('animal behavior');await expect(heading).toBeFocused();
+ await expect(page.locator('#rs-search-help')).not.toHaveAttribute('open','');expect(errors).toEqual([]);
+});
+test('interdisciplinary models explain academic words without making claims or filling in the student question',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('#encounter').fill('A synthetic encounter exploring personhood and trees.');
+ await page.evaluate(()=>{state.studio=state.studio||{};state.studio.selectedPhrases=['personhood','trees'];for(const id of ['idea1','idea2','idea3'])document.getElementById(id).value='';persist();});
+ await page.locator('#field-route-action').click();const example=page.locator('#explore-question-example');
+ await expect(example).toContainText('ontology (philosophy)');await expect(example).toContainText('what exists');await expect(page.locator('#thesis-question')).toHaveValue('');
+ await page.evaluate(()=>{state.studio.selectedPhrases=['film','identity'];renderExplore();});await expect(example).toContainText('cultural representation');await expect(page.locator('#thesis-question')).toHaveValue('');
+ await page.evaluate(()=>{state.studio.selectedPhrases=['grandmother','memory'];renderExplore();});await expect(example).toContainText('intergenerational knowledge');await expect(page.locator('#thesis-question')).toHaveValue('');
+});
 test('concept exploration has one clear question-first action and hides optional tools until requested',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
