@@ -7,11 +7,11 @@ test.use({viewport});
 test('search, refinement, discovery and persistence',async({page})=>{
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 page.on('pageerror',e=>console.log('PAGE ERROR:',e.message));page.on('requestfailed',r=>console.log('REQUEST FAILED:',r.url(),r.failure()?.errorText));console.log('Opening notebook');await page.goto(url,{waitUntil:'domcontentloaded'});console.log('DOM ready',await page.title());
-console.log('Opening research');if(await page.locator('#field-workspace').isHidden()){await page.locator('#field-welcome-start').click();}await expect(page.locator('#field-workspace')).toBeVisible();await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();console.log('Research tab clicked');
+console.log('Opening research');if(await page.locator('#field-workspace').isHidden()){await page.locator('#field-welcome-start').click();}await expect(page.locator('#field-workspace')).toBeVisible();await page.locator('[data-field-space="research"]').click();await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();console.log('Research tab clicked');
 await page.locator('#rs-a').fill('human wildlife interactions');
 await page.locator('#rs-b').fill('ecological interdependence');
 await page.locator('#rs-build').click();
-await expect(page.locator('#rs-query')).toHaveValue('human wildlife interactions');
+await expect(page.locator('#rs-query')).toHaveValue('human wildlife interactions AND ecological interdependence');
 await page.locator('#rs-save-query').click();
 await expect(page.locator('#rs-local-status')).toContainText(/saved/i);
 await page.locator('#rs-outcome').selectOption('none');
@@ -26,7 +26,7 @@ expect(errors).toEqual([]);
 });
 test('custom source and reading evidence',async({page})=>{
 const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('pageerror',e=>console.log('PAGE ERROR:',e.message));page.on('requestfailed',r=>console.log('REQUEST FAILED:',r.url(),r.failure()?.errorText));console.log('Opening notebook');await page.goto(url,{waitUntil:'domcontentloaded'});console.log('DOM ready',await page.title());
-console.log('Opening journal');if(await page.locator('#field-workspace').isHidden()){await page.locator('#field-welcome-start').click();}await expect(page.locator('#field-workspace')).toBeVisible();await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();console.log('Journal tab clicked');
+console.log('Opening journal');if(await page.locator('#field-workspace').isHidden()){await page.locator('#field-welcome-start').click();}await expect(page.locator('#field-workspace')).toBeVisible();await page.locator('[data-field-space="research"]').click();await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();console.log('Journal tab clicked');
 await page.locator('#custom-source-details summary').click();
 await page.locator('#custom-title').fill('Synthetic test source');
 await page.locator('#custom-creator').fill('Test author');
@@ -42,7 +42,7 @@ await page.locator('#note-author-idea').fill('A simulated idea.');
 await page.locator('#note-connection').fill('A simulated connection.');
 console.log('Before note save',await page.locator('#journal-source').inputValue(),await page.locator('#note-excerpt').inputValue());await page.locator('#save-source-note').click();console.log('Note status:',await page.locator('#note-status').textContent());console.log('Storage contains note:',await page.evaluate(()=>Object.values(localStorage).some(v=>v.includes('Synthetic observation'))));
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
-await page.reload({waitUntil:'domcontentloaded'});console.log('Opening journal');if(await page.locator('#field-workspace').isHidden()){await page.locator('#field-welcome-start').click();}await expect(page.locator('#field-workspace')).toBeVisible();await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();console.log('Journal tab clicked');
+await page.reload({waitUntil:'domcontentloaded'});console.log('Opening journal');if(await page.locator('#field-workspace').isHidden()){await page.locator('#field-welcome-start').click();}await expect(page.locator('#field-workspace')).toBeVisible();await page.locator('[data-field-space="research"]').click();await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();console.log('Journal tab clicked');
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
 expect(errors).toEqual([]);
 });
@@ -79,7 +79,7 @@ test('shareable practice workspace is isolated, starts fresh, and preserves its 
  await page.reload({waitUntil:'domcontentloaded'});await expect(page.locator('#ws-essay-rich')).toHaveText('Practice project essay.');
  await page.goto(base.href,{waitUntil:'domcontentloaded'});await expect(page.locator('#ws-essay-rich')).toHaveText('Existing project essay.');
  expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).fields.encounter,key)).toBe('Existing project memory.');
- await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
+ await page.locator('[data-field-space="research"]').click();await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
  await expect(page.locator('#jstor-list')).toContainText('Existing project PDF');await expect(page.locator('#jstor-list')).not.toContainText('Practice project PDF');
  await page.goto(practice.href,{waitUntil:'domcontentloaded'});
  await expect(page.locator('#ws-essay-rich')).toHaveText('Practice project essay.');
@@ -162,7 +162,7 @@ test('a complete student-led inquiry preserves evidence, authorship and reversib
  await page.locator('[data-field-space="discover"]').click();await page.locator('#encounter').fill(encounter);
  await page.locator('[data-field-space="research"]').click();
  const nav=page.locator('#field-subnav');
- await nav.getByRole('button',{name:'Build a search',exact:true}).click();
+ await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:'Build a search',exact:true}).click();
  await page.locator('#rs-a').fill('water movement');await page.locator('#rs-b').fill('watershed');
  await page.locator('#rs-build').click();await page.locator('#rs-save-query').click();
  await page.locator('#rs-outcome').selectOption('none');await expect(page.locator('#rs-refine')).toContainText('No results');
@@ -171,7 +171,7 @@ test('a complete student-led inquiry preserves evidence, authorship and reversib
  await thesisNav.getByRole('button',{name:'Build',exact:true}).click();
  await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact:true}).click();await page.locator('#what').fill(observation);
  await page.locator('#lts-build').getByRole('button',{name:'2. Interpretation',exact:true}).click();
- await page.locator('[data-field-space="research"]').click();await nav.getByRole('button',{name:'Reading Journal',exact:true}).click();
+ await page.locator('[data-field-space="research"]').click();await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:'Reading Journal',exact:true}).click();
  await page.locator('#custom-source-details summary').click();
  await page.locator('#custom-title').fill('Synthetic watershed reading');
  await page.locator('#custom-creator').fill('Synthetic author');await page.locator('#add-custom-source').click();
@@ -264,7 +264,7 @@ const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
 await page.locator('[data-field-space="research"]').click();
-await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
+await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
 for(const [title,idea] of [['Audit source A','Firefly threat defense'],['Audit source B','Firefly sensory perception'],['Audit source C','Firefly observable response']]){
 const details=page.locator('#custom-source-details');if(!(await details.evaluate(e=>e.open)))await details.locator('summary').click();
 await page.locator('#custom-title').fill(title);await page.locator('#custom-creator').fill('Synthetic author');await page.locator('#custom-url').fill('https://example.com/');await page.locator('#add-custom-source').click();
@@ -726,7 +726,7 @@ const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
 await page.locator('[data-field-space="research"]').click();
-await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
+await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
 await page.locator('[data-field-space="write"]').click();
 const editor=page.locator('#ws-essay-rich'),draft='The creek was quiet. I began to notice the birds.';
 await expect(page.locator('#ws-draft-aids')).not.toHaveAttribute('open','');
@@ -781,9 +781,9 @@ test('navigation offers only relevant destinations and does not redirect a writi
  if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  const nav=page.locator('#field-subnav'),next=page.locator('#field-next-invitation'),resume=page.locator('#field-resume-draft');
  await expect(page.locator('.ws-mobile-jumps')).toHaveCount(0);
- await page.locator('[data-field-space="discover"]').click();await expect(nav).toBeVisible();await expect(nav.locator('button')).toHaveCount(2);
- await page.locator('[data-field-space="research"]').click();await expect(nav).toBeVisible();await expect(nav.locator('button')).toHaveCount(4);
- await nav.getByRole('button',{name:'Annotated bibliography',exact:true}).click();await expect(next).toBeVisible();await expect(next.locator('button')).toContainText('Begin or continue my essay');
+ await page.locator('[data-field-space="discover"]').click();await expect(nav).toBeHidden();await expect(nav.locator('button')).toHaveCount(2);
+ await page.locator('[data-field-space="research"]').click();await expect(nav).toBeHidden();await expect(nav.locator('button')).toHaveCount(4);
+ await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:'Annotated bibliography',exact:true}).click();await expect(next).toBeVisible();await expect(next.locator('button')).toContainText('Begin or continue my essay');
  await next.locator('button').click();await expect(page.locator('#page-writing')).toBeVisible();await expect(nav).toBeHidden();await expect(next).toBeHidden();await expect(resume).toHaveText('Start my draft');
  await resume.click();const editor=page.locator('#ws-essay-rich');await expect(editor).toBeFocused();await editor.fill('I can write without an optional prompt.');await expect(resume).toHaveText('Return to my draft');await expect(next).toBeHidden();
  await page.locator('[data-field-space="thesis"]').click();await expect(nav).toBeHidden();await expect(next).toBeVisible();
@@ -832,7 +832,7 @@ test('activity-specific help stays optional and moves with the student without c
  ['Reading Journal','journal','Not sure what to do with a passage?','A PDF on your shelf'],
  ['Annotated bibliography','biblio','Not sure what belongs in an annotation?','Begin with one source']
  ]){
-  await nav.getByRole('button',{name:label,exact:true}).click();
+  await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:label,exact:true}).click();
   await expect(page.locator('#page-'+id+' #field-context-help')).toBeVisible();
   await expect(help).not.toHaveAttribute('open','');await expect(summary).toHaveText(question);
   await summary.click();await expect(help).toContainText(phrase);
@@ -871,7 +871,7 @@ test('optional earlier work is a reversible detour and a resumed notebook identi
  await expect(draft).toBeFocused();
  await expect(draft).toHaveText('A synthetic paragraph that belongs to the student.');
  await page.locator('[data-field-space="research"]').click();
- await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();
+ await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();
  await page.locator('#field-revisit-earlier').click();
  await page.locator('#field-return-current').click();
  await expect(page.locator('#page-search h2').first()).toBeFocused();
@@ -1356,7 +1356,7 @@ test('lexicon phrase refinement and export',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
 await page.locator('[data-field-space="research"]').click();
-await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();
+await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();
 const lex=page.locator('#page-search .lex-panel');
 await lex.locator('summary').first().click();
 await lex.locator('#lex-add-search').fill('materialist theories of subjectivity, being and agency');
