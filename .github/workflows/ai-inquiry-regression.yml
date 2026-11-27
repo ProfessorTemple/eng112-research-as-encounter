@@ -22,3 +22,4 @@ jobs:
           node-version: '22'
       - run: node tests/ai-inquiry-validator.test.mjs
       - run: node tests/ai-inquiry-bridge.test.mjs
+      - run: node tests/ai-inquiry-scorecard.test.mjs
