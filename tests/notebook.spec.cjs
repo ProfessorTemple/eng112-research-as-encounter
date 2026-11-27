@@ -796,6 +796,36 @@ test('attentive reflection follows stated relationships and respects uncertainty
  await reflect.click();await expect(result.locator('h4')).toContainText('Respecting a boundary');
  await expect(result.locator('details')).toHaveCount(0);
 });
+test('relational suggestions show grounded clues and leave the choice to the student',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const key='eng112-living-field-notebook-next-preview-20261123';
+ const stored=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}'),key);
+ const initial=await stored(),data={...initial,fields:{...initial.fields,encounter:'I watched leaf litter accumulate beneath the oak seedlings.',assumption:'Nature changes relationships and meaning.'},intellectualTrail:[{text:'Leaf litter shelters insects and oak seedlings.',relationship:'Complicates',created:'2026-11-25T12:00:00Z'},{text:'Leaf litter and oak seedlings are unrelated to this essay.',relationship:'Does not belong',created:'2026-11-26T12:00:00Z'}],inquiryWorkingDrafts:{trail:'Leaf litter and oak seedlings in a private draft.'}};
+ await page.locator('#import-file').setInputFiles({name:'relational.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+ await expect.poll(async()=>(await stored()).fields?.encounter).toBe(data.fields.encounter);
+ const portrait=page.locator('#living-inquiry-portrait'),panel=page.locator('#portrait-compare-thinking'),connection=page.locator('#thinking-connection');
+ if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
+ await panel.locator(':scope > summary').click();
+ const a=page.locator('#thinking-piece-0'),b=page.locator('#thinking-piece-1');
+ await expect(connection).toBeHidden();await a.selectOption('field:encounter');
+ const find=connection.getByRole('button',{name:'Look for a possible connection',exact:true});
+ await expect(connection).not.toContainText('Shared wording');
+ await find.click();await expect(connection).toContainText('Shared wording: leaf litter');
+ await expect(connection).toContainText('Intellectual trail reflection 1');
+ await expect(b).toHaveValue('');
+ await connection.getByRole('button',{name:'This connection does not fit',exact:true}).click();
+ await find.click();await expect(connection).toContainText('No clear shared wording found');
+ await a.selectOption('field:assumption');await find.click();await expect(connection).toContainText('No clear shared wording found');
+ await a.selectOption('field:encounter');await find.click();
+ await connection.getByRole('button',{name:'Compare this piece',exact:true}).click();
+ await expect(b).toHaveValue('trail:0');
+ await expect(panel.getByRole('article',{name:'Second piece selected'})).toContainText(data.intellectualTrail[0].text);
+ const after=await stored();expect(after.fields.encounter).toBe(data.fields.encounter);expect(after.intellectualTrail).toEqual(data.intellectualTrail);expect(after.inquiryWorkingDrafts.trail).toBe(data.inquiryWorkingDrafts.trail);
+ await a.selectOption('trail:1');await expect(connection).toBeHidden();
+ expect(errors).toEqual([]);
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
