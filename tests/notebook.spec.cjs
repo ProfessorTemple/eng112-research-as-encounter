@@ -688,6 +688,42 @@ test('developmental comparison is voluntary, read-only, and grounded in student 
  await a.selectOption('current-thesis');await expect(panel.getByRole('article',{name:'First piece selected'})).toContainText('New notebook draft');
  expect(errors).toEqual([]);
 });
+test('inquiry practices invite higher-order thinking without assigning a learner type',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const key='eng112-living-field-notebook-next-preview-20261123';
+ const stored=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}'),key);
+ const initial=await stored(),data={...initial,fields:{...initial.fields,encounter:'I watched the birds return to the tree.',assumption:'I had assumed the tree was empty.'},inquiryWorkingDrafts:{trail:'My earlier unfinished discovery'}};
+ await page.locator('#import-file').setInputFiles({name:'practice-test.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+ await expect.poll(async()=>(await stored()).fields?.encounter).toBe(data.fields.encounter);
+ const portrait=page.locator('#living-inquiry-portrait'),panel=page.locator('#portrait-compare-thinking'),bridge=page.locator('#thinking-practice-bridge');
+ if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
+ await panel.locator(':scope > summary').click();
+ await expect(bridge).toBeHidden();
+ await page.locator('#thinking-piece-0').selectOption('field:encounter');await page.locator('#thinking-piece-1').selectOption('field:assumption');
+ await expect(bridge.locator(':scope > summary')).toBeVisible();await expect(bridge).not.toHaveAttribute('open','');
+ await bridge.locator(':scope > summary').click();
+ const choice=page.locator('#thinking-practice-choice'),stretch=bridge.getByRole('button',{name:'Try a different intellectual move',exact:true});
+ await expect(choice).toHaveValue('');await expect(stretch).toBeHidden();
+ const before=await stored();
+ for(const [id,expected] of [['attention','Distinguish explanations'],['memory','Complicate an interpretation'],['dialogue','Compare perspectives and evidence'],['reading','Synthesize source and experience'],['imagery','Examine the limits of an analogy'],['tension','Evaluate competing interpretations'],['making','Turn discovery into supported meaning'],['language','Test a conceptual distinction'],['other','Experiment with another approach']]){
+  await choice.selectOption(id);await expect(bridge).not.toContainText(expected);await stretch.click();await expect(bridge).toContainText(expected);
+ }
+ await page.evaluate(()=>window.dispatchEvent(new Event('field:save')));
+ await expect(choice).toHaveValue('other');await expect(bridge).toContainText('Experiment with another approach');
+ expect(await stored()).toEqual(before);
+ await page.locator('#thinking-piece-1').selectOption('field:encounter');await expect(bridge).toBeHidden();
+ await page.locator('#thinking-piece-1').selectOption('field:assumption');await bridge.locator(':scope > summary').click();
+ await expect(choice).toHaveValue('');await choice.selectOption('reading');
+ await bridge.getByRole('button',{name:'Record what I learned in my intellectual trail',exact:true}).click();
+ await expect(page.locator('#ic-trail-entry')).toBeFocused();await expect(page.locator('#ic-trail-entry')).toHaveValue('My earlier unfinished discovery');
+ expect((await stored()).intellectualTrail||[]).toEqual(data.intellectualTrail||[]);
+ await page.reload({waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await expect(panel).not.toHaveAttribute('open','');
+ expect(errors).toEqual([]);
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
