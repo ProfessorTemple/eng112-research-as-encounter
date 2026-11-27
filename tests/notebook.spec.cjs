@@ -82,7 +82,7 @@ test('a beginner can translate a revised question and follow a short database-to
  await expect(page.locator('#rs-query')).toHaveValue('fireflies AND flashing behavior');
  await page.locator('#rs-use-suggested').click();await build.click();
  await expect(page.locator('#rs-query')).toHaveValue('family stories AND memory');await expect(page.locator('#rs-question-mismatch')).toBeHidden();
- await page.locator('#rs-discovery-step button[data-tab="journal"]').click();
+ if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-library-return').click();await page.locator('#rs-discovery-step button[data-tab="journal"]').click();
  await expect(page.locator('#page-journal h2')).toBeFocused();
  await expect(page.locator('#page-journal')).toContainText('A passage is a small part of the source');
 });
@@ -92,7 +92,7 @@ test('returning from a library search preserves discovered keywords and offers t
  await page.locator('#rs-working-question').fill('Why do fireflies stop flashing near me?');
  await page.locator('#rs-build').click();
  await page.locator('#rs-library-return').click();await expect(page.locator('#rs-return-heading')).toBeFocused();
- await page.locator('#rs-discovery').fill('Author-Supplied Keywords; Anthropogenic effects; communication disruption; intraspecific interaction; interspecific interaction; light pollution; LIGHT POLLUTION; Abstract');
+ if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-library-return').click();if(!(await page.locator('#rs-new-word-help').evaluate(e=>e.open)))await page.locator('#rs-new-word-help > summary').click();if(!(await page.locator('#rs-keyword-import').evaluate(e=>e.open)))await page.locator('#rs-keyword-import > summary').click();await page.locator('#rs-discovery').fill('Author-Supplied Keywords; Anthropogenic effects; communication disruption; intraspecific interaction; interspecific interaction; light pollution; LIGHT POLLUTION; Abstract');
  await page.locator('#rs-add').click();
  await expect(page.locator('#rs-discovery-status')).toContainText('5 keywords');
  await expect(page.locator('#rs-keyword-next')).toContainText('fireflies AND communication disruption');
@@ -107,11 +107,13 @@ test('returning from a library search preserves discovered keywords and offers t
  await page.locator('#rs-keyword-next').getByRole('button',{name:'Build selected search →'}).click();
  await expect(page.locator('#rs-query')).toHaveValue('fireflies AND light pollution');
  await expect(page.locator('#rs-ready-heading')).toBeFocused();
+ await expect(page.locator('#rs-ready-heading')).toHaveText('Search again with your new keywords');await expect(page.locator('#rs-round-progress')).toContainText('earlier search is kept');await expect(page.locator('#rs-discovery-step')).toBeHidden();
  expect(await page.evaluate(()=>state.savedSearches.includes('fireflies AND flashing behavior'))).toBeTruthy();
  expect(await page.evaluate(()=>state.keywordBank.filter(w=>w.toLowerCase()==='light pollution').length)).toBe(1);
  await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
- await expect(page.locator('#rs-keyword-next')).toContainText('interspecific interaction');
- await page.locator('#rs-library-return').click();
+ await expect(page.locator('#rs-ready-heading')).toHaveText('Search again with your new keywords');
+ await page.locator('#rs-library-return').click();await expect(page.locator('#rs-output')).toBeHidden();await expect(page.locator('#rs-bring-article')).toBeVisible();await expect(page.locator('#rs-new-word-help')).not.toHaveAttribute('open','');
+ await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();await expect(page.locator('#rs-bring-article')).toBeVisible();
  await page.locator('#rs-bring-article').click();await expect(page.locator('#custom-source-details')).toHaveAttribute('open','');await expect(page.locator('#custom-kind')).toHaveValue('article');
 });
 test('interdisciplinary models explain academic words without making claims or filling in the student question',async({page})=>{
@@ -133,7 +135,7 @@ test('responsive search guidance is one nonblocking invitation after a deliberat
  await page.locator('#rs-build').click();
  await expect(page.locator('#rs-connection')).toContainText('Your question mentions fireflies');
  await expect(page.locator('#rs-query')).toHaveValue('nature AND animals');
- if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');
+ if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-library-return').click();if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');
  const help=page.locator('#rs-refine');await expect(help).toContainText('No results');await expect(help).toContainText('nature');await expect(help.locator('p')).toHaveCount(1);await expect(help.getByRole('button')).toHaveCount(0);
  await page.locator('#rs-outcome').selectOption('many');await expect(help).toContainText('one specific');await expect(help.locator('p')).toHaveCount(1);
  await page.locator('#rs-outcome').selectOption('irrelevant');await expect(help).toContainText('changing just that term');
@@ -268,9 +270,9 @@ await page.locator('#rs-build').click();
 await expect(page.locator('#rs-query')).toHaveValue('human wildlife interactions AND ecological interdependence');
 if(!(await page.locator('#rs-search-options').evaluate(e=>e.open)))await page.locator('#rs-search-options > summary').click();await page.locator('#rs-save-query').click();
 await expect(page.locator('#rs-local-status')).toContainText(/saved/i);
-if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');
+if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-library-return').click();if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');
 await expect(page.locator('#rs-refine')).toContainText('No results');
-if(!(await page.locator('#rs-new-word-help').evaluate(e=>e.open)))await page.locator('#rs-new-word-help > summary').click();await page.locator('#rs-discovery').fill('agency');
+if(!(await page.locator('#rs-new-word-help').evaluate(e=>e.open)))await page.locator('#rs-new-word-help > summary').click();if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-library-return').click();if(!(await page.locator('#rs-new-word-help').evaluate(e=>e.open)))await page.locator('#rs-new-word-help > summary').click();if(!(await page.locator('#rs-keyword-import').evaluate(e=>e.open)))await page.locator('#rs-keyword-import > summary').click();await page.locator('#rs-discovery').fill('agency');
 await page.locator('#rs-add').click();
 await expect(page.locator('#rs-keyword-next')).toContainText('agency');
 const stored=()=>page.evaluate(()=>Object.values(localStorage).some(v=>v.includes('human wildlife interactions')&&v.includes('agency')));
@@ -419,7 +421,7 @@ test('a complete student-led inquiry preserves evidence, authorship and reversib
  await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:'Build a search',exact:true}).click();
  if(!(await page.locator('#rs-keyword-editor').evaluate(e=>e.open)))await page.locator('#rs-keyword-editor > summary').click();await page.locator('#rs-a').fill('water movement');await page.locator('#rs-b').fill('watershed');
  await page.locator('#rs-build').click();if(!(await page.locator('#rs-search-options').evaluate(e=>e.open)))await page.locator('#rs-search-options > summary').click();await page.locator('#rs-save-query').click();
- if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');await expect(page.locator('#rs-refine')).toContainText('No results');
+ if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-library-return').click();if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');await expect(page.locator('#rs-refine')).toContainText('No results');
  await page.locator('[data-field-space="thesis"]').click();
  const thesisNav=page.locator('#lts-nav');
  await thesisNav.getByRole('button',{name:'Build',exact:true}).click();
@@ -1127,7 +1129,7 @@ test('first-time route resumes chosen words and unfinished searches without reop
  await page.locator('#explore-continue').click();
  if(!(await page.locator('#rs-keyword-editor').evaluate(e=>e.open)))await page.locator('#rs-keyword-editor > summary').click();await page.locator('#rs-a').fill('fireflies');await page.locator('#rs-b').fill('communication');
  await page.locator('#rs-build').click();await expect(page.locator('#rs-ready-heading')).toBeFocused();
- await page.locator('#rs-query').fill('fireflies AND signaling');await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('many');
+ await page.locator('#rs-query').fill('fireflies AND signaling');if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-library-return').click();if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('many');
  await page.reload({waitUntil:'domcontentloaded'});
  if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await expect(page.locator('#page-search h2')).toBeFocused();
