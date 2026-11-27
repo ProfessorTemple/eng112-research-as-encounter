@@ -2423,7 +2423,7 @@ for(const label of ['','Extends','Complicates','Challenges','Transforms','Connec
 trailRelation.value=trailRelationDraft;trailRelation.addEventListener('change',()=>{trailRelationDraft=trailRelation.value;trailStatus.textContent=storeTrailDraft()?'':'Browser saving failed. Keep a separate copy of this reflection.';});
 const trailStatus=make('p','',history);trailStatus.setAttribute('role','status');
 const trailSave=button(history,'Keep this discovery',()=>{const value=trailInput.value.trim();if(!value){trailStatus.textContent='Write your own reflection first.';return;}const previous=Array.isArray(state.intellectualTrail)?state.intellectualTrail:[];if(previous.length>=100){trailStatus.textContent='Your trail has 100 entries. Remove an entry before adding another.';return;}const previousDrafts=state.inquiryWorkingDrafts;state.intellectualTrail=[...previous,{text:value,relationship:trailRelation.value,created:new Date().toISOString()}];state.inquiryWorkingDrafts={...(previousDrafts||{}),trail:'',trailRelationship:''};if(!persist()){state.intellectualTrail=previous;state.inquiryWorkingDrafts=previousDrafts;trailStatus.textContent='Saving failed. Your reflection is still here.';return;}trailInput.value=trailDraft='';trailRelation.value=trailRelationDraft='';trailStatus.textContent='Discovery saved in this browser.';renderHistory();});
-const historyList=make('div','',history);
+const historyList=make('div','',history);historyList.id='ic-trail-history';historyList.tabIndex=-1;historyList.setAttribute('aria-label','Saved discoveries');
 function renderHistory(){historyList.replaceChildren();const historyEntries=Array.isArray(state.intellectualTrail)?state.intellectualTrail:[];
 if(!historyEntries.length)make('p','No discoveries saved yet.',historyList);
 historyEntries.forEach((entry,index)=>{if(!entry||typeof entry.text!=='string')return;const item=make('div','',historyList);if(entry.relationship)make('strong',entry.relationship,item);make('p',entry.text,item);button(item,'Remove discovery '+(index+1),()=>{const previous=state.intellectualTrail;state.intellectualTrail=previous.filter((_,i)=>i!==index);if(persist()){renderHistory();trailStatus.textContent='Discovery removed.';trailSave.focus();}else{state.intellectualTrail=previous;trailStatus.textContent='Removal failed. Try again.';}});});}
@@ -2503,6 +2503,13 @@ window.addEventListener('field:save',()=>{if(draftOwner!==state){if(host.childNo
  resume.id='field-resume-draft';
  function syncResume(){resume.hidden=g('page-writing').classList.contains('hidden')&&!g('ws-essay-body').value.trim();}
  window.addEventListener('field:tabchange',syncResume);window.addEventListener('field:save',syncResume);syncResume();
+ card.addEventListener('field:revisit-trail',event=>{
+  if(!d.open){d.open=true;refresh();}else if(!host.querySelector('#ic-trail-entry'))refresh();
+  const entry=host.querySelector('#ic-trail-entry'),history=entry?.closest('details');if(!history)return;
+  history.open=true;
+  const target=event.detail?.kind==='discovery'?history.querySelector('#ic-trail-history'):entry;
+  if(target){target.focus({preventScroll:true});target.scrollIntoView({block:'center',behavior:'auto'});}
+ });
 })();
 </script><style>.ws-card details{overflow-wrap:anywhere}.ws-card details summary{cursor:pointer}.ws-card details textarea{width:100%;box-sizing:border-box}.ws-card details button{min-height:44px;margin:.3rem}</style><style>#source-shelf .shelf-item{display:block}#source-shelf .actions{flex-wrap:wrap;margin-top:.75rem}#source-shelf .actions a,#source-shelf .actions button{min-height:44px}#note-excerpt{scroll-margin-top:120px}</style><script>
 (function(){
@@ -2535,9 +2542,11 @@ function savedConversations(){return Array.isArray(state.sourceConversations)?st
 function drawArchive(){archive.replaceChildren();const h=document.createElement('h4');h.textContent='My saved source conversations';archive.append(h);for(const item of savedConversations()){const p=document.createElement('p');const titles=[item.a,item.b].map(id=>{const n=(state.readingNotes||[]).find(x=>x.id===id);return n?lookupSource(n.sourceId)?.title||'Saved source':'Note no longer available';});p.textContent=titles.join(' / ')+' · '+(item.relation||'Still considering')+' · '+(item.reflection||'No reflection yet');archive.append(p);const b=document.createElement('button');b.type='button';b.textContent='Revisit this conversation';b.addEventListener('click',()=>{ca.value=item.a;cb.value=item.b;cr.value=item.relation||'';ct.value=item.reflection||'';showEvidence();});archive.append(b);}}
 getC('save').addEventListener('click',()=>{if(!ca.value||!cb.value||ca.value===cb.value)return;const item={a:ca.value,b:cb.value,relation:cr.value,reflection:ct.value};const list=savedConversations().filter(x=>!(x.a===item.a&&x.b===item.b));state.sourceConversations=[...list,item];cm.textContent=persist()?'Conversation saved in this browser.':'Browser saving failed. Export a backup before leaving.';drawArchive();});
 conversation.addEventListener('toggle',()=>{if(conversation.open)drawArchive();});
-q.value=state.inquiryPortrait?.question||'';status.value=state.inquiryPortrait?.status||'exploring';
-panel.addEventListener('toggle',()=>{if(panel.open)draw();});window.addEventListener('field:save',()=>{if(panel.open)draw();});
-panel.querySelector('#portrait-save').addEventListener('click',()=>{state.inquiryPortrait={question:q.value,status:status.value};message.textContent=persist()?'Reflection saved in this browser.':'Browser saving failed. Export a backup before leaving.';});
+let portraitOwner=state;
+ function loadPortraitQuestion(){portraitOwner=state;const p=state.inquiryPortrait||{};q.value=typeof p.question==='string'?p.question:'';status.value=['exploring','reconsidered','aside'].includes(p.status)?p.status:'exploring';message.textContent='';}
+ loadPortraitQuestion();
+ panel.addEventListener('toggle',()=>{if(panel.open)draw();});window.addEventListener('field:save',()=>{if(portraitOwner!==state)loadPortraitQuestion();if(panel.open)draw();});
+ panel.querySelector('#portrait-save').addEventListener('click',()=>{const previous=state.inquiryPortrait;state.inquiryPortrait={question:q.value,status:status.value};if(persist())message.textContent='Reflection saved in this browser.';else{state.inquiryPortrait=previous;message.textContent='Browser saving failed. Your question is still here; keep a separate copy.';}});
 })();
 </script><script>
 (function(){
@@ -2583,4 +2592,61 @@ for(const id of ['abstract','conclusion']){
  const short=document.createElement('p');short.className='ws-muted';short.textContent='Draft first. Your title, abstract, keywords, visuals and final checks are below when you need them.';body.querySelector('h3').after(short);
 })();
 </script><style>#field-resume-draft{margin:.4rem 0;min-height:44px}#ws-draft-aids{margin:.8rem 0}#ws-draft-aids summary{cursor:pointer;min-height:44px;padding:.5rem 0}#ws-reflect-selected{min-height:44px}#ws-essay-rich{scroll-margin-top:1rem}</style>
+<script>
+(function(){
+ 'use strict';
+ const g=id=>document.getElementById(id),anchor=g('field-resume-draft');if(!anchor)return;
+ const panel=document.createElement('details');panel.id='field-resume-thread';panel.className='field-resume-thread no-print';panel.hidden=true;
+ const make=(tag,text,parent)=>{const n=document.createElement(tag);n.textContent=text;if(parent)parent.append(n);return n;};
+ make('summary','Pick up a thread (optional)',panel);
+ make('p','Return to something you recorded earlier, or simply continue writing. Nothing is added to your draft.',panel);
+ const choices=make('div','',panel),label=make('label','Choose a thread',choices);label.htmlFor='field-resume-thread-choice';
+ const select=make('select','',choices);select.id='field-resume-thread-choice';
+ const heading=make('strong','',panel),quote=make('p','',panel);quote.className='field-resume-thread-text';
+ const revisit=make('button','Revisit in my notebook',panel);revisit.type='button';revisit.className='secondary';
+ const dismiss=make('button','Continue without this',panel);dismiss.type='button';dismiss.className='secondary';
+ anchor.after(panel);
+ let items=[],signature='',owner=state;
+ function threads(){
+  const out=[],p=state.inquiryPortrait;
+  if(p?.status==='exploring'&&typeof p.question==='string'&&p.question.trim())out.push({kind:'question',label:'My open question',text:p.question});
+  const working=state.inquiryWorkingDrafts?.trail;
+  if(typeof working==='string'&&working.trim())out.push({kind:'unfinished',label:'My unfinished reflection',text:working});
+  const last=cleanIntellectualTrail(state.intellectualTrail).at(-1);
+  if(last&&last.relationship!=='Does not belong')out.push({kind:'discovery',label:'My most recently saved discovery',text:last.text});
+  return out;
+ }
+ function clear(){choices.hidden=true;select.replaceChildren();heading.textContent='';quote.textContent='';items=[];signature='';}
+ function show(){
+  const item=items.find(x=>x.kind===select.value)||items[0];
+  heading.textContent=item?.label||'';quote.textContent=item?.text||'';revisit.hidden=!item;
+ }
+ function refresh(){
+  if(owner!==state){owner=state;panel.open=false;clear();}
+  const next=threads();panel.hidden=!next.length;
+  if(panel.hidden){panel.open=false;clear();return;}
+  if(!panel.open){clear();return;}
+  const key=JSON.stringify(next);if(key===signature)return;
+  const prior=select.value;items=next;signature=key;select.replaceChildren();
+  for(const item of items)select.add(new Option(item.label,item.kind));
+  if(items.some(x=>x.kind===prior))select.value=prior;
+  choices.hidden=items.length<2;show();
+ }
+ select.addEventListener('change',show);
+ panel.addEventListener('toggle',refresh);
+ dismiss.addEventListener('click',()=>{panel.open=false;panel.querySelector('summary').focus();});
+ revisit.addEventListener('click',()=>{
+  const item=items.find(x=>x.kind===select.value)||items[0];if(!item)return;
+  panel.open=false;
+  if(item.kind==='question'){
+   const portrait=g('living-inquiry-portrait'),question=g('portrait-question');if(!portrait||!question)return;
+   portrait.open=true;question.focus({preventScroll:true});question.scrollIntoView({block:'center',behavior:'auto'});
+  }else{
+   if(g('page-writing').classList.contains('hidden'))tab('writing');
+   requestAnimationFrame(()=>document.querySelector('section[aria-label="My Inquiry Companion"]')?.dispatchEvent(new CustomEvent('field:revisit-trail',{detail:{kind:item.kind}})));
+  }
+ });
+ window.addEventListener('field:save',refresh);window.addEventListener('field:tabchange',refresh);refresh();
+})();
+</script><style>#field-resume-thread{margin:.45rem 0;max-width:100%;overflow-wrap:anywhere}#field-resume-thread summary{cursor:pointer;min-height:44px;padding:.5rem 0}#field-resume-thread p{margin:.4rem 0}#field-resume-thread button{min-height:44px;margin:.25rem .4rem .25rem 0}#field-resume-thread select{max-width:100%}.field-resume-thread-text{white-space:pre-wrap;max-height:16rem;overflow:auto}#field-resume-thread [hidden]{display:none!important}</style>
 </body></html>
