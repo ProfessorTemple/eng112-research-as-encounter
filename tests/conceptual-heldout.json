@@ -1,0 +1,50 @@
+[
+  {
+    "id": "care",
+    "query": "My aunt spent evenings tending her sick neighbor.",
+    "related": "Unpaid caregiving often sustains communities.",
+    "distractor": "Evening temperatures decline after sunset."
+  },
+  {
+    "id": "agency",
+    "query": "She could finally choose how to spend her days.",
+    "related": "Personal autonomy can emerge after retirement.",
+    "distractor": "Days become shorter in winter."
+  },
+  {
+    "id": "perception",
+    "query": "I noticed the faint movement beneath the leaves.",
+    "related": "Attentiveness reveals overlooked environmental activity.",
+    "distractor": "Leaves are collected for compost."
+  },
+  {
+    "id": "place",
+    "query": "Leaving the island felt like losing part of myself.",
+    "related": "Place attachment can shape identity.",
+    "distractor": "Island ferries operate daily."
+  },
+  {
+    "id": "reciprocity",
+    "query": "We owe the forest more than gratitude.",
+    "related": "Mutual responsibility shapes ecological relationships.",
+    "distractor": "Forest acreage varies by region."
+  },
+  {
+    "id": "ambiguity",
+    "query": "The crane stood motionless in the marsh.",
+    "related": "Wading birds often wait patiently for prey.",
+    "distractor": "A crane lifted steel beams."
+  },
+  {
+    "id": "embodiment",
+    "query": "My skin sensed the cold before I saw the frost.",
+    "related": "Bodily sensation informs environmental awareness.",
+    "distractor": "Frost can damage crops."
+  },
+  {
+    "id": "uncertainty",
+    "query": "I cannot tell whether the dog meant to comfort me.",
+    "related": "Observable behavior alone cannot establish intention.",
+    "distractor": "Dogs deliberately comfort their owners."
+  }
+]
