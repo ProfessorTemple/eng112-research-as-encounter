@@ -1,0 +1,3 @@
+# Audit handoff
+Baseline: experimental 9.6, commit ff38e03aa809f07ea13dcb8cd51742499c273e14.
+Run repeatable browser tests for freewriting, search, no-results refinement, saving, custom sources, notes, vocabulary, thesis, writing, export and restoration. Test desktop and mobile viewport; capture runtime errors. Repair only experimental code; retest. Verify library links separately; authenticated PCC access and real iPhone Safari require separate checks. Check Lexicon reflection save and concept refinement, direct source access, version visibility, accessibility, backup migration and Word export. No student data in tests. Do not label 10.0 student-ready until release gates pass. Read ROADMAP, PEDAGOGY, CHANGELOG and this file before each development session.
