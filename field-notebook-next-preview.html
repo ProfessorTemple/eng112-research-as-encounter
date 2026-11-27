@@ -2322,7 +2322,24 @@ const rules=[
 ['Connecting ideas',/\b(?:reminded me of|helped me connect|made me connect|helped me understand)\b/i,'What specific detail links these experiences or ideas? Where might the comparison stop working?'],
 ['Exploring significance',/\b(?:this matters because|this raises the question|this suggests that)\b/i,'Who or what is affected beyond this immediate encounter? What evidence supports that wider significance?'],
 ['Noticing something new',/\b(?:I|we) (?:first noticed|began to notice|had never noticed|noticed for the first time)\b/i,'Return to the moment of noticing. What sensory detail or action made it visible to you?']
-];return rules.find(([,pattern])=>pattern.test(t))||null;
+];const explicit=rules.find(([,pattern])=>pattern.test(t));if(explicit)return explicit;
+const sentences=t.match(/[^.!?]+[.!?]*/g)||[];
+const prior=/\b(?:I|we)\s+(?:always|usually|used to|would|never)\s+([a-z]+)\b/i;
+const encounter=/\b(?:I|we)\s+(?:watched|heard|saw|noticed|observed|listened to)\b/i;
+const later=/\b(?:this year|this time|the next day|the next morning|afterward|since then|now)\b/i;
+for(let i=0;i<sentences.length-2;i++){
+ const earlier=sentences[i].match(prior);if(!earlier)continue;
+ for(let j=i+1;j<Math.min(i+4,sentences.length-1);j++){
+ if(!encounter.test(sentences[j]))continue;
+ for(let k=j+1;k<Math.min(j+3,sentences.length);k++){
+ const next=sentences[k];if(!later.test(next))continue;
+ const contrast=/\b(?:stayed|remained|left|kept|stopped|instead|did not|didn't|no longer|rather than)\b/i;
+ if(!contrast.test(next))continue;
+ return ['Change in practice',null,'Your narrative places an earlier habit, an observation, and a later action in sequence. Are they connected, or did something else explain the change? Show what the encounter meant to you, if anything.'];
+ }
+ }
+}
+return null;
 }
 
 function invalidateReview(input,output,mark){input.addEventListener('input',()=>{if(output.childNodes.length){output.textContent='Your passage has changed. Explore it again when you are ready.';}mark(false);});}
