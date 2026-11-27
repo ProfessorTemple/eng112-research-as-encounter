@@ -4,6 +4,22 @@ const url=process.env.NOTEBOOK_URL || 'https://professortemple.github.io/eng112-
 for(const viewport of [{width:390,height:844},{width:1440,height:900}]){
 test.describe('Notebook '+viewport.width,()=>{
 test.use({viewport});
+test('core work precedes optional reading and document tools at each viewport',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="research"]').click();
+ await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Find sources',exact:true}).click();
+ await expect(page.locator('#book-filter')).toBeVisible();await expect(page.locator('#pcc-source-access-guide')).toBeHidden();await expect(page.locator('#media-list')).toBeHidden();
+ await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
+ await expect(page.locator('#journal-source')).toBeVisible();await expect(page.locator('#note-excerpt')).toBeVisible();await expect(page.locator('#jstor-list')).toBeHidden();await expect(page.locator('#source-shelf')).toBeHidden();
+ await page.locator('#journal-pdf-tools > summary').click();await expect(page.locator('#jstor-pdf')).toBeVisible();
+ await page.locator('[data-field-space="write"]').click();await expect(page.locator('#ws-essay-rich')).toBeVisible();await expect(page.locator('#field-route-task')).toBeHidden();await expect(page.locator('#ws-abstract')).toBeHidden();
+ await page.locator('#ws-essay-rich').fill('My own synthetic draft.');
+ await page.locator('#writing-document-parts > summary').click();await expect(page.locator('#ws-abstract')).toBeVisible();if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-abstract').fill('My synthetic abstract.');
+ await expect(page.locator('#ws-essay-rich')).toHaveText('My own synthetic draft.');
+ await page.locator('#writing-document-parts > summary').click();await expect(page.locator('#ws-abstract')).toBeHidden();
+ expect(errors).toEqual([]);
+});
 test('concept exploration has one clear question-first action and hides optional tools until requested',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
@@ -169,7 +185,7 @@ test('shareable practice workspace is isolated, starts fresh, and preserves its 
  await upload('Practice project PDF');
  await page.locator('#field-welcome-start').click();await expect(page.locator('#encounter')).toHaveValue('');
  await page.locator('#encounter').fill('Practice project memory.');
- await page.locator('[data-field-space="write"]').click();await page.locator('#ws-essay-title').fill('Creek & Birds');await page.locator('#ws-essay-rich').fill('Practice project essay.');
+ await page.locator('[data-field-space="write"]').click();if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-essay-title').fill('Creek & Birds');await page.locator('#ws-essay-rich').fill('Practice project essay.');
  const downloadPromise=page.waitForEvent('download');await page.locator('#download-json').evaluate(e=>e.click());const file=await downloadPromise;
  expect(file.suggestedFilename()).toMatch(/^Living-Field-Notebook_Creek-Birds_\d{4}-\d{2}-\d{2}T.*\.json$/);
  const backup=JSON.parse(require('fs').readFileSync(await file.path(),'utf8'));
@@ -318,8 +334,8 @@ await page.locator('#soWhat').fill('The pattern may reflect responsiveness to ne
 await page.locator('#lts-build').getByRole('button',{name:'3. Significance',exact:true}).click();
 await page.locator('#nowWhat').fill('This raises questions about agency in shared environments.');
 await page.locator('[data-field-space="write"]').click();
-await page.locator('#ws-abstract').fill('A synthetic abstract for browser testing.');
-await page.locator('#ws-final-keywords').fill('agency, fireflies, responsiveness');
+if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-abstract').fill('A synthetic abstract for browser testing.');
+if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-final-keywords').fill('agency, fireflies, responsiveness');
 await page.locator('#ws-essay-rich').fill('I watched fireflies along the road. Their flashing raised questions about agency.');
 await page.locator('#ws-review-btn').click();
 await expect(page.locator('#ws-essay-review')).not.toBeEmpty();
@@ -534,8 +550,8 @@ test('failed backup storage does not announce success or reload',async({page})=>
  await page.locator('#what').fill('Original student observation before failed import');
  const previous=await page.locator('#what').inputValue();
  await page.locator('[data-field-space="write"]').click();
- await page.locator('#ws-abstract').fill('Original abstract before failed import.');
- await page.locator('#ws-final-keywords').fill('garden, memory, reciprocity');
+ if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-abstract').fill('Original abstract before failed import.');
+ if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-final-keywords').fill('garden, memory, reciprocity');
  await page.locator('#ws-essay-rich').fill('Original essay before failed import.');
  await page.locator('#ws-review-btn').click();
  await page.locator('#ws-source-ref-0').evaluate(el=>{el.value='Synthetic original source reference';el.dispatchEvent(new Event('input',{bubbles:true}));});
@@ -571,7 +587,7 @@ test('legacy backup replaces rather than merges projects; invalid and cancelled 
  await page.goto(url,{waitUntil:'domcontentloaded'});
  if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await page.locator('[data-field-space="write"]').click();
- await page.locator('#ws-abstract').fill('Existing project abstract');
+ if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-abstract').fill('Existing project abstract');
  await page.locator('#ws-essay-rich').fill('Existing project essay');
  await page.locator('#ws-review-btn').click();
  const messages=[];let cancel=false;
@@ -1466,9 +1482,9 @@ await expect(phrase).toContainText('Capacity to act');
 await phrase.getByRole('button',{name:'Keep concept: agency',exact:true}).click();
 await expect(lex.locator('summary').filter({hasText:/^agency ·/})).toBeVisible();
 await page.locator('[data-field-space="write"]').click();
-await page.locator('#ws-essay-title').fill('Synthetic firefly inquiry');
-await page.locator('#ws-abstract').fill('Synthetic abstract for export.');
-await page.locator('#ws-final-keywords').fill('agency, fireflies');
+if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-essay-title').fill('Synthetic firefly inquiry');
+if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-abstract').fill('Synthetic abstract for export.');
+if(!(await page.locator('#writing-document-parts').evaluate(e=>e.open)))await page.locator('#writing-document-parts > summary').click();await page.locator('#ws-final-keywords').fill('agency, fireflies');
 await page.locator('#ws-essay-rich').fill('Synthetic essay paragraph.');
 const png=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=800;c.height=600;const x=c.getContext('2d');const d=x.createImageData(800,600);let seed=123;for(let i=0;i<d.data.length;i+=4){seed=(Math.imul(seed,1664525)+1013904223)>>>0;d.data[i]=seed>>>24;d.data[i+1]=seed>>>16;d.data[i+2]=seed>>>8;d.data[i+3]=255;}x.putImageData(d,0,0);return c.toDataURL('image/png').split(',')[1];});
 for(let i=0;i<3;i++){await page.locator('#ws-visual-file-'+i).setInputFiles({name:'synthetic-'+i+'.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await expect(page.locator('#ws-visual-preview-'+i)).toBeVisible();await page.locator('#ws-visual-title-'+i).fill('Synthetic figure '+i);}
