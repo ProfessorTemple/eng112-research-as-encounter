@@ -33,6 +33,10 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+\/field-notebook-next-preview\.html
    await page.locator('#field-subnav').getByRole('button',{name:'Annotated bibliography',exact:true}).click();await inspect('annotated bibliography');
    await page.locator('[data-field-space="thesis"]').click();await inspect('thesis');
    await page.locator('[data-field-space="write"]').click();await inspect('essay');
+   await page.locator('#field-revisit-earlier').click();
+   await page.locator('#field-notebook-utilities > summary').click();
+   await page.locator('#field-workspace-new-essay').click();await inspect('start a new essay dialog');
+   await page.locator('#field-new-essay-cancel').click();
    await context.close();
   }
  }finally{await browser.close();}
