@@ -518,7 +518,7 @@
 <div class="nav field-original-nav" role="tablist" aria-label="Research companion sections" aria-orientation="horizontal">
 <button id="tab-begin" role="tab" aria-controls="page-begin" aria-selected="true" tabindex="0" data-tab="begin">Freewrite</button><button id="tab-explore" role="tab" aria-controls="page-explore" aria-selected="false" tabindex="-1" data-tab="explore">Explore connections</button><button id="tab-search" role="tab" aria-controls="page-search" aria-selected="false" tabindex="-1" data-tab="search">Build a search</button><button id="tab-read" role="tab" aria-controls="page-read" aria-selected="false" tabindex="-1" data-tab="read">Find sources</button><button id="tab-journal" role="tab" aria-controls="page-journal" aria-selected="false" tabindex="-1" data-tab="journal">Reading Journal</button><button id="tab-return" role="tab" aria-controls="page-return" aria-selected="false" tabindex="-1" data-tab="return">Return changed &amp; export</button><button id="tab-biblio" role="tab" aria-controls="page-biblio" aria-selected="false" tabindex="-1" data-tab="biblio">Annotated bibliography</button><button id="tab-writing" role="tab" aria-controls="page-writing" aria-selected="false" tabindex="-1" data-tab="writing">Writing Studio</button>
 </div>
-<div class="ws-mobile-jumps no-print"><span class="ws-jump-label">Jump ahead when you are ready:</span><button type="button" class="secondary" data-go="biblio">Annotated bibliography</button><button type="button" class="secondary" data-go="writing">Final essay</button></div>
+<!-- Primary notebook navigation already provides both writing and research destinations at every viewport. -->
 <section class="panel" id="page-begin" role="tabpanel" aria-labelledby="tab-begin">
 <div id="ux-writing-view"><div class="studio-head"><div class="eyebrow studio-eyebrow">ENG 112 · Freewriting Studio</div><h2>Begin with something that stays with you.</h2><p>Begin with a memory, place, encounter, or question. Write first. Discover later.</p></div>
 <div class="field studio-write"><label for="encounter">Your freewrite</label><p class="hint">What happened? What detail stays with you?</p><textarea id="encounter" rows="13" placeholder="I remember... / One day I noticed... / I can't stop thinking about..." aria-describedby="studio-meter studio-privacy"></textarea><div class="studio-meter" id="studio-meter" aria-live="polite"><span id="word-counter">0 words</span><span id="writing-goal">Invitation: 250–400 words, not a requirement</span></div><div class="ux-writing-actions"><button type="button" id="ask-question-now" class="secondary studio-ask">Give me a question</button><button class="primary" id="discover-threads">Notice my words →</button></div></div>
@@ -1606,8 +1606,8 @@ const NEXT={
  read:["journal","Take notes on something you actually read, heard, or watched"],
  journal:["return","Return to your living thesis with new evidence"],
  return:["writing","Carry your thesis into your essay draft"],
- biblio:["return","Connect your sources to your living thesis"],
- writing:["return","Revisit your living thesis as you revise"]
+ biblio:["writing","Begin or continue my essay with these sources"],
+ writing:["writing","Review my draft when I am ready"]
 };
 const safe=(v,n=160)=>String(v||"").replace(/\s+/g," ").trim().slice(0,n);
 const join=(arr,n=3)=>Array.isArray(arr)?arr.filter(x=>typeof x==="string"&&x.trim()).slice(0,n).map(x=>safe(x,70)).join(" · "):"";
@@ -1623,7 +1623,7 @@ function renderNav(id){
  get("field-space-caption").textContent=space.name.toUpperCase();
  get("field-section-title").textContent=space.title;
  get("field-section-help").textContent=space.hint;
- const nav=get("field-subnav");nav.replaceChildren();
+ const nav=get("field-subnav");nav.replaceChildren();nav.hidden=space.pages.length<2;
  for(const [tabId,name] of space.pages){
    const b=make("button",null,name);b.type="button";if(tabId===id)b.setAttribute("aria-current","page");
    b.addEventListener("click",()=>navigate(tabId));nav.append(b);
@@ -1634,6 +1634,8 @@ function renderNav(id){
 }
 function renderInvitation(id){
  const next=NEXT[id];
+ if(id==="writing"){get("field-next-invitation").hidden=true;return;}
+ get("field-next-invitation").hidden=false;
  if(id==="begin"&&!get("encounter")?.value?.trim()){
   get("field-next-text").textContent="Begin by describing something that stays with you. You can discover research language afterward.";
   get("field-next-button").textContent="Begin my freewriting ↓";
@@ -2528,7 +2530,7 @@ window.addEventListener('field:save',()=>{if(draftOwner!==state){if(host.childNo
   else returnToEssay();
  });
  resume.id='field-resume-draft';
- function syncResume(){resume.hidden=g('page-writing').classList.contains('hidden')&&!g('ws-essay-body').value.trim();}
+ function syncResume(){const hasDraft=!!g('ws-essay-body').value.trim();resume.hidden=g('page-writing').classList.contains('hidden')&&!hasDraft;resume.textContent=hasDraft?'Return to my draft':'Start my draft';}
  window.addEventListener('field:tabchange',syncResume);window.addEventListener('field:save',syncResume);syncResume();
  card.addEventListener('field:revisit-trail',event=>{
   if(!d.open){d.open=true;refresh();}else if(!host.querySelector('#ic-trail-entry'))refresh();
@@ -3202,5 +3204,5 @@ function setCarriedInquiryPractice(next){
  const banner=writing.querySelector('.ws-banner'),tips=writing.querySelector(':scope > .ws-tips');
  if(banner){const requirements=document.createElement('details');requirements.id='ws-assignment-requirements';requirements.className='ws-tips';const title=document.createElement('summary');title.textContent='Final essay requirements and document structure (1,200–1,500 words)';requirements.append(title);banner.before(requirements);requirements.append(banner);if(tips){const contents=[...tips.childNodes].filter(n=>n.nodeName!=='SUMMARY');requirements.append(...contents);tips.remove();}}
 })();
-</script><style>#field-earlier-work{margin-top:1.3rem}#field-earlier-title{scroll-margin-top:1rem}#field-revisit-earlier{min-height:44px;margin:.3rem 0}#field-notebook-utilities>summary,#ws-assignment-requirements>summary,.ws-lens-callout>summary{cursor:pointer;min-height:44px;padding:.5rem 0}#field-notebook-utilities{margin-top:.75rem}#ws-assignment-requirements .ws-banner{margin:.5rem 0}#field-earlier-work[hidden]{display:none!important}</style>
+</script><style>#field-earlier-work{margin-top:1.3rem}#field-earlier-title{scroll-margin-top:1rem}#field-revisit-earlier{min-height:44px;margin:.3rem 0}#field-notebook-utilities>summary,#ws-assignment-requirements>summary,.ws-lens-callout>summary{cursor:pointer;min-height:44px;padding:.5rem 0}#field-notebook-utilities{margin-top:.75rem}#ws-assignment-requirements .ws-banner{margin:.5rem 0}#field-earlier-work[hidden],#field-subnav[hidden],#field-next-invitation[hidden]{display:none!important}</style>
 </body></html>
