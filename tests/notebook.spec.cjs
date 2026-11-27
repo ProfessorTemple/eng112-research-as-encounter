@@ -4,6 +4,30 @@ const url=process.env.NOTEBOOK_URL || 'https://professortemple.github.io/eng112-
 for(const viewport of [{width:390,height:844},{width:1440,height:900}]){
 test.describe('Notebook '+viewport.width,()=>{
 test.use({viewport});
+test('academic language has a plain definition and a deliberate non-overwriting translation into search terms',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="research"]').click();
+ const question=page.locator('#rs-working-question'),translation=page.locator('#rs-translation'),a=page.locator('#rs-a'),b=page.locator('#rs-b'),gloss=page.locator('#rs-term-gloss');
+ await expect(translation).toBeHidden();
+ const inquiry='What ontological questions about personhood emerge from my encounter?';
+ await question.fill(inquiry);
+ await expect(translation).toBeVisible();await expect(translation).toContainText('Ontology');await expect(translation).toContainText('what exists');await expect(translation).toContainText('ontological');await expect(translation).toContainText('personhood');
+ await expect(translation.getByRole('button')).toHaveCount(1);
+ await expect(page.locator('#rs-saved-words')).not.toHaveAttribute('open','');
+ await expect(a).toHaveValue('');await expect(b).toHaveValue('');
+ await translation.getByRole('button',{name:'Use “personhood”'}).click();await expect(a).toHaveValue('personhood');await expect(a).toBeFocused();
+ await b.fill('ontological');await expect(gloss).toContainText('nature of being');
+ await translation.getByRole('button',{name:'Use “personhood”'}).click();await expect(a).toHaveValue('personhood');await expect(b).toHaveValue('ontological');
+ await expect(page.locator('#rs-status')).toContainText('Both search ideas already contain your words');
+ await b.fill('lived experience');await page.locator('#rs-build').click();await expect(page.locator('#rs-query')).toHaveValue('personhood AND lived experience');
+ await expect(question).toHaveValue(inquiry);
+ await question.fill('How do media portrayals shape cultural representation?');
+ await expect(translation).toContainText('Cultural representation');await expect(translation).toContainText('media representation');
+ await expect(a).toHaveValue('personhood');await expect(b).toHaveValue('lived experience');
+ await question.fill('');await expect(translation).toBeHidden();
+ expect(errors).toEqual([]);
+});
 test('interdisciplinary invitations recognize philosophy and cultural studies without imposing ecological interpretations',async({page})=>{
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  const lenses=page.locator('#lens-recommendations');
