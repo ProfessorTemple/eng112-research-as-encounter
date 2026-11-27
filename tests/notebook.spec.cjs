@@ -114,6 +114,7 @@ await page.locator('#source-shelf .shelf-item').filter({hasText:title}).getByRol
 await page.locator('#note-locator').fill('p. 12');await page.locator('#note-excerpt').fill(idea);await page.locator('#note-author-idea').fill(idea);await page.locator('#note-connection').fill(idea);await page.locator('#save-source-note').click();await expect(page.locator('#note-list')).toContainText(idea);
 }
 const c=page.locator('#sources-in-conversation');await c.locator('summary').click();
+for(const title of ['Audit source A','Audit source B','Audit source C'])await expect(c.locator('#conversation-a option').filter({hasText:title})).toHaveCount(1);
 const options=await c.locator('#conversation-a option').evaluateAll(es=>es.filter(e=>e.value).map(e=>({id:e.value,text:e.textContent})));
 const id=title=>options.find(o=>o.text.includes(title)).id;
 await c.locator('#conversation-a').selectOption(id('Audit source A'));await c.locator('#conversation-b').selectOption(id('Audit source B'));
