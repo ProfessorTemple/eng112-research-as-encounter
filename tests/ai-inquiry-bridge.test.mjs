@@ -46,4 +46,16 @@ try {
  const result=await Promise.race([stuck,new Promise((_,reject)=>{watchdog=setTimeout(()=>reject(Error('cancellation did not settle')),250);})]);
  assert.equal(result.kind,'stale');
 }finally{clearTimeout(watchdog);}
+const selectedNotes=['Original authorized note'];
+let received;
+const snapshot=createInquiryBridge({fallback,request:async({notes})=>{received=notes;return valid;}});
+const inFlight=snapshot.reflect({passage,notes:selectedNotes,consent:true});
+selectedNotes.push('Unapproved later note');
+assert.equal((await inFlight).kind,'experimental');
+assert.deepEqual(received,['Original authorized note']);
+const changed=['Original authorized note'];
+const grounding=createInquiryBridge({fallback,request:async()=>({...valid,evidence:['Unapproved later note']})});
+const checking=grounding.reflect({passage,notes:changed,consent:true});
+changed.push('Unapproved later note');
+assert.equal((await checking).kind,'local');
 console.log('Bridge scenarios passed');
