@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {summarizeReviews as summarize} from './ai-inquiry-scorecard.mjs';
+const ids=Array.from({length:10},(_,i)=>'case-'+i);
+const good=id=>({id,criticalFailure:false,reason:'Synthetic reviewer fixture',scores:{grounding:2,relevance:2,openness:2,culturalSensitivity:2,developmentalFit:2}});
+const all=ids.map(good);
+assert.equal(summarize(ids,all).eligible,true);
+assert.equal(summarize(ids,all.slice(0,9)).eligible,false);
+const critical=all.map(r=>({...r}));critical[0].criticalFailure=true;
+assert.equal(summarize(ids,critical).eligible,false);
+const low=all.map(r=>({...r,scores:{...r.scores}}));low[0].scores.grounding=0;low[0].scores.openness=0;
+assert.equal(summarize(ids,low).eligible,true);
+low[1].scores.grounding=0;low[1].scores.openness=0;
+assert.equal(summarize(ids,low).eligible,false);
+assert.throws(()=>summarize(ids,[all[0],all[0]]));
+assert.throws(()=>summarize(ids,[{...all[0],reason:''}]));
+assert.throws(()=>summarize(ids,[{...all[0],criticalFailure:'false'}]));
+assert.throws(()=>summarize(ids,[{...all[0],id:'unknown'}]));
+console.log('9 scorecard checks passed');
