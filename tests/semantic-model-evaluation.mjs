@@ -93,3 +93,31 @@ for(const {q,ok} of validation){
  const chosen=p.slice(0,2).filter(x=>x.score>=threshold&&a.slice(0,2).some(y=>y.id===x.id&&y.score>=threshold)).map(x=>x.id);
  console.log('GATE',JSON.stringify({q,ok,chosen,hit:chosen.some(x=>ok.includes(x)),unlisted:chosen.filter(x=>!ok.includes(x)),abstained:!chosen.length}));
 }
+
+ // Explicit evidence cues complement semantic ranking, never infer conclusions.
+const cues={
+ autonomy:[/\b(supervisor|employer|manager|boss)\b/i,/\b(refused|dictated|forbade|permission|decide|choose)\b/i],
+ 'epistemic-restraint':[/\b(cannot|can't|could not|uncertain|unsure)\b/i,/\b(know|tell|establish|whether|why|intended)\b/i],
+ naming:[/\b(called|named|labelled|labeled|described)\b/i,/\b(worthless|nuisance|weed|pest|valuable|ugly)\b/i]
+};
+const independent=[
+ {q:'Our manager would not give us permission to choose our shifts.',ok:['autonomy']},
+ {q:'I am unsure whether the crow intended to alert me.',ok:['epistemic-restraint','communication']},
+ {q:'We labeled the marsh worthless before discovering its wildlife.',ok:['naming','situated-perception','positionality']},
+ {q:'The manager called to confirm the appointment.',ok:[]},
+ {q:'I cannot tell the time without my watch.',ok:[]},
+ {q:'The package was labeled with my address.',ok:[]},
+ {q:'The river carried my canoe sideways despite my efforts.',ok:['material-agency','embodied-skill']},
+ {q:'My grandmother passed down the stories she heard as a child.',ok:['inheritance']},
+ {q:'The new calendar has twelve pages.',ok:[]}
+];
+for(const {q,ok} of independent){
+ const v=(await embed([prefix(q,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const p=lenses.map((l,i)=>({id:l.id,score:cosine(v,lv[i])})).sort((a,b)=>b.score-a.score);
+ const a=lenses.map(l=>{const t=anchorTexts.map((x,i)=>x.id===l.id?cosine(v,av[i]):-Infinity).filter(Number.isFinite).sort((a,b)=>b-a);return {id:l.id,score:(t[0]+t[1])/2};}).sort((a,b)=>b.score-a.score);
+ const threshold=model.includes('e5')?0.78:0.16;
+ const base=p.slice(0,2).filter(x=>x.score>=threshold&&a.slice(0,2).some(y=>y.id===x.id&&y.score>=threshold)).map(x=>x.id);
+ const supported=Object.entries(cues).filter(([id,patterns])=>patterns.every(t=>t.test(q))&&p.slice(0,5).some(x=>x.id===id)&&a.slice(0,5).some(x=>x.id===id)).map(([id])=>id);
+ const chosen=[...new Set([...supported,...base])].slice(0,2);
+ console.log('HYBRID',JSON.stringify({q,ok,base,chosen,hit:chosen.some(x=>ok.includes(x)),unlisted:chosen.filter(x=>!ok.includes(x)),abstained:!chosen.length}));
+}
