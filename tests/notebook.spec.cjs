@@ -630,6 +630,33 @@ test('navigation offers only relevant destinations and does not redirect a writi
  await page.locator('[data-field-space="thesis"]').click();await expect(nav).toBeHidden();await expect(next).toBeVisible();
  await resume.click();await expect(editor).toBeFocused();await expect(editor).toHaveText('I can write without an optional prompt.');await expect(next).toBeHidden();
 });
+test('welcome and writing support stay quiet until deliberately requested',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ const entry=page.locator('#ux-entry-choices');
+ if(!(await page.locator('#field-welcome').isHidden())){
+  await expect(entry).not.toHaveAttribute('open','');await expect(entry.locator('#ux-entry button').first()).toBeHidden();
+  await entry.locator(':scope > summary').click();await expect(entry.locator('#ux-entry button')).toHaveCount(5);
+  await entry.locator(':scope > summary').click();
+  await page.locator('#field-welcome-start').click();
+ }
+ await page.locator('[data-field-space="discover"]').click();
+ const help=page.locator('#ux-start-help'),opt=page.locator('#enable-pause-invitations'),pause=page.locator('#pause-invitation'),question=page.locator('#nudge-question');
+ await help.locator(':scope > summary').click();await expect(opt).not.toBeChecked();
+ // Trigger only the existing 20-second pause callback promptly in this synthetic test.
+ await page.evaluate(()=>{const original=window.setTimeout;window.setTimeout=(fn,ms,...args)=>original(fn,ms===20000?20:ms,...args);});
+ const encounter=page.locator('#encounter');await encounter.fill('I watched the creek after the rain and noticed small changes in the current.');
+ await page.waitForTimeout(120);await expect(pause).toBeHidden();
+ await opt.check();await encounter.fill('I watched the creek after the rain and noticed small changes in the current today.');
+ await expect(pause).toBeVisible();
+ await pause.getByRole('button',{name:'Not now',exact:true}).click();await opt.uncheck();await expect(pause).toBeHidden();
+ await page.locator('#ask-question-now').click();await expect(question).toBeVisible();
+ await page.locator('#dismiss-nudge').click();await expect(encounter).toBeFocused();
+ await page.locator('[data-field-space="write"]').click();const context=page.locator('#field-context-help');
+ await expect(context).not.toHaveAttribute('open','');await expect(page.locator('#ux-context')).toBeHidden();
+ await page.locator('#field-revisit-earlier').click();await context.locator(':scope > summary').click();
+ await expect(context).toContainText('Synthesis means bringing your experience and sources into conversation');
+ await page.locator('#field-resume-draft').click();await expect(page.locator('#ws-essay-rich')).toBeFocused();
+});
 test('draft essentials stay visible and failed version saves never claim success or overwrite writing',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
  await page.goto(url,{waitUntil:'domcontentloaded'});
