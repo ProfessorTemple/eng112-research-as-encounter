@@ -399,7 +399,7 @@
     <button type="button" data-field-space="thesis" aria-pressed="false"><span aria-hidden="true">◇</span><strong>Thesis</strong><small>Observation, interpretation, significance</small></button><button type="button" data-field-space="write" aria-pressed="false"><span aria-hidden="true">❧</span><strong>Write</strong><small>Sources, drafting, and revision</small></button>
   </nav>
   <div class="field-activity-entry"><div class="field-section-header"><div><p class="field-mini" id="field-space-caption">DISCOVER</p><h3 id="field-section-title">Start with an experience</h3></div><p class="field-mini" id="field-section-help">Choose a page to explore. Nothing here is locked.</p></div>
-  <nav class="field-subnav" id="field-subnav" aria-label="Pages in this notebook space"></nav></div>
+  <p id="field-route-recap" class="field-route-recap"></p><div id="field-route-task" class="field-route-task"><p class="field-mini">Your next task</p><p id="field-route-instruction"></p><button type="button" id="field-route-action" class="primary"></button></div><details id="field-route-detours"><summary>Other activities in this space</summary><nav class="field-subnav" id="field-subnav" aria-label="Pages in this notebook space"></nav></details></div>
    <div id="field-edit-writing-route" class="field-edit-writing-route no-print" hidden>
      <button type="button" class="secondary edit-my-freewrite">✎ Edit My Freewrite</button>
      <span class="hint">Return to your original words at any time. Your ideas and saved research stay in place.</span>
@@ -1623,8 +1623,9 @@ function renderNav(id){
  activeTab=id;const space=SPACE[p.space];
  for(const button of document.querySelectorAll("[data-field-space]"))button.setAttribute("aria-pressed",String(button.dataset.fieldSpace===p.space));
  get("field-space-caption").textContent=space.name.toUpperCase();
- get("field-section-title").textContent=space.title;
+ get("field-section-title").textContent=space.name+" · "+p.label;
  get("field-section-help").textContent=space.hint;
+ const detours=get("field-route-detours");detours.open=false;detours.hidden=space.pages.length<2;
  const nav=get("field-subnav");nav.replaceChildren();nav.hidden=space.pages.length<2;
  for(const [tabId,name] of space.pages){
    const b=make("button",null,name);b.type="button";if(tabId===id)b.setAttribute("aria-current","page");
@@ -1634,7 +1635,41 @@ function renderNav(id){
  const memory=field();memory.lastTab=id;if(!memory.lastBySpace||typeof memory.lastBySpace!=="object"||Array.isArray(memory.lastBySpace))memory.lastBySpace={};memory.lastBySpace[p.space]=id;
  try{persist();}catch(err){/* Continue even if browser storage is blocked. */}
 }
+function routeFacts(){
+ const text=id=>String(get(id)?.value||'').trim();
+ return {encounter:!!text('encounter'),question:!!text('thesis-question'),search:(state.savedSearches||[]).length,notes:(state.readingNotes||[]).length,thesis:!!text('thesis-draft'),floors:['what','soWhat','nowWhat'].filter(id=>text(id)).length,draft:!!text('ws-essay-body'),annotations:(state.writing?.sources||[]).filter(x=>String(x?.annotation||'').trim()).length};
+}
+function routeFocus(id){
+ const target=get(id);if(!target)return;
+ const disclosure=target.closest('details');if(disclosure)disclosure.open=true;
+ if(!/^(INPUT|TEXTAREA|BUTTON|SELECT)$/.test(target.tagName)&&!target.isContentEditable)target.tabIndex=-1;
+ target.focus({preventScroll:true});target.scrollIntoView({block:'center',behavior:'auto'});
+}
+function renderRoute(id){
+ const f=routeFacts(),marks=[];
+ if(f.encounter)marks.push('Experience recorded');if(f.question)marks.push('Working question written');
+ if(f.search)marks.push(f.search+' search'+(f.search===1?'':'es')+' saved');
+ if(f.notes)marks.push(f.notes+' source note'+(f.notes===1?'':'s')+' recorded');
+ if(f.annotations)marks.push(f.annotations+' annotation'+(f.annotations===1?'':'s')+' started');
+ if(f.thesis)marks.push('Working thesis written');else if(f.floors)marks.push(f.floors+' of 3 thesis floors started');
+ if(f.draft)marks.push('Essay draft started');
+ get('field-route-recap').textContent=marks.length?'Work so far: '+marks.join(' · ')+'.':'Work so far: a fresh notebook.';
+ const question=()=>{navigate('search');routeFocus('rs-working-question');};
+ const actions={
+ begin:f.encounter?['Name what you want to understand about this experience. A short question is enough to begin.','Develop my working question',question]:['Describe one experience or conversation. What happened, and what detail stays with you?','Begin my freewrite',()=>routeFocus('encounter')],
+ explore:['You do not have to choose a scholarly lens. Put your own question first; explore concepts only if helpful.','Develop my working question',question],
+ search:!f.question?['Before searching, write what you want to understand. This is a working question, not a final thesis.','Write my working question',()=>routeFocus('rs-working-question')]:!f.search?['Choose one or two ideas from your question. Build and copy the complete search, then try Academic Search Complete.','Build my search',()=>routeFocus('rs-a')]:!f.notes?['Try your saved search in a PCC database. Open one useful article, read its abstract or relevant passage, then bring back a note.','Continue my search',()=>routeFocus('rs-a')]:['You have source notes. Read another source if you need one, or begin interpreting the evidence you collected.','Return to my Reading Journal',()=>navigate('journal')],
+ read:['Choose one relevant source. Open the actual text and read a useful passage before recording it.','Find a source to read',()=>routeFocus('field-catalog-query')],
+ journal:['Record the author’s idea, its location and your own response. You may return to search for more evidence.','Record or revisit a source note',()=>routeFocus('journal-source')],
+ return:['Develop your observation, interpretation and significance. Revisit your evidence if a claim needs support.','Continue my three-story thesis',()=>{const p=get('page-return');const target=p.querySelector('#lts-build:not([hidden]) .field:not([hidden]) textarea')||p.querySelector('.lts-stage:not([hidden]) h3')||p.querySelector('h2');if(target){if(!target.id)target.id='field-thesis-current-heading';routeFocus(target.id);}}],
+ biblio:['Work on one annotation at a time. Explain what the source contributes to your question.','Work on my bibliography',()=>routeFocus('ws-source-ref-0')],
+ writing:[f.draft?'Continue your own essay. Use evidence and your experience to develop the interpretation.':'Begin with a passage of your own writing. You can draft before every part of the inquiry is settled.','Continue my essay',()=>routeFocus('ws-essay-rich')]
+ };
+ const task=actions[id];if(!task)return;
+ get('field-route-instruction').textContent=task[0];const action=get('field-route-action');action.textContent=task[1];action.onclick=task[2];
+}
 function renderInvitation(id){
+ renderRoute(id);
  const next=NEXT[id];
  if(id==="writing"){get("field-next-invitation").hidden=true;return;}
  get("field-next-invitation").hidden=false;
@@ -1643,9 +1678,19 @@ function renderInvitation(id){
   get("field-next-button").textContent="Begin my freewriting ↓";
   get("field-next-button").onclick=()=>{const el=get("encounter");el.scrollIntoView({block:"center"});el.focus();};
  }else{
-  get("field-next-text").textContent="When you are ready, you can move on or stay with this activity.";
-  get("field-next-button").textContent=next[1]+" →";
-  get("field-next-button").onclick=()=>navigate(next[0]);
+  const f=routeFacts(),routes={
+    begin:['search','Develop my working question','You have an experience to investigate. Name what you want to understand before searching.'],
+    explore:['search','Develop my working question','Your question matters more than choosing a lens.'],
+    search:['journal','Record what I found','Once you have opened and read a useful source, bring a passage and its location back here. If the search did not help, revise it above.'],
+    read:['journal','Record a source note','Bring back a passage from a source you actually read.'],
+    journal:['return','Develop my working thesis','Use your encounter and source notes to develop an interpretation; return to research if needed.'],
+    return:['writing','Begin or continue my essay','Use your working interpretation to begin a draft. You can revise it as you write.'],
+    biblio:['writing','Begin or continue my essay','Keep your annotations and carry relevant evidence into your essay.']
+  };
+  const route=routes[id]||[next[0],next[1],'Continue when ready.'];
+  get("field-next-text").textContent=route[2];
+  get("field-next-button").textContent=route[1]+" →";
+  get("field-next-button").onclick=()=>navigate(route[0]);
  }
 }
 function trailItem(host,title,txt,page){
@@ -1812,7 +1857,7 @@ function init(){
     if(heading){heading.setAttribute("tabindex","-1");heading.focus({preventScroll:true});heading.scrollIntoView({block:"start"});}
   });
  });
- window.addEventListener("field:save",()=>{if(activeTab==="begin")renderInvitation(activeTab);if(!get("field-thread-detail").hidden)trail();});
+ window.addEventListener("field:save",()=>{renderInvitation(activeTab);if(!get("field-thread-detail").hidden)trail();});
  renderCatalog();
  const last=field().lastTab;
  if(PAGES[last]&&last!=="begin")navigate(last);else renderNav("begin");
@@ -3243,7 +3288,7 @@ function setCarriedInquiryPractice(next){
  back.addEventListener('click',returnToCurrent);intro.after(back);
  const next=g('field-next-invitation');if(next)writing.after(next,support);else writing.after(support);
  const link=document.createElement('button');link.type='button';link.id='field-revisit-earlier';link.className='secondary';link.textContent='Revisit earlier work';link.addEventListener('click',()=>{heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'auto'});});
- g('field-subnav').after(link);
+ g('field-route-detours').after(link);
  // One compact assignment disclosure; preserve all course requirements.
  const banner=writing.querySelector('.ws-banner'),tips=writing.querySelector(':scope > .ws-tips');
  if(banner){const requirements=document.createElement('details');requirements.id='ws-assignment-requirements';requirements.className='ws-tips';const title=document.createElement('summary');title.textContent='Final essay requirements and document structure (1,200–1,500 words)';requirements.append(title);banner.before(requirements);requirements.append(banner);if(tips){const contents=[...tips.childNodes].filter(n=>n.nodeName!=='SUMMARY');requirements.append(...contents);tips.remove();}}
@@ -3373,4 +3418,12 @@ function setCarriedInquiryPractice(next){
  });
 })();
 </script>
-<style>.lens-choice-title{display:flex;align-items:flex-start;gap:.45rem}.lens-choice-title strong{min-width:0;overflow-wrap:anywhere}.lens-choice-family{display:block;margin:.3rem 0 .6rem}.lens-choice-title input{flex-shrink:0}</style></body></html>
+<style>.lens-choice-title{display:flex;align-items:flex-start;gap:.45rem}.lens-choice-title strong{min-width:0;overflow-wrap:anywhere}.lens-choice-family{display:block;margin:.3rem 0 .6rem}.lens-choice-title input{flex-shrink:0}</style><style>
+#field-route-recap{font-size:.86rem;color:#36594b;margin:.45rem 0;overflow-wrap:anywhere}
+#field-route-task{border-left:3px solid #3e6d56;padding:.45rem .65rem;margin:.5rem 0;background:#f2f7ef}
+#field-route-task p{margin:.2rem 0 .45rem}
+#field-route-task button{min-height:44px;white-space:normal}
+#field-route-detours summary{cursor:pointer;min-height:44px;padding:.55rem 0}
+#field-route-detours[hidden]{display:none!important}
+@media(max-width:650px){#field-route-action{width:100%}}
+</style></body></html>
