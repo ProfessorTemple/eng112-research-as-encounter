@@ -1,6 +1,6 @@
 # Living Field Notebook | Development checkpoint
 
-**Updated: November 27, 2026.** This is an instructor/developer roadmap, not a student assessment or a promise of a release date.
+**Updated: November 27, 2026 (browser audit and semantic benchmark results reviewed).** This is an instructor/developer roadmap, not a student assessment or a promise of a release date.
 
 [Stable classroom notebook](https://professortemple.github.io/eng112-research-as-encounter/field-notebook-preview.html) · [Experimental notebook](https://professortemple.github.io/eng112-research-as-encounter/field-notebook-next-preview.html) · [Commit history](https://github.com/ProfessorTemple/eng112-research-as-encounter/commits/main/) · [Actions](https://github.com/ProfessorTemple/eng112-research-as-encounter/actions)
 
@@ -13,26 +13,45 @@
 
 No single percentage is assigned to an open-ended pedagogical project. Development readiness and intellectual ambition are different dimensions.
 
+## Latest verification evidence
+
+- [Browser audit of concept implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/actions/runs/46026879086): 52/52 Chromium tests passed, across 390px and 1440px viewports.
+- [Browser audit with the new concept-specific test](https://github.com/ProfessorTemple/eng112-research-as-encounter/actions/runs/46026899762): 52/54 passed. The two failures occur while importing the synthetic fixture, before concept selection. The test omitted acceptance of the backup confirmation; [test setup corrected](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/76be30c10541ed0a8841146577a89c684bf8eb73). [Rerun](https://github.com/ProfessorTemple/eng112-research-as-encounter/actions/runs/46027805181) in progress when checked. This diagnosis is provisional until a passing rerun.
+- The four curated concept resource destinations were checked against the actual article, publishers and professional ethics statement. Source reading and citation verification still belong to the student.
+- [Relational semantic experiment](https://github.com/ProfessorTemple/eng112-research-as-encounter/actions/runs/46023750147): both model jobs completed successfully. Actual development results below. No model is approved for live student text.
+
+| Retrieval approach | Intended links retrieved (of 9) | Unwanted invitations (of 3) | Missed intended links | Incorrect links among 9 |
+|---|---:|---:|---:|---:|
+| Existing lexical | 0 | 0 | 9 | 0 |
+| MiniLM direct | 1 | 3 | 0 | 8 |
+| E5 direct | 3 | 3 | 0 | 6 |
+| MiniLM concept bridge | 8 | 3 | 0 | 1 |
+| E5 concept bridge | 9 | 3 | 0 | 0 |
+| MiniLM agreement-only | 1 | 2 | 8 | 0 |
+| E5 agreement-only | 3 | 2 | 6 | 0 |
+
+Development examples are deliberately challenging, small and synthetic. A correct candidate ID does not establish that a question is pedagogically useful, and top-1 approaches without abstention necessarily intervene in negative cases. Explicit restraint is now evaluated separately, and a second [12-case transfer suite](../tests/relational-semantic-transfer-cases.json) covers practical skill, naming, labor, autonomy, positionality, consent, quoted voice and independent direction. It was authored after the first results, so it is not a blinded independent holdout. [Updated four-job experiment](https://github.com/ProfessorTemple/eng112-research-as-encounter/actions/runs/46027908964) queued when checked. Seven isolated restraint checks passed. Review both suites before any further calibration; never tune on a transfer set and then claim independent validation.
+
 ## Roadmap and current position
 
 | Workstream | Status | Evidence / next gate |
 |---|---|---|
 | Classroom foundation: Discover, Research, Write; sources, thesis, local backups and exports | Existing stable classroom version | Keep stable preview untouched; confirm current assignment fit and backup recovery before any migration. |
-| Student-centered writing session: draft-first order, return-to-draft, remembered navigation, selected-passage reflection | Implemented in experimental notebook | [Session implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/cb10a923cbe309df2fde6a8223906ea447b0d214) and browser regression added; execution not verified. |
-| Intellectual continuity: pick up an open question, saved discovery or unfinished reflection | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/0944f6cae5923731354ac45a3dc24a651f474d37); verify reload, import and focus. |
-| Developmental memory: compare original records, thesis versions and discoveries | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/f5b89a95783bbe2e65b22f95083814591bc5046a); browser and accessibility verification open. |
-| Metacognition and intellectual flexibility: student-selected inquiry practices | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/1598185cd7f198cefc88246a3cd5e00807b4bb50); no learner classification. |
-| Adaptive companionship: keep one invitation, explore transfer, withdraw it | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/47a02c2ce707d5be6ac4aad4d8a7f8b398fc2385); verify storage failure and retirement. |
-| Attentive paragraph review: bounded language cues and restraint | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/c37a618596c48cca4ab01c8ef0a0b305fab3ee42); not general semantic understanding. |
-| Relational discovery: one transparent, optional shared-word suggestion | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/5ac991d0fba5b0306b7fc7664046eec77ebca3c0); preserves student rejection. |
-| Deeper relational semantic retrieval | Research only | [Twelve synthetic cases](../tests/relational-semantic-development-cases.json), [experiment](../tests/relational-embedding-experiment.mjs), [validator](../tests/relational-semantic-review.cjs). Lexical baseline: three appropriate abstentions, nine missed opportunities, zero incorrect suggestions on deliberately difficult examples. Two model runs unverified. |
-| Conceptual emergence: experience-to-concept encounter | First student-directed implementation committed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/1f9386d5f529529e6d7b340e837cceba0367a2c6); four curated resources with source, caution and optional research term. Automatic concept recognition is not implemented. |
+| Student-centered writing session: draft-first order, return-to-draft, remembered navigation, selected-passage reflection | Implemented in experimental notebook | [Session implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/cb10a923cbe309df2fde6a8223906ea447b0d214) ; writing-session regression passed at both viewports in the 52/54 run. |
+| Intellectual continuity: pick up an open question, saved discovery or unfinished reflection | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/0944f6cae5923731354ac45a3dc24a651f474d37); reload, import and focus regression passed. |
+| Developmental memory: compare original records, thesis versions and discoveries | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/f5b89a95783bbe2e65b22f95083814591bc5046a); comparison browser regression passed; full accessibility review remains open. |
+| Metacognition and intellectual flexibility: student-selected inquiry practices | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/1598185cd7f198cefc88246a3cd5e00807b4bb50); no learner classification; practice bridge browser regression passed. |
+| Adaptive companionship: keep one invitation, explore transfer, withdraw it | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/47a02c2ce707d5be6ac4aad4d8a7f8b398fc2385); invitation retirement and cross-session regression passed; targeted storage failure still to verify. |
+| Attentive paragraph review: bounded language cues and restraint | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/c37a618596c48cca4ab01c8ef0a0b305fab3ee42); attentiveness browser regression passed; not general semantic understanding. |
+| Relational discovery: one transparent, optional shared-word suggestion | Implemented; targeted checks passed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/5ac991d0fba5b0306b7fc7664046eec77ebca3c0); student rejection browser regression passed. |
+| Deeper relational semantic retrieval | Research only | [Twelve synthetic cases](../tests/relational-semantic-development-cases.json), [experiment](../tests/relational-embedding-experiment.mjs), [validator](../tests/relational-semantic-review.cjs). Lexical baseline: three appropriate abstentions, nine missed opportunities, zero incorrect suggestions on deliberately difficult examples. Both model jobs completed; concept bridging shows promise but failed abstention cases. New transfer and restraint experiments not yet verified. |
+| Conceptual emergence: experience-to-concept encounter | First student-directed implementation committed | [Implementation](https://github.com/ProfessorTemple/eng112-research-as-encounter/commit/1f9386d5f529529e6d7b340e837cceba0367a2c6); four curated resources with source, caution and optional research term. Concept-specific browser test fixture correction committed, rerun pending. Automatic concept recognition is not implemented. |
 | Classroom release readiness | Not yet established | Full browser regression, mobile and keyboard testing, screen-reader review, real-device Safari, backup/restore and export compatibility, instructor-led pilot and consent/privacy review. |
 
 ## Current development frontier
 
-1. Verify all outstanding browser regressions on the experimental notebook, including cross-session restoration, focus, storage failure, and rejection of suggestions.
-2. Review actual model benchmark outputs. Compare against lexical and abstain-only baselines, then test a genuinely independent holdout set. Report unwanted invitations separately from missed opportunities.
+1. Verify the corrected concept encounter regression, targeted storage failure and keyboard/focus behavior; review real-device Safari, screen-reader and export compatibility.
+2. Review the new restraint and transfer experiment outputs; investigate the remaining unrelated-passage abstention problem. Require independently authored, adjudicated evaluation before deployment. Report unwanted invitations separately from missed opportunities.
 3. Develop evidence-grounded concept retrieval on synthetic records; compare it against the existing curated question-led experience. Do not expose automatic semantic suggestions until evidence and restraint gates are satisfied.
 4. Audit the entire student writing session again, reduce duplicate guidance, and conduct an instructor-led pilot before any classroom promotion.
 
