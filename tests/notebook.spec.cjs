@@ -639,6 +639,55 @@ test('returning student may pick up a thread or continue without it',async({page
  await thread.getByRole('button',{name:'Revisit in my notebook',exact:true}).click();await expect(portrait.locator('#portrait-question')).toBeFocused();await expect(portrait.locator('#portrait-question')).toHaveValue('A different notebook question');
  expect(errors).toEqual([]);
 });
+test('developmental comparison is voluntary, read-only, and grounded in student records',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const key='eng112-living-field-notebook-next-preview-20261123';
+ const stored=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}'),key);
+ const initial=await stored();
+ const earlier='I assumed that a quiet creek meant nothing was happening.';
+ const later='The quiet creek raised a question about my own ability to notice.';
+ const data={...initial,fields:{...initial.fields,assumption:earlier,'thesis-draft':later},thesisVersions:[{story2:earlier,savedAt:'2026-11-20T12:00:00Z'}],intellectualTrail:[{text:'I noticed a heron beside the bank.',relationship:'Complicates',created:'2026-11-25T12:00:00Z'}],inquiryWorkingDrafts:{trail:'Unfinished private reflection'},inquiryPortrait:{question:'A question set aside',status:'aside'}};
+ async function restore(obj){
+  await page.locator('#import-file').setInputFiles({name:'synthetic-thinking.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(obj))});
+  await expect.poll(async()=>(await stored()).fields?.assumption).toBe(obj.fields.assumption);
+ }
+ await restore(data);
+ const portrait=page.locator('#living-inquiry-portrait'),panel=page.locator('#portrait-compare-thinking');
+ if(!(await portrait.evaluate(e=>e.open)))await portrait.locator('summary').first().click();
+ await expect(panel).not.toHaveAttribute('open','');
+ await panel.locator('summary').first().click();
+ const a=page.locator('#thinking-piece-0'),b=page.locator('#thinking-piece-1');
+ await expect(a).toHaveValue('');await expect(b).toHaveValue('');
+ await expect(a).not.toContainText('Unfinished private reflection');
+ await a.selectOption('version:0');await b.selectOption('current-thesis');
+ await expect(panel.getByRole('article',{name:'First piece selected'})).toContainText(earlier);
+ await expect(panel.getByRole('article',{name:'Second piece selected'})).toContainText(later);
+ await expect(panel.getByRole('article',{name:'Second piece selected'})).toContainText('not a frozen historical record');
+ await panel.getByText('A question if I want one',{exact:true}).click();
+ await panel.getByRole('button',{name:'What persists?',exact:true}).click();
+ await expect(panel).toContainText('still important in both pieces');
+ await panel.getByRole('button',{name:'No meaningful connection',exact:true}).click();
+ await expect(panel).toContainText('You do not need to connect these pieces');
+ await page.evaluate(()=>window.dispatchEvent(new Event('field:save')));
+ await expect(a).toHaveValue('version:0');await expect(b).toHaveValue('current-thesis');
+ await expect(panel).toContainText('You do not need to connect these pieces');
+ const after=await stored();expect(after.thesisVersions).toEqual(data.thesisVersions);expect(after.fields['thesis-draft']).toBe(later);expect(after.intellectualTrail).toEqual(data.intellectualTrail);
+ await b.selectOption('version:0');await expect(panel).toContainText('Choose a different second piece');
+ await b.selectOption('trail:0');await expect(panel.getByRole('article',{name:'Second piece selected'})).toContainText('I noticed a heron');
+ await panel.getByRole('button',{name:'Done looking across my thinking',exact:true}).click();
+ await expect(panel).not.toHaveAttribute('open','');await expect(panel.locator('summary').first()).toBeFocused();
+ await panel.locator('summary').first().click();await expect(a).toHaveValue('');await expect(b).toHaveValue('');
+ await a.selectOption('version:0');await b.selectOption('current-thesis');
+ await restore({...data,fields:{...data.fields,assumption:'New notebook assumption','thesis-draft':'New notebook draft'},thesisVersions:[],intellectualTrail:[]});
+ await expect(panel).not.toHaveAttribute('open','');
+ if(!(await portrait.evaluate(e=>e.open)))await portrait.locator('summary').first().click();
+ await panel.locator('summary').first().click();await expect(a).toHaveValue('');await expect(b).toHaveValue('');
+ await expect(a.locator('option[value="version:0"]')).toHaveCount(0);
+ await a.selectOption('current-thesis');await expect(panel.getByRole('article',{name:'First piece selected'})).toContainText('New notebook draft');
+ expect(errors).toEqual([]);
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
