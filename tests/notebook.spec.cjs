@@ -767,6 +767,35 @@ test('a carried thinking invitation adapts only through explicit student decisio
  await expect(thread).toBeHidden();
  expect(errors).toEqual([]);
 });
+test('attentive reflection follows stated relationships and respects uncertainty',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="write"]').click();
+ const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+ await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+ await companion.getByText('Review a paragraph without rewriting it',{exact:true}).click();
+ const input=page.locator('#ic-paragraph'),result=input.locator('xpath=following-sibling::div[@role="status"][1]');
+ const reflect=companion.getByRole('button',{name:'Reflect on this paragraph',exact:true});
+ for(const [passage,focus,question] of [
+  ["I always thought my grandmother's garden belonged to her, but I am beginning to wonder how much of her life belonged to the garden.",'Reconsidering an earlier view','belonging or ownership'],
+  ['The marsh seemed empty until I sat long enough to hear the insects.','A shift in attention','what you could perceive at first'],
+  ['The same hedge protects seedlings but limits access for rabbits.','Different consequences of one relationship','who or what experiences its different effects'],
+  ['The article measured growth, while my grandfather spoke about patience. I am beginning to see that they answer different questions.','Different questions, different perspectives','preserve that distinction'],
+  ['The marsh seemed empty until the rain began.','A question to explore','Which detail'],
+  ['The same tree makes a shadow that stretches across the garden.','A question to explore','Which detail'],
+  ['The author writes, “I always thought the garden belonged to me, but I am beginning to wonder whether I belonged to the garden.”','A question to explore','Which detail']
+ ]){
+  await input.fill(passage);await reflect.click();
+  await expect(result.locator('h4').first()).toContainText(focus);
+  await expect(result.locator(':scope > p')).toHaveCount(1);
+  await expect(result.locator(':scope > p')).toContainText(question);
+  await expect(input).toHaveValue(passage);
+  if(focus==='Different questions, different perspectives')await expect(result.locator('details')).toHaveCount(0);
+ }
+ await input.fill('I always thought the orchard belonged to my family, but I am beginning to wonder what we owe the orchard. I have permission to describe the interview but not to reproduce her words.');
+ await reflect.click();await expect(result.locator('h4')).toContainText('Respecting a boundary');
+ await expect(result.locator('details')).toHaveCount(0);
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
