@@ -2320,7 +2320,7 @@ const card=document.createElement('section');card.className='ws-card';card.setAt
 const d=make('details','',card);make('summary','Open my inquiry, sources and paragraph directions',d);const host=make('div','',d);host.setAttribute('aria-live','polite');
 const button=(p,t,f)=>{const b=make('button',t,p);b.type='button';b.className='secondary';b.onclick=f;return b;};
 function section(t,p){const x=make('details','',p);make('summary',t,x);return x;}
-let passageDraft='',paragraphDraft='';
+let passageDraft='',paragraphDraft='',trailDraft='',trailRelationDraft='';
 let reviewedPassage=false,reviewedParagraph=false;
 let chosenReflection=null;
 function inquiryMovement(t){
@@ -2399,9 +2399,20 @@ const directions=[['Return to a scene','Choose a specific detail from your origi
 for(const [title,q] of directions)button(host,title,()=>{output.textContent=q;});
 const history=section('My living intellectual trail (optional)',host);
 make('p','Your own saved reflections, not automatic judgments of your growth.',history);
-const historyEntries=Array.isArray(state.intellectualTrail)?state.intellectualTrail:[];
-if(!historyEntries.length)make('p','No discoveries saved yet.',history);
-historyEntries.forEach((entry,index)=>{if(!entry||typeof entry.text!=='string')return;const item=make('div','',history);if(entry.relationship)make('strong',entry.relationship,item);make('p',entry.text,item);button(item,'Remove discovery '+(index+1),()=>{const previous=state.intellectualTrail;state.intellectualTrail=previous.filter((_,i)=>i!==index);if(persist())refresh();else{state.intellectualTrail=previous;make('p','Removal failed. Try again.',item);}});});
+const trailLabel=make('label','What am I beginning to understand differently?',history);
+const trailInput=make('textarea','',history);trailInput.id='ic-trail-entry';trailLabel.htmlFor=trailInput.id;trailInput.rows=3;trailInput.maxLength=1500;trailInput.value=trailDraft;
+trailInput.addEventListener('input',()=>{trailDraft=trailInput.value;});
+const trailRelationLabel=make('label','Relationship (optional)',history);
+const trailRelation=make('select','',history);trailRelation.id='ic-trail-relationship';trailRelationLabel.htmlFor=trailRelation.id;
+for(const label of ['','Extends','Complicates','Challenges','Transforms','Connects','Does not belong'])trailRelation.add(new Option(label||'No relationship selected',label));
+trailRelation.value=trailRelationDraft;trailRelation.addEventListener('change',()=>{trailRelationDraft=trailRelation.value;});
+const trailStatus=make('p','',history);trailStatus.setAttribute('role','status');
+const trailSave=button(history,'Keep this discovery',()=>{const value=trailInput.value.trim();if(!value){trailStatus.textContent='Write your own reflection first.';return;}const previous=Array.isArray(state.intellectualTrail)?state.intellectualTrail:[];if(previous.length>=100){trailStatus.textContent='Your trail has 100 entries. Remove an entry before adding another.';return;}state.intellectualTrail=[...previous,{text:value,relationship:trailRelation.value,created:new Date().toISOString()}];if(!persist()){state.intellectualTrail=previous;trailStatus.textContent='Saving failed. Your reflection is still here.';return;}trailInput.value=trailDraft='';trailRelation.value=trailRelationDraft='';trailStatus.textContent='Discovery saved in this browser.';renderHistory();});
+const historyList=make('div','',history);
+function renderHistory(){historyList.replaceChildren();const historyEntries=Array.isArray(state.intellectualTrail)?state.intellectualTrail:[];
+if(!historyEntries.length)make('p','No discoveries saved yet.',historyList);
+historyEntries.forEach((entry,index)=>{if(!entry||typeof entry.text!=='string')return;const item=make('div','',historyList);if(entry.relationship)make('strong',entry.relationship,item);make('p',entry.text,item);button(item,'Remove discovery '+(index+1),()=>{const previous=state.intellectualTrail;state.intellectualTrail=previous.filter((_,i)=>i!==index);if(persist()){renderHistory();trailStatus.textContent='Discovery removed.';trailSave.focus();}else{state.intellectualTrail=previous;trailStatus.textContent='Removal failed. Try again.';}});});}
+renderHistory();
 const review=section('Review a paragraph without rewriting it',host);const label=make('label','Paste a paragraph you want to examine',review);const input=make('textarea','',review);input.id='ic-paragraph';input.rows=5;input.value=paragraphDraft;label.htmlFor=input.id;const result=make('div','',review);result.setAttribute('role','status');const contextPanel=section('Bring earlier discoveries into this reflection (optional)',review);
 make('p','Choose up to three earlier discoveries. These stay in this browser. Nothing is sent to an AI service.',contextPanel);
 const contextRecords=[];
@@ -2438,12 +2449,7 @@ const relation=section('Explore a relationship (optional)',linked);
 make('p','Choose a relationship yourself. This is a question to consider, not a judgment about your writing.',relation);
 const response=make('p','',relation);response.setAttribute('role','status');
 for(const [name,q] of [['Extends','What new dimension does this discovery add to your paragraph?'],['Complicates','What qualification or tension does it introduce?'],['Challenges','Which earlier assumption might need reconsidering, and why?'],['Transforms','How has your understanding changed since this discovery?'],['Connects','What specific detail links the two ideas, and where does the connection stop?'],['Does not belong','You can leave this discovery out. What makes the remaining material more relevant?']]){button(relation,name,()=>{relationSelection={name,passage:t};response.textContent=q;});if(relationSelection?.name===name&&relationSelection.passage===t)response.textContent=q;}
-const trailEntry=section('Keep a discovery in my intellectual trail (optional)',linked);
-make('p','Record your own change in understanding. Only your reflection is saved, not the selected passages.',trailEntry);
-const trailLabel=make('label','What am I beginning to understand differently?',trailEntry);
-const trailInput=make('textarea','',trailEntry);trailInput.id='ic-trail-entry';trailLabel.htmlFor=trailInput.id;trailInput.rows=3;trailInput.maxLength=1500;
-const trailStatus=make('p','',trailEntry);trailStatus.setAttribute('role','status');
-button(trailEntry,'Keep this discovery',()=>{const value=trailInput.value.trim();if(!value){trailStatus.textContent='Write your own reflection first.';return;}const previous=Array.isArray(state.intellectualTrail)?state.intellectualTrail:[];if(previous.length>=100){trailStatus.textContent='Your trail has 100 entries. Remove an entry before adding another.';return;}state.intellectualTrail=[...previous,{text:value,relationship:relationSelection?.passage===t?relationSelection.name:'',created:new Date().toISOString()}];if(!persist()){state.intellectualTrail=previous;trailStatus.textContent='Saving failed. Your reflection is still here.';return;}trailInput.value='';trailStatus.textContent='Discovery saved in this browser. Refresh the companion to see your trail.';});
+button(linked,'Keep a discovery in my intellectual trail (optional)',()=>{history.open=true;trailRelation.value=relationSelection?.passage===t?relationSelection.name:'';trailRelationDraft=trailRelation.value;trailInput.focus();});
 }
 const thesisLink=section('Does this discovery change my thesis? (optional)',result);
 make('p','Only revisit your thesis if this paragraph changes what you notice, understand, or consider significant. Your current thesis may still serve your inquiry.',thesisLink);
