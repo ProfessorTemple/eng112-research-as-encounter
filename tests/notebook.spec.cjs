@@ -177,6 +177,43 @@ await input.fill('I want to explain how my family remembers the creek.');
 await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
 await expect(result).not.toContainText('Respecting a boundary');
 });
+test('selected context and relational reflection remain student directed',async({page})=>{
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="thesis"]').click();
+await page.locator('#lts-nav').getByRole('button',{name:'Build',exact:true}).click();
+for(const [name,id,value] of [['1. Observation','what','Audit observation of seeds'],['2. Interpretation','soWhat','Audit interpretation of gifts'],['3. Significance','nowWhat','Audit significance of reciprocity']]){
+ await page.locator('#lts-build').getByRole('button',{name,exact:true}).click();
+ await page.locator('#'+id).fill(value);
+}
+await page.locator('[data-field-space="write"]').click();
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await companion.getByText('Review a paragraph without rewriting it',{exact:true}).click();
+const input=page.locator('#ic-paragraph');
+const result=input.locator('xpath=following-sibling::div[@role="status"][1]');
+await input.fill('The garden holds many memories.');
+await companion.getByText('Bring earlier discoveries into this reflection (optional)',{exact:true}).click();
+const panel=companion.locator('details').filter({has:page.locator('summary').filter({hasText:'Bring earlier discoveries into this reflection (optional)'})}).last();
+const observation=panel.getByRole('checkbox',{name:'Observation',exact:true});
+await expect(observation).not.toBeChecked();
+await observation.check();
+await panel.getByRole('checkbox',{name:'Interpretation',exact:true}).check();
+await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
+await expect(result).toContainText('Audit observation of seeds');
+await expect(result).not.toContainText('Audit significance of reciprocity');
+await result.getByText('Explore a relationship (optional)',{exact:true}).click();
+for(const [name,phrase] of [['Extends','new dimension'],['Complicates','qualification or tension'],['Challenges','earlier assumption'],['Transforms','understanding changed'],['Connects','specific detail links'],['Does not belong','leave this discovery out']]){
+ await result.getByRole('button',{name,exact:true}).click();
+ await expect(result).toContainText(phrase);
+}
+await observation.uncheck();
+await expect(result).toBeEmpty();
+await input.fill('I prefer not to share this memory.');
+await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
+await expect(result).toContainText('Respecting a boundary');
+await expect(result).not.toContainText('Audit interpretation of gifts');
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(60000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases];
