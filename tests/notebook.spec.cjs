@@ -529,6 +529,40 @@ await expect(input).toHaveValue('');await expect(relation).toHaveValue('');
 expect((await stored()).intellectualTrail||[]).toHaveLength(0);
 expect(errors).toEqual([]);
 });
+test('explicit intention is respected and optional depth follows the primary question',async({page})=>{
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await companion.getByText('Review a paragraph without rewriting it',{exact:true}).click();
+const input=page.locator('#ic-paragraph'),result=input.locator('xpath=following-sibling::div[@role="status"][1]');
+const reflect=companion.getByRole('button',{name:'Reflect on this paragraph',exact:true});
+for(const [passage,heading] of [
+ ['I have permission to describe the interview but not to reproduce her words.','Reflection focus: Respecting a boundary'],
+ ['My next step is to verify the location of the nesting site.','Continue in your own direction'],
+ ['I use this as a metaphor, not a literal description of the river.','Room for figurative language']
+]){
+ await input.fill(passage);await reflect.click();
+ await expect(result.locator('h4')).toHaveText(heading);
+ await expect(result.locator('details')).toHaveCount(0);
+ await expect(result.locator(':scope > p')).toHaveCount(1);
+ await expect(input).toHaveValue(passage);
+}
+for(const passage of [
+ 'The author writes, "I do not want to disclose the source." I am investigating the history of the creek.',
+ "The interviewee said, 'My next step is to compare the maps.' I watched the creek.",
+ 'The author writes, “I cannot tell whether the soil is recovering or changing.” My notes concern another field.'
+]){
+ await input.fill(passage);await reflect.click();
+ await expect(result.locator('h4').first()).toHaveText('A question to explore');
+ await expect(result.locator(':scope > p')).toHaveCount(1);
+ await expect(result.getByRole('button',{name:'Return to my essay',exact:true})).toBeVisible();
+ expect(await result.evaluate(e=>{const b=[...e.children].find(n=>n.tagName==='BUTTON'&&n.textContent==='Return to my essay');return !!b&&[...e.children].indexOf(b)<[...e.children].findIndex(n=>n.tagName==='DETAILS');})).toBeTruthy();
+ await expect(result.locator('details[open]')).toHaveCount(0);
+ await expect(input).toHaveValue(passage);
+}
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
