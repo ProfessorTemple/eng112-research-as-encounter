@@ -4,6 +4,14 @@ A browser-based research and writing companion for Pitt Community College **ENG 
 
 **Launch the app:** https://professortemple.github.io/eng112-research-as-encounter/
 
+## Living Field Notebook development
+
+**[Instructor development checkpoint and roadmap](docs/development-checkpoint.md)**: current implementation, verified evidence, experimental research, release gates, and next steps.
+
+[Stable classroom notebook](https://professortemple.github.io/eng112-research-as-encounter/field-notebook-preview.html) · [Experimental notebook](https://professortemple.github.io/eng112-research-as-encounter/field-notebook-next-preview.html)
+
+The version 3.4 notes below describe the original Research as Encounter app, not the evolving experimental notebook.
+
 ## Current version: 3.4
 
 The eight optional, revisitable stages are **Freewrite**, **Explore Connections**, **Build a Search**, **Find Sources**, **Reading Journal**, **Return Changed**, **Annotated Bibliography**, and **Writing Studio**. Students can begin wherever they are in the process and return to earlier stages.
