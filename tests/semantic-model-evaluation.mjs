@@ -31,7 +31,15 @@ const fresh=[
  ['After closing my eyes I became aware of the insects around me.','situated-perception'],
  ['When our neighborhood disappeared I felt estranged from my own history.','place-identity'],
  ['I saw the fox turn away but cannot establish why.','epistemic-restraint'],
- ['The bus ticket costs five dollars.',null]
+ ['The compost feeds the garden that feeds our household.','reciprocity'],
+ ['The bat navigated in darkness that left me helpless.','umwelt'],
+ ['Her employer dictated every break she could take.','autonomy'],
+ ['After years of practice my fingers found the notes without looking.','embodied-skill'],
+ ['Once I called the dandelion a nuisance I stopped noticing its flowers.','naming'],
+ ['Each spring the same pond revealed a different shoreline.','temporal-change'],
+ ['The bus ticket costs five dollars.',null],
+ ['The receipt lists three items and a subtotal.',null],
+ ['The appointment is scheduled for Tuesday at noon.',null]
 ];
 const prefix=(x,q)=>model.includes('e5')?(q?'query: ':'passage: ')+x:x;
 const profiles=lenses.map(l=>l.description+' '+l.anchors.join(' '));
@@ -39,5 +47,7 @@ const lv=(await embed(profiles.map(x=>prefix(x,false)),{pooling:'mean',normalize
 for(const [query,expected] of fresh){
  const q=(await embed([prefix(query,true)],{pooling:'mean',normalize:true})).tolist()[0];
  const ranked=lenses.map((l,i)=>({id:l.id,score:+cosine(q,lv[i]).toFixed(4)})).sort((a,b)=>b.score-a.score);
- console.log('LENS',JSON.stringify({query,expected,top:ranked.slice(0,2),top2:expected?ranked.slice(0,2).some(x=>x.id===expected):null}));
+ const threshold=model.includes('e5')?0.77:0.12;
+ const accepted=ranked[0].score>=threshold;
+ console.log('LENS',JSON.stringify({query,expected,top:ranked.slice(0,2),top2:expected?ranked.slice(0,2).some(x=>x.id===expected):null,accepted,threshold}));
 }
