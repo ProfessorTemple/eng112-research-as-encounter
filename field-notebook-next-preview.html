@@ -673,7 +673,7 @@
 <div class="field"><label for="note-excerpt">The passage, scene, or idea you noticed</label><textarea id="note-excerpt" rows="3" placeholder="Copy the words accurately, or describe a specific moment in your own language."></textarea></div>
 <div class="field"><label for="note-author-idea">What is the source saying or showing? (Your own words)</label><textarea id="note-author-idea" rows="2" placeholder="I understand this author's point as… / In this scene I noticed…"></textarea></div>
 <div class="grid"><div class="field"><label for="note-relationship">What kind of conversation does it open?</label><select id="note-relationship"><option value="illuminates">Helps me notice something</option><option value="complicates">Complicates my assumption</option><option value="challenges">Challenges my understanding</option><option value="extends">Extends my question</option><option value="questions">Opens a new question</option></select></div><div class="field"><label for="note-link">Connect this note to your own trail</label><select id="note-link"><option value="">My original encounter</option></select></div></div>
-<div class="field"><label for="note-connection">What does this do to <em>your</em> thinking?</label><textarea id="note-connection" rows="3" placeholder="This matters to my encounter because… / This makes me question…"></textarea></div>
+<div class="field"><label for="note-connection">What does this do to <em>your</em> thinking?</label><textarea id="note-connection" rows="3" placeholder="This matters to my encounter because… / This makes me question…"></textarea><p id="note-attention" class="hint" hidden></p></div>
 <div class="actions"><button id="save-source-note" class="primary">Save this evidence and reflection</button><button id="clear-note" class="secondary">Clear entry</button></div><p id="note-status" class="status" aria-live="polite"></p>
 <h3>My collected evidence</h3><p class="hint">A source can offer several passages, even contradictory ones. Return to your notes, revise them, or remove anything that no longer helps.</p><div id="note-list" class="stack" aria-live="polite"></div>
 <div class="actions"><button id="journal-to-return" class="primary">Return to my living thesis →</button></div>
@@ -879,6 +879,48 @@ function questionObjects(){let raw=terms();if(!raw.length)return [{kind:'Start h
 function questions(){return questionObjects().map(x=>x.q);}
 function saveArray(key,value){if(!Array.isArray(state[key]))state[key]=[];if(!state[key].includes(value))state[key].push(value);persist();}
 // Guidance follows completed activity, not a judgment of ability. No new saved-state fields.
+// Responsive guidance is local, rule-based and tied to deliberate actions, never typing cadence.
+const NOTEBOOK_BROAD_TERMS=new Set(['nature','animals','animal','life','things','stuff','people','society','culture','environment','relationships','relationship','world','humanity','humans','science','history','philosophy','psychology','identity','memory','communication','behavior','behaviour','technology','education','health']);
+function notebookBroadSearch(a,b){
+ const normalize=s=>String(s||'').trim().toLowerCase().replace(/[“”"]/g,'').replace(/\s+/g,' ');
+ const words=[a,b].map(normalize).filter(Boolean);
+ return words.length>0&&words.every(w=>NOTEBOOK_BROAD_TERMS.has(w));
+}
+function notebookSearchAttention(a,b,question){
+ if(!notebookBroadSearch(a,b))return '';
+ const q=String(question||'');
+ const matches=[[/\bfirefl(?:y|ies)\b/i,'fireflies'],[/\b(?:trees|tree)\b/i,'trees'],[/\b(?:birds|bird)\b/i,'birds'],[/\b(?:dogs|dog)\b/i,'dogs'],[/\b(?:rivers|river)\b/i,'rivers'],[/\b(?:family|grandmother|grandfather)\b/i,'family'],[/\b(?:film|films)\b/i,'film']];
+ const specific=matches.find(([pattern])=>pattern.test(q));
+ const next=specific?'Your question mentions '+specific[1]+'. Try that as one idea, then name what you want to understand about it.':'Try replacing one broad word with a particular being, place, practice or relationship from your question.';
+ return 'These words can be useful starting points, but they cover a large research area. '+next;
+}
+function notebookOutcomeAttention(outcome,a,b,query){
+ const first=String(a||'').trim(),second=String(b||'').trim();
+ const current=String(query||'').trim().replace(/\s+/g,' ').toLowerCase();
+ const built=[first,second].filter(Boolean).join(' AND ').replace(/\s+/g,' ').toLowerCase();
+ const matchesCurrent=current===built;
+ switch(outcome){
+  case 'none':return 'No results does not mean your question is unworthy. '+(first&&second&&matchesCurrent?'Try one idea alone: '+first+'.':'Remove one constraint or try a broader word.');
+  case 'many':return 'Too many results? Add one specific concept, organism, place or behavior from your working question.';
+  case 'irrelevant':return 'If results are not relevant, ask which idea is missing. Try changing just that term, using a subject word from a promising article if available.';
+  case 'found':return 'Record one useful passage in your Reading Journal. Explain what it helps you understand.';
+  case 'words':return 'Keep the new term below only if it helps you investigate your question.';
+  default:return '';
+ }
+}
+function notebookReflectionAttention(connection,authorIdea,relationship){
+ const response=String(connection||'').trim(),source=String(authorIdea||'').trim();
+ if(!source||response.length<25)return '';
+ const before=/\b(?:i|we)\s+(?:(?:had|have|always|once|originally|previously|initially)\s+)*(?:thought|believed|assumed|expected|understood|used to think|used to believe)\b/i.test(response);
+ const unsettled=/\b(?:not sure|no longer sure|uncertain|i wonder|i(?:'m| am) wondering|makes? me (?:question|rethink)|(?:do not|don['’]t) know|not certain|i question)\b/i.test(response);
+ const contrast=/\b(?:but|now|however|yet|after reading|after hearing|after watching)\b/i.test(response);
+ const selected=['complicates','challenges','questions'].includes(relationship);
+ if(!(unsettled&&contrast&&(before||selected)))return '';
+ return 'Your response may be opening a new question. You do not need to resolve it yet. What did this source make harder to take for granted?';
+}
+function clearNotebookReflectionAttention(){
+ const host=document.getElementById('note-attention');if(host){host.textContent='';host.hidden=true;}
+}
 function notebookGuidanceLevel(){
  const saved=Array.isArray(state.savedSearches)?state.savedSearches:[];
  const count=new Set(saved.filter(x=>typeof x==='string').map(x=>x.trim().toLowerCase().replace(/\s+/g,' ')).filter(Boolean)).size;
@@ -1003,9 +1045,9 @@ function renderReadingJournal(){if(!Array.isArray(state.savedMedia))state.savedM
  renderEvidence();}
 function updateSourceHint(){let id=$('journal-source').value,b=lookupSource(id),hint=$('journal-source-hint');if(!b){hint.textContent='Choose a source you have read or watched. To add another source, use the form below.';return;}hint.textContent=(b.kind==='film'||b.kind==='video'||b.kind==='audio'?'Record a timestamp (for example, 00:18:24).':'Record a page, section, or paragraph location.')+' '+(b.access||'Verify the source directly before copying words.');}
 function addCustomSource(){let title=$('custom-title').value.trim(),creator=$('custom-creator').value.trim(),kind=$('custom-kind').value, url=$('custom-url').value.trim(),st=$('custom-source-status');if(!title){st.textContent='Enter a source title first.';return;}if(url&&!validHttpUrl(url)){st.textContent='Use an http:// or https:// URL, or leave the link blank.';return;}let b={id:'my-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),title,author:creator||'Creator not yet recorded',kind,url,about:'Source added by the student. Verify publication information, date, and access.',reason:'You chose to investigate this source.',access:'Student-supplied source: details not independently checked.'};state.customSources.push(b);persist();renderReadingJournal();$('journal-source').value=b.id;updateSourceHint();persist();['custom-title','custom-creator','custom-url'].forEach(id=>$(id).value='');st.textContent='Source added to your shelf. You can now take notes.';}
-function clearNoteForm(){['note-locator','note-excerpt','note-author-idea','note-connection'].forEach(id=>{$(id).value='';state.fields[id]='';});$('note-kind').value='quote';$('note-relationship').value='illuminates';$('note-link').value='';delete state.editNoteId;persist();$('note-status').textContent='Ready for a new note.';}
+function clearNoteForm(){clearNotebookReflectionAttention();['note-locator','note-excerpt','note-author-idea','note-connection'].forEach(id=>{$(id).value='';state.fields[id]='';});$('note-kind').value='quote';$('note-relationship').value='illuminates';$('note-link').value='';delete state.editNoteId;persist();$('note-status').textContent='Ready for a new note.';}
 function saveSourceNote(){let sourceId=$('journal-source').value,b=lookupSource(sourceId),excerpt=$('note-excerpt').value.trim(),locator=$('note-locator').value.trim(),authorIdea=$('note-author-idea').value.trim(),connection=$('note-connection').value.trim(),status=$('note-status');if(!b){status.textContent='Choose a source first, or add one you found.';return;}if(!excerpt){status.textContent='Record a passage, scene, or idea before saving.';return;}if(!locator){status.textContent='Add a page, timestamp, paragraph, or section. If the source has none, write “unpaginated”.';return;}if(!authorIdea){status.textContent='In your own words, say what the author or film is showing before saving.';return;}let n={id:state.editNoteId||('note-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,5)),sourceId,kind:$('note-kind').value,locator,excerpt,authorIdea,relationship:$('note-relationship').value,link:$('note-link').value,connection,updated:new Date().toISOString()};if(!Array.isArray(state.readingNotes))state.readingNotes=[];let i=state.readingNotes.findIndex(x=>x.id===n.id);if(i>=0)state.readingNotes[i]=n;else state.readingNotes.push(n);if(!persist()){state.editNoteId=n.id;status.textContent='Note retained in this session, but browser saving failed. Export your journal before leaving.';return;}clearNoteForm();renderReadingJournal();$('note-status').textContent='Your evidence and reflection have been saved in this browser.';}
-function editSourceNote(id){let n=state.readingNotes.find(x=>x.id===id);if(!n)return;['note-kind','note-locator','note-excerpt','note-author-idea','note-relationship','note-connection'].forEach(k=>$(k).value=(n[({ 'note-kind':'kind','note-locator':'locator','note-excerpt':'excerpt','note-author-idea':'authorIdea','note-relationship':'relationship','note-connection':'connection'})[k]]||''));$('journal-source').value=n.sourceId;$('note-link').value=n.link||'';state.editNoteId=id;updateSourceHint();persist();$('note-status').textContent='Editing this entry. Save to keep your changes.';$('note-excerpt').focus({preventScroll:true});$('note-excerpt').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});}
+function editSourceNote(id){let n=state.readingNotes.find(x=>x.id===id);if(!n)return;clearNotebookReflectionAttention();['note-kind','note-locator','note-excerpt','note-author-idea','note-relationship','note-connection'].forEach(k=>$(k).value=(n[({ 'note-kind':'kind','note-locator':'locator','note-excerpt':'excerpt','note-author-idea':'authorIdea','note-relationship':'relationship','note-connection':'connection'})[k]]||''));$('journal-source').value=n.sourceId;$('note-link').value=n.link||'';state.editNoteId=id;updateSourceHint();persist();$('note-status').textContent='Editing this entry. Save to keep your changes.';$('note-excerpt').focus({preventScroll:true});$('note-excerpt').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});}
 function removeSourceNote(id){if(!confirm('Delete this evidence note? This cannot be undone unless you have a backup.'))return;state.readingNotes=state.readingNotes.filter(n=>n.id!==id);persist();renderEvidence();}
 function renderEvidence(){const list=$('note-list');list.replaceChildren();let notes=state.readingNotes||[];if(!notes.length){list.append(elt('p','hint','Your source passages and viewing notes will appear here. Try saving two moments that complicate one another.'));return;}
  notes.forEach(n=>{let b=lookupSource(n.sourceId),card=elt('article','evidence-card');card.dataset.noteId=n.id;card.append(elt('strong','',b?.title||'Unknown source'),elt('span','evidence-caption',(b?.author||'')+' · '+(N_KINDS[n.kind]||n.kind)+' · '+n.locator));let quote=elt(n.kind==='quote'?'blockquote':'div',n.kind==='quote'?'':'info',n.excerpt);card.append(quote,elt('p','','Source meaning (my words): '+n.authorIdea));if(n.link)card.append(elt('p','small','Connected to my language or inquiry: '+n.link));if(n.connection)card.append(elt('p','','My response: '+n.connection));card.append(elt('p','small',(RELATIONSHIPS[n.relationship]||'Relates to')+' my thinking.'));let actions=elt('div','actions');actions.append(button('Edit note',()=>editSourceNote(n.id)));actions.append(button('Consider in my thesis',()=>window.dispatchEvent(new CustomEvent('field:consider-note',{detail:{id:n.id}}))));actions.append(button('Remove note',()=>removeSourceNote(n.id),'secondary'));card.append(actions);list.append(card);});}
@@ -2150,18 +2192,17 @@ function build(){
  if(!a&&!b){status('Choose or enter at least one idea.');g('rs-a').focus();return;}
  const quote=w=>/\s/.test(w)?'"'+w.replace(/"/g,'')+'"':w;
  g('rs-query').value=a&&b?a+' AND '+b:a||b;
- g('rs-connection').textContent=a&&b?'Both ideas are included. AND asks the database to find records containing both. If results are too narrow, try one idea alone.':'Start broadly with your one idea; add a second if the results are too broad.';
+ const attention=notebookSearchAttention(a,b,g('rs-working-question').value);
+ g('rs-connection').textContent=attention||(a&&b?'Both ideas are included. AND asks the database to find records containing both. If results are too narrow, try one idea alone.':'Start broadly with your one idea; add a second if the results are too broad.');
  ['rs-output','rs-database-step','rs-discovery-step'].forEach(id=>g(id).hidden=false);
  recommendations();alternatives();g('rs-save-query').textContent='Save search to journal';g('rs-query').focus();status('Copy your search, open Academic Search Complete, and paste the entire expression into its search box.');
 }
 function refine(){
-const host=g('rs-refine');host.replaceChildren();const outcome=g('rs-outcome').value,a=g('rs-a').value.trim(),b=g('rs-b').value.trim(),q=g('rs-query').value.trim();
-if(!outcome)return;
-const advice={none:'No results does not mean your question is unworthy. Remove a constraint, try one idea, or use different vocabulary.',many:'Narrow gradually: add a second concept, organism, place or behavior. Try subject filters in the database.',irrelevant:'Consider which idea is missing. Look at subject terms in relevant records and try a different expression.',found:'Record a useful source in your Reading Journal. Note its author, idea, and page or other locator.',words:'If the term helps you investigate your working question, keep it below. You do not need to use it in your eventual thesis.'};
-host.append(node('p','hint',advice[outcome]));
-const choices=outcome==='none'?[a,b,q.replace(/"/g,''),/wildlife/i.test(q)?'wildlife AND human': '',/interdependence/i.test(q)?'ecology AND wildlife':'']:outcome==='many'?[a&&b?a+' AND '+b:'',a&&b?'"'+a.replace(/"/g,'')+'" AND "'+b.replace(/"/g,'')+'"':'']:outcome==='irrelevant'?[a,b]:[];
-for(const candidate of [...new Set(choices.filter(x=>x&&x!==q))]){const box=node('div','rs-db');box.append(node('p','',candidate));const use=node('button','secondary','Try this search');use.type='button';use.onclick=()=>{g('rs-query').value=candidate;g('rs-query').dispatchEvent(new Event('input',{bubbles:true}));recommendations();g('rs-local-status').textContent='Revised search ready. Copy it and try again.';g('rs-query').focus();g('rs-query').scrollIntoView({block:'center'});};box.append(use);host.append(box);}
-if(['none','many','irrelevant'].includes(outcome)){const more=node('button','secondary','Explore more search vocabulary');more.type='button';more.onclick=()=>{g('rs-alternatives').open=true;g('rs-alternatives').scrollIntoView({block:'start'});g('rs-alternatives').querySelector('summary').focus();};host.append(more);}
+ const host=g('rs-refine'),outcome=g('rs-outcome').value;
+ const advice=notebookOutcomeAttention(outcome,g('rs-a').value,g('rs-b').value,g('rs-query').value);
+ if(host.textContent===advice)return;
+ host.replaceChildren();if(advice)host.append(node('p','hint',advice));
+ // Alternative searches remain available in the existing optional disclosure.
 }
 g('rs-outcome').addEventListener('change',refine);
 g('rs-build').addEventListener('click',()=>{build();g('rs-outcome').value='';refine();});
@@ -3637,5 +3678,20 @@ function setCarriedInquiryPractice(next){
  if(lex&&!help.contains(lex))help.append(lex);
  const place=()=>{const context=g('field-context-help');if(context&&g('page-search').contains(context)&&!help.contains(context))help.append(context);};
  window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='search'){help.open=false;place();}});place();
+})();
+</script><style>#note-attention[hidden]{display:none!important}#note-attention{margin:.35rem 0;overflow-wrap:anywhere}</style><script>
+(function(){
+ const g=id=>document.getElementById(id),field=g('note-connection'),host=g('note-attention');
+ if(!field||!host)return;
+ function consider(){
+  const cue=notebookReflectionAttention(field.value,g('note-author-idea').value,g('note-relationship').value);
+  if(host.textContent!==cue)host.textContent=cue;
+  host.hidden=!cue;
+ }
+ // The student must leave the response field or deliberately change its relationship.
+ // No keystroke alerts, scrolling, focus changes, counters or additional student data.
+ field.addEventListener('blur',consider);
+ g('note-relationship').addEventListener('change',consider);
+ window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='journal')consider();else clearNotebookReflectionAttention();});
 })();
 </script></body></html>
