@@ -100,6 +100,37 @@ expect(await panel.locator('strong').allTextContents()).toEqual(before);
 }
 expect(errors).toEqual([]);
 });
+test('source synthesis archive and writing companion',async({page})=>{
+test.setTimeout(60000);
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="research"]').click();
+await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
+for(const [title,idea] of [['Audit source A','Firefly threat defense'],['Audit source B','Firefly sensory perception'],['Audit source C','Firefly observable response']]){
+const details=page.locator('#custom-source-details');if(!(await details.evaluate(e=>e.open)))await details.locator('summary').click();
+await page.locator('#custom-title').fill(title);await page.locator('#custom-creator').fill('Synthetic author');await page.locator('#custom-url').fill('https://example.com/');await page.locator('#add-custom-source').click();
+await page.locator('#source-shelf .shelf-item').filter({hasText:title}).getByRole('button',{name:'Take notes'}).click();
+await page.locator('#note-locator').fill('p. 12');await page.locator('#note-excerpt').fill(idea);await page.locator('#note-author-idea').fill(idea);await page.locator('#note-connection').fill(idea);await page.locator('#save-source-note').click();await expect(page.locator('#note-list')).toContainText(idea);
+}
+const c=page.locator('#sources-in-conversation');await c.locator('summary').click();
+const options=await c.locator('#conversation-a option').evaluateAll(es=>es.filter(e=>e.value).map(e=>({id:e.value,text:e.textContent})));
+const id=title=>options.find(o=>o.text.includes(title)).id;
+await c.locator('#conversation-a').selectOption(id('Audit source A'));await c.locator('#conversation-b').selectOption(id('Audit source B'));
+await expect(c.locator('#conversation-evidence')).toContainText('Firefly sensory perception');
+await c.locator('#conversation-relation').selectOption('complicate');await c.locator('#conversation-reflection').fill('Firefly defense and sensory perception may coexist.');await c.locator('#conversation-save').click();
+await c.locator('#conversation-b').selectOption(id('Audit source C'));await c.locator('#conversation-reflection').fill('Observable response needs evidence.');await c.locator('#conversation-save').click();
+await expect(c.locator('#conversation-archive')).toContainText('Firefly defense and sensory perception may coexist.');
+await expect(c.locator('#conversation-archive')).toContainText('Observable response needs evidence.');
+await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+if(!(await c.evaluate(e=>e.open)))await c.locator('summary').click();
+await expect(c.locator('#conversation-archive')).toContainText('Observable response needs evidence.');
+await page.locator('[data-field-space="write"]').click();
+const companion=page.locator('details').filter({has:page.locator('summary').filter({hasText:'My Inquiry Companion'})}).last();
+if(await companion.count()&&!(await companion.evaluate(e=>e.open)))await companion.locator('summary').first().click();
+await expect(page.locator('#attentive-passage')).toHaveCount(1);
+expect(errors).toEqual([]);
+});
 test('living inquiry portrait continuity',async({page})=>{
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(url,{waitUntil:'domcontentloaded'});
