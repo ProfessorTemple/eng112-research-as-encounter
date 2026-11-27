@@ -165,3 +165,28 @@ for(const {q,ok,mode} of menuCases){
  const chosen=mode==='requested'?fused.slice(0,2).map(x=>x.id):[];
  console.log('MENU',JSON.stringify({q,ok,mode,chosen,hit:chosen.some(x=>ok.includes(x)),unlisted:chosen.filter(x=>!ok.includes(x)),abstained:!chosen.length}));
 }
+
+ // Relational evidence: identify patterns of action, constraint and changed judgment.
+const relations=[
+ {id:'autonomy',patterns:[/\b(landlord|owner|supervisor|manager|employer|parents?|teacher)\b/i,/\b(decides?|allows?|permits?|permission|forbids?|refuses?|controls?|choice)\b/i]},
+ {id:'naming',patterns:[/\b(useless|worthless|dirty|ugly|pest|weed|nuisance)\b/i,/\b(until|but|before|changed|realized|discovered)\b/i]},
+ {id:'material-agency',patterns:[/\b(wind|tide|current|clay|river|water|mud|ice)\b/i,/\b(pulled|pushed|forced|resisted|redirected|carried|slipped)\b/i]},
+ {id:'inheritance',patterns:[/\b(grandmother|grandfather|mother|father|aunt|uncle|elder)\b/i,/\b(taught|showed|passed down|learned from|handed down)\b/i]}
+];
+const relationalCases=[
+ {q:'The owner forbids tenants from growing food on the property.',ok:['autonomy']},
+ {q:'I considered the marsh useless until I discovered its nesting birds.',ok:['naming','situated-perception','interdependence']},
+ {q:'The mud resisted my shovel and changed the shape of the trench.',ok:['material-agency']},
+ {q:'My uncle showed me the planting method he learned from his father.',ok:['inheritance']},
+ {q:'The owner decides which paint to buy for her own kitchen.',ok:[]},
+ {q:'The dirty dishes stayed in the sink until noon.',ok:[]},
+ {q:'My aunt showed me the receipt for the new chair.',ok:[]},
+ {q:'The river carried a floating leaf downstream.',ok:[]}
+];
+for(const {q,ok} of relationalCases){
+ const v=(await embed([prefix(q,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const p=lenses.map((l,i)=>({id:l.id,score:cosine(v,lv[i])})).sort((a,b)=>b.score-a.score);
+ const evidence=relations.filter(r=>r.patterns.every(t=>t.test(q))).map(r=>r.id);
+ const chosen=evidence.filter(id=>p.slice(0,8).some(x=>x.id===id)).slice(0,2);
+ console.log('RELATION',JSON.stringify({q,ok,evidence,chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
+}
