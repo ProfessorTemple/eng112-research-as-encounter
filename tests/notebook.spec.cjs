@@ -73,7 +73,7 @@ test('a beginner can translate a revised question and follow a short database-to
  await expect(page.locator('#rs-ready-heading')).toBeFocused();
  await expect(page.locator('#rs-keyword-editor')).not.toHaveAttribute('open','');await expect(page.locator('#rs-search-options')).not.toHaveAttribute('open','');await expect(page.locator('#rs-copy')).toBeVisible();await expect(page.locator('#rs-database-step a.rs-launch')).toBeVisible();await expect(page.locator('#rs-database-step a.rs-launch')).toContainText('2. Open Academic Search Complete');
  await expect(page.locator('#rs-databases a.rs-launch')).toHaveCount(1);
- await expect(page.locator('#rs-discovery-step')).toContainText('abstract (a short summary)');
+ await expect(page.locator('#rs-output')).toContainText('abstract (short summary)');
  await expect(page.locator('#rs-result-help')).not.toHaveAttribute('open','');
  await expect(page.locator('#rs-new-word-help')).not.toHaveAttribute('open','');
  await q.fill('How do family stories shape memory?');
@@ -86,19 +86,26 @@ test('a beginner can translate a revised question and follow a short database-to
  await expect(page.locator('#page-journal h2')).toBeFocused();
  await expect(page.locator('#page-journal')).toContainText('A passage is a small part of the source');
 });
-test('returning from a library search preserves a batch of discovered keywords and models one next search',async({page})=>{
+test('returning from a library search preserves discovered keywords and offers three distinct next searches',async({page})=>{
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await page.locator('[data-field-space="research"]').click();
  await page.locator('#rs-working-question').fill('Why do fireflies stop flashing near me?');
  await page.locator('#rs-build').click();
  await page.locator('#rs-library-return').click();await expect(page.locator('#rs-return-heading')).toBeFocused();
- await page.locator('#rs-discovery').fill('Keywords: Anthropogenic effects; communication disruption; intraspecific interaction; interspecific interaction; light pollution; LIGHT POLLUTION');
+ await page.locator('#rs-discovery').fill('Author-Supplied Keywords; Anthropogenic effects; communication disruption; intraspecific interaction; interspecific interaction; light pollution; LIGHT POLLUTION; Abstract');
  await page.locator('#rs-add').click();
  await expect(page.locator('#rs-discovery-status')).toContainText('5 keywords');
  await expect(page.locator('#rs-keyword-next')).toContainText('fireflies AND communication disruption');
  await expect(page.locator('#rs-query')).toHaveValue('fireflies AND flashing behavior');
- await page.locator('#rs-keyword-next').getByRole('button',{name:'Build this new search →'}).click();
- await expect(page.locator('#rs-query')).toHaveValue('fireflies AND communication disruption');
+ await expect(page.locator('#rs-keyword-next input[type=radio]')).toHaveCount(3);
+ await expect(page.locator('#rs-keyword-next')).toContainText('fireflies AND light pollution');
+ await expect(page.locator('#rs-keyword-next')).toContainText('fireflies AND interspecific interaction');
+ await expect(page.locator('#rs-keyword-next .rs-returned-definitions')).toBeVisible();
+ await expect(page.locator('#rs-keyword-next')).not.toContainText('Author-Supplied Keywords');
+ await expect(page.locator('#rs-keyword-import')).not.toHaveAttribute('open','');
+ await page.locator('#rs-keyword-next input[type=radio]').nth(1).check();
+ await page.locator('#rs-keyword-next').getByRole('button',{name:'Build selected search →'}).click();
+ await expect(page.locator('#rs-query')).toHaveValue('fireflies AND light pollution');
  await expect(page.locator('#rs-ready-heading')).toBeFocused();
  expect(await page.evaluate(()=>state.savedSearches.includes('fireflies AND flashing behavior'))).toBeTruthy();
  expect(await page.evaluate(()=>state.keywordBank.filter(w=>w.toLowerCase()==='light pollution').length)).toBe(1);
@@ -265,7 +272,7 @@ if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locat
 await expect(page.locator('#rs-refine')).toContainText('No results');
 if(!(await page.locator('#rs-new-word-help').evaluate(e=>e.open)))await page.locator('#rs-new-word-help > summary').click();await page.locator('#rs-discovery').fill('agency');
 await page.locator('#rs-add').click();
-await expect(page.locator('#rs-discovery-status')).toContainText('agency');
+await expect(page.locator('#rs-keyword-next')).toContainText('agency');
 const stored=()=>page.evaluate(()=>Object.values(localStorage).some(v=>v.includes('human wildlife interactions')&&v.includes('agency')));
 expect(await stored()).toBeTruthy();
 await page.reload({waitUntil:'domcontentloaded'});expect(await stored()).toBeTruthy();
