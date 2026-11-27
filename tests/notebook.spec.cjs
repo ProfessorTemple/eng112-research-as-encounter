@@ -40,7 +40,7 @@ await page.locator('#note-locator').fill('p. 12');
 await page.locator('#note-excerpt').fill('Synthetic observation for testing only.');
 await page.locator('#note-author-idea').fill('A simulated idea.');
 await page.locator('#note-connection').fill('A simulated connection.');
-await page.locator('#save-source-note').click();
+console.log('Before note save',await page.locator('#journal-source').inputValue(),await page.locator('#note-excerpt').inputValue());await page.locator('#save-source-note').click();console.log('Note status:',await page.locator('#note-status').textContent());console.log('Storage contains note:',await page.evaluate(()=>Object.values(localStorage).some(v=>v.includes('Synthetic observation'))));
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
 await page.reload({waitUntil:'domcontentloaded'});console.log('Opening journal');if(await page.locator('#field-workspace').isHidden()){await page.locator('#field-welcome-start').click();}await expect(page.locator('#field-workspace')).toBeVisible();await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();console.log('Journal tab clicked');
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
