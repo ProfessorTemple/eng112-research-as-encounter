@@ -121,3 +121,27 @@ for(const {q,ok} of independent){
  const chosen=[...new Set([...supported,...base])].slice(0,2);
  console.log('HYBRID',JSON.stringify({q,ok,base,chosen,hit:chosen.some(x=>ok.includes(x)),unlisted:chosen.filter(x=>!ok.includes(x)),abstained:!chosen.length}));
 }
+
+ // Test a contrastive relevance gate against neutral administrative profiles.
+const neutral=['Scheduling appointments and confirming meeting times.','Counting items, pages, columns, prices and measurements.','Routine purchases and package labels or addresses.','Reading a clock or checking the time.'];
+const nv=(await embed(neutral.map(x=>prefix(x,false)),{pooling:'mean',normalize:true})).tolist();
+const contrastCases=[
+ {q:'The clock says half past three.',ok:[]},
+ {q:'Please confirm the delivery address.',ok:[]},
+ {q:'The invoice totals forty dollars.',ok:[]},
+ {q:'The calendar lists the next meeting.',ok:[]},
+ {q:'My shift schedule leaves me no choice about when I see my children.',ok:['autonomy','care-labor']},
+ {q:'The price of the seeds made me wonder who can afford to grow food.',ok:['autonomy','reciprocity']},
+ {q:'I used to call the creek dirty until I learned what lived in it.',ok:['naming','situated-perception']},
+ {q:'The wind forced my bicycle toward the ditch.',ok:['material-agency','embodied-skill']}
+];
+for(const {q,ok} of contrastCases){
+ const v=(await embed([prefix(q,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const neutralMax=Math.max(...nv.map(x=>cosine(v,x)));
+ const ranked=lenses.map((l,i)=>({id:l.id,score:cosine(v,lv[i])})).sort((a,b)=>b.score-a.score);
+ const anchor=lenses.map(l=>{const t=anchorTexts.map((x,i)=>x.id===l.id?cosine(v,av[i]):-Infinity).filter(Number.isFinite).sort((a,b)=>b-a);return {id:l.id,score:(t[0]+t[1])/2};}).sort((a,b)=>b.score-a.score);
+ const threshold=model.includes('e5')?0.78:0.16;
+ const margin=model.includes('e5')?0.005:0.025;
+ const chosen=ranked.slice(0,2).filter(x=>x.score>=threshold&&x.score>neutralMax+margin&&anchor.slice(0,3).some(y=>y.id===x.id)).slice(0,1).map(x=>x.id);
+ console.log('CONTRAST',JSON.stringify({q,ok,neutralMax,top:ranked.slice(0,2),chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
+}
