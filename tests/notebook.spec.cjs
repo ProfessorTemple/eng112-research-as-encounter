@@ -126,9 +126,14 @@ await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#field-
 if(!(await c.evaluate(e=>e.open)))await c.locator('summary').click();
 await expect(c.locator('#conversation-archive')).toContainText('Observable response needs evidence.');
 await page.locator('[data-field-space="write"]').click();
-const companion=page.locator('details').filter({has:page.locator('summary').filter({hasText:'My Inquiry Companion'})}).last();
-if(await companion.count()&&!(await companion.evaluate(e=>e.open)))await companion.locator('summary').first().click();
-await expect(page.locator('#attentive-passage')).toHaveCount(1);
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await companion.getByText('Living Braid · Bring your discoveries into the draft',{exact:true}).click();
+await expect(companion).toContainText('Observable response needs evidence.');
+await companion.getByText('Attentive Reader · Revisit a passage',{exact:true}).click();
+await page.locator('#attentive-passage').fill('Firefly defense and sensory perception may coexist.');
+await companion.getByRole('button',{name:'Explore connections',exact:true}).click();
+await expect(companion).toContainText('Shared language:');
 expect(errors).toEqual([]);
 });
 test('living inquiry portrait continuity',async({page})=>{
