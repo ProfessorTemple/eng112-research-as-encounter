@@ -109,6 +109,20 @@ expect(backup.suggestedFilename()).toMatch(/\.json$/i);
 const data=JSON.parse(require('fs').readFileSync(await backup.path(),'utf8'));
 expect(JSON.stringify(data)).toContain('Synthetic essay paragraph.');
 expect(JSON.stringify(data)).toContain('materialist theories of subjectivity');
+const fresh=await page.context().browser().newContext({viewport:page.viewportSize()});
+try{
+const restored=await fresh.newPage();
+restored.on('dialog',d=>d.accept());
+await restored.goto(url,{waitUntil:'domcontentloaded'});
+await restored.locator('#import-file').setInputFiles(await backup.path());
+await expect.poll(async()=>restored.evaluate(()=>Object.values(localStorage).some(v=>v.includes('Synthetic essay paragraph.')))).toBeTruthy();
+await restored.waitForLoadState('domcontentloaded');
+if(await restored.locator('#field-workspace').isHidden())await restored.locator('#field-welcome-start').click();
+await restored.locator('[data-field-space="write"]').click();
+await expect(restored.locator('#ws-essay-rich')).toContainText('Synthetic essay paragraph.');
+await expect(restored.locator('#ws-final-keywords')).toHaveValue('agency, fireflies');
+}finally{await fresh.close();}
+
 });
 });
 }
