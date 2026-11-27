@@ -97,6 +97,8 @@ await page.locator('#ws-essay-title').fill('Synthetic firefly inquiry');
 await page.locator('#ws-abstract').fill('Synthetic abstract for export.');
 await page.locator('#ws-final-keywords').fill('agency, fireflies');
 await page.locator('#ws-essay-rich').fill('Synthetic essay paragraph.');
+const png=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=800;c.height=600;const x=c.getContext('2d');const d=x.createImageData(800,600);let seed=123;for(let i=0;i<d.data.length;i+=4){seed=(Math.imul(seed,1664525)+1013904223)>>>0;d.data[i]=seed>>>24;d.data[i+1]=seed>>>16;d.data[i+2]=seed>>>8;d.data[i+3]=255;}x.putImageData(d,0,0);return c.toDataURL('image/png').split(',')[1];});
+for(let i=0;i<3;i++){await page.locator('#ws-visual-file-'+i).setInputFiles({name:'synthetic-'+i+'.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await expect(page.locator('#ws-visual-preview-'+i)).toBeVisible();await page.locator('#ws-visual-title-'+i).fill('Synthetic figure '+i);}
 const wordPromise=page.waitForEvent('download');
 await page.locator('#ws-essay-export').click();
 const word=await wordPromise;
@@ -110,7 +112,7 @@ await page.locator('#page-writing [data-ws-backup]').first().click();
 const backup=await backupPromise;
 expect(backup.suggestedFilename()).toMatch(/\.json$/i);
 const data=JSON.parse(require('fs').readFileSync(await backup.path(),'utf8'));
-expect(JSON.stringify(data)).toContain('Synthetic essay paragraph.');
+expect(JSON.stringify(data)).toContain('Synthetic essay paragraph.');expect(data.writing.visuals.filter(v=>v.dataUrl.startsWith('data:image/jpeg;base64,')).length).toBe(3);
 expect(JSON.stringify(data)).toContain('materialist theories of subjectivity');
 const fresh=await page.context().browser().newContext({viewport:page.viewportSize()});
 try{
@@ -124,7 +126,7 @@ await restored.waitForLoadState('domcontentloaded');
 if(await restored.locator('#field-workspace').isHidden())await restored.locator('#field-welcome-start').click();
 await restored.locator('[data-field-space="write"]').click();
 await expect(restored.locator('#ws-essay-rich')).toContainText('Synthetic essay paragraph.');
-await expect(restored.locator('#ws-final-keywords')).toHaveValue('agency, fireflies');
+await expect(restored.locator('#ws-final-keywords')).toHaveValue('agency, fireflies');for(let i=0;i<3;i++){await expect(restored.locator('#ws-visual-preview-'+i)).toBeVisible();await expect(restored.locator('#ws-visual-title-'+i)).toHaveValue('Synthetic figure '+i);}
 }finally{await fresh.close();}
 
 });
