@@ -2625,15 +2625,15 @@ for(const id of ['abstract','conclusion']){
 </script><style>#field-resume-draft{margin:.4rem 0;min-height:44px}#ws-draft-aids{margin:.8rem 0}#ws-draft-aids summary{cursor:pointer;min-height:44px;padding:.5rem 0}#ws-reflect-selected{min-height:44px}#ws-essay-rich{scroll-margin-top:1rem}</style>
 <script>
 const inquiryPracticeOptions=[
- {id:'attention',label:'Attending to a scene or sensory detail',notice:'Which particular detail changed or clarified what you noticed?',stretch:'Consider a different explanation for that detail. What observation would help you distinguish the two interpretations?',action:'Distinguish explanations'},
- {id:'memory',label:'Returning to a memory or experience',notice:'What did returning to the experience help you notice that you had missed?',stretch:'Bring in a source or another perspective that does not quite fit your memory. What changes when you hold both accounts together?',action:'Complicate an interpretation'},
- {id:'dialogue',label:'Listening to someone or exchanging ideas',notice:'Which question, response or difference helped you reconsider your understanding?',stretch:'Compare the context and evidence behind the two perspectives. Where do they illuminate different parts of the inquiry without cancelling each other?',action:'Compare perspectives and evidence'},
- {id:'reading',label:'Reading closely or investigating a source',notice:'Which specific passage or finding made a difference to your thinking?',stretch:'Return to an actual encounter. What does the source help you interpret, and what in the encounter exceeds or challenges its explanation?',action:'Synthesize source and experience'},
- {id:'imagery',label:'Exploring an image, metaphor or relationship',notice:'What did the image or connection let you express that was difficult to say otherwise?',stretch:'Name what the comparison reveals and where it stops working. What claim can you support without treating a metaphor as proof?',action:'Examine the limits of an analogy'},
- {id:'tension',label:'Noticing a contradiction or unresolved question',notice:'Which tension made you pause or reconsider what you thought you knew?',stretch:'Try articulating two plausible interpretations in your own words. What evidence would support each, and what can remain unresolved?',action:'Evaluate competing interpretations'},
- {id:'making',label:'Writing, sketching, mapping or trying something',notice:'What did the act of making help you discover that planning alone did not?',stretch:'Use what you made to explain a relationship to a reader. Which detail supports the interpretation, and which remains uncertain?',action:'Turn discovery into supported meaning'},
- {id:'language',label:'Trying different words or distinctions',notice:'Which word or distinction helped you express your understanding more precisely?',stretch:'Test that distinction against an encounter and a source. Does it clarify both, or does one require a qualification?',action:'Test a conceptual distinction'},
- {id:'other',label:'Something else, or I am not sure yet',notice:'What, if anything, helped you come to understand the material differently?',stretch:'Try another practice that suits your question, such as revisiting an observation or checking a source. Notice what it contributes without expecting a particular result.',action:'Experiment with another approach'}
+ {id:'attention',label:'Attending to a scene or sensory detail',notice:'Which particular detail changed or clarified what you noticed?',stretch:'Consider a different explanation for that detail. What observation would help you distinguish the two interpretations?',action:'Distinguish explanations',independent:"What did I actually notice, and what else could explain it?"},
+ {id:'memory',label:'Returning to a memory or experience',notice:'What did returning to the experience help you notice that you had missed?',stretch:'Bring in a source or another perspective that does not quite fit your memory. What changes when you hold both accounts together?',action:'Complicate an interpretation',independent:"What does another account reveal or complicate about this memory?"},
+ {id:'dialogue',label:'Listening to someone or exchanging ideas',notice:'Which question, response or difference helped you reconsider your understanding?',stretch:'Compare the context and evidence behind the two perspectives. Where do they illuminate different parts of the inquiry without cancelling each other?',action:'Compare perspectives and evidence',independent:"What does each perspective illuminate, and where do they differ?"},
+ {id:'reading',label:'Reading closely or investigating a source',notice:'Which specific passage or finding made a difference to your thinking?',stretch:'Return to an actual encounter. What does the source help you interpret, and what in the encounter exceeds or challenges its explanation?',action:'Synthesize source and experience',independent:"What does this evidence help me understand, and what does it not explain?"},
+ {id:'imagery',label:'Exploring an image, metaphor or relationship',notice:'What did the image or connection let you express that was difficult to say otherwise?',stretch:'Name what the comparison reveals and where it stops working. What claim can you support without treating a metaphor as proof?',action:'Examine the limits of an analogy',independent:"What does my analogy reveal, and where does it stop working?"},
+ {id:'tension',label:'Noticing a contradiction or unresolved question',notice:'Which tension made you pause or reconsider what you thought you knew?',stretch:'Try articulating two plausible interpretations in your own words. What evidence would support each, and what can remain unresolved?',action:'Evaluate competing interpretations',independent:"What evidence would distinguish these interpretations?"},
+ {id:'making',label:'Writing, sketching, mapping or trying something',notice:'What did the act of making help you discover that planning alone did not?',stretch:'Use what you made to explain a relationship to a reader. Which detail supports the interpretation, and which remains uncertain?',action:'Turn discovery into supported meaning',independent:"What did making this help me discover, and how can I support it?"},
+ {id:'language',label:'Trying different words or distinctions',notice:'Which word or distinction helped you express your understanding more precisely?',stretch:'Test that distinction against an encounter and a source. Does it clarify both, or does one require a qualification?',action:'Test a conceptual distinction',independent:"Does this distinction clarify my meaning in both the encounter and the source?"},
+ {id:'other',label:'Something else, or I am not sure yet',notice:'What, if anything, helped you come to understand the material differently?',stretch:'Try another practice that suits your question, such as revisiting an observation or checking a source. Notice what it contributes without expecting a particular result.',action:'Experiment with another approach',independent:"What could I try next to investigate this question?"}
  ];
 
 function carriedInquiryPractice(project){
@@ -2654,7 +2654,7 @@ function setCarriedInquiryPractice(next){
  const panel=document.createElement('details');panel.id='field-resume-thread';panel.className='field-resume-thread no-print';panel.hidden=true;
  const make=(tag,text,parent)=>{const n=document.createElement(tag);n.textContent=text;if(parent)parent.append(n);return n;};
  make('summary','Pick up a thread (optional)',panel);
- make('p','Return to something you recorded earlier, or simply continue writing. Nothing is added to your draft.',panel);
+ make('p','Return to something you recorded earlier, or simply continue writing. Nothing is added to your draft. You can keep using a thinking practice without keeping its reminder.',panel);
  const choices=make('div','',panel),label=make('label','Choose a thread',choices);label.htmlFor='field-resume-thread-choice';
  const select=make('select','',choices);select.id='field-resume-thread-choice';
  const heading=make('strong','',panel),quote=make('p','',panel);quote.className='field-resume-thread-text';
@@ -2674,7 +2674,7 @@ function setCarriedInquiryPractice(next){
   const last=cleanIntellectualTrail(state.intellectualTrail).at(-1);
   if(last&&last.relationship!=='Does not belong')out.push({kind:'discovery',label:'My most recently saved discovery',text:last.text});
   const carried=carriedInquiryPractice(state);
-  if(carried){const {practice,phase}=carried;out.push({kind:'practice',label:'A thinking practice I chose',phase,id:practice.id,text:phase==='try'?practice.action+': '+practice.stretch:'Think about the approach you tried: '+practice.action+'. Where else might this way of thinking help you investigate a different question? What would you adapt to that new situation?'});}
+  if(carried){const {practice,phase}=carried;out.push({kind:'practice',label:'A thinking practice I chose',phase,id:practice.id,text:phase==='try'?practice.action+': '+practice.stretch:'Where else might this way of thinking help? Try asking yourself: '+practice.independent+' You can carry this question into another inquiry without the notebook. There is no reflection to submit.'});}
   return out;
  }
  function clear(){choices.hidden=true;select.replaceChildren();heading.textContent='';quote.textContent='';items=[];signature='';status.textContent='';tried.hidden=retire.hidden=aside.hidden=true;}
@@ -2695,16 +2695,21 @@ function setCarriedInquiryPractice(next){
   choices.hidden=items.length<2;show();
  }
  select.addEventListener('change',show);
+ function returnToWork(){
+  if(!g('page-writing').classList.contains('hidden')){anchor.click();return;}
+  if(!g('page-begin').classList.contains('hidden')){const field=g('encounter');field.focus({preventScroll:true});field.scrollIntoView({block:'center',behavior:'auto'});return;}
+  g('field-return-current')?.click();
+ }
  function changePractice(phase){
   const current=carriedInquiryPractice(state);if(!current)return;
   if(!setCarriedInquiryPractice(phase?{id:current.practice.id,phase}:null)){status.textContent='Browser saving failed. Your previous choice is unchanged.';return;}
   if(phase){status.textContent='You can consider applying this practice in another context, or leave it here.';retire.focus();}
-  else{panel.open=false;const target=panel.hidden?anchor:panel.querySelector('summary');if(!target.hidden)target.focus();else{const h=g('field-section-title');if(h){h.tabIndex=-1;h.focus();}}}
+  else{panel.open=false;returnToWork();}
  }
  tried.addEventListener('click',()=>changePractice('reflect'));
  retire.addEventListener('click',()=>changePractice(null));aside.addEventListener('click',()=>changePractice(null));
  panel.addEventListener('toggle',refresh);
- dismiss.addEventListener('click',()=>{panel.open=false;panel.querySelector('summary').focus();});
+ dismiss.addEventListener('click',()=>{panel.open=false;returnToWork();});
  revisit.addEventListener('click',()=>{
   const item=items.find(x=>x.kind===select.value)||items[0];if(!item)return;
   panel.open=false;
@@ -3163,7 +3168,7 @@ function setCarriedInquiryPractice(next){
  stretch.addEventListener('click',()=>{
   const item=practices.find(p=>p.id===practiceChoice.value);if(!item)return;
   stretchText.replaceChildren();make('strong',item.action,stretchText);make('p',item.stretch,stretchText);
-  make('p','Try this only if it serves your inquiry. You can also continue with your own approach.',stretchText);carry.hidden=false;
+  make('p','Try this only if it serves your inquiry. You can use the question in your own work without saving an invitation.',stretchText);carry.hidden=false;
  });
  practice.hidden=true;practice.addEventListener('toggle',()=>{if(!practice.open)resetPractice();});
  const close=make('button','Done looking across my thinking',panel);close.type='button';close.className='secondary';close.addEventListener('click',()=>{panel.open=false;summary.focus();});
