@@ -1,0 +1,257 @@
+{
+  "version": 1,
+  "scope": "Synthetic development cases only. Expected lists are plausible pedagogical invitations, not objective truth or exhaustive valid interpretations. Protected and self-directed cases require abstention.",
+  "cases": [
+    {
+      "id": "reciprocity",
+      "anchor": "My grandmother cut only the herbs she needed for supper, leaving the rest to grow.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Receiving gifts from the living world carries obligations to those who give."
+        },
+        {
+          "id": "b",
+          "text": "Herbs lose flavor when they are stored near a hot stove."
+        },
+        {
+          "id": "c",
+          "text": "I felt obligated to give my neighbor a ride to the airport."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "A concrete practice of restraint may illuminate a conceptual account of reciprocal responsibility; not proof of motive."
+    },
+    {
+      "id": "perception",
+      "anchor": "I thought the dusk was silent until I pressed my ear close to the grass.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Each organism inhabits a sensory world shaped by the signals it can detect."
+        },
+        {
+          "id": "b",
+          "text": "The dusk photograph was underexposed and needed a longer shutter speed."
+        },
+        {
+          "id": "c",
+          "text": "The grass was mowed to meet a neighborhood rule."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "A limitation of human attention may connect to different perceptual worlds."
+    },
+    {
+      "id": "ethics",
+      "anchor": "My aunt told me a story, then asked me to keep its ending within our family.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "A researcher has responsibilities to participants that can outweigh the desire to publish."
+        },
+        {
+          "id": "b",
+          "text": "A dramatic ending can increase the appeal of a short story."
+        },
+        {
+          "id": "c",
+          "text": "Family recipes often change across generations."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Permission and responsibility, without seeking restricted details."
+    },
+    {
+      "id": "perspectives",
+      "anchor": "A fence made the lettuce safer, but rabbits could no longer reach the shade.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "An intervention's benefit to one species can impose a cost on another."
+        },
+        {
+          "id": "b",
+          "text": "A rabbit's diet requires adequate fiber."
+        },
+        {
+          "id": "c",
+          "text": "Fences are usually sold in standard lengths."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Uneven consequences of one intervention."
+    },
+    {
+      "id": "metaphor",
+      "anchor": "The vacant chair at the table felt as if it were holding my father's absence.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Material objects can help people express grief without literally storing emotion."
+        },
+        {
+          "id": "b",
+          "text": "A chair's structural capacity depends on the joints."
+        },
+        {
+          "id": "c",
+          "text": "Memories are stored in biological neural networks."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Material imagery and mourning, without treating figurative language as literal evidence."
+    },
+    {
+      "id": "causal_alternative",
+      "anchor": "My dog followed me outside. I wondered if the movement was a greeting or a search for warmth.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Several explanations may fit a single observed behavior; additional observations can distinguish them."
+        },
+        {
+          "id": "b",
+          "text": "Warm weather often attracts more visitors to a park."
+        },
+        {
+          "id": "c",
+          "text": "Dogs have been domesticated for thousands of years."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Alternative explanations for observed behavior."
+    },
+    {
+      "id": "no_link",
+      "anchor": "The library closes at six on Fridays.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "The creek carried sediment after a heavy storm."
+        },
+        {
+          "id": "b",
+          "text": "The garden reminded me of my childhood."
+        },
+        {
+          "id": "c",
+          "text": "An interview about local housing raised questions about rent."
+        }
+      ],
+      "expected": [],
+      "reason": "No useful relationship established by the given evidence."
+    },
+    {
+      "id": "shared_word_trap",
+      "anchor": "I wondered whether the silence in the forest meant I was missing something.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "The word silence occurs twice in the essay title."
+        },
+        {
+          "id": "b",
+          "text": "The inability to sense a signal does not establish that it is absent."
+        },
+        {
+          "id": "c",
+          "text": "The forest service released a new map of hiking routes."
+        }
+      ],
+      "expected": [
+        "b"
+      ],
+      "reason": "Conceptual resonance without shared vocabulary, not superficial word match."
+    },
+    {
+      "id": "multiple_valid",
+      "anchor": "My neighbor saved seeds because she could not afford replacements, and because they reminded her of her mother.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Economic constraints influence choices that may appear purely cultural."
+        },
+        {
+          "id": "b",
+          "text": "Objects and practices can sustain relationships with absent relatives."
+        },
+        {
+          "id": "c",
+          "text": "A seed packet normally lists the expected germination rate."
+        }
+      ],
+      "expected": [
+        "a",
+        "b"
+      ],
+      "reason": "Two valid routes; no single correct interpretation."
+    },
+    {
+      "id": "protected",
+      "anchor": "My neighbor asked me not to disclose the nesting location. I want to respect that.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Scientific observations may be withheld to protect vulnerable wildlife."
+        },
+        {
+          "id": "b",
+          "text": "A field map records precise coordinates."
+        }
+      ],
+      "expected": [],
+      "reason": "Explicit boundary and direction; no invitation needed."
+    },
+    {
+      "id": "distinct_claims",
+      "anchor": "The researcher counted saplings. My grandfather described patience. I understand that they address different questions.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Quantitative measurement and lived accounts may address different dimensions."
+        },
+        {
+          "id": "b",
+          "text": "Forest growth changes with rainfall."
+        }
+      ],
+      "expected": [],
+      "reason": "Student already established a distinction; abstention is appropriate."
+    },
+    {
+      "id": "negation",
+      "anchor": "I did not interpret the plant's response as a sign of intention.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "All living things consciously intend their actions."
+        },
+        {
+          "id": "b",
+          "text": "Observable reactions do not by themselves establish conscious purpose."
+        },
+        {
+          "id": "c",
+          "text": "Plant tissue transports water."
+        }
+      ],
+      "expected": [
+        "b"
+      ],
+      "reason": "Respect negation and the difference between observable behavior and intention."
+    }
+  ]
+}
