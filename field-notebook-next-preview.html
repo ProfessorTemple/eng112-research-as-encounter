@@ -1688,8 +1688,9 @@ function showTrail(open){
 function saveDiscovery(){
  const input=get("field-discovery-input"),value=input.value.trim();
  if(!value){get("field-discovery-status").textContent="Write an observation or question first.";input.focus();return;}
- const f=field();f.discoveries.push({at:new Date().toISOString(),text:value.slice(0,3500),from:activeTab});f.discoveries=f.discoveries.slice(-60);
- try{persist();get("field-discovery-status").textContent="Saved to your growing trail.";}catch(err){get("field-discovery-status").textContent="Local saving unavailable. Download your journal.";}
+ const f=field(),previous=f.discoveries;f.discoveries=[...previous,{at:new Date().toISOString(),text:value.slice(0,3500),from:activeTab}].slice(-60);
+ if(!persist()){f.discoveries=previous;get("field-discovery-status").textContent="Local saving unavailable. Your reflection is still here; keep a separate copy.";return;}
+ get("field-discovery-status").textContent="Saved to your growing trail.";
  input.value="";showTrail(true);
 }
 const EXTENDED_WINDOW=6;
@@ -2649,4 +2650,76 @@ for(const id of ['abstract','conclusion']){
  window.addEventListener('field:save',refresh);window.addEventListener('field:tabchange',refresh);refresh();
 })();
 </script><style>#field-resume-thread{margin:.45rem 0;max-width:100%;overflow-wrap:anywhere}#field-resume-thread summary{cursor:pointer;min-height:44px;padding:.5rem 0}#field-resume-thread p{margin:.4rem 0}#field-resume-thread button{min-height:44px;margin:.25rem .4rem .25rem 0}#field-resume-thread select{max-width:100%}.field-resume-thread-text{white-space:pre-wrap;max-height:16rem;overflow:auto}#field-resume-thread [hidden]{display:none!important}</style>
+<script>
+(function(){
+ 'use strict';
+ const g=id=>document.getElementById(id),portrait=g('living-inquiry-portrait');if(!portrait)return;
+ // Only student-authored records, with their original provenance. Do not infer
+ // an intellectual sequence, causal connection, or improvement from dates.
+ function thinkingRecords(project){
+  const records=[];
+  const date=v=>typeof v==='string'&&v.length<=40&&Number.isFinite(Date.parse(v))?v:'';
+  const list=v=>Array.isArray(v)?v:[];
+  const add=(id,group,label,parts,when)=>{
+   const sections=parts.filter(p=>typeof p[1]==='string'&&p[1].trim()).map(([label,text])=>({label,text}));
+   if(sections.length)records.push({id,group,label,sections,when:date(when)});
+  };
+  const fields=project.fields||{};
+  for(const [id,label] of [['encounter','My encounter'],['assumption','My assumption or uncertainty'],['thesis-question','My research question'],['found','What I discovered through research'],['shift','My account of a change in thinking']]){
+   add('field:'+id,'Current notebook entries',label,[['',fields[id]]],'');
+  }
+  const current=[['Working thesis',fields['thesis-draft']],['Observation',fields.what],['Interpretation',fields.soWhat],['Significance',fields.nowWhat]];
+  add('current-thesis','Current notebook entries','My current thesis and story notes',current,'');
+  list(project.thesisVersions).slice(-12).forEach((v,i)=>{if(!v||typeof v!=='object')return;add('version:'+i,'Saved thesis versions','Saved thesis version '+(i+1),[['Working thesis',v.draft],['Observation',v.story1],['Interpretation',v.story2],['Significance',v.story3],['Research question',v.question],['My account of what changed',v.change]],v.savedAt);});
+  list(project.fieldNotebook?.discoveries).slice(-60).forEach((v,i)=>{if(v&&typeof v==='object')add('journey:'+i,'Saved discoveries','Research journey reflection '+(i+1),[['',v.text]],v.at);});
+  cleanIntellectualTrail(project.intellectualTrail).forEach((v,i)=>add('trail:'+i,'Saved discoveries','Intellectual trail reflection '+(i+1)+(v.relationship?' · '+v.relationship:''),[['',v.text]],v.created));
+  list(project.readingNotes).slice(-500).forEach((v,i)=>{if(!v||typeof v!=='object')return;const label=lookupSource(v.sourceId)?.title||'Saved source';add('note:'+i,'Reading Journal','My response to '+label,[['Source locator',typeof v.connection==='string'&&v.connection.trim()?v.locator:''],['My response',v.connection]],v.updated);});
+  const conversations=Array.isArray(project.sourceConversations)?project.sourceConversations:project.sourceConversation?[project.sourceConversation]:[];
+  conversations.slice(-100).forEach((v,i)=>{if(v&&typeof v==='object')add('conversation:'+i,'Source conversations','My source conversation '+(i+1),[['My synthesis',v.reflection]],'');});
+  return records;
+ }
+ const panel=document.createElement('details');panel.id='portrait-compare-thinking';panel.className='thinking-compare';
+ const make=(tag,text,parent)=>{const n=document.createElement(tag);n.textContent=text;if(parent)parent.append(n);return n;};
+ const summary=make('summary','Look across my thinking (optional)',panel);
+ make('p','Choose any two pieces of your own writing. They do not need to be earlier and later versions of the same thought. Notice what persists, changes, or remains unresolved. Neither entry will be changed.',panel);
+ const form=make('div','',panel);form.className='thinking-compare-grid';
+ const controls=[],views=[];
+ for(const [i,word] of ['First piece','Second piece'].entries()){
+  const col=make('div','',form);const label=make('label',word,col),select=make('select','',col);select.id='thinking-piece-'+i;label.htmlFor=select.id;controls.push(select);
+  const view=make('article','',col);view.className='thinking-piece';view.setAttribute('aria-label',word+' selected');views.push(view);
+ }
+ const note=make('p','',panel);note.setAttribute('role','status');
+ const prompts=make('details','',panel);make('summary','A question if I want one',prompts);
+ make('p','Choose whichever question fits. You may also decide that these pieces do not belong together.',prompts);
+ const answer=make('p','',prompts);answer.setAttribute('role','status');
+ for(const [label,q] of [['What persists?','What concern, image or question is still important in both pieces?'],['What has changed?','What distinction, detail or interpretation now looks different to you, if anything?'],['What complicates my thinking?','Where do the pieces resist each other? What might you need to investigate before resolving that tension?'],['What remains open?','Is there a question worth carrying forward without answering it yet?'],['No meaningful connection','You do not need to connect these pieces. Return to whichever one serves your inquiry.']]){
+  const b=make('button',label,prompts);b.type='button';b.className='secondary';b.addEventListener('click',()=>{answer.textContent=q;});
+ }
+ prompts.hidden=true;
+ const close=make('button','Done looking across my thinking',panel);close.type='button';close.className='secondary';close.addEventListener('click',()=>{panel.open=false;summary.focus();});
+ g('portrait-trail').before(panel);
+ let records=[],owner=state,signature='';
+ function sameRecord(a,b){return !!a&&!!b&&JSON.stringify(a)===JSON.stringify(b);}
+ function show(){
+  const selected=controls.map(c=>records.find(r=>r.id===c.value));
+  views.forEach((view,i)=>{view.replaceChildren();const r=selected[i];if(!r)return;make('h4',r.label,view);
+   make('p',r.when?'Recorded or updated '+new Date(r.when).toLocaleString():r.group==='Current notebook entries'?'Current wording · not a frozen historical record':'No recorded date',view);
+   for(const section of r.sections){if(section.label)make('strong',section.label,view);make('p',section.text,view);}
+  });
+  const paired=selected.every(Boolean)&&selected[0].id!==selected[1].id;
+  prompts.hidden=!paired;if(!paired)prompts.open=false;answer.textContent='';
+  note.textContent=selected.every(Boolean)&&!paired?'Choose a different second piece if you want to compare.':records.length<2?'There are not two distinct pieces to compare yet. No extra writing is required.':'';
+ }
+ function refresh(){
+  if(owner!==state){owner=state;panel.open=false;records=[];signature='';controls.forEach(c=>c.replaceChildren());views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;}
+  if(!panel.open)return;
+  const next=thinkingRecords(state),key=JSON.stringify(next);if(key===signature)return;
+  const old=controls.map(c=>records.find(r=>r.id===c.value));records=next;signature=key;
+  controls.forEach((c,i)=>{c.replaceChildren(new Option('Choose a piece…',''));const groups=new Map();for(const r of records){if(!groups.has(r.group)){const group=document.createElement('optgroup');group.label=r.group;groups.set(r.group,group);c.append(group);}groups.get(r.group).append(new Option(r.label+(r.when?' · '+new Date(r.when).toLocaleDateString():''),r.id));}const prior=records.find(r=>r.id===old[i]?.id);if(sameRecord(prior,old[i]))c.value=prior.id;});
+  show();
+ }
+ controls.forEach(c=>c.addEventListener('change',show));panel.addEventListener('toggle',()=>{if(panel.open)refresh();else{controls.forEach(c=>{c.value='';});views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;prompts.hidden=true;signature='';}});
+ window.addEventListener('field:save',refresh);
+})();
+</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
 </body></html>
