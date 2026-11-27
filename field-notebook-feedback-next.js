@@ -14,7 +14,7 @@ const nudgeOpen=$("field-feedback-nudge-open"),send=$("field-feedback-submit");
 const comment=$("field-feedback-comment"),copy=$("field-feedback-copy"),status=$("field-feedback-status");
 const choices=Array.from(document.querySelectorAll('input[name="field-feedback-rating"]'));
 if(!panel||!nudge||!openButton||!dismissButton||!nudgeDismiss||!nudgeOpen||!send||!comment||!copy||!status||choices.length!==3)return;
-const STORAGE_KEY="eng112-field-feedback-next-preview-20261123";
+const STORAGE_KEY="eng112-field-feedback-next-preview-20261123"+(typeof NOTEBOOK_PRACTICE!=="undefined"&&NOTEBOOK_PRACTICE?"-practice":"");
 const allowed=new Set(["shown","dismissed","submitted","rating-great","rating-okay","rating-improve","opened-manually"]);
 let shownThisTab=false,doneThisTab=false;
 function state(){try{return localStorage.getItem(STORAGE_KEY)||"";}catch(e){return doneThisTab?"done":shownThisTab?"shown":"";}}
