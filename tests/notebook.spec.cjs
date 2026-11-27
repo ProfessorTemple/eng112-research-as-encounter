@@ -657,6 +657,36 @@ test('welcome and writing support stay quiet until deliberately requested',async
  await expect(context).toContainText('Synthesis means bringing your experience and sources into conversation');
  await page.locator('#field-resume-draft').click();await expect(page.locator('#ws-essay-rich')).toBeFocused();
 });
+test('keyboard access and quiet status feedback support uninterrupted writing',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ const skip=page.locator('#skip-current-activity');
+ if(!(await page.locator('#field-welcome').isHidden())){
+  await skip.focus();await page.keyboard.press('Enter');await expect(page.locator('#field-welcome-start')).toBeFocused();
+  await page.keyboard.press('Enter');
+ }
+ await page.locator('[data-field-space="discover"]').click();
+ await skip.focus();await page.keyboard.press('Enter');await expect(page.locator('#page-begin h2').first()).toBeFocused();
+ const encounter=page.locator('#encounter'),status=page.locator('#save-status');
+ await expect(page.locator('#studio-meter')).not.toHaveAttribute('aria-live','polite');
+ await expect(encounter).toHaveAttribute('aria-describedby','encounter-help');
+ await encounter.fill('I noticed the creek.');
+ await expect(status).toContainText('Saved in this browser');
+ await page.evaluate(()=>{window.__saveMutations=0;new MutationObserver(()=>window.__saveMutations++).observe(document.getElementById('save-status'),{childList:true,characterData:true,subtree:true});});
+ await encounter.fill('I noticed the creek and listened for the water.');
+ await expect(page.locator('#word-counter')).toHaveText('9 words');
+ expect(await page.evaluate(()=>window.__saveMutations)).toBe(0);
+ await page.locator('[data-field-space="write"]').click();await skip.focus();await page.keyboard.press('Enter');await expect(page.locator('#page-writing h2').first()).toBeFocused();
+ await page.locator('#field-resume-draft').click();await expect(page.locator('#ws-essay-rich')).toBeFocused();
+ await page.setViewportSize({width:320,height:760});
+ await page.locator('#ws-essay-rich').fill('My writing stays within the available space.');
+ const geometry=await page.evaluate(()=>{const el=document.getElementById('ws-essay-rich'),r=el.getBoundingClientRect();return {left:r.left,right:r.right,width:document.documentElement.clientWidth};});
+ expect(geometry.left).toBeGreaterThanOrEqual(0);expect(geometry.right).toBeLessThanOrEqual(geometry.width+1);
+ await expect(page.locator('#ws-essay-rich')).toHaveText('My writing stays within the available space.');
+ await page.emulateMedia({forcedColors:'active',reducedMotion:'reduce'});
+ await page.locator('#ws-bold').focus();
+ expect(await page.locator('#ws-bold').evaluate(el=>getComputedStyle(el).outlineStyle)).not.toBe('none');
+});
 test('draft essentials stay visible and failed version saves never claim success or overwrite writing',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
  await page.goto(url,{waitUntil:'domcontentloaded'});
