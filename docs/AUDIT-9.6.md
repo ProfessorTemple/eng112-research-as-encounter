@@ -21,3 +21,6 @@ Run 45914434534: four tests timed out, zero passed. Root cause not established. 
 
 ## Subsequent diagnostics
 Run 45914982913: missing source-library script and hidden legacy tab targets. Replaced legacy navigation with visible controls and checked out library dependency. Run 45915295151: all four tests failed because Research navigation was hidden at entry. Source inspection confirms welcome screen hides field-workspace until entry. Tests now click welcome start when needed, assert workspace visibility, then use Research navigation. Await rerun. No application change in this step.
+
+## Verified milestones
+Run 45915498265: 2/4 passed; research workflow passed at both widths. Run 45915601916: evidence persisted but wrapper discarded persist return value. Version 9.6.3 commit 2c939b1 fixes wrapper and retry identity. Run 45915715124: 4/4 passed. Run 45915839463: 6/6 passed, including thesis floors and writing persistence. Expanded suite now adds Lexicon phrase refinement and Word/JSON download checks; awaiting results. No stable release changes.
