@@ -23,3 +23,4 @@ jobs:
       - run: node tests/ai-inquiry-validator.test.mjs
       - run: node tests/ai-inquiry-bridge.test.mjs
       - run: node tests/ai-inquiry-scorecard.test.mjs
+      - run: node tests/ai-inquiry-context.test.mjs
