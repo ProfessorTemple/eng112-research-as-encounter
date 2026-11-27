@@ -78,5 +78,37 @@ await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact
 await expect(page.locator('#what')).toHaveValue('I observed fireflies flashing along a road but not near a deer.');
 expect(errors).toEqual([]);
 });
+test('lexicon phrase refinement and export',async({page})=>{
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="research"]').click();
+await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();
+const lex=page.locator('#page-search .lex-panel');
+await lex.locator('summary').first().click();
+await lex.locator('#lex-add-search').fill('materialist theories of subjectivity, being and agency');
+await lex.getByRole('button',{name:'Save word',exact:true}).click();
+const phrase=lex.locator('details').filter({has:page.locator('summary').filter({hasText:'materialist theories of subjectivity, being and agency'})});
+await phrase.locator('summary').click();
+await expect(phrase).toContainText('Capacity to act');
+await phrase.getByRole('button',{name:'Keep concept: agency',exact:true}).click();
+await expect(lex.locator('summary').filter({hasText:/^agency ·/})).toBeVisible();
+await page.locator('[data-field-space="write"]').click();
+await page.locator('#ws-essay-title').fill('Synthetic firefly inquiry');
+await page.locator('#ws-abstract').fill('Synthetic abstract for export.');
+await page.locator('#ws-final-keywords').fill('agency, fireflies');
+await page.locator('#ws-essay-rich').fill('Synthetic essay paragraph.');
+const wordPromise=page.waitForEvent('download');
+await page.locator('#ws-essay-export').click();
+const word=await wordPromise;
+expect(word.suggestedFilename()).toMatch(/\.docx$/i);
+expect(await word.failure()).toBeNull();
+const backupPromise=page.waitForEvent('download');
+await page.locator('#page-writing [data-ws-backup]').first().click();
+const backup=await backupPromise;
+expect(backup.suggestedFilename()).toMatch(/\.json$/i);
+const data=JSON.parse(require('fs').readFileSync(await backup.path(),'utf8'));
+expect(JSON.stringify(data)).toContain('Synthetic essay paragraph.');
+expect(JSON.stringify(data)).toContain('materialist theories of subjectivity');
+});
 });
 }
