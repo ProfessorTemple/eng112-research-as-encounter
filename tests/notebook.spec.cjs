@@ -34,7 +34,7 @@ test('model a conceptual connection and land at the research heading with no tex
  await expect(page.locator('#field-next-invitation')).toBeHidden();
 });
 
-test('guidance gradually recedes after real saved searches and remains available without changing student work',async({page})=>{
+test('question guidance recedes while search examples remain visible after saved searches',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await page.locator('#encounter').fill('A synthetic test of how fireflies and the body respond to their surroundings.');
@@ -51,12 +51,40 @@ test('guidance gradually recedes after real saved searches and remains available
  await expect(question).toHaveValue(inquiry);await expect(example.locator('.model-question')).toBeHidden();
  const help=example.locator('details');await expect(help).not.toHaveAttribute('open','');await help.locator('summary').click();await expect(example.locator('.model-question')).toBeVisible();
  await page.evaluate(()=>renderExplore());await expect(example.locator('.model-question')).toBeVisible();
- await page.locator('#explore-continue').click();await expect(heading).toBeFocused();await expect(searchExample.locator('.model-question')).toBeHidden();
+ await page.locator('#explore-continue').click();await expect(heading).toBeFocused();await expect(searchExample.locator('.model-question')).toBeVisible();
  await page.locator('#rs-a').fill('fireflies');await page.locator('#rs-b').fill('animal behavior');await page.locator('#rs-build').click();await page.locator('#rs-save-query').click();
  await page.locator('[data-field-space="discover"]').click();await expect(example).toContainText('What relationship do you want to investigate next?');await expect(question).toHaveValue(inquiry);
  await expect(example.locator('.model-question')).toBeHidden();await expect(page.locator('#page-explore button.primary:visible')).toHaveCount(1);
- await page.locator('#explore-continue').click();await expect(searchExample).toContainText('Choose your own search terms');await expect(page.locator('#rs-a')).toHaveValue('fireflies');await expect(page.locator('#rs-b')).toHaveValue('animal behavior');await expect(heading).toBeFocused();
+ await page.locator('#explore-continue').click();await expect(searchExample).toContainText('Suggested keywords from your question');await expect(page.locator('#rs-a')).toHaveValue('fireflies');await expect(page.locator('#rs-b')).toHaveValue('animal behavior');await expect(heading).toBeFocused();
  await expect(page.locator('#rs-search-help')).not.toHaveAttribute('open','');expect(errors).toEqual([]);
+});
+test('a beginner can translate a revised question and follow a short database-to-evidence path',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const tools=page.locator('#field-notebook-utilities'),bar=page.locator('#field-quick-actions');
+ await expect(tools).not.toHaveAttribute('open','');await expect(bar).toBeHidden();await expect(tools.locator('summary').first()).toHaveText('Notebook tools');
+ await tools.locator('summary').first().click();await expect(bar).toBeVisible();await expect(page.locator('#field-quick-return')).toBeHidden();
+ await tools.locator('summary').first().click();
+ await page.locator('[data-field-space="research"]').click();
+ const q=page.locator('#rs-working-question'),example=page.locator('#rs-search-example'),build=page.locator('#rs-build');
+ await q.fill('Why do fireflies stop flashing near me?');
+ await expect(example).toContainText('fireflies AND flashing behavior');
+ await expect(build).toContainText('Use suggested words');await expect(page.locator('#rs-database-step')).toBeHidden();
+ await build.click();await expect(page.locator('#rs-query')).toHaveValue('fireflies AND flashing behavior');
+ await expect(page.locator('#rs-ready-heading')).toBeFocused();
+ await expect(page.locator('#rs-database-step')).toContainText('searchable collection of published materials');
+ await expect(page.locator('#rs-databases a.rs-launch')).toHaveCount(1);
+ await expect(page.locator('#rs-discovery-step')).toContainText('abstract (a short summary)');
+ await expect(page.locator('#rs-result-help')).not.toHaveAttribute('open','');
+ await expect(page.locator('#rs-new-word-help')).not.toHaveAttribute('open','');
+ await q.fill('How do family stories shape memory?');
+ await expect(example).toContainText('family stories AND memory');
+ await expect(page.locator('#rs-question-mismatch')).toBeVisible();
+ await expect(page.locator('#rs-query')).toHaveValue('fireflies AND flashing behavior');
+ await page.locator('#rs-use-suggested').click();await build.click();
+ await expect(page.locator('#rs-query')).toHaveValue('family stories AND memory');await expect(page.locator('#rs-question-mismatch')).toBeHidden();
+ await page.locator('#rs-discovery-step button[data-tab="journal"]').click();
+ await expect(page.locator('#page-journal h2')).toBeFocused();
+ await expect(page.locator('#page-journal')).toContainText('A passage is a small part of the source');
 });
 test('interdisciplinary models explain academic words without making claims or filling in the student question',async({page})=>{
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
@@ -77,7 +105,7 @@ test('responsive search guidance is one nonblocking invitation after a deliberat
  await page.locator('#rs-build').click();
  await expect(page.locator('#rs-connection')).toContainText('Your question mentions fireflies');
  await expect(page.locator('#rs-query')).toHaveValue('nature AND animals');
- await page.locator('#rs-outcome').selectOption('none');
+ if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');
  const help=page.locator('#rs-refine');await expect(help).toContainText('No results');await expect(help).toContainText('nature');await expect(help.locator('p')).toHaveCount(1);await expect(help.getByRole('button')).toHaveCount(0);
  await page.locator('#rs-outcome').selectOption('many');await expect(help).toContainText('one specific');await expect(help.locator('p')).toHaveCount(1);
  await page.locator('#rs-outcome').selectOption('irrelevant');await expect(help).toContainText('changing just that term');
@@ -212,7 +240,7 @@ await page.locator('#rs-build').click();
 await expect(page.locator('#rs-query')).toHaveValue('human wildlife interactions AND ecological interdependence');
 await page.locator('#rs-save-query').click();
 await expect(page.locator('#rs-local-status')).toContainText(/saved/i);
-await page.locator('#rs-outcome').selectOption('none');
+if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');
 await expect(page.locator('#rs-refine')).toContainText('No results');
 await page.locator('#rs-discovery').fill('agency');
 await page.locator('#rs-add').click();
@@ -363,7 +391,7 @@ test('a complete student-led inquiry preserves evidence, authorship and reversib
  await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:'Build a search',exact:true}).click();
  await page.locator('#rs-a').fill('water movement');await page.locator('#rs-b').fill('watershed');
  await page.locator('#rs-build').click();await page.locator('#rs-save-query').click();
- await page.locator('#rs-outcome').selectOption('none');await expect(page.locator('#rs-refine')).toContainText('No results');
+ if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');await expect(page.locator('#rs-refine')).toContainText('No results');
  await page.locator('[data-field-space="thesis"]').click();
  const thesisNav=page.locator('#lts-nav');
  await thesisNav.getByRole('button',{name:'Build',exact:true}).click();
@@ -1071,7 +1099,7 @@ test('first-time route resumes chosen words and unfinished searches without reop
  await page.locator('#explore-continue').click();
  await page.locator('#rs-a').fill('fireflies');await page.locator('#rs-b').fill('communication');
  await page.locator('#rs-build').click();await expect(page.locator('#rs-ready-heading')).toBeFocused();
- await page.locator('#rs-query').fill('fireflies AND signaling');await page.locator('#rs-outcome').selectOption('many');
+ await page.locator('#rs-query').fill('fireflies AND signaling');await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('many');
  await page.reload({waitUntil:'domcontentloaded'});
  if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await expect(page.locator('#page-search h2')).toBeFocused();
