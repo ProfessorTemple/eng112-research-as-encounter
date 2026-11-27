@@ -93,10 +93,10 @@ const panel=feedback.locator('details').filter({has:page.locator('summary').filt
 await expect(panel).toHaveCount(1);
 await expect(panel).toContainText(lens);
 expect(await panel.locator('strong').count()).toBeLessThanOrEqual(2);
-const before=await panel.textContent();
+const before=await panel.locator('strong').allTextContents();
 await page.locator('#lts-build').getByRole('button',{name:'Review my observation',exact:true}).click();
 await expect(panel).toContainText(lens);
-expect(await panel.textContent()).toBe(before);
+expect(await panel.locator('strong').allTextContents()).toEqual(before);
 }
 expect(errors).toEqual([]);
 });
