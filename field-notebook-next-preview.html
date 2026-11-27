@@ -2492,12 +2492,12 @@ panel.querySelector('#portrait-save').addEventListener('click',()=>{state.inquir
 const panel=document.getElementById('tc-trail'),choice=document.getElementById('tc-trail-choice'),preview=document.getElementById('tc-trail-text'),questions=document.getElementById('tc-trail-questions'),answer=document.getElementById('tc-trail-question');
 if(!panel||!choice)return;
 let entries=[];
-function render(){const previous=entries[Number(choice.value)-1];entries=cleanIntellectualTrail(state.intellectualTrail);choice.replaceChildren(new Option(entries.length?'Choose a discovery':'No saved discoveries yet',''));entries.forEach((e,i)=>choice.add(new Option((e.relationship||'Reflection')+': '+e.text.slice(0,90),String(i+1))));const match=previous?entries.findIndex(e=>e.text===previous.text&&e.relationship===previous.relationship&&e.created===previous.created):-1;choice.value=match>=0?String(match+1):'';show();}
+function render(){const next=cleanIntellectualTrail(state.intellectualTrail);if(choice.options.length&&JSON.stringify(next)===JSON.stringify(entries))return;const previous=entries[Number(choice.value)-1];const priorAnswer=answer.textContent;entries=next;choice.replaceChildren(new Option(entries.length?'Choose a discovery':'No saved discoveries yet',''));entries.forEach((e,i)=>choice.add(new Option((e.relationship||'Reflection')+': '+e.text.slice(0,90),String(i+1))));const match=previous?entries.findIndex(e=>e.text===previous.text&&e.relationship===previous.relationship&&e.created===previous.created):-1;choice.value=match>=0?String(match+1):'';show();if(match>=0)answer.textContent=priorAnswer;}
 function show(){const entry=entries[Number(choice.value)-1];preview.textContent=entry?.text||'';questions.hidden=!entry;answer.textContent='';}
 choice.addEventListener('change',show);
 panel.addEventListener('toggle',()=>{if(panel.open)render();});
 window.addEventListener('field:save',()=>{if(panel.open)render();});
-const prompts={observation:'Does this discovery help you notice a detail or pattern you previously overlooked?',interpretation:'Does this discovery extend, complicate or challenge what you think your observation means?',significance:'Does this discovery change who or what is affected, or why your interpretation matters?',none:'You can keep your thesis as it is. What makes your existing interpretation sufficient for now?'};
+const prompts={observation:'Does this discovery help you notice a detail or pattern you previously overlooked?',interpretation:'Does this discovery extend, complicate or challenge what you think your observation means?',significance:'Does this discovery change who or what is affected, or why your interpretation matters?',none:'You can keep your thesis as it is and continue writing.'};
 panel.querySelectorAll('[data-trail-floor]').forEach(b=>b.addEventListener('click',()=>{if(choice.value)answer.textContent=prompts[b.dataset.trailFloor];}));
 })();
 </script>
@@ -2507,7 +2507,7 @@ for(const id of ['abstract','conclusion']){
  const panel=document.getElementById('ws-trail-'+id),choice=document.getElementById('ws-trail-'+id+'-choice');if(!panel||!choice)continue;
  const preview=panel.querySelector('[data-trail-preview]'),prompt=panel.querySelector('[data-trail-prompt]');let entries=[];
  function show(){const e=entries[Number(choice.value)-1];preview.textContent=e?.text||'';prompt.hidden=!e;}
- function render(){const prior=entries[Number(choice.value)-1];entries=cleanIntellectualTrail(state.intellectualTrail);choice.replaceChildren(new Option(entries.length?'Choose a discovery':'No saved discoveries yet',''));entries.forEach((e,i)=>choice.add(new Option((e.relationship||'Reflection')+': '+e.text.slice(0,90),String(i+1))));const index=prior?entries.findIndex(e=>e.text===prior.text&&e.created===prior.created&&e.relationship===prior.relationship):-1;choice.value=index<0?'':String(index+1);show();}
+ function render(){const next=cleanIntellectualTrail(state.intellectualTrail);if(choice.options.length&&JSON.stringify(next)===JSON.stringify(entries))return;const prior=entries[Number(choice.value)-1];entries=next;choice.replaceChildren(new Option(entries.length?'Choose a discovery':'No saved discoveries yet',''));entries.forEach((e,i)=>choice.add(new Option((e.relationship||'Reflection')+': '+e.text.slice(0,90),String(i+1))));const index=prior?entries.findIndex(e=>e.text===prior.text&&e.created===prior.created&&e.relationship===prior.relationship):-1;choice.value=index<0?'':String(index+1);show();}
  choice.addEventListener('change',show);panel.addEventListener('toggle',()=>{if(panel.open)render();});window.addEventListener('field:save',()=>{if(panel.open)render();});
 }
 })();
