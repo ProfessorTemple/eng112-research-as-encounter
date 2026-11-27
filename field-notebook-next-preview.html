@@ -334,6 +334,7 @@
     <p>Your experiences lead. Follow a question into research, gather voices, and write an essay that remains yours.</p>
     <button type="button" class="primary field-welcome-primary" id="field-welcome-start" aria-controls="field-workspace">Start Here <span aria-hidden="true">→</span></button>
     <p id="field-welcome-saved" class="hint" role="status" hidden>Your notebook already has writing or research saved on this device. Start Here will keep it.</p>
+    <button type="button" class="secondary" id="field-welcome-new-essay" hidden>Start a new essay</button>
     <p class="field-welcome-note">Your work stays in this browser. Download a backup before switching devices.</p>
   </div>
   <div class="field-welcome-help">
@@ -421,6 +422,7 @@
 <div class="field-workspace-shortcuts no-print" role="group" aria-label="Bring your earlier research into the notebook">
   <button type="button" class="secondary" id="field-workspace-import" aria-describedby="field-workspace-shortcuts-help">Import earlier notebook backup (.json)</button>
   <button type="button" class="secondary" id="field-workspace-jstor" aria-describedby="field-workspace-shortcuts-help">Add a JSTOR PDF</button>
+  <button type="button" class="secondary" id="field-workspace-new-essay">Start a new essay</button>
   <button type="button" class="textbutton" id="field-workspace-help">Welcome &amp; help</button>
   <p class="hint" id="field-workspace-shortcuts-help">A notebook backup transfers writing and notes, not PDF files. To move a JSTOR article from earlier work, select its PDF again from Files on this device. Importing a backup replaces current test work, so back it up first.</p>
 </div>
@@ -749,7 +751,7 @@
 <p><strong>Third story:</strong> This shift matters because the places we overlook may already be part of our communities' identities, and recognizing those relationships can change what we consider worthy of care.</p>
 <p>This is a <em>model of movement</em>, not wording to copy. Its interpretation and significance must be supported by the particular writer's experience and evidence.</p></details>
 </section>
-<h3>Your saved inquiry trail</h3><div id="journal-view"></div><div class="actions no-print"><button class="primary" id="download-txt">Download research journal (.txt)</button><button class="secondary" id="download-json">Backup / transfer (.json)</button><button class="secondary" id="import-json">Restore a .json backup</button><input type="file" id="import-file" accept="application/json,.json" class="hidden"><button class="secondary" id="print">Print or save as PDF</button><button class="secondary" id="reset">Clear my work</button></div>
+<h3>Your saved inquiry trail</h3><div id="journal-view"></div><div class="actions no-print"><button class="primary" id="download-txt">Download research journal (.txt)</button><button class="secondary" id="download-json">Backup / transfer (.json)</button><button class="secondary" id="import-json">Restore a .json backup</button><input type="file" id="import-file" accept="application/json,.json" class="hidden"><button class="secondary" id="print">Print or save as PDF</button><button class="secondary" id="reset">Start a new essay</button></div>
 <p class="notice">Nothing here is submitted to your instructor. Download or print your notes before leaving this device. Do not enter private information about other people.</p>
 </section>
 <section class="panel hidden writing-space" id="page-biblio" role="tabpanel" aria-labelledby="tab-biblio">
@@ -1416,7 +1418,7 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
    if(!val('ws-essay-disclosure').trim())out.push(flag('AI Use Disclosure','Explain any permitted assistance or state that you did not use generative AI.'));
    out.push(flag('Where does the braid become visible?','Look for a paragraph where your experience, research, and an interview or course voice actually respond to one another. A quotation alone does not make a connection.',false));
    out.push(flag('Give the student voice the final word','Consider where the essay returns to its opening place, being, or question with altered understanding. You decide what remains unresolved.',false));suggest(out,'ws-essay-review');}
- function backup(){saveWS();const data=JSON.stringify({version:3.4,exportedAt:new Date().toISOString(),...state},null,2);const blob=new Blob([data],{type:'application/json'});saveBlob(blob,'ENG112_full_research_writing_backup.json');docAlert('Full project backup downloaded · Save it in a safe folder.');}
+ function backup(){saveWS();const data=JSON.stringify({version:3.4,exportedAt:new Date().toISOString(),...state},null,2);const blob=new Blob([data],{type:'application/json'});saveBlob(blob,'ENG112_full_research_writing_backup.json');docAlert('Full project backup download requested · Check your Downloads folder.');}
  function saveBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);}
  function xml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));}
  const WORD='http://schemas.openxmlformats.org/wordprocessingml/2006/main',REL='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
@@ -1861,13 +1863,16 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     try{
       const item=JSON.parse(localStorage.getItem(key)||'null');
       if(!item||typeof item!=='object')return false;
-      const fields=item.fields||{};
+      const fields=item.fields||{},w=item.writing||{};
+      const meaningful=v=>typeof v==='string'&&v.trim().length>0;
       return !!(
-        Object.values(fields).some(value=>typeof value==='string'&&value.trim()) ||
-        (item.followed||[]).length || (item.savedBooks||[]).length ||
-        (item.savedMedia||[]).length || (item.readingNotes||[]).length ||
-        (item.thesisVersions||[]).length || (item.intellectualTrail||[]).length || (typeof item.inquiryWorkingDrafts?.trail==="string"&&item.inquiryWorkingDrafts.trail.trim()) ||
-        Object.values(item.writing?.fields||{}).some(value=>typeof value==='string'&&value.trim())
+        Object.entries(fields).some(([id,value])=>!['joinOp','note-kind','note-relationship','custom-kind'].includes(id)&&meaningful(value)) ||
+        ['followed','savedQuestions','savedSearches','savedBooks','savedMedia','customSources','readingNotes','thesisVersions','intellectualTrail','lenses','rejectedLenses','sourceConversations'].some(id=>Array.isArray(item[id])&&item[id].length) ||
+        (item.studio?.selectedPhrases||[]).length || (item.fieldNotebook?.discoveries||[]).length ||
+        meaningful(item.inquiryPortrait?.question)||Object.values(item.inquiryWorkingDrafts||{}).some(meaningful)||
+        !!item.carriedInquiryPractice||Object.entries(w.fields||{}).some(([id,value])=>id!=='ws-section'&&meaningful(value)) ||
+        (w.sources||[]).some(v=>v&&[v.reference,v.annotation,v.role,v.connection].some(meaningful))||
+        (w.visuals||[]).some(v=>v&&[v.title,v.note,v.after,v.dataUrl].some(meaningful))||(w.snapshots||[]).length
       );
     }catch(error){return false;}
   }
@@ -1882,7 +1887,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   }
   const activityNames={begin:'Freewriting',explore:'Exploring ideas',search:'Building a search',read:'Finding sources',journal:'Reading Journal',return:'Three-Story Thesis',biblio:'Annotated bibliography',writing:'Essay draft'};
   function currentPage(){const selected=workspace.querySelector('.field-original-nav [aria-selected="true"]');return activityNames[selected?.dataset.tab]?selected.dataset.tab:'begin';}
-  function describeResume(){if(!hasExistingWork())return;const name=activityNames[currentPage()];saved.hidden=false;start.textContent='Continue my notebook';saved.textContent='Return to '+name+'. Your saved work stays here.';}
+  function describeResume(){const exists=hasExistingWork();document.getElementById('field-welcome-new-essay').hidden=!exists;if(!exists){saved.hidden=true;start.textContent='Start Here →';return;}const name=activityNames[currentPage()];saved.hidden=false;start.textContent='Continue my notebook';saved.textContent='Return to '+name+'. Your saved work stays here.';}
   window.addEventListener('field:tabchange',describeResume);
   workspace.querySelector('#field-workspace-help')?.addEventListener('click',describeResume);
   start.addEventListener('click',()=>{enterNotebook();const page=currentPage();const target=page==='writing'?document.getElementById('ws-essay-rich'):page==='return'?document.querySelector('#lts-build:not([hidden]) .field:not([hidden]) textarea')||document.querySelector('#page-return .lts-stage:not([hidden]) h3')||document.querySelector('#page-return h2'):document.querySelector('#page-'+page+' h2');if(target){if(page!=='writing'&&target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}});
@@ -3319,6 +3324,49 @@ function setCarriedInquiryPractice(next){
  done.addEventListener('click',()=>{
   clear();const stage=g('page-return').querySelector('.lts-stage:not([hidden])');const target=stage?.querySelector('.field:not([hidden]) textarea')||stage?.querySelector('h3')||g('page-return').querySelector('h2');
   if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'center',behavior:'auto'});}
+ });
+})();
+</script>
+<style>
+#field-new-essay-dialog{max-width:min(94vw,34rem);width:100%;max-height:90vh;overflow:auto;border:1px solid #739482;border-radius:12px;padding:1rem 1.2rem;background:#fffefa;color:#203530;box-sizing:border-box}
+#field-new-essay-dialog::backdrop{background:rgba(20,35,29,.55)}
+#field-new-essay-dialog button{min-height:44px;white-space:normal}
+#field-new-essay-dialog button:focus-visible,#field-new-essay-dialog input:focus-visible{outline:3px solid #245d4c;outline-offset:3px}
+#field-new-essay-confirm:disabled{opacity:.55;cursor:not-allowed}
+#field-welcome-new-essay{margin:.4rem 0;min-height:44px}
+</style>
+<dialog id="field-new-essay-dialog" aria-labelledby="field-new-essay-heading">
+ <h2 id="field-new-essay-heading">Start a new essay</h2>
+ <p>Save your current project before beginning a new one. Your freewriting, research notes, annotations, essay, thesis, reflections, images and remembered lens choices will be cleared from this notebook. You can restore them later from a full JSON backup.</p>
+ <p><strong>Keep your article PDFs separately.</strong> The private JSTOR PDF shelf is a separate library; starting a new essay leaves those files in place. Download or remove individual PDFs in the Reading Journal if you want a completely empty shelf.</p>
+ <p>Close other tabs of this same notebook first so they cannot save old work again.</p>
+ <div class="actions"><button type="button" id="field-new-essay-backup" class="primary">Download my full notebook backup (.json)</button></div>
+ <p id="field-new-essay-status" role="status" class="hint"></p>
+ <label class="toggle-row"><input type="checkbox" id="field-new-essay-ack"> I have checked that my backup is saved, or I do not need to keep this project.</label>
+ <div class="actions"><button type="button" class="secondary" id="field-new-essay-cancel" autofocus>Cancel · keep my work</button><button type="button" id="field-new-essay-confirm" class="secondary" disabled>Clear this notebook and start fresh</button></div>
+</dialog>
+<script>
+(function(){
+ 'use strict';
+ const g=id=>document.getElementById(id),d=g('field-new-essay-dialog'),ack=g('field-new-essay-ack'),clear=g('field-new-essay-confirm'),status=g('field-new-essay-status');
+ let opener=null;
+ function open(event){opener=event?.currentTarget||g('reset');ack.checked=false;clear.disabled=true;status.textContent='';d.showModal();g('field-new-essay-cancel').focus();}
+ for(const id of ['field-welcome-new-essay','field-workspace-new-essay'])g(id).addEventListener('click',open);
+ g('reset').onclick=open;
+ ack.addEventListener('change',()=>{clear.disabled=!ack.checked;});
+ g('field-new-essay-backup').addEventListener('click',()=>{
+  try{g('download-json').click();status.textContent='Check your Downloads folder and keep the JSON file somewhere safe before clearing.';}catch(e){status.textContent='Backup could not be requested. Keep your current work and try again.';}
+ });
+ g('field-new-essay-cancel').addEventListener('click',()=>d.close());
+ d.addEventListener('close',()=>{ack.checked=false;clear.disabled=true;if(opener?.isConnected)opener.focus();});
+ clear.addEventListener('click',()=>{
+  if(!ack.checked)return;
+  try{
+   localStorage.removeItem(STORAGE);
+   if(localStorage.getItem(STORAGE)!==null)throw Error('Notebook storage could not be cleared.');
+  }catch(e){status.textContent='Unable to clear this notebook. Your current work remains open. Keep your backup and try again.';return;}
+  try{sessionStorage.removeItem('eng112-next-preview-workspace-open-v1');}catch(e){}
+  location.reload();
  });
 })();
 </script>
