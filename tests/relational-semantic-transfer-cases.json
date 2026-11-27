@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "scope": "New synthetic transfer examples authored after inspection of development results. Separate from first benchmark; not a blinded or independently adjudicated holdout. Do not tune on these cases and then report them as independent validation.",
+  "cases": [
+    {
+      "id": "tidal-skill",
+      "anchor": "My hands adjusted the oar whenever the current pulled the boat sideways, before I could explain what I was doing.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Practitioners may express tacit knowledge through adjustments to a changing situation."
+        },
+        {
+          "id": "b",
+          "text": "Oars are available in wood, aluminum and carbon fiber."
+        },
+        {
+          "id": "c",
+          "text": "Ocean currents transport heat between regions."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Embodied practical knowledge; no claim about conscious intention of water."
+    },
+    {
+      "id": "renaming",
+      "anchor": "We called the vacant strip an eyesore until I saw the butterflies feeding there.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Labels can shape which ecological values a community recognizes or overlooks."
+        },
+        {
+          "id": "b",
+          "text": "Vacant properties can be surveyed using satellite imagery."
+        },
+        {
+          "id": "c",
+          "text": "Butterflies are insects with four wings."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Naming and value."
+    },
+    {
+      "id": "household-care",
+      "anchor": "My brother prepared my mother's meals every morning, and nobody mentioned those hours when we discussed the household's finances.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Unpaid maintenance and caregiving often sustain households without appearing in economic accounts."
+        },
+        {
+          "id": "b",
+          "text": "Breakfast can provide nutrients before work."
+        },
+        {
+          "id": "c",
+          "text": "Households may compare interest rates when borrowing."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Recognition of care work without assuming exploitation."
+    },
+    {
+      "id": "constraint",
+      "anchor": "Our landlord said that we could not plant food in the yard, even though we would pay for the seeds ourselves.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Control over access to land can limit people's practical choices and independence."
+        },
+        {
+          "id": "b",
+          "text": "Seeds can be started indoors before the last frost."
+        },
+        {
+          "id": "c",
+          "text": "Yards can be measured for landscaping."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Ownership and constrained autonomy."
+    },
+    {
+      "id": "compost",
+      "anchor": "The scraps from our meals go into the soil that supports the vegetables we eat.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Nutrient cycling connects decomposition to renewed biological production."
+        },
+        {
+          "id": "b",
+          "text": "A gift economy emphasizes responding to what sustains us."
+        },
+        {
+          "id": "c",
+          "text": "Household waste containers come in different sizes."
+        }
+      ],
+      "expected": [
+        "a",
+        "b"
+      ],
+      "reason": "Two routes, ecological process and ethical reciprocity; the latter is an interpretive question, not proven intention."
+    },
+    {
+      "id": "positionality",
+      "anchor": "Because I grew up in the town, the film's account of its factory seemed familiar; my classmate noticed a history I had never heard.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "An observer's social position and prior experiences influence interpretation and blind spots."
+        },
+        {
+          "id": "b",
+          "text": "A film can be projected at different resolutions."
+        },
+        {
+          "id": "c",
+          "text": "Manufacturing output is often reported quarterly."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "Situated interpretation."
+    },
+    {
+      "id": "unrelated-administration",
+      "anchor": "The assignment file is named draft two and is due at midnight.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "A novelist revised her childhood memories."
+        },
+        {
+          "id": "b",
+          "text": "Darkness changes insect navigation."
+        },
+        {
+          "id": "c",
+          "text": "Teachers may negotiate institutional expectations."
+        }
+      ],
+      "expected": [],
+      "reason": "Routine logistical entry; shared terms alone do not establish a meaningful connection."
+    },
+    {
+      "id": "permission-variation",
+      "anchor": "My uncle allowed me to listen to his account but explicitly asked me not to quote it.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Research consent should include the specific uses of interview material."
+        },
+        {
+          "id": "b",
+          "text": "Direct quotations may preserve a speaker's wording."
+        },
+        {
+          "id": "c",
+          "text": "Relatives often know family history."
+        }
+      ],
+      "expected": [],
+      "reason": "Respect explicit restriction; no automatic invitation."
+    },
+    {
+      "id": "independent-direction",
+      "anchor": "I have enough evidence for this section. I am going to compare the two readings before I write the next one.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "A synthesis may compare theoretical frameworks rather than simply summarize authors."
+        },
+        {
+          "id": "b",
+          "text": "A reading journal may contain page locators."
+        }
+      ],
+      "expected": [],
+      "reason": "The student already states a next step."
+    },
+    {
+      "id": "deliberate-noticing",
+      "anchor": "I am recording the position and sound of the insects before interpreting the scene.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Field observations can be separated from interpretation."
+        },
+        {
+          "id": "b",
+          "text": "Insects may communicate through sound."
+        }
+      ],
+      "expected": [],
+      "reason": "Respect deliberate observation."
+    },
+    {
+      "id": "quoted-direction",
+      "anchor": "The interviewee said, “I don't need another question.” I wondered whether her choice to stop might reveal a limit of my authority as an interviewer.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Interviewers should recognize unequal power and allow participants to shape the encounter."
+        },
+        {
+          "id": "b",
+          "text": "Questionnaires can be divided into sections."
+        },
+        {
+          "id": "c",
+          "text": "Quotation marks identify a speaker's words."
+        }
+      ],
+      "expected": [
+        "a"
+      ],
+      "reason": "The student reflects on authority; quoted self-direction is not the student's own instruction."
+    },
+    {
+      "id": "differentiation",
+      "anchor": "I distinguish the response I observed from my interpretation of the animal's intentions. I am comfortable leaving the latter uncertain.",
+      "candidates": [
+        {
+          "id": "a",
+          "text": "Observable behavior cannot by itself establish conscious purpose."
+        },
+        {
+          "id": "b",
+          "text": "Animal movements can be measured in a laboratory."
+        }
+      ],
+      "expected": [],
+      "reason": "Already developed distinction and explicit uncertainty; no pressure."
+    }
+  ]
+}
