@@ -272,6 +272,14 @@ test('failed backup storage does not announce success or reload',async({page})=>
  await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact:true}).click();
  await page.locator('#what').fill('Original student observation before failed import');
  const previous=await page.locator('#what').inputValue();
+ await page.locator('[data-field-space="write"]').click();
+ await page.locator('#ws-abstract').fill('Original abstract before failed import.');
+ await page.locator('#ws-final-keywords').fill('garden, memory, reciprocity');
+ await page.locator('#ws-essay-rich').fill('Original essay before failed import.');
+ await page.locator('#ws-review-btn').click();
+ const storageKey='eng112-living-field-notebook-next-preview-20261123';
+ const savedBefore=await page.evaluate(key=>localStorage.getItem(key),storageKey);
+ expect(savedBefore).toContain('Original essay before failed import.');
  const messages=[];
  page.on('dialog',async d=>{messages.push(d.message());await d.accept();});
  await page.evaluate(()=>{
@@ -282,11 +290,15 @@ test('failed backup storage does not announce success or reload',async({page})=>
    return original.call(this,key,value);
   };
  });
- await page.locator('#import-file').setInputFiles({name:'failure-test.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({fields:{},followed:[],savedBooks:[],intellectualTrail:[{text:'Synthetic restoration failure test',relationship:'Extends'}]}))});
+ await page.locator('#import-file').setInputFiles({name:'failure-test.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({fields:{what:'Replacement observation'},writing:{fields:{'ws-abstract':'Replacement abstract','ws-essay-body':'Replacement essay','ws-final-keywords':'replacement'}},followed:[],savedBooks:[],intellectualTrail:[{text:'Synthetic restoration failure test',relationship:'Extends'}]}))});
  await expect.poll(()=>messages.some(m=>m.includes('Unable to restore this backup')&&m.includes('Browser storage could not save'))).toBeTruthy();
  expect(messages.some(m=>m.includes('Your research and writing backup has been restored')||m.includes('Backup restored into the preview'))).toBeFalsy();
  expect(await page.evaluate(()=>window.__auditNoReload)).toBe(true);
  await expect(page.locator('#what')).toHaveValue(previous);
+ await expect(page.locator('#ws-abstract')).toHaveValue('Original abstract before failed import.');
+ await expect(page.locator('#ws-final-keywords')).toHaveValue('garden, memory, reciprocity');
+ await expect(page.locator('#ws-essay-rich')).toContainText('Original essay before failed import.');
+ expect(await page.evaluate(key=>localStorage.getItem(key),storageKey)).toBe(savedBefore);
 });
 test('selected context and relational reflection remain student directed',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
