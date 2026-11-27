@@ -863,7 +863,7 @@ test('returning student may pick up a thread or continue without it',async({page
  await expect(thread.locator('summary')).toBeVisible();await expect(thread).not.toHaveAttribute('open','');await expect(threadText).toBeEmpty();
  await thread.locator('summary').click();await expect(threadText).toHaveText(question);
  await thread.getByRole('button',{name:'Continue without this',exact:true}).click();await expect(thread).not.toHaveAttribute('open','');await expect(threadText).toBeEmpty();
- await expect(thread.locator('summary')).toBeFocused();
+ await expect(page.locator('#encounter')).toBeFocused();await expect(thread.locator('summary')).toBeVisible();
  await page.locator('[data-field-space="write"]').click();
  const editor=page.locator('#ws-essay-rich');await editor.fill('My synthetic draft.');
  const companion=page.locator('section[aria-label="My Inquiry Companion"]');
