@@ -157,6 +157,29 @@ await companion.getByText('Open my inquiry, sources and paragraph directions',{e
 await expect(page.locator('#attentive-passage')).toHaveValue(passage);
 expect(errors).toEqual([]);
 });
+test('capture intellectual challenge baseline',async({page},testInfo)=>{
+test.setTimeout(60000);
+const {cases}=require('./ai-inquiry-challenge-cases.json');
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await companion.getByText('Review a paragraph without rewriting it',{exact:true}).click();
+const result=page.locator('#ic-paragraph').locator('xpath=following-sibling::div[@role="status"][1]');
+const records=[];
+for(const c of cases){
+ await page.locator('#ic-paragraph').fill(c.passage);
+ await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
+ await expect(result.locator('h4').first()).toBeVisible();
+ const primary=await result.locator(':scope > p').allTextContents();
+ expect(primary.length).toBeGreaterThan(0);
+ records.push({id:c.id,passage:c.passage,focus:await result.locator('h4').first().textContent(),primary,full:await result.innerText()});
+}
+expect(records).toHaveLength(cases.length);
+await testInfo.attach('local-inquiry-baseline-'+viewport.width,{body:JSON.stringify(records,null,2),contentType:'application/json'});
+console.log('LOCAL_INQUIRY_BASELINE '+JSON.stringify(records));
+});
 test('living inquiry portrait continuity',async({page})=>{
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(url,{waitUntil:'domcontentloaded'});
