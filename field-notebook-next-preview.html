@@ -335,7 +335,7 @@
     <button type="button" class="primary field-welcome-primary" id="field-welcome-start" aria-controls="field-workspace">Start Here <span aria-hidden="true">→</span></button>
     <p id="field-welcome-saved" class="hint" role="status" hidden>Your notebook already has writing or research saved on this device. Start Here will keep it.</p>
     <button type="button" class="secondary" id="field-welcome-new-essay" hidden>Start a new essay</button>
-    <p class="field-welcome-note">Your work stays in this browser. Download a backup before switching devices.</p><p class="field-welcome-note" id="field-practice-note" hidden>Practice workspace: separate from your usual notebook. Use fictional examples for testing. Navigation audit A11.</p>
+    <p class="field-welcome-note">Your work stays in this browser. Download a backup before switching devices.</p><p class="field-welcome-note" id="field-practice-note" hidden>Practice workspace: separate from your usual notebook. Use fictional examples for testing. Navigation audit A12.</p>
   </div>
   <div class="field-welcome-help">
     <details id="jstor-welcome-import" class="field-welcome-import">
@@ -831,7 +831,7 @@ function tokens(s){return norm(s).split(' ').filter(x=>x.length>2);}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function button(text,fn,cls='secondary'){let el=document.createElement('button');el.type='button';el.className=cls;el.textContent=text;el.addEventListener('click',fn);return el;}
 function elt(tag,cls='',text=''){let e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;}
-function persist(){if(notebookResetting)return false;FIELDS.forEach(id=>state.fields[id]=$(id).value);const status=$('save-status');const notice=message=>{if(status.textContent!==message)status.textContent=message;};try{localStorage.setItem(STORAGE,JSON.stringify(state));notice('Saved in this browser. Export your work before switching devices.');window.dispatchEvent(new Event('field:save'));return true;}catch(e){notice('Browser saving is unavailable. Please download your journal.');return false;}}
+function persist(){if(notebookResetting)return false;FIELDS.forEach(id=>state.fields[id]=$(id).value);const status=$('save-status');const notice=message=>{if(status.textContent!==message)status.textContent=message;const note=$('field-actions-note');if(note){const next=message.startsWith('Browser saving is unavailable')?'Automatic saving is unavailable. Download a backup now.':'Automatically saves in this browser. Keep a backup copy.';if(note.textContent!==next)note.textContent=next;}};try{localStorage.setItem(STORAGE,JSON.stringify(state));notice('Saved in this browser. Export your work before switching devices.');window.dispatchEvent(new Event('field:save'));return true;}catch(e){notice('Browser saving is unavailable. Please download your journal.');return false;}}
 function restore(){try{let v=JSON.parse(localStorage.getItem(STORAGE)||'null');if(v&&typeof v==='object'){state={...state,...v};state.intellectualTrail=cleanIntellectualTrail(state.intellectualTrail);}}catch(e){} FIELDS.forEach(id=>{if(typeof state.fields?.[id]==='string')$(id).value=state.fields[id];});}
 function notebookPageHeading(name){
  const panel=$('page-'+name);if(!panel)return null;
@@ -2151,10 +2151,30 @@ function words(){
  const vals=[...(window.fieldSelectedLensLabels?.()||[]),...(Array.isArray(state.studio?.selectedPhrases)?state.studio.selectedPhrases:[]),...(Array.isArray(state.keywordBank)?state.keywordBank:[]),...terms(),...(Array.isArray(state.followed)?state.followed:[])];
  return [...new Set(vals.filter(x=>typeof x==='string'&&x.trim()))].slice(0,24);
 }
+function preservePreviousSearch(){
+ const old=g('rs-query').value.trim();
+ if(old)saveArray('savedSearches',old);
+}
+function academicSearchPair(phrase){
+ const value=String(phrase||'').trim();
+ if(/^memory\s+and\s+identity$/i.test(value))return ['memory','identity'];
+ return value?[value,'']:[];
+}
+function useAcademicSearch(phrase){
+ const pair=academicSearchPair(phrase);if(!pair.length)return;
+ preservePreviousSearch();g('rs-a').value=pair[0];g('rs-b').value=pair[1]||'';
+ g('rs-outcome').value='';g('rs-search-help').open=false;g('rs-result-help').open=false;
+ showGloss();updateSearchChoice();build(true);refine();
+}
 function placeWord(w){
- const target=[g('rs-a'),g('rs-b')].find(e=>!e.value.trim());
- if(!target){status('Both search ideas already contain your words. Edit either box yourself if you want to try '+w+'.');return;}
- target.value=w;target.dispatchEvent(new Event('input',{bubbles:true}));target.focus();status('Added '+w+' to your search ideas. Check that it fits your question.');
+ const value=String(w||'').trim();if(!value)return;
+ preservePreviousSearch();
+ const a=g('rs-a'),b=g('rs-b');
+ if(!a.value.trim())a.value=value;
+ else if(a.value.trim().toLowerCase()!==value.toLowerCase())b.value=value;
+ else b.value='';
+ g('rs-outcome').value='';g('rs-search-help').open=false;g('rs-result-help').open=false;
+ showGloss();updateSearchChoice();build(true);refine();
 }
 function showGloss(){
  const host=g('rs-term-gloss');host.replaceChildren();
@@ -2195,13 +2215,13 @@ function translate(){
  host.append(heading,meaning);
  for(const [word,definition] of l.wordForms||[]){const p=node('p','hint');p.append(node('strong','',word+': '),document.createTextNode(definition+'.'));host.append(p);}
  host.append(node('p','hint','A related search phrase: '+l.searchPhrase+'. Add a distinct idea from your question if useful. Related terms are not exact synonyms, and these suggestions are not database results.'));
- const use=node('button','secondary','Use “'+l.searchPhrase+'”');use.type='button';use.onclick=()=>placeWord(l.searchPhrase);host.append(use);
+ const pairToTry=academicSearchPair(l.searchPhrase);const use=node('button','secondary','Try search: '+pairToTry.filter(Boolean).join(' AND ')+' →');use.type='button';use.onclick=()=>useAcademicSearch(l.searchPhrase);host.append(use);
 }
 function draw(){
  translate();showGloss();
  const host=g('rs-words');host.replaceChildren();
  const ws=words();
- for(const w of ws){const b=node('button','secondary',w);b.type='button';b.addEventListener('click',()=>placeWord(w));host.append(b);}
+ for(const w of ws){const first=g('rs-a').value.trim();const label=first&&first.toLowerCase()!==w.toLowerCase()?first+' AND '+w:w;const b=node('button','secondary','Try '+label+' →');b.type='button';b.addEventListener('click',()=>placeWord(w));host.append(b);}
  if(!ws.length)host.append(node('p','hint','No saved keywords yet. Type your own ideas below or return to Discover.'));
 }
 function saveDiscovery(w,origin){if(!Array.isArray(state.keywordBank))state.keywordBank=[];if(!state.keywordBank.some(x=>String(x).toLowerCase()===w.toLowerCase()))state.keywordBank.push(w);if(!Array.isArray(state.livingLexicon))state.livingLexicon=[];let entry=state.livingLexicon.find(x=>String(x.word).toLowerCase()===w.toLowerCase());if(!entry){entry={word:w,origins:[],reflection:''};state.livingLexicon.push(entry);}if(!entry.origins.includes(origin))entry.origins.push(origin);entry.dismissed=false;persist();}
@@ -2361,7 +2381,7 @@ function setResearchPhase(phase,land=false){
  g('rs-discovery-step').hidden=!back||!query;
  const refined=!!state.researchRefined,heading=g('rs-ready-heading'),progress=g('rs-round-progress');
  heading.textContent=refined?'Search again with your new keywords':'2. Search the library';
- progress.hidden=!refined;progress.textContent=refined?'New search created from words you discovered. Your earlier search is kept.':'';
+ progress.hidden=!refined;progress.textContent=refined?'New search created. Any earlier built search is kept.':'';
  setLibraryAction(state.researchLibraryAction);
  g('rs-return-progress').textContent=query?'Your last search: '+query:'';
  g('rs-search-help').hidden=back;if(back){g('rs-search-help').open=false;g('rs-more-research').open=!!g('rs-discovery').value.trim();g('rs-result-help').open=false;g('rs-keyword-editor').open=false;g('rs-new-word-help').open=!!g('rs-discovery').value.trim();g('rs-keyword-import').open=!!g('rs-discovery').value.trim()||!returnedKeywordList(state.returnedResearchKeywords).length;}
@@ -3602,7 +3622,12 @@ function setCarriedInquiryPractice(next){
   window.addEventListener('field:tabchange',e=>locate(e.detail.name));
   locate(workspace.querySelector('.field-original-nav [aria-selected="true"]')?.dataset.tab||'begin');
  }
- const quick=g('field-quick-actions');if(quick){quick.before(utility);utility.append(quick);}else support.append(utility);
+ const quick=g('field-quick-actions');if(quick){
+  quick.before(utility);utility.append(quick);
+  const backup=g('field-quick-save'),note=g('field-actions-note');
+  const saveRow=document.createElement('div');saveRow.id='field-save-progress';saveRow.className='no-print';
+  if(backup&&note){backup.textContent='Save my progress (backup)';note.textContent='Automatically saves in this browser. Keep a backup copy.';saveRow.append(backup,note);utility.before(saveRow);}
+ }else support.append(utility);
  const back=document.createElement('button');back.type='button';back.id='field-return-current';back.className='secondary';back.textContent='Return to my current activity';
  function returnToCurrent(){const selected=workspace.querySelector('.field-original-nav [aria-selected="true"]');if(selected?.dataset.tab)notebookLand(selected.dataset.tab);}
  back.addEventListener('click',returnToCurrent);intro.after(back);
@@ -3925,4 +3950,4 @@ function setCarriedInquiryPractice(next){
  });
  // Retain the original database link and browser history; no cross-site tracking.
 })();
-</script><style>#rs-bring-article{display:block;width:100%;min-height:48px;margin:.55rem 0}#custom-source-details>summary{min-height:44px;padding:.55rem 0;cursor:pointer}#rs-discovery-step h3{margin:.35rem 0}#rs-library-return,#rs-keyword-next button{display:block;width:100%;min-height:48px;margin:.45rem 0}#rs-return-heading{scroll-margin-top:1rem}#rs-keyword-next[hidden]{display:none!important}#rs-keyword-next{border-top:1px solid #b6c8bc;margin-top:.6rem;padding-top:.6rem}#rs-bring-article{font-weight:600}#rs-keyword-import>summary{min-height:44px;padding:.45rem 0;cursor:pointer}#rs-refined-heading{scroll-margin-top:1rem}#rs-keyword-next .rs-refined-choices{padding:0;border:0;margin:.35rem 0;min-width:0}#rs-keyword-next .rs-refined-choice{display:flex;align-items:flex-start;gap:.65rem;border:1px solid #b6c8bc;border-radius:8px;padding:.65rem;margin:.45rem 0;min-height:44px;cursor:pointer}#rs-keyword-next .rs-refined-choice:has(input:checked){border-color:#245d4c;background:#edf4ed}#rs-keyword-next .rs-refined-choice input{width:20px;height:20px;flex:none;margin:.2rem 0;accent-color:#245d4c}#rs-keyword-next .rs-refined-choice span{min-width:0;overflow-wrap:anywhere}#rs-keyword-next .rs-refined-choice small{display:block;margin-top:.2rem;font-size:.88rem}#rs-keyword-next .rs-returned-definitions{margin-top:.85rem;border-top:1px solid #b6c8bc;padding-top:.55rem}#rs-keyword-next .rs-returned-definitions p{margin:.4rem 0;font-size:.92rem}#rs-output[hidden],#rs-discovery-step[hidden],#rs-round-progress[hidden]{display:none!important}#rs-review-search{min-height:44px;margin:.5rem 0}#rs-bring-article{margin:.6rem 0 1rem}#rs-round-progress{font-weight:600;color:#245d4c}#rs-copy[hidden],#rs-database-step[hidden],#rs-away[hidden],#rs-already-searched[hidden],#rs-manual-copy[hidden]{display:none!important}#rs-already-searched,#rs-reopen-library,#rs-manual-copy{min-height:44px;margin:.5rem 0;font-size:.95rem}#rs-away p{margin:.4rem 0}#rs-search-help[hidden]{display:none!important}#rs-more-research>summary,#journal-pdf-tools>summary{min-height:44px;padding:.5rem 0;cursor:pointer}#rs-return-progress{font-size:.9rem}#journal-pdf-tools .jstor-guide{margin:0;padding:.5rem}#journal-pdf-tools .jstor-guide>details{margin:.3rem 0}#journal-add-pdf{display:block;width:100%;min-height:48px;margin:.5rem 0}#journal-first-task{margin:.5rem 0}#journal-file-hint{margin:.25rem 0 .65rem}#journal-pdf-tools>summary{font-size:1rem}</style></body></html>
+</script><style>#rs-bring-article{display:block;width:100%;min-height:48px;margin:.55rem 0}#custom-source-details>summary{min-height:44px;padding:.55rem 0;cursor:pointer}#rs-discovery-step h3{margin:.35rem 0}#rs-library-return,#rs-keyword-next button{display:block;width:100%;min-height:48px;margin:.45rem 0}#rs-return-heading{scroll-margin-top:1rem}#rs-keyword-next[hidden]{display:none!important}#rs-keyword-next{border-top:1px solid #b6c8bc;margin-top:.6rem;padding-top:.6rem}#rs-bring-article{font-weight:600}#rs-keyword-import>summary{min-height:44px;padding:.45rem 0;cursor:pointer}#rs-refined-heading{scroll-margin-top:1rem}#rs-keyword-next .rs-refined-choices{padding:0;border:0;margin:.35rem 0;min-width:0}#rs-keyword-next .rs-refined-choice{display:flex;align-items:flex-start;gap:.65rem;border:1px solid #b6c8bc;border-radius:8px;padding:.65rem;margin:.45rem 0;min-height:44px;cursor:pointer}#rs-keyword-next .rs-refined-choice:has(input:checked){border-color:#245d4c;background:#edf4ed}#rs-keyword-next .rs-refined-choice input{width:20px;height:20px;flex:none;margin:.2rem 0;accent-color:#245d4c}#rs-keyword-next .rs-refined-choice span{min-width:0;overflow-wrap:anywhere}#rs-keyword-next .rs-refined-choice small{display:block;margin-top:.2rem;font-size:.88rem}#rs-keyword-next .rs-returned-definitions{margin-top:.85rem;border-top:1px solid #b6c8bc;padding-top:.55rem}#rs-keyword-next .rs-returned-definitions p{margin:.4rem 0;font-size:.92rem}#rs-output[hidden],#rs-discovery-step[hidden],#rs-round-progress[hidden]{display:none!important}#rs-review-search{min-height:44px;margin:.5rem 0}#rs-bring-article{margin:.6rem 0 1rem}#rs-round-progress{font-weight:600;color:#245d4c}#rs-copy[hidden],#rs-database-step[hidden],#rs-away[hidden],#rs-already-searched[hidden],#rs-manual-copy[hidden]{display:none!important}#rs-already-searched,#rs-reopen-library,#rs-manual-copy{min-height:44px;margin:.5rem 0;font-size:.95rem}#rs-away p{margin:.4rem 0}#rs-search-help[hidden]{display:none!important}#rs-more-research>summary,#journal-pdf-tools>summary{min-height:44px;padding:.5rem 0;cursor:pointer}#rs-return-progress{font-size:.9rem}#journal-pdf-tools .jstor-guide{margin:0;padding:.5rem}#journal-pdf-tools .jstor-guide>details{margin:.3rem 0}#journal-add-pdf{display:block;width:100%;min-height:48px;margin:.5rem 0}#journal-first-task{margin:.5rem 0}#journal-file-hint{margin:.25rem 0 .65rem}#journal-pdf-tools>summary{font-size:1rem}#field-save-progress{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .75rem;margin:.45rem 0}#field-save-progress #field-quick-save{min-height:44px;border:1px solid #245d4c;border-radius:8px;background:#fffcf6;color:#245d4c;padding:.45rem .7rem;font-weight:650}#field-save-progress #field-actions-note{font-size:.85rem;flex:1 1 180px;color:#526b61}</style></body></html>
