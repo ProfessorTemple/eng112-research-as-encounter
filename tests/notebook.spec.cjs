@@ -306,6 +306,32 @@ test('failed backup storage does not announce success or reload',async({page})=>
  await expect(page.locator('#ws-source-annotation-0')).toHaveValue('Original research annotation about seed reciprocity.');
  expect(await page.evaluate(key=>localStorage.getItem(key),storageKey)).toBe(savedBefore);
 });
+test('legacy backup replaces rather than merges projects; invalid and cancelled imports preserve work',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="write"]').click();
+ await page.locator('#ws-abstract').fill('Existing project abstract');
+ await page.locator('#ws-essay-rich').fill('Existing project essay');
+ await page.locator('#ws-review-btn').click();
+ const messages=[];let cancel=false;
+ page.on('dialog',async d=>{messages.push(d.message());if(cancel&&d.type()==='confirm')await d.dismiss();else await d.accept();});
+ const upload=async data=>page.locator('#import-file').setInputFiles({name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+ const legacy={version:3.2,fields:{what:'Legacy observation'},followed:[],savedBooks:[]};
+ cancel=true;await upload(legacy);
+ await expect.poll(()=>messages.length).toBeGreaterThan(0);
+ await expect(page.locator('#ws-abstract')).toHaveValue('Existing project abstract');
+ cancel=false;await upload({fields:{}});
+ await expect.poll(()=>messages.some(m=>m.includes('Unable to restore this backup'))).toBeTruthy();
+ await expect(page.locator('#ws-essay-rich')).toContainText('Existing project essay');
+ await upload(legacy);
+ await expect.poll(()=>messages.some(m=>m.includes('Your research and writing backup has been restored'))).toBeTruthy();
+ await expect(page.locator('#what')).toHaveValue('Legacy observation');
+ await expect(page.locator('#ws-abstract')).toHaveValue('');
+ await expect(page.locator('#ws-essay-body')).toHaveValue('');
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect(page.locator('#ws-abstract')).toHaveValue('');
+ await expect(page.locator('#what')).toHaveValue('Legacy observation');
+});
 test('selected context and relational reflection remain student directed',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
