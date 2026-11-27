@@ -226,6 +226,10 @@ for(const [floor,phrase] of [['observation','previously overlooked'],['interpret
  await thesisPanel.locator('[data-trail-floor="'+floor+'"]').evaluate(el=>el.click());
  await expect(thesisPanel.locator('#tc-trail-question')).toContainText(phrase);
 }
+const retainedQuestion=await thesisPanel.locator('#tc-trail-question').textContent();
+await page.evaluate(()=>window.dispatchEvent(new Event('field:save')));
+await expect(thesisPanel.locator('select')).toHaveValue('1');
+await expect(thesisPanel.locator('#tc-trail-question')).toHaveText(retainedQuestion);
 expect(await page.locator('#thesis-draft').inputValue()).toBe(originalThesis);
 const downloadPromise=page.waitForEvent('download');
 await page.locator('#download-txt').evaluate(el=>el.click());
