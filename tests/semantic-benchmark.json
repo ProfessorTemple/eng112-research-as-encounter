@@ -1,0 +1,72 @@
+[
+  {
+    "id": "fireflies",
+    "query": "Fireflies stopped flashing when a deer approached.",
+    "related": "Nearby mammals may alter insect signaling behavior.",
+    "distractor": "A garden contains flowering plants.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "agency",
+    "query": "My grandmother found freedom in tending her garden.",
+    "related": "Cultivation can provide a space for personal autonomy.",
+    "distractor": "The garden requires frequent watering.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "attention",
+    "query": "I thought the creek was silent until I listened carefully.",
+    "related": "Perception depends on the observer's attentiveness.",
+    "distractor": "Creek water levels fluctuate seasonally.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "reciprocity",
+    "query": "We owe something to the land that sustains us.",
+    "related": "Ecological relationships entail mutual responsibilities.",
+    "distractor": "Land ownership requires legal documentation.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "memory",
+    "query": "Returning to the childhood orchard changed how I understood my father.",
+    "related": "Revisiting familiar places can transform autobiographical interpretation.",
+    "distractor": "Orchards produce fruit at different times.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "embodiment",
+    "query": "I learned to recognize the approaching storm through my skin.",
+    "related": "Bodily sensation can mediate environmental knowledge.",
+    "distractor": "Storm damage can increase insurance costs.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "communication",
+    "query": "My dog responded to my posture before I spoke.",
+    "related": "Animals may attend to nonverbal bodily signals.",
+    "distractor": "Dogs require regular veterinary care.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "negation",
+    "query": "I do not think the insect intended to deceive me.",
+    "related": "An observable response does not establish deliberate intention.",
+    "distractor": "Insects deliberately deceive observers.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "polysemy",
+    "query": "The bank beside the river collapsed.",
+    "related": "Erosion undermined the stream's edge.",
+    "distractor": "The bank collapsed after financial losses.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  },
+  {
+    "id": "power",
+    "query": "The workers could not decide when to leave the fields.",
+    "related": "Control over labor schedules constrains worker autonomy.",
+    "distractor": "Plants grow in agricultural fields.",
+    "task": "Rank conceptual relevance, not truth or agreement"
+  }
+]
