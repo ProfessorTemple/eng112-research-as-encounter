@@ -3180,4 +3180,27 @@ function setCarriedInquiryPractice(next){
  window.addEventListener('field:save',refresh);
 })();
 </script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-concept-encounter{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-concept-encounter select{width:100%;max-width:100%}#thinking-concept-encounter label{display:block}#thinking-concept-depth{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-distinction-result{overflow-wrap:anywhere}#thinking-concept-transfer{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-transfer-result{overflow-wrap:anywhere}#thinking-transfer-result details{margin:.4rem 0}#thinking-concept-integration{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-writing-invitation{border:1px solid #9cb2a4;border-radius:9px;padding:.65rem;margin:.65rem 0;overflow-wrap:anywhere}#thinking-writing-invitation p{margin:.35rem 0}#thinking-writing-invitation button{min-height:44px;margin:.25rem}#thinking-writing-invitation:focus-visible{outline:2px solid #245d4c;outline-offset:3px}#thinking-distinction-result .thinking-compare-grid>div{padding:.55rem;border:1px solid #c3d2c5;border-radius:8px}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}#thinking-transformation{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-transformation label{display:block}#thinking-transformation select{width:100%;max-width:100%}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
+<script>
+(function(){
+ const g=id=>document.getElementById(id);
+ const workspace=g('field-workspace'),compass=g('field-notebook-compass'),writing=g('page-writing');
+ if(!workspace||!compass||!writing)return;
+ // Keep the current activity ahead of secondary support in visual and reading order.
+ const support=document.createElement('section');support.id='field-earlier-work';support.className='field-notebook-compass no-print';support.setAttribute('aria-labelledby','field-earlier-title');
+ const heading=document.createElement('h2');heading.id='field-earlier-title';heading.tabIndex=-1;heading.textContent='Revisit earlier work';support.append(heading);
+ const intro=document.createElement('p');intro.className='hint';intro.textContent='Return to your discoveries when they help. None of these reflections is an extra assignment.';support.append(intro);
+ const trail=g('field-thread-title')?.closest('section');
+ for(const node of [g('field-edit-writing-route'),trail,g('living-inquiry-portrait'),g('sources-in-conversation')])if(node)support.append(node);
+ const utility=document.createElement('details');utility.id='field-notebook-utilities';utility.className='no-print';const summary=document.createElement('summary');summary.textContent='Notebook files and help';utility.append(summary);
+ const shortcuts=workspace.querySelector('.field-workspace-shortcuts');if(shortcuts)utility.append(shortcuts);
+ for(const node of [...compass.querySelectorAll(':scope > .field-privacy')])utility.append(node);
+ support.append(utility);
+ const next=g('field-next-invitation');if(next)writing.after(next,support);else writing.after(support);
+ const link=document.createElement('button');link.type='button';link.id='field-revisit-earlier';link.className='secondary';link.textContent='Revisit earlier work';link.addEventListener('click',()=>{heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'auto'});});
+ g('field-subnav').after(link);
+ // One compact assignment disclosure; preserve all course requirements.
+ const banner=writing.querySelector('.ws-banner'),tips=writing.querySelector(':scope > .ws-tips');
+ if(banner){const requirements=document.createElement('details');requirements.id='ws-assignment-requirements';requirements.className='ws-tips';const title=document.createElement('summary');title.textContent='Final essay requirements and document structure (1,200–1,500 words)';requirements.append(title);banner.before(requirements);requirements.append(banner);if(tips){const contents=[...tips.childNodes].filter(n=>n.nodeName!=='SUMMARY');requirements.append(...contents);tips.remove();}}
+})();
+</script><style>#field-earlier-work{margin-top:1.3rem}#field-earlier-title{scroll-margin-top:1rem}#field-revisit-earlier{min-height:44px;margin:.3rem 0}#field-notebook-utilities>summary,#ws-assignment-requirements>summary,.ws-lens-callout>summary{cursor:pointer;min-height:44px;padding:.5rem 0}#field-notebook-utilities{margin-top:.75rem}#ws-assignment-requirements .ws-banner{margin:.5rem 0}#field-earlier-work[hidden]{display:none!important}</style>
 </body></html>
