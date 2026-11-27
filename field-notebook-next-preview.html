@@ -2324,6 +2324,11 @@ let reviewedPassage=false,reviewedParagraph=false;
 let chosenReflection=null;
 function inquiryMovement(t){
 const rules=[
+['Reconsidering an earlier view',/\b(?:I|we)\s+(?:used to think|once believed|had assumed|thought)\b[\s\S]{0,500}\b(?:now I wonder|I am less sure|I'm less sure|I began wondering)\b/i,'What changed in your understanding, and what part of the encounter helped you reconsider it?'],
+['Expectation and experience',/\b(?:I|we)\b[^.!?]{0,180}\bexpecting\b[^.!?]{0,180}\b(?:but|yet)\b/i,'What did you experience that differed from your expectation?'],
+['Considering another explanation',/\b(?:but I think|but we think)\b[^.!?]{0,220}\brather than\b/i,'What evidence might help you distinguish between these explanations?'],
+['Comparing perspectives',/\bone author\b[^.!?]{0,180}\b(?:another|the other)\b/i,'What differences in context or evidence might help explain these perspectives?'],
+['Testing a generalization',/\bI wrote that\b[^.!?]{0,220}\b(?:always|never)\b[^.!?]{0,220}\bbut\b/i,'How might this counterexample change the scope of your earlier claim?'],
 ['Changing understanding',/\b(?:I|we) (?:used to think|once believed|had assumed|initially thought)\b[\s\S]{0,600}\b(?:I|we) (?:now|began to|came to|realized|understood|no longer)\b/i,'What encounter or evidence made the earlier understanding insufficient? Show the turning point rather than simply announcing a change.'],
 ['Complicating an assumption',/\b(?:I|we) (?:expected|assumed|believed|thought)\b[\s\S]{0,400}\b(?:but|yet|however|instead)\b/i,'What did not fit your expectation? Could another interpretation explain that detail?'],
 ['Connecting ideas',/\b(?:reminded me of|helped me connect|made me connect|helped me understand)\b/i,'What specific detail links these experiences or ideas? Where might the comparison stop working?'],
