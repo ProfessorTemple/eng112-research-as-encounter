@@ -380,6 +380,16 @@ await panel.getByRole('checkbox',{name:'Interpretation',exact:true}).check();
 await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
 await expect(result).toContainText('Audit observation of seeds');
 await expect(result).not.toContainText('Audit significance of reciprocity');
+const thesisLink=result.locator('details').filter({has:page.locator('summary').filter({hasText:'Does this discovery change my thesis? (optional)'})}).last();
+await expect(thesisLink).not.toHaveAttribute('open','');
+await thesisLink.locator('summary').click();
+for(const [name,value,phrase] of [['Observation','Audit observation of seeds','notice differently'],['Interpretation','Audit interpretation of gifts','would you reconsider'],['Significance','Audit significance of reciprocity','why this matters'],['No change needed','','keep your current thesis']]){
+ await thesisLink.getByRole('button',{name,exact:true}).click();
+ await expect(thesisLink.locator('[role="status"]')).toContainText(phrase);
+ if(value)await expect(thesisLink.locator('[role="status"]')).toContainText(value);
+}
+for(const [id,value] of [['what','Audit observation of seeds'],['soWhat','Audit interpretation of gifts'],['nowWhat','Audit significance of reciprocity']])await expect(page.locator('#'+id)).toHaveValue(value);
+await thesisLink.locator('summary').click();
 await result.getByText('Explore a relationship (optional)',{exact:true}).click();
 for(const [name,phrase] of [['Extends','new dimension'],['Complicates','qualification or tension'],['Challenges','earlier assumption'],['Transforms','understanding changed'],['Connects','specific detail links'],['Does not belong','leave this discovery out']]){
  await result.getByRole('button',{name,exact:true}).click();
@@ -404,6 +414,7 @@ await input.fill('I prefer not to share this memory.');
 await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
 await expect(result).toContainText('Respecting a boundary');
 await expect(result).not.toContainText('Audit interpretation of gifts');
+await expect(result.getByText('Does this discovery change my thesis? (optional)',{exact:true})).toHaveCount(0);
 await page.reload({waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
 await page.locator('[data-field-space="write"]').click();
