@@ -617,6 +617,19 @@ test('the active writing space precedes optional earlier work and assignment hel
  await support.locator('#living-inquiry-portrait > summary').click();await expect(support.locator('#portrait-compare-thinking')).toBeVisible();
  await page.locator('#field-resume-draft').click();await expect(editor).toBeFocused();await expect(editor).toHaveText('My own draft is the center of this writing session.');
 });
+test('navigation offers only relevant destinations and does not redirect a writing session',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const nav=page.locator('#field-subnav'),next=page.locator('#field-next-invitation'),resume=page.locator('#field-resume-draft');
+ await expect(page.locator('.ws-mobile-jumps')).toHaveCount(0);
+ await page.locator('[data-field-space="discover"]').click();await expect(nav).toBeVisible();await expect(nav.locator('button')).toHaveCount(2);
+ await page.locator('[data-field-space="research"]').click();await expect(nav).toBeVisible();await expect(nav.locator('button')).toHaveCount(4);
+ await nav.getByRole('button',{name:'Annotated bibliography',exact:true}).click();await expect(next).toBeVisible();await expect(next.locator('button')).toContainText('Begin or continue my essay');
+ await next.locator('button').click();await expect(page.locator('#page-writing')).toBeVisible();await expect(nav).toBeHidden();await expect(next).toBeHidden();await expect(resume).toHaveText('Start my draft');
+ await resume.click();const editor=page.locator('#ws-essay-rich');await expect(editor).toBeFocused();await editor.fill('I can write without an optional prompt.');await expect(resume).toHaveText('Return to my draft');await expect(next).toBeHidden();
+ await page.locator('[data-field-space="thesis"]').click();await expect(nav).toBeHidden();await expect(next).toBeVisible();
+ await resume.click();await expect(editor).toBeFocused();await expect(editor).toHaveText('I can write without an optional prompt.');await expect(next).toBeHidden();
+});
 test('draft essentials stay visible and failed version saves never claim success or overwrite writing',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
  await page.goto(url,{waitUntil:'domcontentloaded'});
