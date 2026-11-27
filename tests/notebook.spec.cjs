@@ -826,6 +826,29 @@ test('relational suggestions show grounded clues and leave the choice to the stu
  await a.selectOption('trail:1');await expect(connection).toBeHidden();
  expect(errors).toEqual([]);
 });
+test('concept encounters start with a chosen question and never alter student writing',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const key='eng112-living-field-notebook-next-preview-20261123';
+ const stored=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}'),key);
+ const initial=await stored(),data={...initial,fields:{...initial.fields,encounter:'My dog paused at a patch of grass that looked ordinary to me.',assumption:'I wondered whether I had missed a signal.'}};
+ await page.locator('#import-file').setInputFiles({name:'concept.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+ await expect.poll(async()=>(await stored()).fields?.encounter).toBe(data.fields.encounter);
+ const portrait=page.locator('#living-inquiry-portrait'),panel=page.locator('#portrait-compare-thinking'),concept=page.locator('#thinking-concept-encounter'),choice=page.locator('#thinking-concept-choice');
+ if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
+ await panel.locator(':scope > summary').click();
+ await expect(concept).toBeHidden();
+ await page.locator('#thinking-piece-0').selectOption('field:encounter');
+ await expect(concept).not.toHaveAttribute('open','');
+ await concept.locator(':scope > summary').click();await expect(choice).toHaveValue('');
+ const before=await stored();
+ for(const [id,title,domain] of [['umwelt','Umwelt','pmc.ncbi.nlm.nih.gov'],['reciprocity','Reciprocity','simonandschuster.com'],['knowing-in-action','Knowing-in-action','routledge.com'],['consent','Informed consent','oralhistory.org']]){
+  await choice.selectOption(id);await expect(concept.locator('h4')).toHaveText(title);await expect(concept.locator('a')).toHaveAttribute('href',new RegExp(domain));await expect(concept).toContainText('starting point for reading');
+ }
+ expect(await stored()).toEqual(before);
+ await page.locator('#thinking-piece-0').selectOption('field:assumption');await expect(concept).not.toHaveAttribute('open','');
+ await concept.locator(':scope > summary').click();await expect(choice).toHaveValue('');
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
