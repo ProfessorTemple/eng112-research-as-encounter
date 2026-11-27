@@ -489,6 +489,46 @@ await companion.getByText('Open my inquiry, sources and paragraph directions',{e
 await expect(companion.getByText(trailText,{exact:true})).toHaveCount(0);
 
 });
+test('unfinished trail is durable but never a saved discovery until chosen',async({page})=>{
+const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+async function openTrail(){
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="write"]').click();
+ const outer=companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true});
+ if(!(await outer.evaluate(e=>e.parentElement.open)))await outer.click();
+ const history=companion.getByText('My living intellectual trail (optional)',{exact:true});
+ if(!(await history.evaluate(e=>e.parentElement.open)))await history.click();
+}
+const reflection='Synthetic unfinished reflection about the creek.';
+const input=page.locator('#ic-trail-entry'),relation=page.locator('#ic-trail-relationship');
+const stored=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('eng112-living-field-notebook-next-preview-20261123')||'{}'));
+await page.goto(url,{waitUntil:'domcontentloaded'});await openTrail();
+await input.fill(reflection);await relation.selectOption('Complicates');
+expect((await stored()).inquiryWorkingDrafts.trail).toBe(reflection);
+expect((await stored()).intellectualTrail||[]).toHaveLength(0);
+await companion.getByRole('button',{name:'Refresh my inquiry companion',exact:true}).click();
+await expect(input).toHaveValue(reflection);await expect(relation).toHaveValue('Complicates');
+await page.reload({waitUntil:'domcontentloaded'});await openTrail();
+await expect(input).toHaveValue(reflection);await expect(relation).toHaveValue('Complicates');
+await companion.getByRole('button',{name:'Keep this discovery',exact:true}).click();
+await expect(input).toHaveValue('');await expect(relation).toHaveValue('');
+let data=await stored();expect(data.intellectualTrail).toHaveLength(1);expect(data.intellectualTrail[0].text).toBe(reflection);expect(data.inquiryWorkingDrafts.trail).toBe('');
+await page.reload({waitUntil:'domcontentloaded'});await openTrail();
+await expect(input).toHaveValue('');await expect(relation).toHaveValue('');
+await expect(companion.getByText(reflection,{exact:true})).toHaveCount(1);
+await input.fill('Synthetic draft from the current project');
+const imported='Synthetic draft from the restored project';
+await page.locator('#import-file').setInputFiles({name:'restored-project.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...data,intellectualTrail:[],inquiryWorkingDrafts:{trail:imported,trailRelationship:'Connects'}}))});
+await expect.poll(async()=>(await stored()).inquiryWorkingDrafts?.trail).toBe(imported);
+await openTrail();await expect(input).toHaveValue(imported);await expect(relation).toHaveValue('Connects');
+await expect(companion.getByText(reflection,{exact:true})).toHaveCount(0);
+await input.fill('');await relation.selectOption('');
+await page.reload({waitUntil:'domcontentloaded'});await openTrail();
+await expect(input).toHaveValue('');await expect(relation).toHaveValue('');
+expect((await stored()).intellectualTrail||[]).toHaveLength(0);
+expect(errors).toEqual([]);
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
