@@ -24,3 +24,5 @@ Run 45914982913: missing source-library script and hidden legacy tab targets. Re
 
 ## Verified milestones
 Run 45915498265: 2/4 passed; research workflow passed at both widths. Run 45915601916: evidence persisted but wrapper discarded persist return value. Version 9.6.3 commit 2c939b1 fixes wrapper and retry identity. Run 45915715124: 4/4 passed. Run 45915839463: 6/6 passed, including thesis floors and writing persistence. Expanded suite now adds Lexicon phrase refinement and Word/JSON download checks; awaiting results. No stable release changes.
+
+Run 45915980939: 8/8 passed in 9.8s, including complex Lexicon phrase and Word/JSON downloads. Download success does not establish Word formatting. Added fresh-context JSON restore checks. Static inspection found 1,000,000-character import cap; image-heavy backup compatibility needs testing. Stable release unchanged.
