@@ -202,6 +202,19 @@ await expect(companion).toContainText('Discovery saved in this browser');
 await companion.getByRole('button',{name:'Refresh my inquiry companion',exact:true}).click();
 await companion.getByText('My living intellectual trail (optional)',{exact:true}).click();
 await expect(companion.getByText(synthetic,{exact:true})).toBeVisible();
+for(const id of ['abstract','conclusion']){
+ const panel=page.locator('#ws-trail-'+id);
+ await panel.evaluate(el=>{el.open=true;});
+ const choice=panel.locator('select');
+ await expect(choice.locator('option')).toHaveCount(2);
+ const before=await page.locator('#ws-abstract').inputValue();
+ const essayBefore=await page.locator('#ws-essay-body').inputValue();
+ await choice.evaluate(el=>{el.value='1';el.dispatchEvent(new Event('change',{bubbles:true}));});
+ await expect(panel.locator('[data-trail-preview]')).toHaveText(synthetic);
+ await expect(panel.locator('[data-trail-prompt]')).not.toHaveAttribute('hidden','');
+ expect(await page.locator('#ws-abstract').inputValue()).toBe(before);
+ expect(await page.locator('#ws-essay-body').inputValue()).toBe(essayBefore);
+}
 const downloadPromise=page.waitForEvent('download');
 await page.locator('#download-txt').evaluate(el=>el.click());
 const downloaded=await downloadPromise;
