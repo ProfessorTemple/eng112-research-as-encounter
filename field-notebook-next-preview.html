@@ -1710,7 +1710,7 @@ function renderRoute(id){
  if(f.thesis)marks.push('Working thesis written');else if(f.floors)marks.push(f.floors+' of 3 thesis floors started');
  if(f.draft)marks.push('Essay draft started');
  get('field-route-recap').textContent=marks.length?'Work so far: '+marks.join(' · ')+'.':'Work so far: a fresh notebook.';
- const question=()=>{navigate('search');routeFocus('rs-working-question');};
+ const question=()=>{navigate('explore');const heading=get('page-explore').querySelector('h2');heading.tabIndex=-1;heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'auto'});};
  const actions={
  begin:f.encounter?['Name what you want to understand about this experience. A short question is enough to begin.','Develop my working question',question]:['Describe one experience or conversation. What happened, and what detail stays with you?','Begin my freewrite',()=>routeFocus('encounter')],
  explore:['You do not have to choose a scholarly lens. Put your own question first; explore concepts only if helpful.','Develop my working question',question],
@@ -1735,7 +1735,7 @@ function renderInvitation(id){
   get("field-next-button").onclick=()=>{const el=get("encounter");el.scrollIntoView({block:"center"});el.focus();};
  }else{
   const f=routeFacts(),routes={
-    begin:['search','Develop my working question','You have an experience to investigate. Name what you want to understand before searching.'],
+    begin:['explore','Develop my working question','You have an experience to investigate. Name what you want to understand before searching.'],
     explore:['search','Develop my working question','Your question matters more than choosing a lens.'],
     search:['journal','Record what I found','Once you have opened and read a useful source, bring a passage and its location back here. If the search did not help, revise it above.'],
     read:['journal','Record a source note','Bring back a passage from a source you actually read.'],
