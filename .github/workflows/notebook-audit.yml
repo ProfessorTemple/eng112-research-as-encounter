@@ -1,0 +1,36 @@
+name: Notebook browser audit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'field-notebook-next-preview.html'
+      - 'tests/**'
+      - '.github/workflows/notebook-audit.yml'
+permissions:
+  contents: read
+jobs:
+  browser-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @playwright/test
+      - run: npx playwright install --with-deps chromium
+      - name: Serve checked-out experimental notebook
+        run: |
+          python3 -m http.server 8765 > /tmp/notebook-server.log 2>&1 &
+          curl --retry 5 --retry-connrefused http://localhost:8765/field-notebook-next-preview.html -o /dev/null
+      - run: npx playwright test tests/notebook.spec.cjs --reporter=list,html
+        env:
+          NOTEBOOK_URL: http://localhost:8765/field-notebook-next-preview.html
+          PLAYWRIGHT_HTML_OPEN: never
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notebook-audit-report
+          path: |
+            playwright-report/
+            test-results/
