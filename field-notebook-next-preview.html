@@ -568,8 +568,8 @@
 <section class="panel hidden" id="page-search" role="tabpanel" aria-labelledby="tab-search">
 <h2>Research Studio</h2>
 <section id="research-studio-next" aria-label="Guided research studio">
- <p>Start with something you want to understand. You do not need a thesis yet. Your question guides your search; the sources may change your question.</p><div class="field"><label for="rs-working-question">My working research question</label><textarea id="rs-working-question" rows="3" placeholder="What do I want to understand about my experience?"></textarea><p class="hint">In your own words. Choose one or two ideas from this question to investigate below.</p></div>
- <div class="rs-step"><h3>1. Build my search</h3><p class="hint">Choose two distinct ideas to connect. Your original writing stays unchanged.</p>
+ <p>Choose search terms from your working question.</p><div class="field"><label for="rs-working-question">My working research question</label><textarea id="rs-working-question" rows="3" placeholder="What do I want to understand about my experience?"></textarea><p class="hint">Your question can change as you read.</p></div>
+ <div class="rs-step"><h3>1. Build my search</h3><p class="hint">Choose one or two ideas from your question.</p>
  <div id="rs-translation" hidden></div><details id="rs-saved-words"><summary>Other words I have collected (optional)</summary><div id="rs-words" class="rs-words"></div></details>
  <div class="two"><div class="field"><label for="rs-a">First idea</label><input id="rs-a"></div><div class="field"><label for="rs-b">Second idea (optional)</label><input id="rs-b"></div></div>
  <div id="rs-term-gloss" class="hint" aria-live="polite"></div><button type="button" class="primary rs-primary" id="rs-build">Build my search →</button>
@@ -1175,7 +1175,7 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('enable-
     const backup=el('button','secondary','Back up my work (.json)');backup.type='button';listening(backup,'click',()=>byId('download-json')?.click());foot.append(backup);area.append(foot);nav.after(area);
   }
   function buildTransitions(){
-    for(const [id] of STEPS){if(id==='explore')continue;const section=byId('page-'+id);if(!section||section.querySelector('.transition-guide'))continue;
+    for(const [id] of STEPS){if(['begin','explore','search','read','journal','return'].includes(id))continue;const section=byId('page-'+id);if(!section||section.querySelector('.transition-guide'))continue;
       const info=NEXT[id];if(!info)continue;const guide=el('aside','transition-guide');guide.setAttribute('aria-label','Suggested next step');
       guide.append(el('div','transition-step','One possible next move'),el('h3','',info.title),el('p','',info.body));
       const buttons=el('div','actions');const primary=el('button','primary',info.action);primary.type='button';listening(primary,'click',()=>tab(info.next));buttons.append(primary);
@@ -1684,14 +1684,14 @@ function renderRoute(id){
  begin:f.encounter?['Name what you want to understand about this experience. A short question is enough to begin.','Develop my working question',question]:['Describe one experience or conversation. What happened, and what detail stays with you?','Begin my freewrite',()=>routeFocus('encounter')],
  explore:['You do not have to choose a scholarly lens. Put your own question first; explore concepts only if helpful.','Develop my working question',question],
  search:!f.question?['Before searching, write what you want to understand. This is a working question, not a final thesis.','Write my working question',()=>routeFocus('rs-working-question')]:!f.search?['Choose one or two ideas from your question. Build and copy the complete search, then try Academic Search Complete.','Build my search',()=>routeFocus('rs-a')]:!f.notes?['Try your saved search in a PCC database. Open one useful article, read its abstract or relevant passage, then bring back a note.','Continue my search',()=>routeFocus('rs-a')]:['You have source notes. Read another source if you need one, or begin interpreting the evidence you collected.','Return to my Reading Journal',()=>navigate('journal')],
- read:['Choose one relevant source. Open the actual text and read a useful passage before recording it.','Find a source to read',()=>routeFocus('field-catalog-query')],
+ read:['Choose one relevant source. Open the actual text and read a useful passage before recording it.','Find a source to read',()=>routeFocus('book-filter')],
  journal:['Record the author’s idea, its location and your own response. You may return to search for more evidence.','Record or revisit a source note',()=>routeFocus('journal-source')],
  return:['Develop your observation, interpretation and significance. Revisit your evidence if a claim needs support.','Continue my three-story thesis',()=>{const p=get('page-return');const target=p.querySelector('#lts-build:not([hidden]) .field:not([hidden]) textarea')||p.querySelector('.lts-stage:not([hidden]) h3')||p.querySelector('h2');if(target){if(!target.id)target.id='field-thesis-current-heading';routeFocus(target.id);}}],
  biblio:['Work on one annotation at a time. Explain what the source contributes to your question.','Work on my bibliography',()=>routeFocus('ws-source-ref-0')],
  writing:[f.draft?'Continue your own essay. Use evidence and your experience to develop the interpretation.':'Begin with a passage of your own writing. You can draft before every part of the inquiry is settled.','Continue my essay',()=>routeFocus('ws-essay-rich')]
  };
  const task=actions[id];if(!task)return;
- get('field-route-task').hidden=id==='explore';get('field-route-instruction').textContent=task[0];const action=get('field-route-action');action.textContent=task[1];action.onclick=task[2];
+ get('field-route-task').hidden=['explore','writing'].includes(id);get('field-route-instruction').textContent=task[0];const action=get('field-route-action');action.textContent=task[1];action.onclick=task[2];
 }
 function renderInvitation(id){
  renderRoute(id);
@@ -1908,7 +1908,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 (function(){
   function jumpToJstor(){
     if(typeof tab==='function')tab('journal');
-    const section=document.getElementById('jstor-heading');
+    const section=document.getElementById('jstor-heading');if(section)section.closest('details#journal-pdf-tools')?.setAttribute('open','');
     if(section){
       section.setAttribute('tabindex','-1');
       section.focus({preventScroll:true});
@@ -1983,7 +1983,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   document.getElementById('field-workspace-jstor')?.addEventListener('click',()=>{
     if(typeof tab==='function')tab('journal');
     const pdf=document.getElementById('jstor-pdf');
-    if(pdf){pdf.scrollIntoView({block:'center',behavior:'auto'});pdf.focus({preventScroll:true});}
+    if(pdf){pdf.closest('details#journal-pdf-tools')?.setAttribute('open','');pdf.scrollIntoView({block:'center',behavior:'auto'});pdf.focus({preventScroll:true});}
   });
   try{if(sessionStorage.getItem(gate)==='open')enterNotebook();}catch(error){}
 })();
@@ -2085,7 +2085,7 @@ function build(){
  g('rs-query').value=a&&b?a+' AND '+b:a||b;
  g('rs-connection').textContent=a&&b?'Both ideas are included. AND asks the database to find records containing both. If results are too narrow, try one idea alone.':'Start broadly with your one idea; add a second if the results are too broad.';
  ['rs-output','rs-database-step','rs-discovery-step'].forEach(id=>g(id).hidden=false);
- recommendations();alternatives();g('rs-save-query').textContent='Save search to journal';g('rs-query').focus();status('Your complete search is ready. Copy it, open Academic Search Complete, paste into its search box and check that all words and AND are present before searching.');
+ recommendations();alternatives();g('rs-save-query').textContent='Save search to journal';g('rs-query').focus();status('Copy your search, open Academic Search Complete, and paste the entire expression into its search box.');
 }
 function refine(){
 const host=g('rs-refine');host.replaceChildren();const outcome=g('rs-outcome').value,a=g('rs-a').value.trim(),b=g('rs-b').value.trim(),q=g('rs-query').value.trim();
@@ -3325,7 +3325,7 @@ function setCarriedInquiryPractice(next){
    // Freewriting already has its own starting-help disclosure and question button.
    guidance.hidden=name==='begin';title.textContent=questions[name]||'Help with this activity';
    const anchor=h.closest('.studio-head,.writing-head')||h;
-   if(name==='explore')g('explore-extra-tools').append(guidance);else anchor.after(guidance);
+   if(name==='explore')g('explore-extra-tools').append(guidance);else if(name==='writing')g('ws-essay-rich').closest('.ws-card').after(guidance);else panel.append(guidance);
   }
   window.addEventListener('field:tabchange',e=>locate(e.detail.name));
   locate(workspace.querySelector('.field-original-nav [aria-selected="true"]')?.dataset.tab||'begin');
@@ -3489,5 +3489,67 @@ function setCarriedInquiryPractice(next){
   persist();tab('search');const target=g('rs-a');target.focus({preventScroll:true});target.scrollIntoView({block:'center',behavior:'auto'});
  });
  window.addEventListener('field:tabchange',e=>{if(e.detail?.name!=='explore')extra.open=false;});
+})();
+</script><style>
+#field-workspace .field-intro p,#field-workspace .field-space-nav small,#field-space-caption,#field-section-help{display:none}
+#field-workspace .field-intro h2{font-size:1.15rem;margin:.25rem 0}
+#field-workspace #field-section-title{font-size:1rem;margin:.15rem 0}
+#field-workspace .field-activity-entry{margin:.35rem 0;padding:.5rem}
+#field-route-recap{margin:.25rem 0}
+#field-workspace .field-space-nav button{min-height:44px}
+#field-workspace #field-route-instruction{font-size:.9rem}
+#field-workspace #field-route-task{padding:.3rem .5rem}
+#field-workspace .field-section-header{margin:0}
+#field-workspace #field-revisit-earlier{font-size:.88rem;margin:.15rem 0}
+#page-read #read-other-materials,#page-read #read-access-help,#page-journal #journal-pdf-tools,#page-journal #journal-source-archive,#page-journal #journal-note-archive,#page-writing #writing-document-parts,#page-biblio #bibliography-requirements{margin:.65rem 0}
+#field-workspace details>summary{overflow-wrap:anywhere}
+#field-workspace .rs-step{padding:.65rem;margin:.65rem 0}
+#page-journal .jstor-guide{padding:.65rem}
+#page-writing #writing-document-parts>summary,#page-journal #journal-pdf-tools>summary,#page-read #read-access-help>summary{min-height:44px;padding:.55rem 0}
+#page-writing #writing-document-parts>.ws-card{margin:.7rem 0}
+#page-writing #field-context-help{margin:.5rem 0}
+@media print{#writing-document-parts>summary,#read-access-help>summary,#journal-pdf-tools>summary{display:none}}
+</style><script>
+(function(){
+ const g=id=>document.getElementById(id);
+ function fold(id,label,nodes,anchor){const actual=nodes.filter(Boolean);if(!actual.length)return null;const d=document.createElement('details');d.id=id;const summary=document.createElement('summary');summary.textContent=label;d.append(summary);(anchor||actual[0]).before(d);d.append(...actual);return d;}
+ // The action comes before the reference library.
+ const read=g('page-read'),access=g('pcc-source-access-guide'),book=g('book-filter')?.closest('.field'),heading=read?.querySelector('h2');
+ if(read&&heading&&book){
+  const intro=heading.nextElementSibling;const accessNote=intro?.nextElementSibling,courseNote=accessNote?.nextElementSibling;
+  if(intro?.tagName==='P')intro.textContent='Find a source to read. Bring one useful passage back to your Reading Journal.';
+  heading.textContent='Find a source to read';
+  if(access&&accessNote?.classList.contains('info')&&courseNote?.classList.contains('info')){
+   const help=fold('read-access-help','Help accessing sources and course readings',[access,accessNote,courseNote],book);
+   book.before(help);
+  }
+  const media=g('media-list');if(media){const p=media.previousElementSibling,h=p?.previousElementSibling;fold('read-other-materials','Films, talks and essays (optional)',[h,p,media],h);}
+ }
+ // Read a source, then record it: the file shelf is not a required preliminary activity.
+ const journal=g('page-journal'),pdf=journal?.querySelector('.jstor-guide'),shelf=g('source-shelf');
+ if(journal&&pdf&&shelf){
+  const heading=journal.querySelector('h2'),intro=heading.nextElementSibling;
+  if(intro?.tagName==='P')intro.textContent='Record one passage and explain what it helps you understand.';
+  const citation=intro?.nextElementSibling;
+  if(citation?.classList.contains('info'))fold('journal-citation-help','Help with page numbers and citations',[citation],citation);
+  const shelfHeading=shelf.previousElementSibling;
+  const pdfTools=fold('journal-pdf-tools','My article PDF shelf (optional)',[pdf],pdf);
+  const archive=fold('journal-source-archive','My saved sources',[shelfHeading,shelf],shelfHeading);
+  const end=g('note-status');if(end){end.after(archive,pdfTools);}
+  // Keep saved source cards reachable after adding a source or visiting the shelf deliberately.
+  g('add-custom-source')?.addEventListener('click',()=>{if(g('custom-title').value===''||g('journal-source').value)archive.open=true;});
+  const notes=g('note-list');if(notes){const p=notes.previousElementSibling,h=p?.previousElementSibling;const d=fold('journal-note-archive','My saved reading notes',[h,p,notes],h);g('save-source-note')?.addEventListener('click',()=>{if(notes.children.length)d.open=true;});}
+ }
+ // Writing starts with the essay itself; required title/abstract/keywords remain available.
+ const writing=g('page-writing'),body=writing?.querySelector('.ws-body-card');
+ if(writing&&body){
+  const title=g('ws-essay-title')?.closest('.ws-card'),abstract=g('ws-abstract')?.closest('.ws-card'),keywords=g('ws-final-keywords')?.closest('.ws-card');
+  if(title&&abstract&&keywords){const d=fold('writing-document-parts','Title, required abstract and keywords',[title,abstract,keywords],title);body.after(d);}
+  const heading=writing.querySelector('h2');if(heading)heading.textContent='My essay draft';
+ }
+ const bib=g('page-biblio'),banner=bib?.querySelector('.ws-banner'),tips=bib?.querySelector('.ws-tips');
+ if(banner&&tips)fold('bibliography-requirements','Annotated bibliography requirements',[banner,tips],banner);
+ // Preserve keyboard access to newly folded tools, including deliberate link/jump destinations.
+ document.addEventListener('focusin',e=>{const target=e.target;if(!(target instanceof HTMLElement))return;for(let d=target.closest('details');d;d=d.parentElement?.closest('details'))if(!d.open&&target.tagName!=='SUMMARY')d.open=true;});
 })();
 </script></body></html>
