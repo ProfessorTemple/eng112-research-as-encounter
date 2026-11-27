@@ -4,6 +4,20 @@ const url=process.env.NOTEBOOK_URL || 'https://professortemple.github.io/eng112-
 for(const viewport of [{width:390,height:844},{width:1440,height:900}]){
 test.describe('Notebook '+viewport.width,()=>{
 test.use({viewport});
+test('concept exploration has one clear question-first action and hides optional tools until requested',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('#encounter').fill('I watched fireflies and remembered how my body responded when I was a child.');
+ await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();
+ const panel=page.locator('#page-explore'),extra=page.locator('#explore-extra-tools'),question=page.locator('#thesis-question'),go=page.locator('#explore-continue');
+ await expect(panel.getByRole('heading',{name:'What do I want to understand?'})).toBeVisible();await expect(question).toBeVisible();await expect(go).toBeVisible();
+ await expect(extra).not.toHaveAttribute('open','');await expect(page.locator('#lens-garden')).toBeHidden();await expect(page.locator('#student-style-companion')).toBeHidden();await expect(page.locator('#connection-list')).toBeHidden();
+ await expect(page.locator('#field-route-task')).toBeHidden();await expect(page.locator('#field-next-invitation')).toBeHidden();await expect(panel.locator('button.primary:visible')).toHaveCount(1);
+ await go.click();await expect(question).toBeFocused();await expect(page.locator('#explore-question-hint')).toContainText('Write one thing');
+ await extra.locator(':scope > summary').click();await expect(page.locator('#lens-garden')).toBeVisible();await extra.locator(':scope > summary').click();
+ const inquiry='How does childhood memory shape what I notice about fireflies?';await question.fill(inquiry);await go.click();await expect(page.locator('#page-search')).toBeVisible();await expect(page.locator('#rs-working-question')).toHaveValue(inquiry);await expect(page.locator('#rs-a')).toBeFocused();
+ await page.locator('[data-field-space="discover"]').click();await expect(question).toHaveValue(inquiry);await expect(extra).not.toHaveAttribute('open','');expect(errors).toEqual([]);
+});
 test('academic language has a plain definition and a deliberate non-overwriting translation into search terms',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
