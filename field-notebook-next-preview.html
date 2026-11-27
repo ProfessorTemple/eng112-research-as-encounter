@@ -2795,6 +2795,107 @@ function setCarriedInquiryPractice(next){
   {id:'knowing-in-action',question:'What did doing something teach me that I could not explain beforehand?',term:'Knowing-in-action',definition:'Donald Schön’s term for practical knowledge expressed through skilled action, often beyond what a practitioner can fully articulate.',source:'Donald A. Schön, The Reflective Practitioner (publisher introduction)',url:'https://www.routledge.com/The-Reflective-Practitioner-How-Professionals-Think-in-Action/Schon/p/book/9781315237473',invitation:'Which detail in the action reveals a kind of knowledge that a written explanation might overlook?',caution:'Do not treat practical knowledge and scholarly evidence as interchangeable; ask what each can establish.'},
   {id:'consent',question:'What responsibilities do I have when another person shares knowledge?',term:'Informed consent',definition:'An ongoing ethical practice in which participants understand and agree to the purposes and uses of an interview or research encounter.',source:'Oral History Association, Statement on Ethics',url:'https://oralhistory.org/oha-statement-on-ethics/',invitation:'What can you discuss within the permission actually given, and what should remain private?',caution:'Do not reproduce restricted details or treat participation as permission for every use. No private account is needed to explore this concept.'}
  ];
+ // Working distinctions are pedagogical starting points, not universal definitions.
+ const conceptDistinctions={
+  "umwelt": [
+    {
+      "id": "perception-attention",
+      "a": "Perception",
+      "aText": "What an organism can sense and interpret through its particular capacities.",
+      "b": "Attention",
+      "bText": "Which available signals or features it selectively attends to.",
+      "example": "You hear insects after sitting quietly. Their calls may have been audible before you attended to them.",
+      "question": "What distinguishes a change in what you can perceive from a change in what you attend to?",
+      "limit": "Neither term gives you direct access to another being's subjective experience."
+    },
+    {
+      "id": "response-intention",
+      "a": "Responsiveness",
+      "aText": "An observable change in activity in relation to a stimulus or condition.",
+      "b": "Intention",
+      "bText": "A proposed purpose or directed aim behind an action.",
+      "example": "A moth changes direction near a light. You can describe that movement without deciding what it intended.",
+      "question": "Which part of your claim describes a response, and which part would require evidence about intention?",
+      "limit": "A response alone does not establish conscious purpose."
+    },
+    {
+      "id": "agency-intention",
+      "a": "Agency",
+      "aText": "A capacity to act or participate in shaping an outcome, understood differently across disciplines.",
+      "b": "Intention",
+      "bText": "A proposed aim or purpose of an action, not simply the fact that something had an effect.",
+      "example": "A current changes the route of a canoe. Material agency need not imply that the current chose a destination.",
+      "question": "What meaning of agency fits your encounter, and what would you need to establish before claiming intention?",
+      "limit": "Some scholars use agency more narrowly than others. State whose definition you use."
+    }
+  ],
+  "reciprocity": [
+    {
+      "id": "gift-transaction",
+      "a": "Gift relationship",
+      "aText": "Giving and receiving that can sustain a relationship without specifying an equal return.",
+      "b": "Transaction",
+      "bText": "An exchange organized around an agreed transfer of goods, services or value.",
+      "example": "A neighbor shares seeds and the recipient later shares a harvest.",
+      "question": "What obligations or relationships, if any, emerge from the exchange?",
+      "limit": "Do not assume all gifts are freely given or all transactions lack care."
+    },
+    {
+      "id": "reciprocity-mutualism",
+      "a": "Reciprocity",
+      "aText": "A relational or ethical idea about responding to what one receives.",
+      "b": "Mutualism",
+      "bText": "In ecology, an interaction between organisms in which both benefit.",
+      "example": "Pollination may benefit two organisms. A human response of gratitude or care raises an additional ethical question.",
+      "question": "Are you explaining a biological interaction, an ethical relationship, or both? What would support each?",
+      "limit": "Ecological mutualism does not by itself establish moral obligation or gratitude."
+    }
+  ],
+  "knowing-in-action": [
+    {
+      "id": "knowing-reflecting",
+      "a": "Knowing-in-action",
+      "aText": "Practical knowing expressed through skilled performance, even when difficult to put into words.",
+      "b": "Reflection-in-action",
+      "bText": "Reconsidering what is happening and adjusting one's approach while still engaged in the action.",
+      "example": "A potter's familiar grip expresses skill; noticing clay sag and altering the technique can involve reflection-in-action.",
+      "question": "Where did established skill guide you, and where did something unexpected invite reconsideration?",
+      "limit": "Not every adjustment demonstrates conscious reflection; describe the action before interpreting it."
+    },
+    {
+      "id": "practice-explanation",
+      "a": "Practical knowing",
+      "aText": "What someone can do or discern through experience and practice.",
+      "b": "Propositional knowledge",
+      "bText": "Knowledge expressed as statements that can be examined and supported.",
+      "example": "A gardener recognizes when soil needs water by touch, while a study describes moisture measurements.",
+      "question": "What can each way of knowing establish, and where might they complement or complicate one another?",
+      "limit": "These ways of knowing can overlap; neither should be dismissed because it takes a different form."
+    }
+  ],
+  "consent": [
+    {
+      "id": "participation-permission",
+      "a": "Participation",
+      "aText": "Taking part in an interview, conversation or research activity.",
+      "b": "Permission for use",
+      "bText": "Agreement to particular uses of what is shared, such as recording, quotation or publication.",
+      "example": "Someone agrees to talk but asks that their words not be quoted.",
+      "question": "What can you discuss within the permission actually given?",
+      "limit": "No restricted material is needed to answer. Participation does not authorize every use."
+    },
+    {
+      "id": "anonymous-confidential",
+      "a": "Anonymity",
+      "aText": "A condition in which a person's identity is not known or cannot reasonably be linked to material.",
+      "b": "Confidentiality",
+      "bText": "An obligation to protect known identifying information or material from unauthorized disclosure.",
+      "example": "A person can be known to the interviewer but identified only by a pseudonym in an essay.",
+      "question": "What information needs protection, and what could you omit without losing the point of your inquiry?",
+      "limit": "A pseudonym alone does not guarantee anonymity; context may identify a participant."
+    }
+  ]
+};
  const concepts=make('details','',panel);concepts.id='thinking-concept-encounter';concepts.hidden=true;
  make('summary','Is there a concept for what I am exploring? (optional)',concepts);
  make('p','Begin with a question that feels relevant to your chosen piece. These curated resources are not automatic interpretations of your writing.',concepts);
@@ -2808,6 +2909,19 @@ function setCarriedInquiryPractice(next){
   const a=make('a',c.source,conceptOut);a.href=c.url;a.target='_blank';a.rel='noopener noreferrer';a.referrerPolicy='no-referrer';
   make('p','A question for your own encounter: '+c.invitation,conceptOut);
   make('p',c.caution,conceptOut);make('p','This is a starting point for reading, not a source you have already read or a claim about your experience.',conceptOut);
+  const depth=make('details','',conceptOut);depth.id='thinking-concept-depth';make('summary','Explore a distinction (optional)',depth);
+  make('p','These are working distinctions for inquiry, not universal definitions. Check how a specific author uses these terms before making a claim.',depth);
+  const lab=make('label','Two ideas I want to distinguish',depth),sel=make('select','',depth);sel.id='thinking-distinction-choice';lab.htmlFor=sel.id;
+  const pairs=conceptDistinctions[c.id]||[];sel.add(new Option('Choose a distinction…',''));for(const p of pairs)sel.add(new Option(p.a+' and '+p.b,p.id));
+  const detail=make('div','',depth);detail.id='thinking-distinction-result';detail.setAttribute('role','status');
+  sel.addEventListener('change',()=>{
+   detail.replaceChildren();const p=pairs.find(x=>x.id===sel.value);if(!p)return;
+   const grid=make('div','',detail);grid.className='thinking-compare-grid';
+   for(const [term,description] of [[p.a,p.aText],[p.b,p.bText]]){const cell=make('div','',grid);make('strong',term,cell);make('p',description,cell);}
+   make('strong','An illustrative encounter (not your writing)',detail);make('p',p.example,detail);
+   make('strong','Return to your chosen piece',detail);make('p',p.question,detail);make('p',p.limit,detail);
+  });
+  depth.addEventListener('toggle',()=>{if(!depth.open){sel.value='';detail.replaceChildren();}});
   const copy=make('button','Copy term for my research',conceptOut);copy.type='button';copy.className='secondary';
   const msg=make('p','',conceptOut);msg.setAttribute('role','status');
   copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(c.term);msg.textContent='Term copied. You can use it in a search or your own notes.';}catch(e){msg.textContent='Copy unavailable. Select the term above to copy it yourself.';}});
@@ -2882,5 +2996,5 @@ function setCarriedInquiryPractice(next){
  controls.forEach(c=>c.addEventListener('change',show));panel.addEventListener('toggle',()=>{if(panel.open)refresh();else{controls.forEach(c=>{c.value='';});views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;prompts.hidden=true;practice.open=false;practice.hidden=true;resetPractice();signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;concepts.open=false;concepts.hidden=true;clearConcept();}});
  window.addEventListener('field:save',refresh);
 })();
-</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-concept-encounter{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-concept-encounter select{width:100%;max-width:100%}#thinking-concept-encounter label{display:block}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
+</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-concept-encounter{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-concept-encounter select{width:100%;max-width:100%}#thinking-concept-encounter label{display:block}#thinking-concept-depth{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-distinction-result{overflow-wrap:anywhere}#thinking-distinction-result .thinking-compare-grid>div{padding:.55rem;border:1px solid #c3d2c5;border-radius:8px}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
 </body></html>
