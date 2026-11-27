@@ -2110,9 +2110,9 @@ function go(name){if(g('field-workspace').hidden)g('field-welcome-start').click(
 routes.forEach(([label,name])=>btn(choices,label,()=>go(name)));
 const entryDetails=document.createElement('details');entryDetails.id='ux-entry-choices';node(entryDetails,'summary','Start at a specific activity (optional)');g('field-welcome-start').after(entryDetails);entryDetails.append(entry);
 const context=region('ux-context','What can I do here?');
-const help=node(context,'p','');node(context,'p','Keep a backup before switching devices. This notebook is not a Moodle submission.');
+const help=node(context,'p','');help.id='ux-context-guidance';
 g('field-subnav').after(context);
-const guidance={begin:'Start with your own words. An encounter is a lived experience or observation that raises a question.',explore:'A concept is an idea that helps name a pattern. A lens is a way of interpreting that pattern. Suggestions are possible connections, not conclusions; keep only what fits your experience.',search:'Combine ideas with AND to narrow a search, OR to include alternatives, and NOT carefully to exclude a term. Search the library database, then read the actual source.',read:'A suggested source is a starting point, not evidence until you read it. Use the library to locate the full text.',journal:'Record the author’s idea, a passage and its page or time, and your own response. A PDF on your shelf is not automatically read or analyzed.',return:'Observation means what you noticed. Interpretation means what you think it means. Significance means why it matters beyond the original moment. Your thesis can change.',biblio:'An annotation explains a source’s argument, usefulness and relationship to your inquiry. Check citation details against the original source.',writing:'Synthesis means bringing your experience and sources into conversation. Ask where they agree, differ, or change your understanding.'};
+const guidance={begin:'Start with your own words. An encounter is a lived experience or observation that raises a question.',explore:'A concept is an idea that helps name a pattern. A lens is a way of interpreting that pattern. Suggestions are possible connections, not conclusions; keep only what fits your experience. You can go directly to research without choosing a lens.',search:'Combine ideas with AND to narrow a search, OR to include alternatives, and NOT carefully to exclude a term. Build a search first, then use Explore alternative searches or report your search outcome to find a different route.',read:'A suggested source is a starting point, not evidence until you read it. Use the library to locate the full text. Save a source to the Reading Journal when you want to return to it.',journal:'Record the author’s idea, a passage and its page or time, and your own response. A PDF on your shelf is not automatically read or analyzed. Ask what the passage illuminates, complicates or changes in your thinking.',return:'Observation means what you noticed. Interpretation means what you think it means. Significance means why it matters beyond the original moment. Your thesis can change. Use the floor example or review your own wording when you want a question.',biblio:'An annotation explains a source’s argument, usefulness and relationship to your inquiry. Check citation details against the original source. Begin with one source; return to the research path overview when you see how the sources relate.',writing:'Synthesis means bringing your experience and sources into conversation. Ask where they agree, differ, or change your understanding. To think about a particular paragraph, select it and use Reflect on a passage. To revisit evidence, open the optional draft aids below your editor.'};
 const evidence=region('ux-evidence','Bring your reading into your writing');
 node(evidence,'p','Choose a saved Reading Journal entry to view its passage, source and your response beside your draft. Nothing is inserted into your essay automatically.');
 const label=node(evidence,'label','Choose a reading note');label.htmlFor='ux-note-select';const select=node(evidence,'select','');select.id='ux-note-select';select.style.maxWidth='100%';const output=node(evidence,'div','');output.setAttribute('aria-live','polite');
@@ -3202,7 +3202,23 @@ function setCarriedInquiryPractice(next){
  const utility=document.createElement('details');utility.id='field-notebook-utilities';utility.className='no-print';const summary=document.createElement('summary');summary.textContent='Notebook files and help';utility.append(summary);
  const shortcuts=workspace.querySelector('.field-workspace-shortcuts');if(shortcuts)utility.append(shortcuts);
  for(const node of [...compass.querySelectorAll(':scope > .field-privacy')])utility.append(node);
- const context=g('ux-context');if(context){const guidance=document.createElement('details');guidance.id='field-context-help';const title=document.createElement('summary');title.textContent='Help with this activity';guidance.append(title,context);support.append(guidance);}
+ const context=g('ux-context');if(context){
+  // One existing disclosure travels to the activity; no new menu or unsolicited prompt.
+  const guidance=document.createElement('details');guidance.id='field-context-help';guidance.className='no-print';
+  const title=document.createElement('summary');guidance.append(title,context);
+  const questions={explore:'Not sure which concepts to follow?',search:'Need help finding useful search terms?',read:'Not sure how to choose a source?',journal:'Not sure what to do with a passage?',return:'Need help developing your thesis?',biblio:'Not sure what belongs in an annotation?',writing:'Need help connecting experience and sources?'};
+  let active='';
+  function locate(name){
+   const panel=g('page-'+name),h=panel?.querySelector('h2');if(!h)return;
+   if(active!==name){guidance.open=false;active=name;}
+   // Freewriting already has its own starting-help disclosure and question button.
+   guidance.hidden=name==='begin';title.textContent=questions[name]||'Help with this activity';
+   const anchor=h.closest('.studio-head,.writing-head')||h;
+   anchor.after(guidance);
+  }
+  window.addEventListener('field:tabchange',e=>locate(e.detail.name));
+  locate(workspace.querySelector('.field-original-nav [aria-selected="true"]')?.dataset.tab||'begin');
+ }
  support.append(utility);
  const back=document.createElement('button');back.type='button';back.id='field-return-current';back.className='secondary';back.textContent='Return to my current activity';
  function returnToCurrent(){const selected=workspace.querySelector('.field-original-nav [aria-selected="true"]');const panel=selected&&g(selected.getAttribute('aria-controls'));if(!panel||panel.classList.contains('hidden'))return;const target=panel.id==='page-writing'?g('ws-essay-rich'):panel.querySelector('h2');if(!target)return;if(panel.id!=='page-writing')target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}
@@ -3243,7 +3259,8 @@ function setCarriedInquiryPractice(next){
 @media(max-width:360px){#field-workspace .field-space-nav{grid-template-columns:repeat(2,minmax(0,1fr))}#field-workspace .field-activity-entry{padding:.5rem}#page-writing .ws-rich-editor{padding:.55rem;min-height:260px;max-height:none}#field-workspace .ws-inline-actions select{min-width:0;width:100%}}
 @media(prefers-reduced-motion:reduce){#field-workspace *,#field-welcome *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 @media(forced-colors:active){#field-workspace :focus-visible,#field-welcome :focus-visible,#skip-current-activity:focus-visible{outline:3px solid Highlight!important;outline-offset:3px}#field-workspace [aria-pressed="true"],#field-workspace [aria-current="page"]{border:2px solid Highlight!important}}
-#page-writing > .writing-head > .eyebrow{color:#3d6956}
+#page-writing > .writing-head > .eyebrow,#page-biblio > .writing-head > .eyebrow{color:#3d6956}
+#field-context-help{margin:.35rem 0 .6rem}#field-context-help[hidden]{display:none!important}#field-context-help>summary{font-size:.9rem;color:#245d4c;font-weight:650}#field-context-help #ux-context{margin:0;padding:.65rem}#field-context-help #ux-context-title{font-size:1rem;margin:.1rem 0}
 #field-return-current{min-height:44px;margin:.3rem 0 .6rem}
 @media(forced-colors:active){#field-workspace :focus,#field-welcome :focus,#skip-current-activity:focus{outline:3px solid Highlight!important;outline-offset:3px}}
 </style>
