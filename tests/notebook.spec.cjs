@@ -606,7 +606,7 @@ test('returning student may pick up a thread or continue without it',async({page
  const thread=page.locator('#field-resume-thread'),portrait=page.locator('#living-inquiry-portrait'),choice=page.locator('#field-resume-thread-choice');
  const threadText=thread.locator('.field-resume-thread-text'),question='What changes when I listen before interpreting the creek?';
  await expect(thread).toBeHidden();
- await portrait.locator('summary').click();await portrait.locator('#portrait-question').fill(question);await portrait.locator('#portrait-save').click();
+ await portrait.locator(':scope > summary').click();await portrait.locator('#portrait-question').fill(question);await portrait.locator('#portrait-save').click();
  await expect(thread.locator('summary')).toBeVisible();await expect(thread).not.toHaveAttribute('open','');await expect(threadText).toBeEmpty();
  await thread.locator('summary').click();await expect(threadText).toHaveText(question);
  await thread.getByRole('button',{name:'Continue without this',exact:true}).click();await expect(thread).not.toHaveAttribute('open','');await expect(threadText).toBeEmpty();
@@ -627,7 +627,7 @@ test('returning student may pick up a thread or continue without it',async({page
  await thread.locator('summary').click();await choice.selectOption('discovery');await expect(threadText).toHaveText('An unfinished reflection about a bird.');
  await thread.getByRole('button',{name:'Revisit in my notebook',exact:true}).click();
  await expect(page.locator('#ic-trail-history')).toBeFocused();
- if(!(await portrait.evaluate(e=>e.open)))await portrait.locator('summary').click();
+ if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
  await portrait.locator('#portrait-status').selectOption('aside');await portrait.locator('#portrait-save').click();
  await thread.locator('summary').click();await expect(choice.locator('option[value="question"]')).toHaveCount(0);
  await expect(threadText).not.toHaveText(question);await expect(editor).toHaveText('My synthetic draft.');
@@ -655,7 +655,7 @@ test('developmental comparison is voluntary, read-only, and grounded in student 
  }
  await restore(data);
  const portrait=page.locator('#living-inquiry-portrait'),panel=page.locator('#portrait-compare-thinking');
- if(!(await portrait.evaluate(e=>e.open)))await portrait.locator('summary').first().click();
+ if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
  await expect(panel).not.toHaveAttribute('open','');
  await panel.locator('summary').first().click();
  const a=page.locator('#thinking-piece-0'),b=page.locator('#thinking-piece-1');
@@ -682,7 +682,7 @@ test('developmental comparison is voluntary, read-only, and grounded in student 
  await a.selectOption('version:0');await b.selectOption('current-thesis');
  await restore({...data,fields:{...data.fields,assumption:'New notebook assumption','thesis-draft':'New notebook draft'},thesisVersions:[],intellectualTrail:[]});
  await expect(panel).not.toHaveAttribute('open','');
- if(!(await portrait.evaluate(e=>e.open)))await portrait.locator('summary').first().click();
+ if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
  await panel.locator('summary').first().click();await expect(a).toHaveValue('');await expect(b).toHaveValue('');
  await expect(a.locator('option[value="version:0"]')).toHaveCount(0);
  await a.selectOption('current-thesis');await expect(panel.getByRole('article',{name:'First piece selected'})).toContainText('New notebook draft');
@@ -721,7 +721,7 @@ await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact
 await page.locator('#what').fill('Fireflies stop flashing near a possible threat.');
 await page.locator('#lts-build').getByRole('button',{name:'Review my observation',exact:true}).click();
 const portrait=page.locator('#living-inquiry-portrait');
-await portrait.locator('summary').click();
+await portrait.locator(':scope > summary').click();
 await expect(portrait).toContainText('Fireflies stop flashing near a possible threat.');
 await expect(portrait).toContainText('Threat and perception');
 await portrait.locator('#portrait-question').fill('What distinguishes perception from intention?');
@@ -730,11 +730,11 @@ await portrait.locator('#portrait-save').click();
 await expect(portrait.locator('#portrait-message')).toContainText('saved');
 for(const space of ['discover','research','write','thesis']){
 await page.locator('[data-field-space="'+space+'"]').click();
-await expect(portrait.locator('summary')).toBeVisible();
+await expect(portrait.locator(':scope > summary')).toBeVisible();
 }
 await page.reload({waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
-if(!(await portrait.evaluate(e=>e.open)))await portrait.locator('summary').click();
+if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
 await expect(portrait.locator('#portrait-question')).toHaveValue('What distinguishes perception from intention?');
 await expect(portrait.locator('#portrait-status')).toHaveValue('reconsidered');
 expect(errors).toEqual([]);
