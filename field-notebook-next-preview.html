@@ -2734,16 +2734,17 @@ function setCarriedInquiryPractice(next){
  function possibleConnection(anchor,records,rejected=new Set()){
   if(!anchor||anchor.excludeSuggestion)return null;
   const stop=new Set('about above across after again almost already also always another around because before being between both could different during early enough every first found from going great have having here into itself just kind know last later learn learned like made make many might more most much need never next noticed often once only other over part people place really same seem several should since some something still than that their them then there these they thing things think thinking this those thought through time together under understanding upon very want ways were what when where which while will with within without words world would years nature natural relationship relationships connection connections change changes experience experiences research source sources evidence question questions meaning important'.split(' '));
-  const words=text=>String(text).replace(/“[^”]*”|"[^"\n]*"|‘[^’]*’/g,' | ').toLowerCase().match(/[a-z]{4,}|\|/g)||[];
+  const words=text=>String(text).replace(/“[^”]*”|"[^"\n]*"|‘[^’]*’|(^|[\s(:,])'(?:[^'\n]|'(?![\s,.!?;:]|$))*'(?=[\s,.!?;:]|$)/g,' | ').toLowerCase().match(/[a-z]+|[^\s]/g)||[];
+  const useful=w=>/^[a-z]{4,}$/.test(w)&&!stop.has(w);
   const features=record=>{
    const tokens=new Set(),phrases=new Set();
    for(const section of record.sections||[]){
     if(section.label==='Source locator')continue;
     const seq=words(section.text);
     for(let i=0;i<seq.length;i++){
-     const w=seq[i];if(w==='|'||stop.has(w))continue;
+     const w=seq[i];if(!useful(w))continue;
      tokens.add(w);const next=seq[i+1];
-     if(next&&next!=='|'&&!stop.has(next))phrases.add(w+' '+next);
+     if(next&&useful(next))phrases.add(w+' '+next);
     }
    }
    return {tokens,phrases};
@@ -2751,7 +2752,7 @@ function setCarriedInquiryPractice(next){
   const a=features(anchor),normalized=r=>r.sections.filter(x=>x.label!=='Source locator').map(x=>x.text.trim()).join('\n');
   const candidates=[];
   for(const r of records){
-   if(r.id===anchor.id||r.excludeSuggestion||rejected.has(r.id)||r.group===anchor.group||normalized(r)===normalized(anchor))continue;
+   if(r.id===anchor.id||r.excludeSuggestion||rejected.has(r.id)||(r.group===anchor.group&&r.group!=='Current notebook entries')||normalized(r)===normalized(anchor))continue;
    const b=features(r),shared=[...a.tokens].filter(w=>b.tokens.has(w)),phrases=[...a.phrases].filter(w=>b.phrases.has(w));
    if(!phrases.length&&shared.length<3)continue;
    candidates.push({record:r,phrases:phrases.slice(0,2),shared:shared.slice(0,5),strength:phrases.length?2:1});
