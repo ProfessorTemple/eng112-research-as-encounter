@@ -1,0 +1,3 @@
+# Development record
+## 2026-11-26 — audit baseline
+Experimental 9.6: commit ff38e03aa809f07ea13dcb8cd51742499c273e14, HTML blob 304a3fb82c38618d1e67072abda22eef9338b829 verified via repository read. Includes search refinement, Lexicon, Inquiry Companion and reading shelf access changes. Earlier commits are not evidence of browser success. Student screenshots revealed unclear save feedback, restrictive searches, indirect library links, note navigation and unclear Lexicon actions. Full browser, accessibility and export verification pending. Production untouched. Freeze feature expansion until audit.
