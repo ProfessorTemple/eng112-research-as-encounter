@@ -1,0 +1,74 @@
+[
+  {
+    "id": "material-agency",
+    "family": "more-than-human relationships",
+    "description": "Materials and physical environments participate in shaping human actions.",
+    "anchors": [
+      "The clay resisted my hands.",
+      "The properties of a material shape what a maker can do.",
+      "Water currents change how people move."
+    ],
+    "question": "What did the material contribute to the encounter?",
+    "caution": "Do not equate physical influence with conscious intention."
+  },
+  {
+    "id": "inheritance",
+    "family": "cultural inheritance",
+    "description": "Knowledge and practices pass between generations and change through lived use.",
+    "anchors": [
+      "My mother taught me to save seeds.",
+      "An elder shared a practice learned in childhood.",
+      "Intergenerational transmission preserves and transforms knowledge."
+    ],
+    "question": "What was transmitted besides the practical skill?",
+    "caution": "Do not assume a shared cultural tradition without evidence."
+  },
+  {
+    "id": "care-labor",
+    "family": "power and ethics",
+    "description": "Caregiving and maintenance can sustain relationships while remaining socially overlooked.",
+    "anchors": [
+      "My brother spent years looking after our father.",
+      "Unpaid caregiving sustains communities.",
+      "Daily maintenance makes other people's work possible."
+    ],
+    "question": "Whose effort makes this relationship possible, and how is it recognized?",
+    "caution": "Do not assume exploitation or sacrifice."
+  },
+  {
+    "id": "situated-perception",
+    "family": "perception",
+    "description": "Attention and bodily capacities shape what an observer notices.",
+    "anchors": [
+      "I heard sounds I had overlooked.",
+      "Animals perceive different environmental cues.",
+      "Attentiveness changes environmental perception."
+    ],
+    "question": "What changed in your attention, and what might another observer notice?",
+    "caution": "Distinguish observation from inference."
+  },
+  {
+    "id": "place-identity",
+    "family": "memory and place",
+    "description": "Relationships with places can participate in identity and belonging.",
+    "anchors": [
+      "Leaving the island felt like losing part of myself.",
+      "Place attachment shapes identity.",
+      "Returning home changes one's understanding of belonging."
+    ],
+    "question": "How has this place participated in who you are becoming?",
+    "caution": "Do not assume everyone experiences belonging in the same way."
+  },
+  {
+    "id": "epistemic-restraint",
+    "family": "uncertainty",
+    "description": "Evidence may support multiple interpretations without establishing intention or causation.",
+    "anchors": [
+      "I cannot tell whether the dog meant to comfort me.",
+      "Observable behavior alone cannot establish intention.",
+      "Several explanations remain possible."
+    ],
+    "question": "What can your evidence establish, and what remains open?",
+    "caution": "Never infer agreement, intent or causation from similarity alone."
+  }
+]
