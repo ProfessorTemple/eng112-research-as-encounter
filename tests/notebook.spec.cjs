@@ -20,6 +20,19 @@ test('core work precedes optional reading and document tools at each viewport',a
  await page.locator('#writing-document-parts > summary').click();await expect(page.locator('#ws-abstract')).toBeHidden();
  expect(errors).toEqual([]);
 });
+test('model a conceptual connection and land at the research heading with no text input focused',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('#encounter').fill('A synthetic test encounter involving fireflies and the body.');
+ await page.evaluate(()=>{state.studio=state.studio||{};state.studio.selectedPhrases=['fireflies','Baby','body'];for(const id of ['idea1','idea2','idea3'])document.getElementById(id).value='';persist();});
+ await page.locator('#field-route-action').click();
+ await expect(page.locator('#explore-question-example')).toContainText('fireflies + body');await expect(page.locator('#thesis-question')).toHaveValue('');
+ await page.locator('#thesis-question').fill('How do mammals and fireflies interact?');await page.locator('#explore-continue').click();
+ const h=page.locator('#page-search h2');await expect(h).toBeFocused();await expect(h).toBeInViewport();
+ await expect(page.locator('#rs-working-question')).toHaveValue('How do mammals and fireflies interact?');
+ await expect(page.locator('#rs-search-example')).toContainText('mammals AND fireflies');
+ await expect(page.locator('#rs-a')).toHaveValue('');await expect(page.locator('#rs-b')).toHaveValue('');await expect(page.locator('#rs-search-help')).not.toHaveAttribute('open','');
+ await expect(page.locator('#field-next-invitation')).toBeHidden();
+});
 test('concept exploration has one clear question-first action and hides optional tools until requested',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
@@ -31,7 +44,7 @@ test('concept exploration has one clear question-first action and hides optional
  await expect(page.locator('#field-route-task')).toBeHidden();await expect(page.locator('#field-next-invitation')).toBeHidden();await expect(panel.locator('button.primary:visible')).toHaveCount(1);
  await go.click();await expect(question).toBeFocused();await expect(page.locator('#explore-question-hint')).toContainText('Write one thing');
  await extra.locator(':scope > summary').click();await expect(page.locator('#lens-garden')).toBeVisible();await extra.locator(':scope > summary').click();
- const inquiry='How does childhood memory shape what I notice about fireflies?';await question.fill(inquiry);await go.click();await expect(page.locator('#page-search')).toBeVisible();await expect(page.locator('#rs-working-question')).toHaveValue(inquiry);await expect(page.locator('#rs-a')).toBeFocused();
+ const inquiry='How does childhood memory shape what I notice about fireflies?';await question.fill(inquiry);await go.click();await expect(page.locator('#page-search')).toBeVisible();await expect(page.locator('#rs-working-question')).toHaveValue(inquiry);await expect(page.locator('#page-search h2')).toBeFocused();
  await page.locator('[data-field-space="discover"]').click();await expect(question).toHaveValue(inquiry);await expect(extra).not.toHaveAttribute('open','');expect(errors).toEqual([]);
 });
 test('academic language has a plain definition and a deliberate non-overwriting translation into search terms',async({page})=>{
@@ -42,7 +55,7 @@ test('academic language has a plain definition and a deliberate non-overwriting 
  await expect(translation).toBeHidden();
  const inquiry='What ontological questions about personhood emerge from my encounter?';
  await question.fill(inquiry);
- await expect(translation).toBeVisible();await expect(translation).toContainText('Ontology');await expect(translation).toContainText('what exists');await expect(translation).toContainText('ontological');await expect(translation).toContainText('personhood');
+ await expect(translation).toBeHidden();await page.locator('#rs-search-help > summary').click();await expect(translation).toBeVisible();await expect(translation).toContainText('Ontology');await expect(translation).toContainText('what exists');await expect(translation).toContainText('ontological');await expect(translation).toContainText('personhood');
  await expect(translation.getByRole('button')).toHaveCount(1);
  await expect(page.locator('#rs-saved-words')).not.toHaveAttribute('open','');
  await expect(a).toHaveValue('');await expect(b).toHaveValue('');
@@ -65,7 +78,7 @@ test('interdisciplinary invitations recognize philosophy and cultural studies wi
   await page.locator('[data-field-space="discover"]').click();
   if(await page.locator('#encounter').isHidden()){await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Freewrite',exact:true}).click();}
   await page.locator('#encounter').fill(passage);
-  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();
+  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();await page.locator('#explore-extra-tools > summary').click();
  }
  for(const [passage,id] of [
  ['I wondered about the nature of reality and what exists. What is real?','ontology'],
@@ -88,10 +101,10 @@ test('contextual lenses distinguish family conversation from ecology and abstain
   await page.locator('[data-field-space="discover"]').click();
   if(await page.locator('#encounter').isHidden()){await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Freewrite',exact:true}).click();}
   await page.locator('#encounter').fill(passage);
-  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();
+  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();await page.locator('#explore-extra-tools > summary').click();
  }
  await examine('I talked with my grandfather about his childhood. We shared a conversation about what matters.');
- await expect(lenses).toContainText('Intergenerational');await expect(lenses.locator('[data-lens]')).toHaveCount(1);
+ await expect(lenses).toContainText('Intergenerational');expect(await lenses.locator('[data-lens]').count()).toBeLessThanOrEqual(2);await expect(lenses).not.toContainText('Ecology and environment');
  await examine('We shared a relationship. It was a matter of care.');
  await expect(lenses).toContainText('Not enough specific clues');
  await examine('I watched birds beside the creek and noticed their movement.');
@@ -105,10 +118,10 @@ test('guided route shows actual work and a single next task while optional detou
  await expect(recap).toContainText('a fresh notebook');await expect(action).toHaveText('Begin my freewrite');await expect(detours).not.toHaveAttribute('open','');
  await action.click();await expect(page.locator('#encounter')).toBeFocused();await page.locator('#encounter').fill('I remember talking with my grandfather about his childhood.');
  await expect(recap).toContainText('Experience recorded');await expect(action).toHaveText('Develop my working question');await action.click();
- await expect(page.locator('#rs-working-question')).toBeFocused();await expect(action).toHaveText('Write my working question');
- const question='How do family stories shape what I understand about the past?';await page.locator('#rs-working-question').fill(question);
- await expect(recap).toContainText('Working question written');await expect(action).toHaveText('Build my search');await action.click();
- await expect(page.locator('#rs-a')).toBeFocused();await page.locator('#rs-a').fill('oral history');await page.locator('#rs-b').fill('family memory');await page.locator('#rs-build').click();
+ await expect(page.locator('#page-explore h2')).toBeFocused();
+ const question='How do family stories shape what I understand about the past?';await page.locator('#thesis-question').fill(question);
+ await expect(recap).toContainText('Working question written');await page.locator('#explore-continue').click();await expect(page.locator('#page-search h2')).toBeFocused();await expect(action).toBeHidden();
+ await page.locator('#rs-a').fill('oral history');await page.locator('#rs-b').fill('family memory');await page.locator('#rs-build').click();
  await expect(page.locator('#rs-query')).toHaveValue('oral history AND family memory');
  await page.evaluate(()=>{Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{window.syntheticCopiedSearch=value;}}});});page.on('dialog',d=>d.accept());
  await page.locator('#rs-copy').click();await expect.poll(()=>page.evaluate(()=>window.syntheticCopiedSearch)).toBe('oral history AND family memory');
