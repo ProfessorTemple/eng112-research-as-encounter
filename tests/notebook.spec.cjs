@@ -207,6 +207,9 @@ for(const [name,phrase] of [['Extends','new dimension'],['Complicates','qualific
  await result.getByRole('button',{name,exact:true}).click();
  await expect(result).toContainText(phrase);
 }
+await companion.getByRole('button',{name:'Refresh my inquiry companion',exact:true}).click();
+await expect(observation).toBeChecked();
+await expect(result).toContainText('leave this discovery out');
 await observation.uncheck();
 await expect(result).toBeEmpty();
 await input.fill('I prefer not to share this memory.');
