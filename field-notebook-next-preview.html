@@ -2594,6 +2594,30 @@ for(const id of ['abstract','conclusion']){
 })();
 </script><style>#field-resume-draft{margin:.4rem 0;min-height:44px}#ws-draft-aids{margin:.8rem 0}#ws-draft-aids summary{cursor:pointer;min-height:44px;padding:.5rem 0}#ws-reflect-selected{min-height:44px}#ws-essay-rich{scroll-margin-top:1rem}</style>
 <script>
+const inquiryPracticeOptions=[
+ {id:'attention',label:'Attending to a scene or sensory detail',notice:'Which particular detail changed or clarified what you noticed?',stretch:'Consider a different explanation for that detail. What observation would help you distinguish the two interpretations?',action:'Distinguish explanations'},
+ {id:'memory',label:'Returning to a memory or experience',notice:'What did returning to the experience help you notice that you had missed?',stretch:'Bring in a source or another perspective that does not quite fit your memory. What changes when you hold both accounts together?',action:'Complicate an interpretation'},
+ {id:'dialogue',label:'Listening to someone or exchanging ideas',notice:'Which question, response or difference helped you reconsider your understanding?',stretch:'Compare the context and evidence behind the two perspectives. Where do they illuminate different parts of the inquiry without cancelling each other?',action:'Compare perspectives and evidence'},
+ {id:'reading',label:'Reading closely or investigating a source',notice:'Which specific passage or finding made a difference to your thinking?',stretch:'Return to an actual encounter. What does the source help you interpret, and what in the encounter exceeds or challenges its explanation?',action:'Synthesize source and experience'},
+ {id:'imagery',label:'Exploring an image, metaphor or relationship',notice:'What did the image or connection let you express that was difficult to say otherwise?',stretch:'Name what the comparison reveals and where it stops working. What claim can you support without treating a metaphor as proof?',action:'Examine the limits of an analogy'},
+ {id:'tension',label:'Noticing a contradiction or unresolved question',notice:'Which tension made you pause or reconsider what you thought you knew?',stretch:'Try articulating two plausible interpretations in your own words. What evidence would support each, and what can remain unresolved?',action:'Evaluate competing interpretations'},
+ {id:'making',label:'Writing, sketching, mapping or trying something',notice:'What did the act of making help you discover that planning alone did not?',stretch:'Use what you made to explain a relationship to a reader. Which detail supports the interpretation, and which remains uncertain?',action:'Turn discovery into supported meaning'},
+ {id:'language',label:'Trying different words or distinctions',notice:'Which word or distinction helped you express your understanding more precisely?',stretch:'Test that distinction against an encounter and a source. Does it clarify both, or does one require a qualification?',action:'Test a conceptual distinction'},
+ {id:'other',label:'Something else, or I am not sure yet',notice:'What, if anything, helped you come to understand the material differently?',stretch:'Try another practice that suits your question, such as revisiting an observation or checking a source. Notice what it contributes without expecting a particular result.',action:'Experiment with another approach'}
+ ];
+
+function carriedInquiryPractice(project){
+ const saved=project?.carriedInquiryPractice;
+ const practice=inquiryPracticeOptions.find(p=>p.id===saved?.id);
+ return practice&&['try','reflect'].includes(saved.phase)?{practice,phase:saved.phase}:null;
+}
+function setCarriedInquiryPractice(next){
+ const prior=state.carriedInquiryPractice;
+ if(next)state.carriedInquiryPractice=next;else delete state.carriedInquiryPractice;
+ if(persist())return true;
+ if(prior===undefined)delete state.carriedInquiryPractice;else state.carriedInquiryPractice=prior;
+ return false;
+}
 (function(){
  'use strict';
  const g=id=>document.getElementById(id),anchor=g('field-resume-draft');if(!anchor)return;
@@ -2605,6 +2629,10 @@ for(const id of ['abstract','conclusion']){
  const select=make('select','',choices);select.id='field-resume-thread-choice';
  const heading=make('strong','',panel),quote=make('p','',panel);quote.className='field-resume-thread-text';
  const revisit=make('button','Revisit in my notebook',panel);revisit.type='button';revisit.className='secondary';
+ const tried=make('button','I tried this approach',panel);tried.type='button';tried.className='secondary';tried.hidden=true;
+ const retire=make('button','I can use this independently',panel);retire.type='button';retire.className='secondary';retire.hidden=true;
+ const aside=make('button','Set this invitation aside',panel);aside.type='button';aside.className='secondary';aside.hidden=true;
+ const status=make('p','',panel);status.setAttribute('role','status');
  const dismiss=make('button','Continue without this',panel);dismiss.type='button';dismiss.className='secondary';
  anchor.after(panel);
  let items=[],signature='',owner=state;
@@ -2615,12 +2643,15 @@ for(const id of ['abstract','conclusion']){
   if(typeof working==='string'&&working.trim())out.push({kind:'unfinished',label:'My unfinished reflection',text:working});
   const last=cleanIntellectualTrail(state.intellectualTrail).at(-1);
   if(last&&last.relationship!=='Does not belong')out.push({kind:'discovery',label:'My most recently saved discovery',text:last.text});
+  const carried=carriedInquiryPractice(state);
+  if(carried){const {practice,phase}=carried;out.push({kind:'practice',label:'A thinking practice I chose',phase,id:practice.id,text:phase==='try'?practice.action+': '+practice.stretch:'You tried '+practice.action.toLowerCase()+'. Where else might this way of thinking help you investigate a different question? What would you adapt to that new situation?'});}
   return out;
  }
- function clear(){choices.hidden=true;select.replaceChildren();heading.textContent='';quote.textContent='';items=[];signature='';}
+ function clear(){choices.hidden=true;select.replaceChildren();heading.textContent='';quote.textContent='';items=[];signature='';status.textContent='';tried.hidden=retire.hidden=aside.hidden=true;}
  function show(){
   const item=items.find(x=>x.kind===select.value)||items[0];
   heading.textContent=item?.label||'';quote.textContent=item?.text||'';revisit.hidden=!item;
+  const isPractice=item?.kind==='practice';revisit.textContent=isPractice?'Return to my draft':'Revisit in my notebook';tried.hidden=!isPractice||item.phase!=='try';retire.hidden=aside.hidden=!isPractice;status.textContent='';
  }
  function refresh(){
   if(owner!==state){owner=state;panel.open=false;clear();}
@@ -2634,11 +2665,20 @@ for(const id of ['abstract','conclusion']){
   choices.hidden=items.length<2;show();
  }
  select.addEventListener('change',show);
+ function changePractice(phase){
+  const current=carriedInquiryPractice(state);if(!current)return;
+  if(!setCarriedInquiryPractice(phase?{id:current.practice.id,phase}:null)){status.textContent='Browser saving failed. Your previous choice is unchanged.';return;}
+  if(phase){status.textContent='You can consider applying this practice in another context, or leave it here.';retire.focus();}
+  else{panel.open=false;const target=panel.hidden?anchor:panel.querySelector('summary');if(!target.hidden)target.focus();else g('field-section-title').focus();}
+ }
+ tried.addEventListener('click',()=>changePractice('reflect'));
+ retire.addEventListener('click',()=>changePractice(null));aside.addEventListener('click',()=>changePractice(null));
  panel.addEventListener('toggle',refresh);
  dismiss.addEventListener('click',()=>{panel.open=false;panel.querySelector('summary').focus();});
  revisit.addEventListener('click',()=>{
   const item=items.find(x=>x.kind===select.value)||items[0];if(!item)return;
   panel.open=false;
+  if(item.kind==='practice'){anchor.click();return;}
   if(item.kind==='question'){
    const portrait=g('living-inquiry-portrait'),question=g('portrait-question');if(!portrait||!question)return;
    portrait.open=true;question.focus({preventScroll:true});question.scrollIntoView({block:'center',behavior:'auto'});
@@ -2698,17 +2738,7 @@ for(const id of ['abstract','conclusion']){
  prompts.hidden=true;
  // Student-selected inquiry practices are situational, not learner categories.
  // Each invitation moves from a familiar practice toward a different intellectual operation.
- const practices=[
- {id:'attention',label:'Attending to a scene or sensory detail',notice:'Which particular detail changed or clarified what you noticed?',stretch:'Consider a different explanation for that detail. What observation would help you distinguish the two interpretations?',action:'Distinguish explanations'},
- {id:'memory',label:'Returning to a memory or experience',notice:'What did returning to the experience help you notice that you had missed?',stretch:'Bring in a source or another perspective that does not quite fit your memory. What changes when you hold both accounts together?',action:'Complicate an interpretation'},
- {id:'dialogue',label:'Listening to someone or exchanging ideas',notice:'Which question, response or difference helped you reconsider your understanding?',stretch:'Compare the context and evidence behind the two perspectives. Where do they illuminate different parts of the inquiry without cancelling each other?',action:'Compare perspectives and evidence'},
- {id:'reading',label:'Reading closely or investigating a source',notice:'Which specific passage or finding made a difference to your thinking?',stretch:'Return to an actual encounter. What does the source help you interpret, and what in the encounter exceeds or challenges its explanation?',action:'Synthesize source and experience'},
- {id:'imagery',label:'Exploring an image, metaphor or relationship',notice:'What did the image or connection let you express that was difficult to say otherwise?',stretch:'Name what the comparison reveals and where it stops working. What claim can you support without treating a metaphor as proof?',action:'Examine the limits of an analogy'},
- {id:'tension',label:'Noticing a contradiction or unresolved question',notice:'Which tension made you pause or reconsider what you thought you knew?',stretch:'Try articulating two plausible interpretations in your own words. What evidence would support each, and what can remain unresolved?',action:'Evaluate competing interpretations'},
- {id:'making',label:'Writing, sketching, mapping or trying something',notice:'What did the act of making help you discover that planning alone did not?',stretch:'Use what you made to explain a relationship to a reader. Which detail supports the interpretation, and which remains uncertain?',action:'Turn discovery into supported meaning'},
- {id:'language',label:'Trying different words or distinctions',notice:'Which word or distinction helped you express your understanding more precisely?',stretch:'Test that distinction against an encounter and a source. Does it clarify both, or does one require a qualification?',action:'Test a conceptual distinction'},
- {id:'other',label:'Something else, or I am not sure yet',notice:'What, if anything, helped you come to understand the material differently?',stretch:'Try another practice that suits your question, such as revisiting an observation or checking a source. Notice what it contributes without expecting a particular result.',action:'Experiment with another approach'}
- ];
+ const practices=inquiryPracticeOptions;
  const practice=make('details','',panel);practice.id='thinking-practice-bridge';make('summary','How did I come to understand this? (optional)',practice);
  make('p','Think about the pieces you chose. Which practice helped you understand something in this particular inquiry? You may choose differently another time, or skip this entirely.',practice);
  const practiceLabel=make('label','What helped me here?',practice),practiceChoice=make('select','',practice);practiceChoice.id='thinking-practice-choice';practiceLabel.htmlFor=practiceChoice.id;
@@ -2716,20 +2746,29 @@ for(const id of ['abstract','conclusion']){
  const practiceNotice=make('p','',practice);practiceNotice.setAttribute('role','status');
  const stretch=make('button','Try a different intellectual move',practice);stretch.type='button';stretch.className='secondary';stretch.hidden=true;
  const stretchText=make('div','',practice);stretchText.setAttribute('role','status');
+ const carry=make('button','Keep this invitation for later',practice);carry.type='button';carry.className='secondary';carry.hidden=true;
+ const carryStatus=make('p','',practice);carryStatus.setAttribute('role','status');
+ carry.addEventListener('click',()=>{
+  const item=practices.find(p=>p.id===practiceChoice.value);if(!item)return;
+  const current=carriedInquiryPractice(state);
+  if(current?.practice.id===item.id){carryStatus.textContent='This invitation is already in Pick up a thread.';return;}
+  if(current&&!confirm('Replace your previous optional thinking invitation? Your writing and discoveries will stay unchanged.'))return;
+  carryStatus.textContent=setCarriedInquiryPractice({id:item.id,phase:'try'})?'Kept in Pick up a thread. Revisit it only when it helps.':'Browser saving failed. Your previous choice is unchanged.';
+ });
  const record=make('button','Record what I learned in my intellectual trail',practice);record.type='button';record.className='secondary';record.hidden=true;
  record.addEventListener('click',()=>{
   practice.open=false;panel.open=false;
   if(g('page-writing').classList.contains('hidden'))tab('writing');
   requestAnimationFrame(()=>document.querySelector('section[aria-label="My Inquiry Companion"]')?.dispatchEvent(new CustomEvent('field:revisit-trail',{detail:{kind:'unfinished'}})));
  });
- function resetPractice(){practiceChoice.value='';practiceNotice.textContent='';stretchText.replaceChildren();stretch.hidden=true;record.hidden=true;}
+ function resetPractice(){practiceChoice.value='';practiceNotice.textContent='';stretchText.replaceChildren();stretch.hidden=true;record.hidden=true;carry.hidden=true;carryStatus.textContent='';}
  practiceChoice.addEventListener('change',()=>{
-  const item=practices.find(p=>p.id===practiceChoice.value);practiceNotice.textContent=item?.notice||'';stretchText.replaceChildren();stretch.hidden=!item;record.hidden=!item;
+  const item=practices.find(p=>p.id===practiceChoice.value);practiceNotice.textContent=item?.notice||'';stretchText.replaceChildren();stretch.hidden=!item;record.hidden=!item;carry.hidden=true;carryStatus.textContent='';
  });
  stretch.addEventListener('click',()=>{
   const item=practices.find(p=>p.id===practiceChoice.value);if(!item)return;
   stretchText.replaceChildren();make('strong',item.action,stretchText);make('p',item.stretch,stretchText);
-  make('p','Try this only if it serves your inquiry. You can also continue with your own approach.',stretchText);
+  make('p','Try this only if it serves your inquiry. You can also continue with your own approach.',stretchText);carry.hidden=false;
  });
  practice.hidden=true;practice.addEventListener('toggle',()=>{if(!practice.open)resetPractice();});
  const close=make('button','Done looking across my thinking',panel);close.type='button';close.className='secondary';close.addEventListener('click',()=>{panel.open=false;summary.focus();});
