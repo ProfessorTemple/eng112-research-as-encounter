@@ -2449,8 +2449,8 @@ const relation=section('Explore a relationship (optional)',linked);
 make('p','Choose a relationship yourself. This is a question to consider, not a judgment about your writing.',relation);
 const response=make('p','',relation);response.setAttribute('role','status');
 for(const [name,q] of [['Extends','What new dimension does this discovery add to your paragraph?'],['Complicates','What qualification or tension does it introduce?'],['Challenges','Which earlier assumption might need reconsidering, and why?'],['Transforms','How has your understanding changed since this discovery?'],['Connects','What specific detail links the two ideas, and where does the connection stop?'],['Does not belong','You can leave this discovery out. What makes the remaining material more relevant?']]){button(relation,name,()=>{relationSelection={name,passage:t};response.textContent=q;});if(relationSelection?.name===name&&relationSelection.passage===t)response.textContent=q;}
-button(linked,'Keep a discovery in my intellectual trail (optional)',()=>{history.open=true;trailRelation.value=relationSelection?.passage===t?relationSelection.name:'';trailRelationDraft=trailRelation.value;trailInput.focus();});
 }
+button(result,'Keep a discovery in my intellectual trail (optional)',()=>{history.open=true;if(!trailDraft.trim()&&!trailRelationDraft){trailRelation.value=relationSelection?.passage===t?relationSelection.name:'';trailRelationDraft=trailRelation.value;}trailInput.focus();});
 const thesisLink=section('Does this discovery change my thesis? (optional)',result);
 make('p','Only revisit your thesis if this paragraph changes what you notice, understand, or consider significant. Your current thesis may still serve your inquiry.',thesisLink);
 const thesisFeedback=make('div','',thesisLink);thesisFeedback.setAttribute('role','status');
