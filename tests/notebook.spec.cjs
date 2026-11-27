@@ -78,6 +78,28 @@ await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact
 await expect(page.locator('#what')).toHaveValue('I observed fireflies flashing along a road but not near a deer.');
 expect(errors).toEqual([]);
 });
+test('pedagogical lenses across diverse inquiries',async({page})=>{
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="thesis"]').click();
+await page.locator('#lts-nav').getByRole('button',{name:'Build',exact:true}).click();
+await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact:true}).click();
+const feedback=page.locator('.lts-floor-feedback');
+for(const [claim,lens] of [['Fireflies stop flashing near a possible threat.','Threat and perception'],['My grandmother tended the garden throughout my childhood.','Memory and inheritance'],['Weeds are unwanted plants.','Naming and value'],['Silence surrounded me beside the creek.','Attention and absence'],['Ownership gives people control over land.','Power and ownership'],['Reciprocity involves mutual exchange.','Reciprocity']]){
+await page.locator('#what').fill(claim);
+await page.locator('#lts-build').getByRole('button',{name:'Review my observation',exact:true}).click();
+const panel=feedback.locator('details').filter({has:page.locator('summary').filter({hasText:'Beneath the familiar'})});
+await expect(panel).toHaveCount(1);
+await expect(panel).toContainText(lens);
+expect(await panel.locator('strong').count()).toBeLessThanOrEqual(2);
+const before=await panel.textContent();
+await page.locator('#lts-build').getByRole('button',{name:'Review my observation',exact:true}).click();
+await expect(panel).toContainText(lens);
+expect(await panel.textContent()).toBe(before);
+}
+expect(errors).toEqual([]);
+});
 test('lexicon phrase refinement and export',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
