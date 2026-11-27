@@ -214,3 +214,26 @@ for(const {q,ok} of [...relationalCases,...freshRelations]){
  const evidence=specific.filter(r=>r.patterns.every(t=>t.test(q))).map(r=>r.id);
  console.log('SPECIFIC',JSON.stringify({q,ok,split:relationalCases.some(x=>x.q===q)?'development':'fresh',chosen:evidence,hit:evidence.some(x=>ok.includes(x)),abstained:!evidence.length}));
 }
+
+ // Preserve a neutral question when an indirect relationship is plausible.
+const indirect=[
+ {id:'autonomy',patterns:[/\b(not permitted|not allowed|denied access|barred from|no choice|could not enter)\b/i,/\b(we|I|our|us|community|families)\b/i]},
+ {id:'naming',patterns:[/\b(dismissed|overlooked|ignored|took for granted)\b/i,/\b(became|turned out|revealed|discovered|realized)\b/i]}
+];
+const indirectCases=[
+ {q:'Our families were barred from entering the forest where we gathered medicine.',ok:['autonomy']},
+ {q:'The patch of weeds I overlooked turned out to shelter butterflies.',ok:['naming','situated-perception']},
+ {q:'We were denied access to the riverbank after the fence went up.',ok:['autonomy']},
+ {q:'I took for granted the shade until I realized how much cooler it kept our house.',ok:['naming','situated-perception']},
+ {q:'I was not allowed to enter the password twice.',ok:[]},
+ {q:'We had no choice of delivery dates on the order form.',ok:[]},
+ {q:'I ignored the email until I realized it contained the meeting link.',ok:[]},
+ {q:'The dismissed employee became a manager elsewhere.',ok:[]}
+];
+for(const {q,ok} of indirectCases){
+ const v=(await embed([prefix(q,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const neutralMax=Math.max(...nv.map(x=>cosine(v,x)));
+ const candidates=indirect.filter(r=>r.patterns.every(t=>t.test(q))).map(r=>({id:r.id,score:cosine(v,lv[lenses.findIndex(l=>l.id===r.id)])}));
+ const chosen=candidates.filter(x=>x.score>neutralMax).map(x=>x.id);
+ console.log('INDIRECT',JSON.stringify({q,ok,chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
+}
