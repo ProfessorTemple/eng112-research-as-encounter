@@ -86,6 +86,27 @@ test('a beginner can translate a revised question and follow a short database-to
  await expect(page.locator('#page-journal h2')).toBeFocused();
  await expect(page.locator('#page-journal')).toContainText('A passage is a small part of the source');
 });
+test('returning from a library search preserves a batch of discovered keywords and models one next search',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="research"]').click();
+ await page.locator('#rs-working-question').fill('Why do fireflies stop flashing near me?');
+ await page.locator('#rs-build').click();
+ await page.locator('#rs-library-return').click();await expect(page.locator('#rs-return-heading')).toBeFocused();
+ await page.locator('#rs-discovery').fill('Keywords: Anthropogenic effects; communication disruption; intraspecific interaction; interspecific interaction; light pollution; LIGHT POLLUTION');
+ await page.locator('#rs-add').click();
+ await expect(page.locator('#rs-discovery-status')).toContainText('5 keywords');
+ await expect(page.locator('#rs-keyword-next')).toContainText('fireflies AND communication disruption');
+ await expect(page.locator('#rs-query')).toHaveValue('fireflies AND flashing behavior');
+ await page.locator('#rs-keyword-next').getByRole('button',{name:'Build this new search →'}).click();
+ await expect(page.locator('#rs-query')).toHaveValue('fireflies AND communication disruption');
+ await expect(page.locator('#rs-ready-heading')).toBeFocused();
+ expect(await page.evaluate(()=>state.savedSearches.includes('fireflies AND flashing behavior'))).toBeTruthy();
+ expect(await page.evaluate(()=>state.keywordBank.filter(w=>w.toLowerCase()==='light pollution').length)).toBe(1);
+ await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await expect(page.locator('#rs-keyword-next')).toContainText('interspecific interaction');
+ await page.locator('#rs-library-return').click();
+ await page.locator('#rs-bring-article').click();await expect(page.locator('#custom-source-details')).toHaveAttribute('open','');await expect(page.locator('#custom-kind')).toHaveValue('article');
+});
 test('interdisciplinary models explain academic words without making claims or filling in the student question',async({page})=>{
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await page.locator('#encounter').fill('A synthetic encounter exploring personhood and trees.');
