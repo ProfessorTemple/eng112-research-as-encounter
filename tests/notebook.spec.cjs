@@ -653,9 +653,44 @@ test('welcome and writing support stay quiet until deliberately requested',async
  await page.locator('#dismiss-nudge').click();await expect(encounter).toBeFocused();
  await page.locator('[data-field-space="write"]').click();const context=page.locator('#field-context-help');
  await expect(context).not.toHaveAttribute('open','');await expect(page.locator('#ux-context')).toBeHidden();
- await page.locator('#field-revisit-earlier').click();await context.locator(':scope > summary').click();
+ await expect(page.locator('#page-writing #field-context-help')).toBeVisible();await context.locator(':scope > summary').click();
  await expect(context).toContainText('Synthesis means bringing your experience and sources into conversation');
  await page.locator('#field-resume-draft').click();await expect(page.locator('#ws-essay-rich')).toBeFocused();
+});
+test('activity-specific help stays optional and moves with the student without changing their words',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const help=page.locator('#field-context-help');
+ await expect(help).toBeHidden();await expect(page.locator('#ux-start-help')).toBeVisible();
+ const freewrite=page.locator('#encounter');await freewrite.fill('A synthetic observation of changing water.');
+ await page.locator('[data-field-space="research"]').click();
+ const nav=page.locator('#field-subnav');
+ const summary=help.locator(':scope > summary');
+ for(const [label,id,question,phrase] of [
+ ['Build a search','search','Need help finding useful search terms?','Explore alternative searches'],
+ ['Find sources','read','Not sure how to choose a source?','locate the full text'],
+ ['Reading Journal','journal','Not sure what to do with a passage?','A PDF on your shelf'],
+ ['Annotated bibliography','biblio','Not sure what belongs in an annotation?','Begin with one source']
+ ]){
+  await nav.getByRole('button',{name:label,exact:true}).click();
+  await expect(page.locator('#page-'+id+' #field-context-help')).toBeVisible();
+  await expect(help).not.toHaveAttribute('open','');await expect(summary).toHaveText(question);
+  await summary.click();await expect(help).toContainText(phrase);
+ }
+ await page.locator('[data-field-space="thesis"]').click();
+ await expect(page.locator('#page-return #field-context-help')).toBeVisible();
+ await expect(help).not.toHaveAttribute('open','');await expect(summary).toHaveText('Need help developing your thesis?');
+ await page.locator('[data-field-space="write"]').click();
+ await expect(page.locator('#page-writing #field-context-help')).toBeVisible();
+ await expect(help).not.toHaveAttribute('open','');await summary.click();
+ await expect(help).toContainText('Reflect on a passage');
+ const editor=page.locator('#ws-essay-rich');await editor.fill('My independent draft.');
+ await page.locator('[data-field-space="discover"]').click();await expect(freewrite).toHaveValue('A synthetic observation of changing water.');
+ await expect(help).toBeHidden();await expect(help).not.toHaveAttribute('open','');
+ await page.locator('[data-field-space="write"]').click();await expect(editor).toHaveText('My independent draft.');
+ await expect(help).not.toHaveAttribute('open','');await expect(help).toHaveCount(1);
+ expect(errors).toEqual([]);
 });
 test('optional earlier work is a reversible detour and a resumed notebook identifies the activity',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
