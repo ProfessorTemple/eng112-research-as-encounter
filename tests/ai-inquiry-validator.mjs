@@ -11,5 +11,7 @@ export function validateInquiryResponse(value, suppliedText) {
   if(evidence.some(x=>typeof x!=='string'||!x.trim()||x.length>240||!suppliedText.some(t=>t.includes(x)))) return reject('ungrounded evidence');
   if(status==='abstain' && (question!==''||evidence.length!==0)) return reject('abstention format');
   if(status==='question' && (!question.trim().endsWith('?')||(question.match(/\?/g)||[]).length!==1)) return reject('single question required');
+  if(status==='question' && /(?:^|[.!]\s+)(?:the|your) (?:thesis|interpretation|argument|main claim) (?:is|should be)\b/i.test(question)) return reject('explicit answer giving');
+  if(status==='question' && /^(?:here is|here's) (?:your|a) (?:thesis|paragraph|essay)\b/i.test(question.trim())) return reject('explicit answer giving');
   return {ok:true,response:{status,question,evidence:[...evidence],rationale_type}};
 }
