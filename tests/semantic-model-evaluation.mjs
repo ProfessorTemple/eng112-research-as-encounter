@@ -145,3 +145,23 @@ for(const {q,ok} of contrastCases){
  const chosen=ranked.slice(0,2).filter(x=>x.score>=threshold&&x.score>neutralMax+margin&&anchor.slice(0,3).some(y=>y.id===x.id)).slice(0,1).map(x=>x.id);
  console.log('CONTRAST',JSON.stringify({q,ok,neutralMax,top:ranked.slice(0,2),chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
 }
+
+ // Separate student invitation from automatic intervention: evaluate candidate menus
+ // without treating an unselected perspective as an assertion.
+const menuCases=[
+ {q:'My landlord decides whether I can plant vegetables outside.',ok:['autonomy'],mode:'requested'},
+ {q:'I thought the fallen branch was useless until beetles emerged.',ok:['naming','situated-perception','interdependence'],mode:'requested'},
+ {q:'The tide pulled my feet out from under me.',ok:['material-agency','embodied-skill'],mode:'requested'},
+ {q:'My grandmother taught me to recognize rain by its smell.',ok:['inheritance','situated-perception','embodied-skill'],mode:'requested'},
+ {q:'The office opens at nine.',ok:[],mode:'automatic'},
+ {q:'The receipt is in my bag.',ok:[],mode:'automatic'},
+ {q:'The river carried my canoe sideways despite my efforts.',ok:['material-agency','embodied-skill'],mode:'automatic'}
+];
+for(const {q,ok,mode} of menuCases){
+ const v=(await embed([prefix(q,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const p=lenses.map((l,i)=>({id:l.id,score:cosine(v,lv[i])})).sort((a,b)=>b.score-a.score);
+ const a=lenses.map(l=>{const t=anchorTexts.map((x,i)=>x.id===l.id?cosine(v,av[i]):-Infinity).filter(Number.isFinite).sort((a,b)=>b-a);return {id:l.id,score:(t[0]+t[1])/2};}).sort((a,b)=>b.score-a.score);
+ const fused=lenses.map(l=>({id:l.id,score:1/(3+p.findIndex(x=>x.id===l.id))+1/(3+a.findIndex(x=>x.id===l.id))})).sort((x,y)=>y.score-x.score);
+ const chosen=mode==='requested'?fused.slice(0,2).map(x=>x.id):[];
+ console.log('MENU',JSON.stringify({q,ok,mode,chosen,hit:chosen.some(x=>ok.includes(x)),unlisted:chosen.filter(x=>!ok.includes(x)),abstained:!chosen.length}));
+}
