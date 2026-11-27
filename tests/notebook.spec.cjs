@@ -157,6 +157,26 @@ await companion.getByText('Open my inquiry, sources and paragraph directions',{e
 await expect(page.locator('#attentive-passage')).toHaveValue(passage);
 expect(errors).toEqual([]);
 });
+test('respect explicit disclosure boundaries without follow-up pressure',async({page})=>{
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await companion.getByText('Review a paragraph without rewriting it',{exact:true}).click();
+const input=page.locator('#ic-paragraph');
+const result=input.locator('xpath=following-sibling::div[@role="status"][1]');
+for(const passage of ['My family has a story, but I do not want to explain it.','I prefer not to share this memory.','We would rather not discuss this experience.']){
+ await input.fill(passage);
+ await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
+ await expect(result).toContainText('Respecting a boundary');
+ await expect(result).toContainText('keep this knowledge private');
+ await expect(result.locator('details')).toHaveCount(0);
+}
+await input.fill('I want to explain how my family remembers the creek.');
+await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
+await expect(result).not.toContainText('Respecting a boundary');
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(60000);
 const {cases}=require('./ai-inquiry-challenge-cases.json');
