@@ -1756,7 +1756,7 @@ function renderNav(id){
  get("field-space-caption").textContent=space.name.toUpperCase();
  get("field-section-title").textContent=id==='begin'?'Discover · Step 1 of 3 · Freewrite':id==='explore'?'Discover · Step 3 of 3 · Research question':space.name+' · '+p.label;
  get("field-section-help").textContent=space.hint;
- const detours=get("field-route-detours");detours.open=false;detours.hidden=space.pages.length<2;
+ const detours=get("field-route-detours");detours.open=p.space==="write";detours.hidden=space.pages.length<2;detours.querySelector("summary").textContent=p.space==="write"?"Writing assignments":"Other activities in this space";
  const nav=get("field-subnav");nav.replaceChildren();nav.hidden=space.pages.length<2;
  for(const [tabId,name] of space.pages){
    const b=make("button",null,name);b.type="button";if(tabId===id)b.setAttribute("aria-current","page");
@@ -1778,13 +1778,13 @@ function routeFocus(id){
 }
 function renderRoute(id){
  const f=routeFacts(),marks=[];
- if(f.encounter)marks.push('Experience recorded');if(f.question)marks.push('Working question written');
+ if(f.encounter)marks.push('Experience recorded');if((state.studio?.selectedPhrases||[]).length)marks.push('Words selected');if(f.question)marks.push('Working question written');
  if(f.search)marks.push(f.search+' search'+(f.search===1?'':'es')+' saved');
  if(f.notes)marks.push(f.notes+' source note'+(f.notes===1?'':'s')+' recorded');
  if(f.annotations)marks.push(f.annotations+' annotation'+(f.annotations===1?'':'s')+' started');
  if(f.thesis)marks.push('Working thesis written');else if(f.floors)marks.push(f.floors+' of 3 thesis floors started');
  if(f.draft)marks.push('Essay draft started');
- get('field-route-recap').textContent=marks.length?'Work so far: '+marks.join(' · ')+'.':'Work so far: a fresh notebook.';
+ get('field-route-recap').textContent=marks.length?(marks.length>3?'Recent work: ':'Work so far: ')+marks.slice(-3).join(' · ')+'.':'Work so far: a fresh notebook.';
  const question=()=>{navigate('explore');const heading=get('page-explore').querySelector('h2');heading.tabIndex=-1;heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'auto'});};
  const actions={
  begin:f.encounter?['Name what you want to understand about this experience. A short question is enough to begin.','Develop my working question',question]:['Describe one experience or conversation. What happened, and what detail stays with you?','Begin my freewrite',()=>routeFocus('encounter')],
@@ -2230,7 +2230,7 @@ function uxWritingStage(stage,focus=true){
  g('language-clearing').hidden=stage!=='words';
  g('ux-concepts-view').hidden=stage!=='concepts';
  const label=({writing:"Step 1 of 3 · Freewrite",words:"Step 2 of 3 · Notice my words",concepts:"Optional · Explore more connections"})[stage];const n=g("ux-stage-label");if(n)n.textContent=label;if(!g("page-begin").classList.contains("hidden"))g("field-section-title").textContent="Discover · "+label;
- if(focus){const target=stage==='writing'?g('ux-writing-view').querySelector('h2'):stage==='words'?g('ux-words-heading'):g('ux-concepts-heading');target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}
+ const target=stage==='writing'?g('ux-writing-view').querySelector('h2'):stage==='words'?g('ux-words-heading'):g('ux-concepts-heading');window.dispatchEvent(new CustomEvent('field:discoverstage',{detail:{stage}}));if(focus){target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}
 }
 (function(){
  const g=id=>document.getElementById(id);
@@ -2737,7 +2737,7 @@ window.addEventListener('field:save',()=>{if(draftOwner!==state){if(host.childNo
   else returnToEssay();
  });
  resume.id='field-resume-draft';
- function syncResume(){const hasDraft=!!g('ws-essay-body').value.trim();resume.hidden=g('page-writing').classList.contains('hidden');resume.textContent=hasDraft?'Return to my draft':'Start my draft';}
+ function syncResume(){const hasDraft=!!g('ws-essay-body').value.trim();resume.hidden=g('page-writing').classList.contains('hidden')&&!hasDraft;resume.textContent=hasDraft?'Return to my draft':'Start my draft';}
  window.addEventListener('field:tabchange',syncResume);window.addEventListener('field:save',syncResume);syncResume();
  card.addEventListener('field:revisit-trail',event=>{
   if(!d.open){d.open=true;refresh();}else if(!host.querySelector('#ic-trail-entry'))refresh();
@@ -3688,6 +3688,8 @@ function setCarriedInquiryPractice(next){
 #ux-writing-view .ux-writing-actions #ask-question-now{width:auto}
 #page-begin h2,#page-return h2,#page-journal h2,#page-biblio h2,#page-writing h2,#page-read h2{scroll-margin-top:1rem}
 #field-next-invitation button{min-height:48px}
+#field-route-recap{font-size:.9rem;margin:.25rem 0 .65rem}
+#field-resume-draft{font-size:.88rem;font-weight:500}
 </style><script>
 (function(){
  const g=id=>document.getElementById(id);
@@ -3705,5 +3707,9 @@ function setCarriedInquiryPractice(next){
  function positionNext(name){if(panels.includes(name))g('page-'+name).after(next);}
  window.addEventListener('field:tabchange',e=>positionNext(e.detail?.name));
  const active=document.querySelector('.field-original-nav [aria-selected="true"]');positionNext(active?.dataset.tab);
+ // Work recap travels with the current heading, so the student sees it at the landing position.
+ const recap=g('field-route-recap');
+ function placeRecap(name,stage){const panel=g('page-'+name);if(!panel)return;const heading=name==='begin'?(stage==='words'?g('ux-words-heading'):stage==='concepts'?g('ux-concepts-heading'):g('ux-writing-view').querySelector('h2')):panel.querySelector('h2');if(heading)heading.after(recap);}
+ window.addEventListener('field:tabchange',e=>placeRecap(e.detail?.name));window.addEventListener('field:discoverstage',e=>{if(!g('page-begin').classList.contains('hidden'))placeRecap('begin',e.detail?.stage);});placeRecap(active?.dataset.tab||'begin');
 })();
 </script></body></html>
