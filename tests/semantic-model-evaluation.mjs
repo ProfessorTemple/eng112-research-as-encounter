@@ -259,3 +259,26 @@ for(const {parts,ok} of scenes){
  const isolated=parts.flatMap(t=>specific.filter(r=>r.patterns.every(p=>p.test(t))).map(r=>r.id));
  console.log('SCENE',JSON.stringify({parts,ok,isolated,chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
 }
+
+ // Test ordered narrative transitions rather than unordered word co-occurrence.
+const transitions=[
+ {id:'naming',before:/\b(I|we)\b.*\b(thought|believed|considered|dismissed)\b.*\b(useless|worthless|ugly|nuisance|empty)\b/i,after:/\b(then|later|but|until)\b.*\b(noticed|saw|learned|discovered|realized)\b/i},
+ {id:'autonomy',before:/\b(fence|gate|barrier|private property|locked)\b/i,after:/\b(we|I|our|us)\b.*\b(no longer allowed|could no longer|denied access|barred|not permitted)\b/i}
+];
+const orderedCases=[
+ {parts:['I believed the vacant lot was empty.','Later I discovered nests in the tall grass.'],ok:['naming']},
+ {parts:['A locked gate replaced the opening in the hedge.','We could no longer walk to the river.'],ok:['autonomy']},
+ {parts:['I thought the old log was useless.','Then I saw mushrooms growing from it.'],ok:['naming']},
+ {parts:['The fence cut across our familiar trail.','We were not permitted to pass.'],ok:['autonomy']},
+ {parts:['Later I discovered nests in the tall grass.','I believed the vacant lot was empty.'],ok:[]},
+ {parts:['We could no longer walk to the river.','A locked gate replaced the opening in the hedge.'],ok:[]},
+ {parts:['I thought the empty box was useless.','Then I noticed the receipt inside.'],ok:[]},
+ {parts:['The gate was locked for maintenance.','We could no longer enter the password on the website.'],ok:[]}
+];
+for(const {parts,ok} of orderedCases){
+ const q=parts.join(' ');
+ const v=(await embed([prefix(q,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const neutralMax=Math.max(...nv.map(x=>cosine(v,x)));
+ const chosen=transitions.filter(t=>t.before.test(parts[0])&&t.after.test(parts[1])).filter(t=>cosine(v,lv[lenses.findIndex(l=>l.id===t.id)])>neutralMax).map(t=>t.id);
+ console.log('ORDERED',JSON.stringify({parts,ok,chosen,hit:chosen.some(x=>ok.includes(x)),abstained:!chosen.length}));
+}
