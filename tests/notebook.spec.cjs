@@ -332,6 +332,29 @@ test('legacy backup replaces rather than merges projects; invalid and cancelled 
  await expect(page.locator('#ws-abstract')).toHaveValue('');
  await expect(page.locator('#what')).toHaveValue('Legacy observation');
 });
+test('inquiry companion disclosure supports keyboard activation',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="write"]').click();
+ const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+ const summary=companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true});
+ await summary.focus();
+ await expect(summary).toBeFocused();
+ await page.keyboard.press('Enter');
+ const paragraph=companion.getByText('Review a paragraph without rewriting it',{exact:true});
+ await expect(paragraph).toBeVisible();
+ await paragraph.focus();
+ await page.keyboard.press('Space');
+ await expect(page.locator('#ic-paragraph')).toBeVisible();
+ await page.locator('#ic-paragraph').focus();
+ await page.keyboard.type('The garden holds many memories.');
+ const reflect=companion.getByRole('button',{name:'Reflect on this paragraph',exact:true});
+ await reflect.focus();
+ await page.keyboard.press('Enter');
+ const result=page.locator('#ic-paragraph').locator('xpath=following-sibling::div[@role="status"][1]');
+ await expect(result).not.toBeEmpty();
+ await expect(reflect).toBeFocused();
+});
 test('selected context and relational reflection remain student directed',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
