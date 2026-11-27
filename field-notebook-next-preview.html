@@ -712,7 +712,7 @@
 <div class="field"><label for="thesis-draft">My working thesis, in connected sentences</label><textarea id="thesis-draft" rows="6" placeholder="Begin with your observation, move toward a grounded interpretation, and let the wider significance grow from that discovery."></textarea></div>
 <section id="thesis-conference" class="thesis-comparison"><h3>My Thesis Conference</h3><p>Make your meaning clearer without handing your writing over to the program. Nothing here changes your thesis automatically. Choose a question, or skip directly to writing.</p>
 <p class="hint">Observation = what you noticed. Interpretation = what you think it means. Significance = why it matters.</p>
-<button type="button" class="primary" id="tc-notice">Find a question worth exploring</button><div id="tc-notices" aria-live="polite"></div>
+<details id="tc-trail"><summary>Revisit a discovery before revising (optional)</summary><p>Choose one of your own saved reflections to consider alongside your thesis. Nothing will be inserted into your writing.</p><label for="tc-trail-choice">My saved discovery</label><select id="tc-trail-choice"><option value="">Choose a discovery</option></select><p id="tc-trail-text"></p><div id="tc-trail-questions" hidden><p>Which part of your thesis might this discovery help you reconsider?</p><div class="actions"><button type="button" data-trail-floor="observation">Observation</button><button type="button" data-trail-floor="interpretation">Interpretation</button><button type="button" data-trail-floor="significance">Significance</button><button type="button" data-trail-floor="none">No change needed</button></div><p id="tc-trail-question" role="status"></p></div></details><button type="button" class="primary" id="tc-notice">Find a question worth exploring</button><div id="tc-notices" aria-live="polite"></div>
 <div id="tc-step2" hidden><h4 tabindex="-1" id="tc-step2-title">2. Explain what you mean</h4><label for="tc-word">Your word, phrase, or question</label><input id="tc-word"><label for="tc-intent">What do you intend to express?</label><textarea id="tc-intent" rows="3" placeholder="In my own words, I mean..."></textarea><button type="button" class="primary" id="tc-explore">Explore language for my meaning</button><div id="tc-results" aria-live="polite"></div></div>
 <button type="button" class="secondary" id="tc-own">Explore a word or question of my choice</button>
 <div id="tc-step3" hidden><h4>3. Try language without changing your draft</h4><label for="tc-trial">My experimental sentence (optional)</label><textarea id="tc-trial" rows="3"></textarea><label for="tc-reflect">What will I keep, reject, or reconsider? Why?</label><textarea id="tc-reflect" rows="2"></textarea><button type="button" class="secondary" id="tc-save">Save my clarification</button></div><p id="tc-status" role="status"></p>
@@ -2471,4 +2471,18 @@ q.value=state.inquiryPortrait?.question||'';status.value=state.inquiryPortrait?.
 panel.addEventListener('toggle',()=>{if(panel.open)draw();});window.addEventListener('field:save',()=>{if(panel.open)draw();});
 panel.querySelector('#portrait-save').addEventListener('click',()=>{state.inquiryPortrait={question:q.value,status:status.value};message.textContent=persist()?'Reflection saved in this browser.':'Browser saving failed. Export a backup before leaving.';});
 })();
-</script></body></html>
+</script><script>
+(function(){
+const panel=document.getElementById('tc-trail'),choice=document.getElementById('tc-trail-choice'),preview=document.getElementById('tc-trail-text'),questions=document.getElementById('tc-trail-questions'),answer=document.getElementById('tc-trail-question');
+if(!panel||!choice)return;
+let entries=[];
+function render(){const previous=entries[Number(choice.value)-1];entries=cleanIntellectualTrail(state.intellectualTrail);choice.replaceChildren(new Option(entries.length?'Choose a discovery':'No saved discoveries yet',''));entries.forEach((e,i)=>choice.add(new Option((e.relationship||'Reflection')+': '+e.text.slice(0,90),String(i+1))));const match=previous?entries.findIndex(e=>e.text===previous.text&&e.relationship===previous.relationship&&e.created===previous.created):-1;choice.value=match>=0?String(match+1):'';show();}
+function show(){const entry=entries[Number(choice.value)-1];preview.textContent=entry?.text||'';questions.hidden=!entry;answer.textContent='';}
+choice.addEventListener('change',show);
+panel.addEventListener('toggle',()=>{if(panel.open)render();});
+window.addEventListener('field:save',()=>{if(panel.open)render();});
+const prompts={observation:'Does this discovery help you notice a detail or pattern you previously overlooked?',interpretation:'Does this discovery extend, complicate or challenge what you think your observation means?',significance:'Does this discovery change who or what is affected, or why your interpretation matters?',none:'You can keep your thesis as it is. What makes your existing interpretation sufficient for now?'};
+panel.querySelectorAll('[data-trail-floor]').forEach(b=>b.addEventListener('click',()=>{if(choice.value)answer.textContent=prompts[b.dataset.trailFloor];}));
+})();
+</script>
+</body></html>
