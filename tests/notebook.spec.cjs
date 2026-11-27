@@ -129,7 +129,14 @@ test('returning from a library search preserves discovered keywords and offers t
  await expect(page.locator('#rs-ready-heading')).toHaveText('Search again with your new keywords');
  await page.locator('#rs-already-searched').click();await expect(page.locator('#rs-output')).toBeHidden();await expect(page.locator('#rs-bring-article')).toBeVisible();await expect(page.locator('#rs-new-word-help')).not.toHaveAttribute('open','');
  await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();await expect(page.locator('#rs-bring-article')).toBeVisible();
- await page.locator('#rs-bring-article').click();await expect(page.locator('#custom-source-details')).toHaveAttribute('open','');await expect(page.locator('#custom-kind')).toHaveValue('article');
+ await page.locator('#rs-bring-article').click();await expect(page.locator('#journal-add-pdf')).toBeVisible();await expect(page.locator('#custom-source-details')).not.toHaveAttribute('open','');await expect(page.locator('#custom-kind')).toHaveValue('article');
+ const chooser=page.waitForEvent('filechooser');await page.locator('#journal-add-pdf').click();const picker=await chooser;
+ await picker.setFiles({name:'test-article.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.4\n% test fixture\n%%EOF')});
+ await expect(page.locator('#jstor-status')).toContainText('PDF selected');
+ await page.locator('#jstor-title').fill('Test article');
+ await page.locator('#jstor-save-pdf').click();
+ await expect(page.locator('#custom-title')).toHaveValue('Test article');
+ await expect(page.locator('#custom-source-details')).toHaveAttribute('open','');
 });
 test('interdisciplinary models explain academic words without making claims or filling in the student question',async({page})=>{
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
