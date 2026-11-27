@@ -923,6 +923,48 @@ test('concept integration returns to original writing fields without inserting o
  const final=await stored();expect(final.fields.what).toBe(data.fields.what);expect(final.fields.soWhat).toBe(data.fields.soWhat);expect(final.fields.nowWhat).toBe(data.fields.nowWhat);
  expect(errors).toEqual([]);
 });
+test('intellectual transformation is student-authored and may include continuity or uncertainty',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const key='eng112-living-field-notebook-next-preview-20261123';
+ const stored=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}'),key);
+ const initial=await stored(),earlier='I thought the quiet marsh held little life.',later='I began to wonder what my own attention excluded.';
+ const data={...initial,fields:{...initial.fields,assumption:earlier,'thesis-draft':later},thesisVersions:[{story2:earlier,change:'My earlier explanation remains open.',savedAt:'2026-11-20T12:00:00Z'}],intellectualTrail:[{text:'The insects became audible when I stopped walking.',relationship:'Complicates',created:'2026-11-25T12:00:00Z'}],inquiryWorkingDrafts:{trail:'An unfinished reflection I want to retain.'}};
+ await page.locator('#import-file').setInputFiles({name:'transformation.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))});
+ await expect.poll(async()=>(await stored()).fields?.assumption).toBe(earlier);
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const portrait=page.locator('#living-inquiry-portrait'),panel=page.locator('#portrait-compare-thinking'),a=page.locator('#thinking-piece-0'),b=page.locator('#thinking-piece-1');
+ const reflection=page.locator('#thinking-transformation'),choice=page.locator('#thinking-transformation-choice');
+ async function compare(){
+  if(!(await portrait.evaluate(e=>e.open)))await portrait.locator(':scope > summary').click();
+  if(!(await panel.evaluate(e=>e.open)))await panel.locator(':scope > summary').click();
+  await a.selectOption('version:0');await b.selectOption('current-thesis');
+  const prompt=panel.getByText('A question if I want one',{exact:true});
+  if(!(await prompt.locator('..').evaluate(e=>e.open)))await prompt.click();
+  await panel.getByRole('button',{name:'What has changed?',exact:true}).click();
+  await expect(reflection).toBeVisible();await expect(choice).toHaveValue('');
+ }
+ await compare();await expect(panel.getByRole('article',{name:'First piece selected'})).toContainText('My earlier explanation remains open.');
+ const before=await stored();
+ for(const [id,phrase] of [['wording','underlying interpretation still the same'],['attention','particular detail became visible'],['interpretation','encounter, source or reasoning'],['significance','broader unsupported claim'],['uncertainty','responsibly leave open'],['continuity','no need to manufacture a change'],['unrelated','do not have to form a developmental story']]){
+  await choice.selectOption(id);await expect(reflection).toContainText(phrase);
+  const trail=reflection.getByRole('button',{name:'Open my existing intellectual trail',exact:true});
+  if(['continuity','unrelated'].includes(id))await expect(trail).toBeHidden();else await expect(trail).toBeVisible();
+ }
+ expect(await stored()).toEqual(before);
+ await b.selectOption('trail:0');await expect(reflection).toBeHidden();
+ await panel.getByRole('button',{name:'What has changed?',exact:true}).click();await expect(choice).toHaveValue('');
+ await choice.selectOption('uncertainty');await portrait.locator(':scope > summary').click();await expect(panel).not.toHaveAttribute('open','');
+ await compare();await choice.selectOption('interpretation');
+ const originalThesisReflection=await page.locator('#thesis-change').inputValue();
+ await reflection.getByRole('button',{name:'Open my existing thesis reflection',exact:true}).click();
+ await expect(page.locator('#thesis-change')).toBeVisible();await expect(page.locator('#thesis-change')).toBeFocused();await expect(page.locator('#thesis-change')).toHaveValue(originalThesisReflection);
+ await compare();await choice.selectOption('uncertainty');await reflection.getByRole('button',{name:'Open my existing intellectual trail',exact:true}).click();
+ await expect(page.locator('#ic-trail-entry')).toBeFocused();await expect(page.locator('#ic-trail-entry')).toHaveValue(data.inquiryWorkingDrafts.trail);
+ const after=await stored();expect(after.fields.assumption).toBe(earlier);expect(after.fields['thesis-draft']).toBe(later);expect(after.thesisVersions).toEqual(data.thesisVersions);expect(after.intellectualTrail).toEqual(data.intellectualTrail);
+ expect(errors).toEqual([]);
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
