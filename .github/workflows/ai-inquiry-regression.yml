@@ -24,3 +24,4 @@ jobs:
       - run: node tests/ai-inquiry-bridge.test.mjs
       - run: node tests/ai-inquiry-scorecard.test.mjs
       - run: node tests/ai-inquiry-context.test.mjs
+      - run: node tests/ai-inquiry-paired-review.test.mjs
