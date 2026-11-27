@@ -599,6 +599,24 @@ await page.locator('[data-field-space="research"]').click();await expect(page.lo
 await page.locator('#field-resume-draft').click();await expect(editor).toBeFocused();
 expect(errors).toEqual([]);
 });
+test('the active writing space precedes optional earlier work and assignment help',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="write"]').click();
+ const editor=page.locator('#ws-essay-rich'),support=page.locator('#field-earlier-work');
+ await expect(editor).toBeVisible();
+ expect(await page.evaluate(()=>!!(document.getElementById('page-writing').compareDocumentPosition(document.getElementById('field-earlier-work'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBeTruthy();
+ await expect(support.locator('#living-inquiry-portrait')).not.toHaveAttribute('open','');
+ await expect(support.locator('#sources-in-conversation')).not.toHaveAttribute('open','');
+ const requirements=page.locator('#ws-assignment-requirements');
+ await expect(requirements).not.toHaveAttribute('open','');
+ await requirements.locator('summary').click();await expect(requirements).toContainText('three outside sources');await expect(requirements).toContainText('two community interviews');
+ await requirements.locator('summary').click();
+ await editor.fill('My own draft is the center of this writing session.');
+ await page.locator('#field-revisit-earlier').click();await expect(page.locator('#field-earlier-title')).toBeFocused();
+ await support.locator('#living-inquiry-portrait > summary').click();await expect(support.locator('#portrait-compare-thinking')).toBeVisible();
+ await page.locator('#field-resume-draft').click();await expect(editor).toBeFocused();await expect(editor).toHaveText('My own draft is the center of this writing session.');
+});
 test('draft essentials stay visible and failed version saves never claim success or overwrite writing',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
  await page.goto(url,{waitUntil:'domcontentloaded'});
