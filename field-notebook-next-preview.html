@@ -2164,7 +2164,7 @@ function updateSearchChoice(){
  if(apply)apply.hidden=!hasWords||[a.value.trim(),b.value.trim()].join('|')===[pair[0]||'',pair[1]||''].join('|');
  const build=g('rs-build');
  const previous=String(state.researchSearchQuestion||'').trim(),current=g('rs-working-question').value.trim();g('rs-question-mismatch').hidden=!(g('rs-query').value.trim()&&previous&&previous!==current);
- build.textContent=!hasWords&&pair.length?'Use suggested words and build my search →':'Build my search →';
+ build.textContent=!hasWords&&pair.length?'Use suggested words and build my search →':hasWords&&pair.length&&[a.value.trim(),b.value.trim()].join('|')!==[pair[0]||'',pair[1]||''].join('|')?'Build search with my keywords →':'Build my search →';
 }
 function translate(){
  const question=g('rs-working-question').value,example=g('rs-search-example'),pair=searchModel(question);
@@ -2257,7 +2257,11 @@ function refine(){
 g('rs-outcome').addEventListener('change',refine);
 g('rs-build').addEventListener('click',()=>{g('rs-outcome').value='';g('rs-result-help').open=false;build();refine();persist();});
 g('rs-query').addEventListener('change',recommendations);
-g('rs-copy').addEventListener('click',()=>copy(g('rs-query').value));
+g('rs-copy').addEventListener('click',async()=>{
+ const query=g('rs-query').value.trim();if(!query){status('Build your search first.');return;}
+ try{await navigator.clipboard.writeText(query);status('Search copied. Open Academic Search Complete below and paste it into the search box.');}
+ catch(error){status('Copy was unavailable. Select the search text above and copy it using your device.');}
+});
 g('rs-save-query').addEventListener('click',()=>{const q=g('rs-query').value.trim();if(!q){status('Build or enter a search first.');return;}saveArray('savedSearches',q);const ok=g('save-status')?.textContent.includes('Saved in this browser');status(ok?'Saved to your journal in this browser. You can find it under Searches to try.':'Search recorded for this session; browser saving may be unavailable. Download a backup.');g('rs-save-query').textContent=ok?'✓ Search saved':'Keep this search in my notebook';});g('rs-query').addEventListener('input',()=>{updateSearchChoice();g('rs-save-query').textContent='Keep this search in my notebook';g('rs-local-status').textContent='';});
 g('rs-add').addEventListener('click',()=>{const w=g('rs-discovery').value.trim();if(!w){status('Enter a new word first.');return;}saveDiscovery(w,'Research discovery');draw();g('rs-discovery').value='';persist();g('rs-discovery-status').textContent='Recorded: '+w+'. Revisit it in your Living Lexicon when developing your thesis.';});
 const question=g('rs-working-question');question.value=g('thesis-question').value;question.addEventListener('input',()=>{g('thesis-question').value=question.value;g('thesis-question').dispatchEvent(new Event('input',{bubbles:true}));translate();});for(const id of ['rs-a','rs-b'])g(id).addEventListener('input',()=>{showGloss();updateSearchChoice();});window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='search'){question.value=g('thesis-question').value;draw();}});window.addEventListener('field:save',()=>{if(document.activeElement!==question)question.value=g('thesis-question').value;});
