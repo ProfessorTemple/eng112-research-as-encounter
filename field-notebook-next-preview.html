@@ -565,14 +565,14 @@
 <section class="panel hidden" id="page-search" role="tabpanel" aria-labelledby="tab-search">
 <h2>Research Studio</h2>
 <section id="research-studio-next" aria-label="Guided research studio">
- <p>Turn your words into a search, choose where to look, and bring new discoveries back.</p>
+ <p>Start with something you want to understand. You do not need a thesis yet. Your question guides your search; the sources may change your question.</p><div class="field"><label for="rs-working-question">My working research question</label><textarea id="rs-working-question" rows="3" placeholder="What do I want to understand about my experience?"></textarea><p class="hint">In your own words. Choose one or two ideas from this question to investigate below.</p></div>
  <div class="rs-step"><h3>1. Build my search</h3><p class="hint">Choose two distinct ideas to connect. Your original writing stays unchanged.</p>
  <div id="rs-words" class="rs-words"></div>
  <div class="two"><div class="field"><label for="rs-a">First idea</label><input id="rs-a"></div><div class="field"><label for="rs-b">Second idea (optional)</label><input id="rs-b"></div></div>
  <button type="button" class="primary rs-primary" id="rs-build">Build my search →</button>
  <div id="rs-output" hidden><div class="field"><label for="rs-query">My editable search</label><textarea id="rs-query" rows="2"></textarea></div><p class="hint" id="rs-connection"></p><button type="button" class="secondary" id="rs-copy">Copy search</button> <button type="button" class="secondary" id="rs-save-query">Save search to journal</button><p id="rs-local-status" role="status" class="hint"></p><details id="rs-alternatives"><summary>Explore alternative searches (optional)</summary><p class="hint">Try a broader search or a related concept. These are possibilities, not search results. Your original ideas stay unchanged.</p><div id="rs-alternative-list"></div><p id="rs-alt-status" role="status"></p></details></div></div>
  <div class="rs-step" id="rs-database-step" hidden><h3>2. Find the right database</h3><div id="rs-databases"></div><details><summary>Broaden, narrow, or try another database</summary><p>Too few results? Remove a concept or try synonyms joined by OR. Too many? Add a distinct concept with AND. Start broad when you are unsure, and move to a subject database when you know your focus.</p><a href="https://libguides.pittcc.edu/az/databases" target="_blank" rel="noopener">Browse all PCC databases by subject</a></details></div>
- <div class="rs-step" id="rs-discovery-step" hidden><h3>3. Bring back a discovery</h3><div class="field"><label for="rs-outcome">How did your database search go?</label><select id="rs-outcome"><option value="">Choose an outcome (optional)</option><option value="none">No results</option><option value="many">Too many results</option><option value="irrelevant">Results were not relevant</option><option value="found">Found useful sources</option><option value="words">Discovered new vocabulary</option></select></div><div id="rs-refine" aria-live="polite"></div><div class="field"><label for="rs-discovery">What new word or phrase did you encounter?</label><input id="rs-discovery" maxlength="100"></div><button type="button" class="secondary" id="rs-add">Save discovery to my Living Lexicon</button><p id="rs-discovery-status" role="status" class="hint"></p> <button type="button" class="secondary" data-tab="journal">Record a source in my Reading Journal</button></div>
+ <div class="rs-step" id="rs-discovery-step" hidden><h3>3. Bring back a discovery</h3><div class="field"><label for="rs-outcome">How did your database search go?</label><select id="rs-outcome"><option value="">Choose an outcome (optional)</option><option value="none">No results</option><option value="many">Too many results</option><option value="irrelevant">Results were not relevant</option><option value="found">Found useful sources</option><option value="words">Discovered new vocabulary</option></select></div><div id="rs-refine" aria-live="polite"></div><div class="field"><label for="rs-discovery">Did you encounter a useful new word or phrase? (optional)</label><input id="rs-discovery" maxlength="100"></div><button type="button" class="secondary" id="rs-add">Keep this word for later (optional)</button><p id="rs-discovery-status" role="status" class="hint"></p> <button type="button" class="secondary" data-tab="journal">Record a source in my Reading Journal</button></div>
  <p role="status" id="rs-status" class="hint"></p>
 </section>
 <details class="rs-advanced" id="rs-advanced"><summary>Explore more keywords and advanced search options</summary>
@@ -1203,17 +1203,14 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('enable-
     // Start with different intellectual families before offering a second similar lens.
     for(const item of ranked){if(used.has(item.lens.family))continue;selected.push(item);used.add(item.lens.family);if(selected.length===4)break;}
     if(selected.length<4)for(const item of ranked){if(selected.includes(item))continue;selected.push(item);if(selected.length===4)break;}
-    if(!selected.length){const defaults=['ecocriticism','phenomenology','ethics-of-care','critical-ethnography'];
-      return defaults.map(id=>({lens:LENSES.find(l=>l.id===id),score:0,matches:[]})).filter(x=>x.lens&&!hidden.has(x.lens.id));
-    }
-    return selected;
+    return selected.slice(0,2);
   }
   function allLenses(){return [...LENSES,...(state.customLenses||[]).map(x=>({id:x.id,label:x.label,help:'A perspective you named yourself.',definition:'Your own developing research perspective.',family:'Student perspectives',words:[]}))];}
   let refreshLensRecommendations=()=>{};
   function makeLensChoice(lens,match){
     const wrap=el('div','lens-choice-wrap'),label=el('label','lens-choice'),row=el('span'),input=el('input');
     input.type='checkbox';input.value=lens.id;input.dataset.lens=lens.id;
-    row.append(input,el('strong','',lens.label));label.append(row,el('span','hint',lens.family),el('p','',lens.definition),el('p','hint','Question: '+lens.help));
+    row.className='lens-choice-title';row.append(input,el('strong','',lens.label));const family=el('span','hint',lens.family);family.classList.add('lens-choice-family');label.append(row,family,el('p','',lens.definition),el('p','hint','Question: '+lens.help));
     if(match&&match.matches.length)label.append(el('p','small','Why it appeared: related words in your current inquiry include '+match.matches.slice(0,3).join(', ')+'. This is only a possibility.'));
     wrap.append(label);
     listening(input,'change',()=>{
@@ -1274,7 +1271,7 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('enable-
       suggested.replaceChildren();
       const picks=recommendedLenses();
       picks.forEach(x=>suggested.append(makeLensChoice(x.lens,x)));
-      if(!picks.length)suggested.append(el('p','hint','You set aside all current suggestions. Browse the complete library or name your own perspective.'));
+      if(!picks.length)suggested.append(el('p','hint','No confident perspective suggested. You can continue with your own question, add detail to your experience, or browse lenses if you wish.'));
       document.querySelectorAll('[data-lens]').forEach(node=>node.checked=(state.lenses||[]).includes(node.value));
     };
     const host=byId('explore-summary');if(host)host.after(box);else explore.prepend(box);
@@ -1983,23 +1980,24 @@ for(const row of rows){const box=node('div','rs-db');box.append(node('strong',''
 function recommendations(){
  const query=g('rs-query').value,host=g('rs-databases');host.replaceChildren();
  const matched=catalog.filter(x=>x.match?.test(query)).slice(0,2);
- const entries=[catalog[0],...(matched.length?matched:[catalog[1]])];
- for(const d of entries){const card=node('div','rs-db');card.append(node('h4','',d.name),node('p','hint',d.scope),node('p','',d.why),node('p','hint',d===catalog[0]?'Suggested for every inquiry as a broad starting point.':matched.includes(d)?'Suggested because your search contains: '+(query.match(d.match)?.[0]||'a related subject term')+'.':'General alternative, not a specific match to your words.'));const direct=!!d.url;const cp=node('button','secondary','Copy my search terms');cp.type='button';cp.onclick=()=>copy(g('rs-query').value);const link=node('a','primary rs-launch',direct?'Open '+d.name+' ↗':'Find '+d.name+' in PCC’s database directory ↗');link.href=d.url||directory;link.target='_blank';link.rel='noopener noreferrer';card.append(cp,link,node('p','hint',(direct?'Sign in with your myPittCC email and password if prompted.':'Search the PCC directory for '+d.name+'.')+' Paste your copied search into the database. Return to this notebook tab to record a discovery.'));host.append(card);}
+ const entries=[catalog[0],...(matched.length?matched:[catalog[1]])];const additional=node('details','');additional.append(node('summary','','Other databases (optional)'));
+ for(const d of entries){const card=node('div','rs-db');card.append(node('h4','',d.name),node('p','hint',d.scope),node('p','',d.why),node('p','hint',d===catalog[0]?'Suggested for every inquiry as a broad starting point.':matched.includes(d)?'Suggested because your search contains: '+(query.match(d.match)?.[0]||'a related subject term')+'.':'General alternative, not a specific match to your words.'));const direct=!!d.url;const cp=node('button','secondary','Copy my search terms');cp.type='button';cp.onclick=()=>copy(g('rs-query').value);const link=node('a','primary rs-launch',direct?'Open '+d.name+' ↗':'Find '+d.name+' in PCC’s database directory ↗');link.href=d.url||directory;link.target='_blank';link.rel='noopener noreferrer';card.append(cp,link,node('p','hint',(direct?'Sign in with your myPittCC email and password if prompted.':'Search the PCC directory for '+d.name+'.')+' Paste the whole search into one search box. If using separate advanced-search rows, put the first idea in row one, select AND, and put the second idea in row two. Open one promising article and read its abstract. Return here to record what you learned.'));(d===catalog[0]?host:additional).append(card);}
+ host.append(additional);
  host.append(node('p','hint','Recommendations use keyword matching, not live search results. Direct links for Academic Search Complete and ProQuest Central come from PCC’s library guide. Other recommendations use the directory until their direct links are verified.'));
 }
 function build(){
  const a=g('rs-a').value.trim(),b=g('rs-b').value.trim();
  if(!a&&!b){status('Choose or enter at least one idea.');g('rs-a').focus();return;}
  const quote=w=>/\s/.test(w)?'"'+w.replace(/"/g,'')+'"':w;
- g('rs-query').value=a||b;
- g('rs-connection').textContent=a&&b?'Start with your first idea. Your second idea is preserved; explore alternative searches to combine them when ready.':'Start broadly with your one idea; add a second if the results are too broad.';
+ g('rs-query').value=a&&b?a+' AND '+b:a||b;
+ g('rs-connection').textContent=a&&b?'Both ideas are included. AND asks the database to find records containing both. If results are too narrow, try one idea alone.':'Start broadly with your one idea; add a second if the results are too broad.';
  ['rs-output','rs-database-step','rs-discovery-step'].forEach(id=>g(id).hidden=false);
- recommendations();alternatives();g('rs-save-query').textContent='Save search to journal';g('rs-query').focus();status('Your search is ready. Copy it, save it, then choose a database below.');
+ recommendations();alternatives();g('rs-save-query').textContent='Save search to journal';g('rs-query').focus();status('Your complete search is ready. Copy it, open Academic Search Complete, paste into its search box and check that all words and AND are present before searching.');
 }
 function refine(){
 const host=g('rs-refine');host.replaceChildren();const outcome=g('rs-outcome').value,a=g('rs-a').value.trim(),b=g('rs-b').value.trim(),q=g('rs-query').value.trim();
 if(!outcome)return;
-const advice={none:'No results does not mean your question is unworthy. Remove a constraint, try one idea, or use different vocabulary.',many:'Narrow gradually: add a second concept, organism, place or behavior. Try subject filters in the database.',irrelevant:'Consider which idea is missing. Look at subject terms in relevant records and try a different expression.',found:'Record a useful source in your Reading Journal. Note its author, idea, and page or other locator.',words:'Save the new term below. Consider how it might change your thesis or essay.'};
+const advice={none:'No results does not mean your question is unworthy. Remove a constraint, try one idea, or use different vocabulary.',many:'Narrow gradually: add a second concept, organism, place or behavior. Try subject filters in the database.',irrelevant:'Consider which idea is missing. Look at subject terms in relevant records and try a different expression.',found:'Record a useful source in your Reading Journal. Note its author, idea, and page or other locator.',words:'If the term helps you investigate your working question, keep it below. You do not need to use it in your eventual thesis.'};
 host.append(node('p','hint',advice[outcome]));
 const choices=outcome==='none'?[a,b,q.replace(/"/g,''),/wildlife/i.test(q)?'wildlife AND human': '',/interdependence/i.test(q)?'ecology AND wildlife':'']:outcome==='many'?[a&&b?a+' AND '+b:'',a&&b?'"'+a.replace(/"/g,'')+'" AND "'+b.replace(/"/g,'')+'"':'']:outcome==='irrelevant'?[a,b]:[];
 for(const candidate of [...new Set(choices.filter(x=>x&&x!==q))]){const box=node('div','rs-db');box.append(node('p','',candidate));const use=node('button','secondary','Try this search');use.type='button';use.onclick=()=>{g('rs-query').value=candidate;g('rs-query').dispatchEvent(new Event('input',{bubbles:true}));recommendations();g('rs-local-status').textContent='Revised search ready. Copy it and try again.';g('rs-query').focus();g('rs-query').scrollIntoView({block:'center'});};box.append(use);host.append(box);}
@@ -2011,7 +2009,7 @@ g('rs-query').addEventListener('change',recommendations);
 g('rs-copy').addEventListener('click',()=>copy(g('rs-query').value));
 g('rs-save-query').addEventListener('click',()=>{const q=g('rs-query').value.trim();if(!q){status('Build or enter a search first.');return;}saveArray('savedSearches',q);const ok=g('save-status')?.textContent.includes('Saved in this browser');status(ok?'Saved to your journal in this browser. You can find it under Searches to try.':'Search recorded for this session; browser saving may be unavailable. Download a backup.');g('rs-save-query').textContent=ok?'✓ Search saved':'Save search to journal';});g('rs-query').addEventListener('input',()=>{g('rs-save-query').textContent='Save search to journal';g('rs-local-status').textContent='';});
 g('rs-add').addEventListener('click',()=>{const w=g('rs-discovery').value.trim();if(!w){status('Enter a new word first.');return;}saveDiscovery(w,'Research discovery');draw();g('rs-discovery').value='';g('rs-discovery-status').textContent='Recorded: '+w+'. Revisit it in your Living Lexicon when developing your thesis.';});
-window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='search')draw();});
+const question=g('rs-working-question');question.value=g('thesis-question').value;question.addEventListener('input',()=>{g('thesis-question').value=question.value;g('thesis-question').dispatchEvent(new Event('input',{bubbles:true}));});window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='search'){question.value=g('thesis-question').value;draw();}});window.addEventListener('field:save',()=>{if(document.activeElement!==question)question.value=g('thesis-question').value;});
 document.addEventListener('toggle',e=>{if(e.target.id==='rs-advanced'&&e.target.open)draw();},true);
 draw();
 })();
@@ -3375,4 +3373,4 @@ function setCarriedInquiryPractice(next){
  });
 })();
 </script>
-</body></html>
+<style>.lens-choice-title{display:flex;align-items:flex-start;gap:.45rem}.lens-choice-title strong{min-width:0;overflow-wrap:anywhere}.lens-choice-family{display:block;margin:.3rem 0 .6rem}.lens-choice-title input{flex-shrink:0}</style></body></html>
