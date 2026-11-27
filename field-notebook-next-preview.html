@@ -2896,6 +2896,73 @@ function setCarriedInquiryPractice(next){
     }
   ]
 };
+ // Transfer cases are authored illustrations, not inferred student experiences or quizzes.
+ const conceptTransfers={
+  "umwelt": [
+    {
+      "id": "night-flight",
+      "title": "A walk at dusk",
+      "scene": "A bat changes direction around a branch in dim light. A walker nearby cannot make out the branch.",
+      "question": "What could Umwelt help you investigate about this encounter, and which claim would still need evidence?",
+      "check": "What observations or research about the bat's sensory capacities would distinguish what is observable from what you infer?"
+    },
+    {
+      "id": "missed-call",
+      "title": "In a classroom",
+      "scene": "Two students sit in the same classroom. One hears the instructor call her name; the other is concentrating on a drawing and misses the call.",
+      "question": "Would Umwelt, selective attention, or a combination of ideas help you understand this difference?",
+      "check": "Consider whether different sensory capacities have been established, or whether the difference may be in attention to available signals."
+    }
+  ],
+  "reciprocity": [
+    {
+      "id": "shared-tools",
+      "title": "A community workshop",
+      "scene": "Neighbors share tools in a workshop. One person repairs the tools; another lends them to new members, and some members rarely contribute.",
+      "question": "What could reciprocity help you notice about these relationships?",
+      "check": "Consider differences in capacity, power and permission rather than assuming everyone owes the same return."
+    },
+    {
+      "id": "paid-repair",
+      "title": "A repair shop",
+      "scene": "A mechanic repairs a bicycle for an agreed price. The customer pays, thanks the mechanic, and leaves.",
+      "question": "What would distinguish an ordinary exchange from a relationship of reciprocity here?",
+      "check": "A payment alone does not establish the nature of the relationship. Both descriptions might be relevant."
+    }
+  ],
+  "knowing-in-action": [
+    {
+      "id": "kitchen",
+      "title": "Preparing a meal",
+      "scene": "An experienced cook notices that a dough is too dry and adjusts the amount of water, although the recipe specifies a fixed amount.",
+      "question": "How might knowing-in-action and reflection-in-action help you investigate the cook's knowledge?",
+      "check": "Distinguish habitual skill, an adjustment to unexpected conditions and an explicit explanation. Avoid assuming what the cook was thinking."
+    },
+    {
+      "id": "instruction-card",
+      "title": "Assembling a shelf",
+      "scene": "A person follows printed instructions for the first time, reading each step aloud and checking each measurement.",
+      "question": "Does knowing-in-action explain everything here, or does another idea help?",
+      "check": "Following instructions and developing practical skill can coexist. What evidence would indicate developing skill beyond the written procedure?"
+    }
+  ],
+  "consent": [
+    {
+      "id": "community-photo",
+      "title": "A community event",
+      "scene": "A participant agrees to be photographed at an event for its private archive. A student later considers including the picture in a public essay.",
+      "question": "How could informed consent guide the student's decision about the photograph?",
+      "check": "Permission for one use is not necessarily permission for another. Consider what can be done without disclosing the photograph or identifying the participant."
+    },
+    {
+      "id": "public-story",
+      "title": "A public presentation",
+      "scene": "A speaker shares a personal story at a public event. A student wants to use it in a research essay.",
+      "question": "What would you need to establish about the speaker's expectations and the proposed use?",
+      "check": "Public availability and ethical permission are distinct considerations. Consult applicable research ethics guidance rather than assuming unlimited permission."
+    }
+  ]
+};
  const concepts=make('details','',panel);concepts.id='thinking-concept-encounter';concepts.hidden=true;
  make('summary','Is there a concept for what I am exploring? (optional)',concepts);
  make('p','Begin with a question that feels relevant to your chosen piece. These curated resources are not automatic interpretations of your writing.',concepts);
@@ -2922,6 +2989,26 @@ function setCarriedInquiryPractice(next){
    make('strong','Return to your chosen piece',detail);make('p',p.question,detail);make('p',p.limit,detail);
   });
   depth.addEventListener('toggle',()=>{if(!depth.open){sel.value='';detail.replaceChildren();}});
+  const transfer=make('details','',conceptOut);transfer.id='thinking-concept-transfer';make('summary','Try this concept in a different encounter (optional)',transfer);
+  make('p','Choose an unfamiliar situation or one of your own. A concept can illuminate a relationship, complicate it, or turn out not to fit. There is no required answer.',transfer);
+  const tl=make('label','An encounter to consider',transfer),ts=make('select','',transfer);ts.id='thinking-transfer-choice';tl.htmlFor=ts.id;
+  const cases=conceptTransfers[c.id]||[];ts.add(new Option('Choose an encounter…',''));for(const x of cases)ts.add(new Option(x.title,x.id));ts.add(new Option('A different encounter of my own','own'));
+  const result=make('div','',transfer);result.id='thinking-transfer-result';
+  function clearTransfer(){ts.value='';result.replaceChildren();}
+  ts.addEventListener('change',()=>{
+   result.replaceChildren();const item=ts.value==='own'?{scene:'Think of a different encounter that you are comfortable considering. You do not need to enter it here.',question:'What does this concept help you notice in the new encounter, and what does it leave unexplained?',check:'What detail, source or alternative explanation might help you decide whether the concept is useful? You can choose not to use it.'}:cases.find(x=>x.id===ts.value);if(!item)return;
+   make('strong',ts.value==='own'?'Your own encounter':'An illustrative encounter (not your writing)',result);make('p',item.scene,result);
+   make('strong','Try the idea in your own words',result);make('p',item.question,result);
+   const hint=make('details','',result);make('summary','Something to consider if I want help',hint);make('p',item.check,hint);
+   make('p','You can leave this here, return to your essay, or save your own discovery in the intellectual trail. Nothing is assessed or added automatically.',result);
+   const keep=make('button','Open my intellectual trail',result);keep.type='button';keep.className='secondary';
+   keep.addEventListener('click',()=>{
+    concepts.open=false;panel.open=false;
+    if(g('page-writing').classList.contains('hidden'))tab('writing');
+    requestAnimationFrame(()=>document.querySelector('section[aria-label="My Inquiry Companion"]')?.dispatchEvent(new CustomEvent('field:revisit-trail',{detail:{kind:'unfinished'}})));
+   });
+  });
+  transfer.addEventListener('toggle',()=>{if(!transfer.open)clearTransfer();});
   const copy=make('button','Copy term for my research',conceptOut);copy.type='button';copy.className='secondary';
   const msg=make('p','',conceptOut);msg.setAttribute('role','status');
   copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(c.term);msg.textContent='Term copied. You can use it in a search or your own notes.';}catch(e){msg.textContent='Copy unavailable. Select the term above to copy it yourself.';}});
@@ -2996,5 +3083,5 @@ function setCarriedInquiryPractice(next){
  controls.forEach(c=>c.addEventListener('change',show));panel.addEventListener('toggle',()=>{if(panel.open)refresh();else{controls.forEach(c=>{c.value='';});views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;prompts.hidden=true;practice.open=false;practice.hidden=true;resetPractice();signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;concepts.open=false;concepts.hidden=true;clearConcept();}});
  window.addEventListener('field:save',refresh);
 })();
-</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-concept-encounter{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-concept-encounter select{width:100%;max-width:100%}#thinking-concept-encounter label{display:block}#thinking-concept-depth{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-distinction-result{overflow-wrap:anywhere}#thinking-distinction-result .thinking-compare-grid>div{padding:.55rem;border:1px solid #c3d2c5;border-radius:8px}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
+</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-concept-encounter{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-concept-encounter select{width:100%;max-width:100%}#thinking-concept-encounter label{display:block}#thinking-concept-depth{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-distinction-result{overflow-wrap:anywhere}#thinking-concept-transfer{margin:.6rem 0;padding:.5rem;border-top:1px solid #c3d2c5}#thinking-transfer-result{overflow-wrap:anywhere}#thinking-transfer-result details{margin:.4rem 0}#thinking-distinction-result .thinking-compare-grid>div{padding:.55rem;border:1px solid #c3d2c5;border-radius:8px}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
 </body></html>
