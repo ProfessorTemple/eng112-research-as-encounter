@@ -46,6 +46,49 @@ await page.reload({waitUntil:'domcontentloaded'});console.log('Opening journal')
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
 expect(errors).toEqual([]);
 });
+test('shareable practice workspace is isolated, starts fresh, and preserves its own portable project',async({page})=>{
+ test.setTimeout(60000);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ const base=new URL(url),practice=new URL(url);practice.searchParams.set('workspace','practice');
+ const key='eng112-living-field-notebook-next-preview-20261123';
+ await page.goto(base.href,{waitUntil:'domcontentloaded'});
+ const upload=async(title)=>{
+  const details=page.locator('#jstor-welcome-import');if(!(await details.evaluate(e=>e.open)))await details.locator('summary').click();
+  await page.locator('#jstor-welcome-pdf').setInputFiles({name:'synthetic.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.4\nSynthetic shelf test only')});
+  await page.locator('#jstor-welcome-title').fill(title);await page.locator('#jstor-welcome-save').click();
+  await expect(page.locator('#jstor-welcome-status')).toContainText('PDF saved privately');
+  await expect(page.locator('#jstor-welcome-count')).toContainText('1 JSTOR PDF saved');
+ };
+ await upload('Existing project PDF');
+ await page.locator('#field-welcome-start').click();await page.locator('#encounter').fill('Existing project memory.');
+ await page.locator('[data-field-space="write"]').click();await page.locator('#ws-essay-rich').fill('Existing project essay.');
+ const original=await page.evaluate(k=>localStorage.getItem(k),key);
+ await page.goto(practice.href,{waitUntil:'domcontentloaded'});
+ await expect(page.locator('#field-practice-note')).toBeVisible();
+ await expect(page.locator('#field-welcome-start')).toContainText('Start Here');
+ await expect(page.locator('#jstor-welcome-count')).toContainText('0 JSTOR PDFs saved');
+ await upload('Practice project PDF');
+ await page.locator('#field-welcome-start').click();await expect(page.locator('#encounter')).toHaveValue('');
+ await page.locator('#encounter').fill('Practice project memory.');
+ await page.locator('[data-field-space="write"]').click();await page.locator('#ws-essay-title').fill('Creek & Birds');await page.locator('#ws-essay-rich').fill('Practice project essay.');
+ const downloadPromise=page.waitForEvent('download');await page.locator('#download-json').evaluate(e=>e.click());const file=await downloadPromise;
+ expect(file.suggestedFilename()).toMatch(/^Living-Field-Notebook_Creek-Birds_\d{4}-\d{2}-\d{2}T.*\.json$/);
+ const backup=JSON.parse(require('fs').readFileSync(await file.path(),'utf8'));
+ expect(backup.fields.encounter).toBe('Practice project memory.');expect(backup.writing.fields['ws-essay-body']).toBe('Practice project essay.');
+ expect(JSON.stringify(backup)).not.toContain('Existing project');
+ await page.reload({waitUntil:'domcontentloaded'});await expect(page.locator('#ws-essay-rich')).toHaveText('Practice project essay.');
+ await page.goto(base.href,{waitUntil:'domcontentloaded'});await expect(page.locator('#ws-essay-rich')).toHaveText('Existing project essay.');
+ expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).fields.encounter,key)).toBe('Existing project memory.');
+ await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
+ await expect(page.locator('#jstor-list')).toContainText('Existing project PDF');await expect(page.locator('#jstor-list')).not.toContainText('Practice project PDF');
+ await page.goto(practice.href,{waitUntil:'domcontentloaded'});
+ await expect(page.locator('#ws-essay-rich')).toHaveText('Practice project essay.');
+ await page.locator('#field-revisit-earlier').click();await page.locator('#field-notebook-utilities > summary').click();await page.locator('#field-workspace-new-essay').click();await page.locator('#field-new-essay-ack').check();await page.locator('#field-new-essay-confirm').click();
+ await expect(page.locator('#field-welcome-start')).toContainText('Start Here');
+ expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).fields.encounter,key)).toBe('Existing project memory.');
+ await expect(page.locator('#jstor-welcome-count')).toContainText('1 JSTOR PDF saved');
+ expect(errors).toEqual([]);
+});
 test('start a new essay is backup-first, cancellable, clears only this project and restores the previous essay',async({page})=>{
  test.setTimeout(60000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
@@ -71,7 +114,7 @@ test('start a new essay is backup-first, cancellable, clears only this project a
  await page.evaluate(k=>{const original=Storage.prototype.removeItem;window.restoreTestRemove=()=>{Storage.prototype.removeItem=original;};Storage.prototype.removeItem=function(name){if(name===k)throw Error('synthetic failure');return original.call(this,name);};},key);
  await clear.click();await expect(page.locator('#field-new-essay-status')).toContainText('Unable to clear');await expect(dialog).toBeVisible();await expect(editor).toHaveText('Previous synthetic essay.');
  await page.evaluate(()=>window.restoreTestRemove());await clear.click();
- await expect(page.locator('#field-welcome')).toBeVisible();await expect(page.locator('#field-welcome-start')).toContainText('Start Here');
+ await expect(page.locator('#field-welcome')).toBeVisible();console.log('Synthetic new-project state after clear',await page.evaluate(k=>localStorage.getItem(k),key));await expect(page.locator('#field-welcome-start')).toContainText('Start Here');
  await page.locator('#field-welcome-start').click();await expect(page.locator('#encounter')).toBeVisible();await expect(page.locator('#encounter')).toHaveValue('');
  await page.locator('[data-field-space="write"]').click();await expect(editor).toHaveText('');
  const current=await page.evaluate(k=>({project:localStorage.getItem(k),other:localStorage.getItem('synthetic-unrelated-notebook')}),key);
