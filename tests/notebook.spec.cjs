@@ -846,6 +846,17 @@ test('concept encounters start with a chosen question and never alter student wr
  for(const [id,title,domain] of [['umwelt','Umwelt','pmc.ncbi.nlm.nih.gov'],['reciprocity','Reciprocity','simonandschuster.com'],['knowing-in-action','Knowing-in-action','routledge.com'],['consent','Informed consent','oralhistory.org']]){
   await choice.selectOption(id);await expect(concept.locator('h4')).toHaveText(title);await expect(concept.locator('a')).toHaveAttribute('href',new RegExp(domain));await expect(concept).toContainText('starting point for reading');
  }
+ for(const [id,pairs] of [['umwelt',['perception-attention','response-intention','agency-intention']],['reciprocity',['gift-transaction','reciprocity-mutualism']],['knowing-in-action',['knowing-reflecting','practice-explanation']],['consent',['participation-permission','anonymous-confidential']]]){
+  await choice.selectOption(id);
+  const depth=concept.locator('#thinking-concept-depth'),distinction=concept.locator('#thinking-distinction-choice'),result=concept.locator('#thinking-distinction-result');
+  await expect(depth).not.toHaveAttribute('open','');await depth.locator(':scope > summary').click();await expect(distinction).toHaveValue('');
+  for(const pair of pairs){
+   await distinction.selectOption(pair);await expect(result).toContainText('An illustrative encounter (not your writing)');await expect(result).toContainText('Return to your chosen piece');
+   await expect(result.locator('.thinking-compare-grid > div')).toHaveCount(2);
+  }
+  if(id==='umwelt'){await distinction.selectOption('response-intention');await expect(result).toContainText('A response alone does not establish conscious purpose.');}
+  await depth.locator(':scope > summary').click();await expect(distinction).toHaveValue('');await expect(result).toBeEmpty();
+ }
  expect(await stored()).toEqual(before);
  await page.locator('#thinking-piece-0').selectOption('field:assumption');await expect(concept).not.toHaveAttribute('open','');
  await concept.locator(':scope > summary').click();await expect(choice).toHaveValue('');
