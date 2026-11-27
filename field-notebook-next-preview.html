@@ -1370,7 +1370,7 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('disable
  function val(id){return get(id)?.value||'';}
  function fresh(){return {fields:{'ws-section':'ENG 112-02FX'},sources:sourceIds.map(()=>({reference:'',annotation:'',database:false,role:'',connection:''})),visuals:visualIds.map(()=>({title:'',note:'',after:'',dataUrl:'',width:0,height:0,name:''})),snapshots:[]};}
  function ensure(){const w=state.writing;if(!w||typeof w!=='object')state.writing=fresh();const x=state.writing;x.fields=x.fields&&typeof x.fields==='object'?x.fields:{};x.sources=Array.isArray(x.sources)?x.sources:[];if(x.sources.length>5)x.sources.length=5;while(x.sources.length<5)x.sources.push({reference:'',annotation:'',database:false,role:'',connection:''});x.visuals=Array.isArray(x.visuals)?x.visuals:[];if(x.visuals.length>3)x.visuals.length=3;while(x.visuals.length<3)x.visuals.push({title:'',note:'',after:'',dataUrl:'',width:0,height:0,name:''});x.snapshots=Array.isArray(x.snapshots)?x.snapshots.slice(-8):[];return x;}
- function docAlert(message){['ws-bib-save','ws-draft-save'].forEach(id=>{const n=get(id);if(n){n.textContent=message;n.classList.toggle('ws-error',message.startsWith('NOT SAVED'));}});}
+ function docAlert(message){['ws-bib-save','ws-draft-save'].forEach(id=>{const n=get(id);if(n){if(n.textContent!==message)n.textContent=message;n.classList.toggle('ws-error',message.startsWith('NOT SAVED'));}});}
  function saveWS(){const w=ensure();ids.forEach(id=>{if(get(id))w.fields[id]=val(id);});for(let i=0;i<5;i++){w.sources[i]={reference:val('ws-source-ref-'+i),annotation:val('ws-source-annotation-'+i),database:!!get('ws-source-db-'+i)?.checked,role:val('ws-source-role-'+i),connection:val('ws-source-connection-'+i)};}for(let i=0;i<3;i++){w.visuals[i]={...w.visuals[i],title:val('ws-visual-title-'+i),note:val('ws-visual-note-'+i),after:val('ws-visual-after-'+i)};}
    persist();const old=get('save-status')?.textContent||'';
    if(old.includes('Saved in this browser'))docAlert('Saved in this browser · Back up before changing devices.');
@@ -1450,7 +1450,8 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
  }
  function hydrateRichEditor(){
    const rich=get('ws-essay-rich');if(!rich)return;
-   rich.replaceChildren();
+   rich.dispatchEvent(new Event('field:draft-replaced'));
+ rich.replaceChildren();
    essayParagraphs(val('ws-essay-body')).forEach(text=>{
      const para=document.createElement('p');renderStyled(para,text);rich.append(para);
    });
@@ -1628,7 +1629,7 @@ function renderNav(id){
    b.addEventListener("click",()=>navigate(tabId));nav.append(b);
  }
  renderInvitation(id);
- field().lastTab=id;
+ const memory=field();memory.lastTab=id;if(!memory.lastBySpace||typeof memory.lastBySpace!=="object"||Array.isArray(memory.lastBySpace))memory.lastBySpace={};memory.lastBySpace[p.space]=id;
  try{persist();}catch(err){/* Continue even if browser storage is blocked. */}
 }
 function renderInvitation(id){
@@ -1775,7 +1776,7 @@ function init(){
  if(typeof tab!=="function"||typeof persist!=="function"||!state){get("field-section-help").textContent="The notebook tools were not able to load. Refresh the page.";return;}
  for(const b of document.querySelectorAll("[data-field-space]"))b.addEventListener("click",()=>{
   const id=b.dataset.fieldSpace;
-  const saved=field().lastTab;
+  const memory=field(),saved=memory.lastBySpace?.[id]||memory.lastTab;
   navigate(saved&&PAGES[saved]?.space===id?saved:SPACE[id].pages[0][0]);
  });
  get("field-thread-toggle").addEventListener("click",()=>showTrail(get("field-thread-detail").hidden));
@@ -1857,12 +1858,12 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
         Object.values(fields).some(value=>typeof value==='string'&&value.trim()) ||
         (item.followed||[]).length || (item.savedBooks||[]).length ||
         (item.savedMedia||[]).length || (item.readingNotes||[]).length ||
-        (item.thesisVersions||[]).length ||
+        (item.thesisVersions||[]).length || (item.intellectualTrail||[]).length || (typeof item.inquiryWorkingDrafts?.trail==="string"&&item.inquiryWorkingDrafts.trail.trim()) ||
         Object.values(item.writing?.fields||{}).some(value=>typeof value==='string'&&value.trim())
       );
     }catch(error){return false;}
   }
-  if(hasExistingWork())saved.hidden=false;
+  if(hasExistingWork()){saved.hidden=false;start.textContent='Continue my notebook';saved.textContent='Your saved writing and research stay here. Continue from your last notebook page.';}
   function enterNotebook(){
     welcome.hidden=true;
     workspace.hidden=false;
@@ -2311,10 +2312,11 @@ const final=g('lex-final');if(final){const d=node('details','',final);node('summ
 const g=id=>document.getElementById(id),v=id=>g(id)?.value?.trim()||'',make=(tag,t,p)=>{const n=document.createElement(tag);n.textContent=t||'';if(p)p.append(n);return n;};
 const editor=g('ws-essay-rich');if(!editor)return;
 let essayRange=null;
+ editor.addEventListener('field:draft-replaced',()=>{essayRange=null;});
 function rememberEssayRange(){const selection=window.getSelection();if(!selection||!selection.rangeCount)return;const range=selection.getRangeAt(0);if(editor.contains(range.startContainer)&&editor.contains(range.endContainer))essayRange=range.cloneRange();}
 document.addEventListener('selectionchange',rememberEssayRange);
 editor.addEventListener('focusout',rememberEssayRange);
-function returnToEssay(){const range=essayRange;editor.focus();if(range&&editor.contains(range.startContainer)&&editor.contains(range.endContainer)){const selection=window.getSelection();if(selection){selection.removeAllRanges();selection.addRange(range);}}else{const end=document.createRange();end.selectNodeContents(editor);end.collapse(false);const selection=window.getSelection();if(selection){selection.removeAllRanges();selection.addRange(end);}}editor.scrollIntoView({block:'nearest'});}
+function returnToEssay(){const range=essayRange;editor.focus({preventScroll:true});if(range&&editor.contains(range.startContainer)&&editor.contains(range.endContainer)){const selection=window.getSelection();if(selection){selection.removeAllRanges();selection.addRange(range);}}else{const end=document.createRange();end.selectNodeContents(editor);end.collapse(false);const selection=window.getSelection();if(selection){selection.removeAllRanges();selection.addRange(end);}}editor.scrollIntoView({block:'nearest'});}
 
 const card=document.createElement('section');card.className='ws-card';card.setAttribute('aria-label','My Inquiry Companion');make('h3','My Inquiry Companion',card);make('p','Keep your earlier discoveries within reach as you write. Start with any paragraph that feels meaningful.',card);
 const d=make('details','',card);make('summary','Open my inquiry, sources and paragraph directions',d);const host=make('div','',d);host.setAttribute('aria-live','polite');
@@ -2477,7 +2479,30 @@ button(review,'I am ready to continue',()=>stopReflection('I am ready to continu
 button(review,'A boundary on what I can share',()=>stopReflection('A boundary on what I can share','You can leave private or restricted knowledge out. Continue with what you have permission to discuss. This choice does not erase saved notebook material.'));
 invalidateReview(ai,ar,x=>reviewedPassage=x);invalidateReview(input,result,x=>{reviewedParagraph=x;if(!x){chosenReflection=null;relationSelection=null;}});if(reviewedPassage)exploreButton.click();if(reviewedParagraph)reflectButton.click();for(const x of host.querySelectorAll('details'))if(opened.has(x.querySelector('summary')?.textContent))x.open=true;}
 const draftStatus=make('p','Passages for review are temporary until you save them to this notebook. Unfinished trail reflections save locally as you type.',card);draftStatus.setAttribute('role','status');button(card,'Save working passages',()=>{if(!d.open&&!host.querySelector('#attentive-passage')){draftStatus.textContent='Open your inquiry companion first.';return;}draftStatus.textContent=saveInquiryDrafts()?'Working passages saved in this browser. They are not Reading Journal entries.':'Browser saving failed. Keep a separate copy of your passages.';});restoreInquiryDrafts();
-window.addEventListener('field:save',()=>{if(draftOwner!==state){if(host.childNodes.length)refresh();else restoreInquiryDrafts();}});d.addEventListener('toggle',()=>{if(d.open)refresh();});button(card,'Refresh my inquiry companion',()=>{if(d.open)refresh();else d.open=true;});const body=editor.closest('.ws-body-card');if(body)body.before(card);
+window.addEventListener('field:save',()=>{if(draftOwner!==state){if(host.childNodes.length)refresh();else restoreInquiryDrafts();}});d.addEventListener('toggle',()=>{if(d.open)refresh();});button(card,'Refresh my inquiry companion',()=>{if(d.open)refresh();else d.open=true;});const body=editor.closest('.ws-body-card');if(body)body.after(card);
+ const toolbar=g('ws-bold')?.parentElement;
+ if(toolbar){
+  const openReview=button(toolbar,'Reflect on a passage',()=>{
+   const range=essayRange;const selected=range&&!range.collapsed&&editor.contains(range.startContainer)&&editor.contains(range.endContainer)?range.toString().trim():'';
+   if(!d.open)d.open=true;
+   if(!host.querySelector('#ic-paragraph'))refresh();
+   const target=host.querySelector('#ic-paragraph');if(!target)return;
+   const reviewPanel=target.closest('details');reviewPanel.open=true;
+   if(selected&&target.value!==selected){
+    if(!target.value.trim()||confirm('Replace the passage in your reflection box with this selected text? Your essay will not change.')){target.value=selected;target.dispatchEvent(new Event('input',{bubbles:true}));}
+   }
+   target.focus({preventScroll:true});target.scrollIntoView({block:'center',behavior:'auto'});
+  });
+  openReview.id='ws-reflect-selected';
+  openReview.addEventListener('pointerdown',rememberEssayRange);
+ }
+ const resume=button(g('field-space-caption').parentElement,'Return to my draft',()=>{
+  if(g('page-writing').classList.contains('hidden')){tab('writing');requestAnimationFrame(()=>returnToEssay());}
+  else returnToEssay();
+ });
+ resume.id='field-resume-draft';
+ function syncResume(){resume.hidden=g('page-writing').classList.contains('hidden')&&!g('ws-essay-body').value.trim();}
+ window.addEventListener('field:tabchange',syncResume);window.addEventListener('field:save',syncResume);syncResume();
 })();
 </script><style>.ws-card details{overflow-wrap:anywhere}.ws-card details summary{cursor:pointer}.ws-card details textarea{width:100%;box-sizing:border-box}.ws-card details button{min-height:44px;margin:.3rem}</style><style>#source-shelf .shelf-item{display:block}#source-shelf .actions{flex-wrap:wrap;margin-top:.75rem}#source-shelf .actions a,#source-shelf .actions button{min-height:44px}#note-excerpt{scroll-margin-top:120px}</style><script>
 (function(){
@@ -2539,4 +2564,23 @@ for(const id of ['abstract','conclusion']){
 }
 })();
 </script>
+<script>
+(function(){
+ const g=id=>document.getElementById(id),page=g('page-writing'),editor=g('ws-essay-rich'),body=editor?.closest('.ws-body-card');
+ if(!page||!body)return;
+ // Visual order follows the writing process; Word export keeps its required document order.
+ const title=g('ws-essay-title')?.closest('.ws-card');
+ if(title)page.insertBefore(body,title);
+ const inquiry=page.querySelector('section[aria-label="My Inquiry Companion"]');
+ if(inquiry)body.after(inquiry);
+ const kickers={'01 · Title page':'Title page · Return when ready','02 · Required for this course':'Required for this course · After drafting','03 · Main essay':'Main essay · Start here','04 · Original visual evidence':'Original visual evidence','05 · Sources to cite':'Sources to cite','06 · Disclosure':'Disclosure'};
+ page.querySelectorAll('.ws-kicker').forEach(n=>{if(kickers[n.textContent])n.textContent=kickers[n.textContent];});
+ const aids=document.createElement('details');aids.id='ws-draft-aids';aids.className='ws-tips';
+ const summary=document.createElement('summary');summary.textContent='Revisit my thesis, notes or discoveries (optional)';aids.append(summary);
+ for(const id of ['tc-writing-companion','ux-evidence','ws-trail-conclusion']){const n=g(id);if(n)aids.append(n);}
+ g('ws-essay-preview').after(aids);
+ const returnButton=document.createElement('button');returnButton.type='button';returnButton.className='secondary';returnButton.textContent='Return to my essay';returnButton.addEventListener('click',()=>g('field-resume-draft')?.click());aids.append(returnButton);
+ const short=document.createElement('p');short.className='ws-muted';short.textContent='Draft first. Your title, abstract, keywords, visuals and final checks are below when you need them.';body.querySelector('h3').after(short);
+})();
+</script><style>#field-resume-draft{margin:.4rem 0;min-height:44px}#ws-draft-aids{margin:.8rem 0}#ws-draft-aids summary{cursor:pointer;min-height:44px;padding:.5rem 0}#ws-reflect-selected{min-height:44px}#ws-essay-rich{scroll-margin-top:1rem}</style>
 </body></html>
