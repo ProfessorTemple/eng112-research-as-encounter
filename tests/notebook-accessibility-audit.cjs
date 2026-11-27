@@ -26,8 +26,11 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+\/field-notebook-next-preview\.html
    await inspect('welcome');
    if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
    await page.locator('[data-field-space="discover"]').click();await inspect('freewrite');
+   await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();await inspect('concept exploration');
    await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();await inspect('research search');
+   await page.locator('#field-subnav').getByRole('button',{name:'Find sources',exact:true}).click();await inspect('source discovery');
    await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();await inspect('reading journal');
+   await page.locator('#field-subnav').getByRole('button',{name:'Annotated bibliography',exact:true}).click();await inspect('annotated bibliography');
    await page.locator('[data-field-space="thesis"]').click();await inspect('thesis');
    await page.locator('[data-field-space="write"]').click();await inspect('essay');
    await context.close();
