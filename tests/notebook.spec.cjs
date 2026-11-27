@@ -4,6 +4,27 @@ const url=process.env.NOTEBOOK_URL || 'https://professortemple.github.io/eng112-
 for(const viewport of [{width:390,height:844},{width:1440,height:900}]){
 test.describe('Notebook '+viewport.width,()=>{
 test.use({viewport});
+test('guided route shows actual work and a single next task while optional detours remain available',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ const recap=page.locator('#field-route-recap'),action=page.locator('#field-route-action'),detours=page.locator('#field-route-detours');
+ await expect(recap).toContainText('a fresh notebook');await expect(action).toHaveText('Begin my freewrite');await expect(detours).not.toHaveAttribute('open','');
+ await action.click();await expect(page.locator('#encounter')).toBeFocused();await page.locator('#encounter').fill('I remember talking with my grandfather about his childhood.');
+ await expect(recap).toContainText('Experience recorded');await expect(action).toHaveText('Develop my working question');await action.click();
+ await expect(page.locator('#rs-working-question')).toBeFocused();await expect(action).toHaveText('Write my working question');
+ const question='How do family stories shape what I understand about the past?';await page.locator('#rs-working-question').fill(question);
+ await expect(recap).toContainText('Working question written');await expect(action).toHaveText('Build my search');await action.click();
+ await expect(page.locator('#rs-a')).toBeFocused();await page.locator('#rs-a').fill('oral history');await page.locator('#rs-b').fill('family memory');await page.locator('#rs-build').click();
+ await expect(page.locator('#rs-query')).toHaveValue('oral history AND family memory');
+ await page.evaluate(()=>{Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{window.syntheticCopiedSearch=value;}}});});page.on('dialog',d=>d.accept());
+ await page.locator('#rs-copy').click();await expect.poll(()=>page.evaluate(()=>window.syntheticCopiedSearch)).toBe('oral history AND family memory');
+ await page.locator('#rs-save-query').click();await expect(recap).toContainText('1 search saved');await expect(detours).not.toHaveAttribute('open','');
+ await detours.locator('summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();await expect(detours).not.toHaveAttribute('open','');await expect(recap).toContainText('1 search saved');
+ await page.locator('[data-field-space="thesis"]').click();await expect(recap).not.toContainText('Working thesis written');
+ await page.locator('[data-field-space="research"]').click();await detours.locator('summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();await expect(page.locator('#rs-working-question')).toHaveValue(question);
+ await page.reload({waitUntil:'domcontentloaded'});await expect(recap).toContainText('Working question written');await expect(recap).toContainText('1 search saved');
+ expect(errors).toEqual([]);
+});
 test('search, refinement, discovery and persistence',async({page})=>{
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 page.on('pageerror',e=>console.log('PAGE ERROR:',e.message));page.on('requestfailed',r=>console.log('REQUEST FAILED:',r.url(),r.failure()?.errorText));console.log('Opening notebook');await page.goto(url,{waitUntil:'domcontentloaded'});console.log('DOM ready',await page.title());
