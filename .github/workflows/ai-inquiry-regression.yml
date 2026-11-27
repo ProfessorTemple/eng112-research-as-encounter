@@ -1,0 +1,24 @@
+name: AI inquiry regression
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tests/ai-inquiry-*.mjs'
+      - '.github/workflows/ai-inquiry-regression.yml'
+  pull_request:
+    paths:
+      - 'tests/ai-inquiry-*.mjs'
+      - '.github/workflows/ai-inquiry-regression.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/ai-inquiry-validator.test.mjs
+      - run: node tests/ai-inquiry-bridge.test.mjs
