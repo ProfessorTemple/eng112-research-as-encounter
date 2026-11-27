@@ -122,7 +122,7 @@ test('returning from a library search preserves discovered keywords and offers t
  await page.locator('#rs-keyword-next').getByRole('button',{name:'Build selected search →'}).click();
  await expect(page.locator('#rs-query')).toHaveValue('fireflies AND light pollution');
  await expect(page.locator('#rs-ready-heading')).toBeFocused();
- await expect(page.locator('#rs-ready-heading')).toHaveText('Search again with your new keywords');await expect(page.locator('#rs-round-progress')).toContainText('earlier search is kept');await expect(page.locator('#rs-discovery-step')).toBeHidden();
+ await expect(page.locator('#rs-ready-heading')).toHaveText('Search again with your new keywords');await expect(page.locator('#rs-round-progress')).toContainText('earlier built search is kept');await expect(page.locator('#rs-discovery-step')).toBeHidden();
  expect(await page.evaluate(()=>state.savedSearches.includes('fireflies AND flashing behavior'))).toBeTruthy();
  expect(await page.evaluate(()=>state.keywordBank.filter(w=>w.toLowerCase()==='light pollution').length)).toBe(1);
  await page.reload({waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
@@ -193,6 +193,23 @@ test('concept exploration has one clear question-first action and hides optional
  const inquiry='How does childhood memory shape what I notice about fireflies?';await question.fill(inquiry);await go.click();await expect(page.locator('#page-search')).toBeVisible();await expect(page.locator('#rs-working-question')).toHaveValue(inquiry);await expect(page.locator('#page-search h2')).toBeFocused();
  await page.locator('[data-field-space="discover"]').click();await expect(question).toHaveValue(inquiry);await expect(extra).not.toHaveAttribute('open','');expect(errors).toEqual([]);
 });
+test('academic suggestion builds its displayed query with occupied search fields and backup remains visible',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="research"]').click();
+ await page.evaluate(()=>{window.fieldResearchTranslation=()=>({label:'Memory studies',plain:'Studying remembered experience',searchPhrase:'memory and identity'});});
+ await page.locator('#rs-working-question').fill('Do miracle happen when we are in a tight situation?');
+ await page.locator('#rs-a').fill('miracle');await page.locator('#rs-b').fill('tight');await page.locator('#rs-build').click();
+ await page.locator('#rs-search-help > summary').click();
+ await page.locator('#rs-translation').getByRole('button',{name:'Try search: memory AND identity →'}).click();
+ await expect(page.locator('#rs-query')).toHaveValue('memory AND identity');
+ await expect(page.locator('#rs-ready-heading')).toBeFocused();await expect(page.locator('#rs-copy')).toBeVisible();
+ expect(await page.evaluate(()=>state.savedSearches.includes('miracle AND tight'))).toBeTruthy();
+ await expect(page.locator('#field-notebook-utilities')).not.toHaveAttribute('open','');
+ await expect(page.locator('#field-quick-save')).toBeVisible();
+ const pending=page.waitForEvent('download');await page.locator('#field-quick-save').click();const download=await pending;
+ expect(await download.failure()).toBeNull();
+ const backup=JSON.parse(require('fs').readFileSync(await download.path(),'utf8'));expect(backup.fields['rs-query']).toBe('memory AND identity');
+});
 test('academic language has a plain definition and a deliberate non-overwriting translation into search terms',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
@@ -205,15 +222,18 @@ test('academic language has a plain definition and a deliberate non-overwriting 
  await expect(translation.getByRole('button')).toHaveCount(1);
  await expect(page.locator('#rs-saved-words')).not.toHaveAttribute('open','');
  await expect(a).toHaveValue('');await expect(b).toHaveValue('');
- await translation.getByRole('button',{name:'Use “personhood”'}).click();await expect(a).toHaveValue('personhood');await expect(a).toBeFocused();
- await b.fill('ontological');await expect(gloss).toContainText('nature of being');
- await translation.getByRole('button',{name:'Use “personhood”'}).click();await expect(a).toHaveValue('personhood');await expect(b).toHaveValue('ontological');
- await expect(page.locator('#rs-status')).toContainText('Both search ideas already contain your words');
+ await translation.getByRole('button',{name:'Try search: personhood →'}).click();
+ await expect(page.locator('#rs-query')).toHaveValue('personhood');await expect(page.locator('#rs-ready-heading')).toBeFocused();
+ await page.locator('#rs-keyword-editor > summary').click();await b.fill('ontological');await expect(gloss).toContainText('nature of being');
  await b.fill('lived experience');await page.locator('#rs-build').click();await expect(page.locator('#rs-query')).toHaveValue('personhood AND lived experience');
+ await page.locator('#rs-search-help > summary').click();
+ await translation.getByRole('button',{name:'Try search: personhood →'}).click();
+ await expect(page.locator('#rs-query')).toHaveValue('personhood');
+ expect(await page.evaluate(()=>state.savedSearches.includes('personhood AND lived experience'))).toBeTruthy();
  await expect(question).toHaveValue(inquiry);
  await question.fill('How do media portrayals shape cultural representation?');
  await expect(translation).toContainText('Cultural representation');await expect(translation).toContainText('media representation');
- await expect(a).toHaveValue('personhood');await expect(b).toHaveValue('lived experience');
+ await expect(a).toHaveValue('personhood');await expect(b).toHaveValue('');
  await question.fill('');await expect(translation).toBeHidden();
  expect(errors).toEqual([]);
 });
