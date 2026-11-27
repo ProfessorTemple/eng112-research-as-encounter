@@ -22,3 +22,22 @@ for(const name of ['semantic-benchmark','conceptual-heldout','conceptual-validat
  console.log(name, 'strict wins',rows.filter(r=>r.margin>0).length,'of',rows.length);
 }
 console.log('Node memory bytes',process.memoryUsage());
+
+const lenses=JSON.parse(readFileSync(new URL('./lens-prototypes.json',import.meta.url),'utf8'));
+const fresh=[
+ ['The potter adjusted her grip as the wet vessel sagged.','material-agency'],
+ ['My grandfather showed me how to mend nets as his parents had.','inheritance'],
+ ['Nobody noticed the hours she spent preparing meals for her ill spouse.','care-labor'],
+ ['After closing my eyes I became aware of the insects around me.','situated-perception'],
+ ['When our neighborhood disappeared I felt estranged from my own history.','place-identity'],
+ ['I saw the fox turn away but cannot establish why.','epistemic-restraint'],
+ ['The bus ticket costs five dollars.',null]
+];
+const prefix=(x,q)=>model.includes('e5')?(q?'query: ':'passage: ')+x:x;
+const profiles=lenses.map(l=>l.description+' '+l.anchors.join(' '));
+const lv=(await embed(profiles.map(x=>prefix(x,false)),{pooling:'mean',normalize:true})).tolist();
+for(const [query,expected] of fresh){
+ const q=(await embed([prefix(query,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const ranked=lenses.map((l,i)=>({id:l.id,score:+cosine(q,lv[i]).toFixed(4)})).sort((a,b)=>b.score-a.score);
+ console.log('LENS',JSON.stringify({query,expected,top:ranked.slice(0,2),top2:expected?ranked.slice(0,2).some(x=>x.id===expected):null}));
+}
