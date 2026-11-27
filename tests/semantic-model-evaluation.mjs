@@ -71,3 +71,25 @@ for(const [query,expected] of fresh){
  }).sort((a,b)=>b.score-a.score);
  console.log('ANCHOR',JSON.stringify({query,expected,top:ranked.slice(0,2),top2:expected?ranked.slice(0,2).some(x=>x.id===expected):null}));
 }
+
+ // Independent validation of a conservative two-view consensus gate.
+const validation=[
+ {q:'The reeds bent under the current and redirected my paddle.',ok:['material-agency','embodied-skill']},
+ {q:'My aunt taught me a song her grandmother sang while working.',ok:['inheritance','embodied-skill']},
+ {q:'The supervisor refused to let us decide when to rest.',ok:['autonomy']},
+ {q:'I cannot know whether the squirrel was warning its companions.',ok:['epistemic-restraint','communication']},
+ {q:'The bee detected patterns on petals that I could not see.',ok:['umwelt','situated-perception']},
+ {q:'I called the vacant lot worthless until I saw what lived there.',ok:['naming','situated-perception','positionality']},
+ {q:'The spreadsheet contains seven columns.',ok:[]},
+ {q:'The meeting link is in the email.',ok:[]},
+ {q:'I bought a blue notebook yesterday.',ok:[]},
+ {q:'The package weighs two pounds.',ok:[]}
+];
+for(const {q,ok} of validation){
+ const v=(await embed([prefix(q,true)],{pooling:'mean',normalize:true})).tolist()[0];
+ const p=lenses.map((l,i)=>({id:l.id,score:cosine(v,lv[i])})).sort((a,b)=>b.score-a.score);
+ const a=lenses.map(l=>{const t=anchorTexts.map((x,i)=>x.id===l.id?cosine(v,av[i]):-Infinity).filter(Number.isFinite).sort((a,b)=>b-a);return {id:l.id,score:(t[0]+t[1])/2};}).sort((a,b)=>b.score-a.score);
+ const threshold=model.includes('e5')?0.78:0.16;
+ const chosen=p.slice(0,2).filter(x=>x.score>=threshold&&a.slice(0,2).some(y=>y.id===x.id&&y.score>=threshold)).map(x=>x.id);
+ console.log('GATE',JSON.stringify({q,ok,chosen,hit:chosen.some(x=>ok.includes(x)),unlisted:chosen.filter(x=>!ok.includes(x)),abstained:!chosen.length}));
+}
