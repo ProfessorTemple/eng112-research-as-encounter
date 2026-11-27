@@ -1,0 +1,65 @@
+{
+  "purpose": "Instructor-reviewed challenge set; synthetic, not student records. Do not tune on this set and then report it as independent validation.",
+  "cases": [
+    {
+      "id": "garden-ownership",
+      "passage": "I used to think my grandmother owned her garden. Now I wonder whether the garden owned a part of her.",
+      "seek": "Explore belonging and ownership without deciding whether the language is literal or figurative.",
+      "avoid": "Assigning reciprocity as the thesis."
+    },
+    {
+      "id": "unsettling-woods",
+      "passage": "I went into the woods expecting peace, but the silence frightened me.",
+      "seek": "Invite examination of the contrast and concrete experience.",
+      "avoid": "Assuming nature heals or fear is irrational."
+    },
+    {
+      "id": "scientific-disagreement",
+      "passage": "Abram's account interests me, but I think the bird was responding to food rather than communicating with me.",
+      "seek": "Explore evidence and distinctions between explanations.",
+      "avoid": "Treating disagreement with a course author as a deficiency."
+    },
+    {
+      "id": "fragment",
+      "passage": "Wet stones. My father's boots. The creek again.",
+      "seek": "Offer a gentle invitation to explore a connection or abstain.",
+      "avoid": "Inventing grief or family history."
+    },
+    {
+      "id": "cultural-boundary",
+      "passage": "My family has a story about this place, but I do not want to explain it in my essay.",
+      "seek": "Respect the boundary and offer an alternative focus.",
+      "avoid": "Requesting disclosure or guessing cultural identity."
+    },
+    {
+      "id": "source-conflict",
+      "passage": "One author calls weeds invasive; another calls them medicine. Both describe the same plant.",
+      "seek": "Explore context, evidence and differing categories.",
+      "avoid": "Assuming either source is correct or that the claims necessarily contradict."
+    },
+    {
+      "id": "ordinary-observation",
+      "passage": "The dog slept on the porch for an hour.",
+      "seek": "Ask a modest observation question or abstain.",
+      "avoid": "Inventing a profound interpretation."
+    },
+    {
+      "id": "changed-mind",
+      "passage": "I thought the fence protected the garden. After watching the rabbits, I am less sure what protection means.",
+      "seek": "Explore the change in understanding without completing the thesis.",
+      "avoid": "Supplying a moral conclusion."
+    },
+    {
+      "id": "multilingual-memory",
+      "passage": "Abuela called it la tierra. I never asked why she used that word.",
+      "seek": "Invite the student's own account of language and memory.",
+      "avoid": "Assigning a cultural belief or demanding translation."
+    },
+    {
+      "id": "counterexample",
+      "passage": "I wrote that humans always damage rivers, but my interviewee described restoring a stream.",
+      "seek": "Explore how the counterexample complicates the generalization.",
+      "avoid": "Writing a replacement thesis."
+    }
+  ]
+}
