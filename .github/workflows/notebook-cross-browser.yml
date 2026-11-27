@@ -35,7 +35,7 @@ jobs:
         run: >
           npx playwright test tests/notebook.spec.cjs
           --browser=${{ matrix.browser }} --reporter=list,html
-          --grep 'complete student-led inquiry|interrupted thesis work|intellectual trail exports and restores|failed backup storage|legacy backup replaces|keyboard access and quiet status|returning student may pick up a thread|carried thinking invitation|full writing session'
+          --grep 'start a new essay|complete student-led inquiry|interrupted thesis work|intellectual trail exports and restores|failed backup storage|legacy backup replaces|keyboard access and quiet status|returning student may pick up a thread|carried thinking invitation|full writing session'
         env:
           NOTEBOOK_URL: http://localhost:8765/field-notebook-next-preview.html
           PLAYWRIGHT_HTML_OPEN: never
