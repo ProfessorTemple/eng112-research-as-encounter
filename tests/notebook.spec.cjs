@@ -563,6 +563,42 @@ for(const passage of [
  await expect(input).toHaveValue(passage);
 }
 });
+test('a full writing session keeps the draft central and returns from reflection and research',async({page})=>{
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="research"]').click();
+await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
+await page.locator('[data-field-space="write"]').click();
+const editor=page.locator('#ws-essay-rich'),draft='The creek was quiet. I began to notice the birds.';
+await expect(page.locator('#ws-draft-aids')).not.toHaveAttribute('open','');
+expect(await page.evaluate(()=>!!(document.getElementById('ws-essay-rich').compareDocumentPosition(document.getElementById('ws-abstract'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBeTruthy();
+await editor.fill(draft);
+await editor.evaluate(e=>{e.focus();const r=document.createRange();r.selectNodeContents(e);const s=window.getSelection();s.removeAllRanges();s.addRange(r);});
+await expect.poll(()=>page.evaluate(()=>window.getSelection().toString())).toBe(draft);
+await page.locator('#ws-reflect-selected').click();
+const input=page.locator('#ic-paragraph');await expect(input).toHaveValue(draft);await expect(input).toBeFocused();
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
+await companion.getByRole('button',{name:'Return to my essay',exact:true}).click();
+await expect(editor).toBeFocused();await expect(editor).toHaveText(draft);
+expect(await page.evaluate(()=>window.getSelection().isCollapsed)).toBeTruthy();
+await page.locator('[data-field-space="research"]').click();
+await expect(page.locator('#page-journal')).toBeVisible();
+await page.locator('#field-resume-draft').click();await expect(editor).toBeFocused();await expect(editor).toHaveText(draft);
+await page.locator('#ws-draft-aids summary').first().click();
+await expect(page.locator('#ux-note-select')).toBeVisible();
+await page.locator('#ws-draft-aids').getByRole('button',{name:'Return to my essay',exact:true}).click();
+await expect(editor).toBeFocused();
+await page.keyboard.type(' The current carried leaves.');
+await expect(editor).toHaveText(draft+' The current carried leaves.');
+await page.reload({waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await expect(editor).toBeVisible();await expect(editor).toHaveText(draft+' The current carried leaves.');
+await page.locator('[data-field-space="research"]').click();await expect(page.locator('#page-journal')).toBeVisible();
+await page.locator('#field-resume-draft').click();await expect(editor).toBeFocused();
+expect(errors).toEqual([]);
+});
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(90000);
 const cases=[...require('./ai-inquiry-challenge-cases.json').cases,...require('./ai-inquiry-transfer-cases.json').cases,...require('./ai-inquiry-restraint-cases.json'),...require('./ai-inquiry-restraint-transfer-cases.json'),...require('./ai-inquiry-contextual-holdout.json')];
