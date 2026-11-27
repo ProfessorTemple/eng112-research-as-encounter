@@ -946,7 +946,7 @@ function renderExplore(){
    const chosen=base.length?base:(state.studio?.selectedPhrases||[]).slice(0,5);
    host.hidden=!chosen.length;
    if(chosen.length){const line=elt('p','');line.append(elt('strong','','Words I chose: '),document.createTextNode(chosen.slice(0,6).join(' · ')));host.append(line);}
-   const example=$('explore-question-example');example.replaceChildren();
+   const example=$('explore-question-example');
    const pair=questionModel(chosen,$('encounter').value);
    showNotebookModel(example,pair,'Write your own question about a connection you notice. You can use a different connection.','What relationship do you want to investigate next? Write your own question.','question');
 
