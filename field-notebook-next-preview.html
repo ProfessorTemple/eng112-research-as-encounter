@@ -2788,6 +2788,31 @@ function setCarriedInquiryPractice(next){
  });
  accept.addEventListener('click',()=>{if(!candidate)return;const target=candidate.record.id;if(controls[1].value&&controls[1].value!==target&&!confirm('Replace the second piece in this comparison? Your notebook writing will not change.'))return;controls[1].value=target;clearSuggestion();show();controls[1].focus();});
  reject.addEventListener('click',()=>{if(candidate)rejected.add(candidate.record.id);clearSuggestion();make('p','Connection set aside for this comparison. You can choose a piece yourself or look again.',suggestion);find.focus();});
+ // Curated intellectual resources; a student chooses the question, not a predicted identity.
+ const conceptResources=[
+  {id:'umwelt',question:'What might another living being perceive that I do not?',term:'Umwelt',definition:'Jakob von Uexküll’s concept of an organism’s meaningful world of perception and action, shaped by its particular capacities.',source:'How to Apply the Concept of Umwelt in the Evolutionary Study of Cognition',url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC6199898/',invitation:'Which observable detail might help you investigate the other being’s perceptual world?',caution:'Do not assume that you know another organism’s experience, or that its response proves conscious intention.'},
+  {id:'reciprocity',question:'What responsibility might follow from receiving something?',term:'Reciprocity',definition:'A way of understanding relationships through giving, receiving and responding. Robin Wall Kimmerer explores reciprocity as an ethic of the gift economy.',source:'Robin Wall Kimmerer, The Serviceberry (publisher introduction)',url:'https://www.simonandschuster.com/books/The-Serviceberry/Robin-Wall-Kimmerer/9781668072240',invitation:'What does your encounter suggest about taking, receiving or returning something?',caution:'Do not presume that a practice expresses a particular cultural tradition or that reciprocity requires equal exchange. Read Kimmerer in her own context.'},
+  {id:'knowing-in-action',question:'What did doing something teach me that I could not explain beforehand?',term:'Knowing-in-action',definition:'Donald Schön’s term for practical knowledge expressed through skilled action, often beyond what a practitioner can fully articulate.',source:'Donald A. Schön, The Reflective Practitioner (publisher introduction)',url:'https://www.routledge.com/The-Reflective-Practitioner-How-Professionals-Think-in-Action/Schon/p/book/9781315237473',invitation:'Which detail in the action reveals a kind of knowledge that a written explanation might overlook?',caution:'Do not treat practical knowledge and scholarly evidence as interchangeable; ask what each can establish.'},
+  {id:'consent',question:'What responsibilities do I have when another person shares knowledge?',term:'Informed consent',definition:'An ongoing ethical practice in which participants understand and agree to the purposes and uses of an interview or research encounter.',source:'Oral History Association, Statement on Ethics',url:'https://oralhistory.org/oha-statement-on-ethics/',invitation:'What can you discuss within the permission actually given, and what should remain private?',caution:'Do not reproduce restricted details or treat participation as permission for every use. No private account is needed to explore this concept.'}
+ ];
+ const concepts=make('details','',panel);concepts.id='thinking-concept-encounter';concepts.hidden=true;
+ make('summary','Is there a concept for what I am exploring? (optional)',concepts);
+ make('p','Begin with a question that feels relevant to your chosen piece. These curated resources are not automatic interpretations of your writing.',concepts);
+ const conceptLabel=make('label','A question I want to investigate',concepts),conceptChoice=make('select','',concepts);conceptChoice.id='thinking-concept-choice';conceptLabel.htmlFor=conceptChoice.id;
+ conceptChoice.add(new Option('Choose a question…',''));for(const c of conceptResources)conceptChoice.add(new Option(c.question,c.id));
+ const conceptOut=make('div','',concepts);conceptOut.setAttribute('role','status');
+ function clearConcept(){conceptChoice.value='';conceptOut.replaceChildren();}
+ conceptChoice.addEventListener('change',()=>{
+  conceptOut.replaceChildren();const c=conceptResources.find(x=>x.id===conceptChoice.value);if(!c)return;
+  make('h4',c.term,conceptOut);make('p',c.definition,conceptOut);
+  const a=make('a',c.source,conceptOut);a.href=c.url;a.target='_blank';a.rel='noopener noreferrer';a.referrerPolicy='no-referrer';
+  make('p','A question for your own encounter: '+c.invitation,conceptOut);
+  make('p',c.caution,conceptOut);make('p','This is a starting point for reading, not a source you have already read or a claim about your experience.',conceptOut);
+  const copy=make('button','Copy term for my research',conceptOut);copy.type='button';copy.className='secondary';
+  const msg=make('p','',conceptOut);msg.setAttribute('role','status');
+  copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(c.term);msg.textContent='Term copied. You can use it in a search or your own notes.';}catch(e){msg.textContent='Copy unavailable. Select the term above to copy it yourself.';}});
+ });
+ concepts.addEventListener('toggle',()=>{if(!concepts.open)clearConcept();});
  const note=make('p','',panel);note.setAttribute('role','status');
  const prompts=make('details','',panel);make('summary','A question if I want one',prompts);
  make('p','Choose whichever question fits. You may also decide that these pieces do not belong together.',prompts);
@@ -2837,7 +2862,7 @@ function setCarriedInquiryPractice(next){
  function sameRecord(a,b){return !!a&&!!b&&JSON.stringify(a)===JSON.stringify(b);}
  function show(){
   const selected=controls.map(c=>records.find(r=>r.id===c.value));
-  const anchorId=selected[0]?.id||'';if(anchorId!==suggestionAnchor){suggestionAnchor=anchorId;rejected.clear();clearSuggestion();}connection.hidden=!selected[0]||!!selected[0]?.excludeSuggestion;
+  const anchorId=selected[0]?.id||'';if(anchorId!==suggestionAnchor){suggestionAnchor=anchorId;rejected.clear();clearSuggestion();concepts.open=false;clearConcept();}connection.hidden=!selected[0]||!!selected[0]?.excludeSuggestion;concepts.hidden=connection.hidden;if(concepts.hidden){concepts.open=false;clearConcept();}
   views.forEach((view,i)=>{view.replaceChildren();const r=selected[i];if(!r)return;make('h4',r.label,view);
    make('p',r.when?'Recorded or updated '+new Date(r.when).toLocaleString():r.group==='Current notebook entries'?'Current wording · not a frozen historical record':'No recorded date',view);
    for(const section of r.sections){if(section.label)make('strong',section.label,view);make('p',section.text,view);}
@@ -2847,15 +2872,15 @@ function setCarriedInquiryPractice(next){
   note.textContent=selected.every(Boolean)&&!paired?'Choose a different second piece if you want to compare.':records.length<2?'There are not two distinct pieces to compare yet. No extra writing is required.':'';
  }
  function refresh(){
-  if(owner!==state){owner=state;panel.open=false;records=[];signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;controls.forEach(c=>c.replaceChildren());views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;practice.open=false;practice.hidden=true;resetPractice();}
+  if(owner!==state){owner=state;panel.open=false;records=[];signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;concepts.open=false;concepts.hidden=true;clearConcept();controls.forEach(c=>c.replaceChildren());views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;practice.open=false;practice.hidden=true;resetPractice();}
   if(!panel.open)return;
   const next=thinkingRecords(state),key=JSON.stringify(next);if(key===signature)return;
   const old=controls.map(c=>records.find(r=>r.id===c.value));records=next;signature=key;clearSuggestion();rejected.clear();
   controls.forEach((c,i)=>{c.replaceChildren(new Option('Choose a piece…',''));const groups=new Map();for(const r of records){if(!groups.has(r.group)){const group=document.createElement('optgroup');group.label=r.group;groups.set(r.group,group);c.append(group);}groups.get(r.group).append(new Option(r.label+(r.when?' · '+new Date(r.when).toLocaleDateString():''),r.id));}const prior=records.find(r=>r.id===old[i]?.id);if(sameRecord(prior,old[i]))c.value=prior.id;});
   show();
  }
- controls.forEach(c=>c.addEventListener('change',show));panel.addEventListener('toggle',()=>{if(panel.open)refresh();else{controls.forEach(c=>{c.value='';});views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;prompts.hidden=true;practice.open=false;practice.hidden=true;resetPractice();signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;}});
+ controls.forEach(c=>c.addEventListener('change',show));panel.addEventListener('toggle',()=>{if(panel.open)refresh();else{controls.forEach(c=>{c.value='';});views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;prompts.hidden=true;practice.open=false;practice.hidden=true;resetPractice();signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;concepts.open=false;concepts.hidden=true;clearConcept();}});
  window.addEventListener('field:save',refresh);
 })();
-</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
+</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-concept-encounter{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-concept-encounter select{width:100%;max-width:100%}#thinking-concept-encounter label{display:block}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
 </body></html>
