@@ -210,12 +210,36 @@ for(const [name,phrase] of [['Extends','new dimension'],['Complicates','qualific
 await companion.getByRole('button',{name:'Refresh my inquiry companion',exact:true}).click();
 await expect(observation).toBeChecked();
 await expect(result).toContainText('leave this discovery out');
+await result.getByText('Keep a discovery in my intellectual trail (optional)',{exact:true}).click();
+const trailText='Audit discovery: seed saving can sustain relationships.';
+await result.getByRole('button',{name:'Keep this discovery',exact:true}).click();
+await expect(result).toContainText('Write your own reflection first.');
+await page.locator('#ic-trail-entry').fill(trailText);
+await result.getByRole('button',{name:'Keep this discovery',exact:true}).click();
+await expect(result).toContainText('Discovery saved in this browser');
+await companion.getByRole('button',{name:'Refresh my inquiry companion',exact:true}).click();
+await companion.getByText('My living intellectual trail (optional)',{exact:true}).click();
+await expect(companion.getByText(trailText,{exact:true})).toBeVisible();
 await observation.uncheck();
 await expect(result).toBeEmpty();
 await input.fill('I prefer not to share this memory.');
 await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
 await expect(result).toContainText('Respecting a boundary');
 await expect(result).not.toContainText('Audit interpretation of gifts');
+await page.reload({waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await companion.getByText('My living intellectual trail (optional)',{exact:true}).click();
+await expect(companion.getByText(trailText,{exact:true})).toBeVisible();
+await companion.getByRole('button',{name:'Remove discovery 1',exact:true}).click();
+await expect(companion.getByText(trailText,{exact:true})).toHaveCount(0);
+await page.reload({waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await expect(companion.getByText(trailText,{exact:true})).toHaveCount(0);
+
 });
 test('capture intellectual challenge baseline',async({page},testInfo)=>{
 test.setTimeout(60000);
