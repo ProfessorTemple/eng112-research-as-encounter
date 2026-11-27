@@ -7,7 +7,7 @@ test.use({viewport});
 test('search, refinement, discovery and persistence',async({page})=>{
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 page.on('pageerror',e=>console.log('PAGE ERROR:',e.message));page.on('requestfailed',r=>console.log('REQUEST FAILED:',r.url(),r.failure()?.errorText));console.log('Opening notebook');await page.goto(url,{waitUntil:'domcontentloaded'});console.log('DOM ready',await page.title());
-console.log('Opening research');await page.locator('#tab-search').evaluate(e=>e.click());console.log('Research tab clicked');
+console.log('Opening research');await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();console.log('Research tab clicked');
 await page.locator('#rs-a').fill('human wildlife interactions');
 await page.locator('#rs-b').fill('ecological interdependence');
 await page.locator('#rs-build').click();
@@ -26,7 +26,7 @@ expect(errors).toEqual([]);
 });
 test('custom source and reading evidence',async({page})=>{
 const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('pageerror',e=>console.log('PAGE ERROR:',e.message));page.on('requestfailed',r=>console.log('REQUEST FAILED:',r.url(),r.failure()?.errorText));console.log('Opening notebook');await page.goto(url,{waitUntil:'domcontentloaded'});console.log('DOM ready',await page.title());
-console.log('Opening journal');await page.locator('#tab-journal').evaluate(e=>e.click());console.log('Journal tab clicked');
+console.log('Opening journal');await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();console.log('Journal tab clicked');
 await page.locator('#custom-source-details summary').click();
 await page.locator('#custom-title').fill('Synthetic test source');
 await page.locator('#custom-creator').fill('Test author');
@@ -42,7 +42,7 @@ await page.locator('#note-author-idea').fill('A simulated idea.');
 await page.locator('#note-connection').fill('A simulated connection.');
 await page.locator('#save-source-note').click();
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
-await page.reload({waitUntil:'domcontentloaded'});console.log('Opening journal');await page.locator('#tab-journal').evaluate(e=>e.click());console.log('Journal tab clicked');
+await page.reload({waitUntil:'domcontentloaded'});console.log('Opening journal');await page.locator('[data-field-space="research"]').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();console.log('Journal tab clicked');
 await expect(page.locator('#note-list')).toContainText('Synthetic observation');
 expect(errors).toEqual([]);
 });
