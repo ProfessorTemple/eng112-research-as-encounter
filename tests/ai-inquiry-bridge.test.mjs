@@ -32,4 +32,18 @@ let timeoutSignal;
 const timed=createInquiryBridge({fallback,timeoutMs:5,request:({signal})=>{timeoutSignal=signal;return new Promise(()=>{});}});
 assert.equal((await timed.reflect({passage,consent:true})).kind,'local');
 assert.equal(timeoutSignal.aborted,true);
+for(const consent of ['false','true',1,{},null]){
+ const before=calls;
+ assert.equal((await bridge.reflect({passage,consent})).kind,'local');
+ assert.equal(calls,before);
+}
+const unresponsive=createInquiryBridge({fallback,timeoutMs:10000,request:()=>new Promise(()=>{})});
+const stuck=unresponsive.reflect({passage,consent:true});
+await Promise.resolve();
+unresponsive.cancel();
+let watchdog;
+try {
+ const result=await Promise.race([stuck,new Promise((_,reject)=>{watchdog=setTimeout(()=>reject(Error('cancellation did not settle')),250);})]);
+ assert.equal(result.kind,'stale');
+}finally{clearTimeout(watchdog);}
 console.log('Bridge scenarios passed');
