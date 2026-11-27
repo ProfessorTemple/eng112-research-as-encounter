@@ -1,0 +1,38 @@
+[
+  {
+    "id": "inheritance",
+    "query": "My mother taught me to save seeds from every harvest.",
+    "related": "Intergenerational transmission preserves agricultural knowledge.",
+    "distractor": "Seed prices fluctuate annually."
+  },
+  {
+    "id": "material",
+    "query": "The clay resisted my hands until I changed my movements.",
+    "related": "Material properties participate in shaping craft practices.",
+    "distractor": "Clay is sold in several colors."
+  },
+  {
+    "id": "agency",
+    "query": "For the first time I could choose my own direction.",
+    "related": "Autonomy involves the capacity for self-determination.",
+    "distractor": "Compass directions are marked on maps."
+  },
+  {
+    "id": "uncertainty",
+    "query": "I cannot tell if the bird was warning me.",
+    "related": "The evidence cannot establish an animal's intention.",
+    "distractor": "Birds sometimes migrate long distances."
+  },
+  {
+    "id": "attention",
+    "query": "Listening to the rain revealed sounds I had overlooked.",
+    "related": "Attentiveness changes environmental perception.",
+    "distractor": "Rainfall is measured in millimeters."
+  },
+  {
+    "id": "care",
+    "query": "My brother spent years looking after our father.",
+    "related": "Family caregiving can involve invisible labor.",
+    "distractor": "Brothers can have different birthdays."
+  }
+]
