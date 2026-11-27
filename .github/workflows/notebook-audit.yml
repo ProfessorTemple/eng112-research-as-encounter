@@ -14,6 +14,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ProfessorTemple/eng112-research-connections-library
+          path: eng112-research-connections-library
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
