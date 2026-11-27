@@ -657,6 +657,33 @@ test('welcome and writing support stay quiet until deliberately requested',async
  await expect(context).toContainText('Synthesis means bringing your experience and sources into conversation');
  await page.locator('#field-resume-draft').click();await expect(page.locator('#ws-essay-rich')).toBeFocused();
 });
+test('optional earlier work is a reversible detour and a resumed notebook identifies the activity',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="write"]').click();
+ const draft=page.locator('#ws-essay-rich');
+ await draft.fill('A synthetic paragraph that belongs to the student.');
+ await page.locator('#field-revisit-earlier').click();
+ await expect(page.locator('#field-earlier-title')).toBeFocused();
+ await page.locator('#field-return-current').click();
+ await expect(draft).toBeFocused();
+ await expect(draft).toHaveText('A synthetic paragraph that belongs to the student.');
+ await page.evaluate(()=>sessionStorage.removeItem('eng112-next-preview-workspace-open-v1'));
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect(page.locator('#field-welcome-start')).toHaveText('Continue my notebook');
+ await expect(page.locator('#field-welcome-saved')).toContainText('Return to Essay draft');
+ await page.locator('#field-welcome-start').click();
+ await expect(draft).toBeFocused();
+ await expect(draft).toHaveText('A synthetic paragraph that belongs to the student.');
+ await page.locator('[data-field-space="research"]').click();
+ await page.locator('#field-subnav').getByRole('button',{name:'Build a search',exact:true}).click();
+ await page.locator('#field-revisit-earlier').click();
+ await page.locator('#field-return-current').click();
+ await expect(page.locator('#page-search h2').first()).toBeFocused();
+ await expect(page.locator('#page-search')).toBeVisible();
+ expect(errors).toEqual([]);
+});
 test('keyboard access and quiet status feedback support uninterrupted writing',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});
  await page.goto(url,{waitUntil:'domcontentloaded'});
