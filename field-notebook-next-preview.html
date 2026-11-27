@@ -2539,17 +2539,7 @@ const workspace=document.getElementById('field-workspace');if(!workspace)return;
 const panel=document.createElement('details');panel.id='living-inquiry-portrait';panel.className='field-thread';panel.innerHTML='<summary>My Living Inquiry Portrait</summary><p>Your own words and saved discoveries, gathered across the notebook. Nothing here is a diagnosis of your beliefs.</p><div id="portrait-trail"></div><label for="portrait-question">A question I want to carry forward</label><textarea id="portrait-question" rows="3"></textarea><label for="portrait-status">Where I am with this question</label><select id="portrait-status"><option value="exploring">Still exploring</option><option value="reconsidered">Reconsidered</option><option value="aside">Set aside for now</option></select><button type="button" id="portrait-save">Save my reflection</button><p id="portrait-message" role="status"></p>';
 const anchor=document.getElementById('field-edit-writing-route');if(anchor)anchor.after(panel);else workspace.prepend(panel);
 const q=panel.querySelector('#portrait-question'),status=panel.querySelector('#portrait-status'),message=panel.querySelector('#portrait-message');
-function draw(){const out=panel.querySelector('#portrait-trail');out.replaceChildren();const add=(label,value)=>{if(!value||!String(value).trim())return;const h=document.createElement('h4');h.textContent=label;const p=document.createElement('p');p.textContent=String(value).slice(0,600);out.append(h,p);};for(const [id,label] of [['encounter','My original encounter'],['assumption','My earlier assumption'],['thesis-question','My research question'],['shift','My change in thinking'],['what','My observation'],['soWhat','My interpretation'],['nowWhat','My significance']])add(label,document.getElementById(id)?.value||state.fields?.[id]);const names=[...new Set(Object.values(state.lensReviewMemory||{}).flatMap(x=>x.names||[]))];add('Perspectives the notebook suggested (not your stated beliefs)',names.join(', '));for(const n of (state.readingNotes||[]).slice(-3))add('My saved research reflection · '+(lookupSource(n.sourceId)?.title||'Saved source'),n.connection||n.authorIdea);const trail=[...['encounter','assumption','thesis-question','shift','what','soWhat','nowWhat'].map(id=>({label:id,text:document.getElementById(id)?.value||state.fields?.[id]||''})),...(state.readingNotes||[]).map(n=>({label:'Reading Journal · '+(lookupSource(n.sourceId)?.title||'Saved source'),text:[n.authorIdea,n.connection].filter(Boolean).join(' ')}))];
-const pairs=[
-[/\b(threat|defen[cs]e|danger)\w*\b/i,/\b(perception|sensory|responsiveness|umwelt)\b/i,'Defense and perception','Could these be complementary explanations, or would different evidence distinguish them?'],
-[/\b(obligation|duty|expectation|traditional|gender)\w*\b/i,/\b(agency|independence|autonomy|freedom)\b/i,'Expectation and agency','How might a practice express both inherited expectations and personal agency?'],
-[/\b(silence|silent|absence|nothing)\b/i,/\b(attention|listen\w*|sound\w*|hear\w*|notice\w*)\b/i,'Absence and attention','What distinguishes absence from the limits of attention?'],
-[/\b(ownership|property|control|resources?)\b/i,/\b(reciproc\w*|responsib\w*|interdepend\w*)\b/i,'Ownership and reciprocity','How do these ways of understanding a relationship differ, and where might they coexist?'],
-[/\b(intelligen\w*|intent\w*|know\w*)\b/i,/\b(behavior|behaviour|response|responsiveness|observable)\b/i,'Intention and observable response','What evidence connects the observed response with the proposed intention?'],
-[/\b(memory|remember\w*|childhood)\b/i,/\b(change|reconsider\w*|reinterpret\w*|now)\b/i,'Memory and reinterpretation','How has the meaning of the remembered experience changed?']
-];
-let shown=0;for(const [a,b,title,prompt] of pairs){const left=trail.find(e=>a.test(e.text)),right=trail.find(e=>b.test(e.text));if(!left||!right||shown>=2)continue;add('Possible connection to explore · '+title,prompt+' This is a suggested question, not a detected contradiction.');add('Your earlier or current wording',left.text);if(right!==left)add('Another part of your inquiry',right.text);shown++;}
-for(const item of (state.sourceConversations||[]).slice(-3))add('My source synthesis reflection',item.reflection);if(!out.children.length)add('Begin anywhere','Your own writing and saved reflections will appear here as you work.');}
+function draw(){const out=panel.querySelector('#portrait-trail');out.replaceChildren();const add=(label,value)=>{if(!value||!String(value).trim())return;const h=document.createElement('h4');h.textContent=label;const p=document.createElement('p');p.textContent=String(value).slice(0,600);out.append(h,p);};for(const [id,label] of [['encounter','My original encounter'],['assumption','My earlier assumption'],['thesis-question','My research question'],['shift','My change in thinking'],['what','My observation'],['soWhat','My interpretation'],['nowWhat','My significance']])add(label,document.getElementById(id)?.value||state.fields?.[id]);const names=[...new Set(Object.values(state.lensReviewMemory||{}).flatMap(x=>x.names||[]))];add('Perspectives the notebook suggested (not your stated beliefs)',names.join(', '));for(const n of (state.readingNotes||[]).slice(-3))add('My saved research reflection · '+(lookupSource(n.sourceId)?.title||'Saved source'),n.connection||n.authorIdea);for(const item of (state.sourceConversations||[]).slice(-3))add('My source synthesis reflection',item.reflection);if(!out.children.length)add('Begin anywhere','Your own writing and saved reflections will appear here as you work.');}
 const conversation=document.createElement('details');conversation.id='sources-in-conversation';conversation.className='field-thread';conversation.innerHTML='<summary>Sources in Conversation</summary><p>Compare two of your saved reading notes. You decide how the ideas relate; the notebook does not infer agreement from shared words.</p><label for="conversation-a">First reading note</label><select id="conversation-a"></select><label for="conversation-b">Second reading note</label><select id="conversation-b"></select><div id="conversation-evidence"></div><label for="conversation-relation">How might these ideas relate?</label><select id="conversation-relation"><option value="">Still considering</option><option value="support">Support or extend</option><option value="complicate">Complicate</option><option value="challenge">Challenge</option><option value="different">Different questions or contexts</option></select><label for="conversation-reflection">My synthesis and connection to my encounter</label><textarea id="conversation-reflection" rows="4"></textarea><button type="button" id="conversation-save">Save this conversation</button><p id="conversation-message" role="status"></p>';
 panel.after(conversation);
 const getC=id=>conversation.querySelector('#conversation-'+id);
@@ -2731,13 +2721,43 @@ function setCarriedInquiryPractice(next){
   }
   const current=[['Working thesis',fields['thesis-draft']],['Observation',fields.what],['Interpretation',fields.soWhat],['Significance',fields.nowWhat]];
   add('current-thesis','Current notebook entries','My current thesis and story notes',current,'');
+  add('current-essay','Current notebook entries','My current essay draft',[['',project.writing?.fields?.['ws-essay-body']]],'');
   list(project.thesisVersions).slice(-12).forEach((v,i)=>{if(!v||typeof v!=='object')return;add('version:'+i,'Saved thesis versions','Saved thesis version '+(i+1),[['Working thesis',v.draft],['Observation',v.story1],['Interpretation',v.story2],['Significance',v.story3],['Research question',v.question],['My account of what changed',v.change]],v.savedAt);});
   list(project.fieldNotebook?.discoveries).slice(-60).forEach((v,i)=>{if(v&&typeof v==='object')add('journey:'+i,'Saved discoveries','Research journey reflection '+(i+1),[['',v.text]],v.at);});
-  cleanIntellectualTrail(project.intellectualTrail).forEach((v,i)=>add('trail:'+i,'Saved discoveries','Intellectual trail reflection '+(i+1)+(v.relationship?' · '+v.relationship:''),[['',v.text]],v.created));
+  cleanIntellectualTrail(project.intellectualTrail).forEach((v,i)=>{add('trail:'+i,'Saved discoveries','Intellectual trail reflection '+(i+1)+(v.relationship?' · '+v.relationship:''),[['',v.text]],v.created);if(v.relationship==='Does not belong'&&records.at(-1)?.id==='trail:'+i)records.at(-1).excludeSuggestion=true;});
   list(project.readingNotes).slice(-500).forEach((v,i)=>{if(!v||typeof v!=='object')return;const label=lookupSource(v.sourceId)?.title||'Saved source';add('note:'+i,'Reading Journal','My response to '+label,[['Source locator',typeof v.connection==='string'&&v.connection.trim()?v.locator:''],['My response',v.connection]],v.updated);});
   const conversations=Array.isArray(project.sourceConversations)?project.sourceConversations:project.sourceConversation?[project.sourceConversation]:[];
   conversations.slice(-100).forEach((v,i)=>{if(v&&typeof v==='object')add('conversation:'+i,'Source conversations','My source conversation '+(i+1),[['My synthesis',v.reflection]],'');});
   return records;
+ }
+ // Retrieval cues are lexical, never a claim of conceptual equivalence.
+ function possibleConnection(anchor,records,rejected=new Set()){
+  if(!anchor||anchor.excludeSuggestion)return null;
+  const stop=new Set('about above across after again almost already also always another around because before being between both could different during early enough every first found from going great have having here into itself just kind know last later learn learned like made make many might more most much need never next noticed often once only other over part people place really same seem several should since some something still than that their them then there these they thing things think thinking this those thought through time together under understanding upon very want ways were what when where which while will with within without words world would years nature natural relationship relationships connection connections change changes experience experiences research source sources evidence question questions meaning important'.split(' '));
+  const words=text=>String(text).replace(/“[^”]*”|"[^"\n]*"|‘[^’]*’/g,' | ').toLowerCase().match(/[a-z]{4,}|\|/g)||[];
+  const features=record=>{
+   const tokens=new Set(),phrases=new Set();
+   for(const section of record.sections||[]){
+    if(section.label==='Source locator')continue;
+    const seq=words(section.text);
+    for(let i=0;i<seq.length;i++){
+     const w=seq[i];if(w==='|'||stop.has(w))continue;
+     tokens.add(w);const next=seq[i+1];
+     if(next&&next!=='|'&&!stop.has(next))phrases.add(w+' '+next);
+    }
+   }
+   return {tokens,phrases};
+  };
+  const a=features(anchor),normalized=r=>r.sections.filter(x=>x.label!=='Source locator').map(x=>x.text.trim()).join('\n');
+  const candidates=[];
+  for(const r of records){
+   if(r.id===anchor.id||r.excludeSuggestion||rejected.has(r.id)||r.group===anchor.group||normalized(r)===normalized(anchor))continue;
+   const b=features(r),shared=[...a.tokens].filter(w=>b.tokens.has(w)),phrases=[...a.phrases].filter(w=>b.phrases.has(w));
+   if(!phrases.length&&shared.length<3)continue;
+   candidates.push({record:r,phrases:phrases.slice(0,2),shared:shared.slice(0,5),strength:phrases.length?2:1});
+  }
+  candidates.sort((a,b)=>b.strength-a.strength||b.shared.length-a.shared.length||a.record.id.localeCompare(b.record.id));
+  return candidates[0]||null;
  }
  const panel=document.createElement('details');panel.id='portrait-compare-thinking';panel.className='thinking-compare';
  const make=(tag,text,parent)=>{const n=document.createElement(tag);n.textContent=text;if(parent)parent.append(n);return n;};
@@ -2749,6 +2769,24 @@ function setCarriedInquiryPractice(next){
   const col=make('div','',form);const label=make('label',word,col),select=make('select','',col);select.id='thinking-piece-'+i;label.htmlFor=select.id;controls.push(select);
   const view=make('article','',col);view.className='thinking-piece';view.setAttribute('aria-label',word+' selected');views.push(view);
  }
+ const connection=make('div','',panel);connection.id='thinking-connection';connection.hidden=true;
+ const find=make('button','Look for a possible connection',connection);find.type='button';find.className='secondary';
+ const suggestion=make('div','',connection);suggestion.setAttribute('role','status');
+ const accept=make('button','Compare this piece',connection);accept.type='button';accept.className='secondary';accept.hidden=true;
+ const reject=make('button','This connection does not fit',connection);reject.type='button';reject.className='secondary';reject.hidden=true;
+ let candidate=null, rejected=new Set(),suggestionAnchor='';
+ function clearSuggestion(){candidate=null;suggestion.replaceChildren();accept.hidden=reject.hidden=true;}
+ find.addEventListener('click',()=>{
+  clearSuggestion();const a=records.find(r=>r.id===controls[0].value);if(!a)return;
+  candidate=possibleConnection(a,records,rejected);
+  if(!candidate){make('p','No clear shared wording found among eligible records. You can still choose any piece yourself; meaningful connections do not always share words.',suggestion);return;}
+  make('strong',candidate.record.label,suggestion);
+  make('p',(candidate.phrases.length?'Shared wording: '+candidate.phrases.join(' · '):'Shared words: '+candidate.shared.join(', '))+'. This is a language clue, not evidence that the ideas agree or belong together.',suggestion);
+  make('p','Do these pieces help you investigate the same relationship, or do they use similar language for different purposes?',suggestion);
+  accept.hidden=reject.hidden=false;
+ });
+ accept.addEventListener('click',()=>{if(!candidate)return;const target=candidate.record.id;if(controls[1].value&&controls[1].value!==target&&!confirm('Replace the second piece in this comparison? Your notebook writing will not change.'))return;controls[1].value=target;clearSuggestion();show();controls[1].focus();});
+ reject.addEventListener('click',()=>{if(candidate)rejected.add(candidate.record.id);clearSuggestion();make('p','Connection set aside for this comparison. You can choose a piece yourself or look again.',suggestion);find.focus();});
  const note=make('p','',panel);note.setAttribute('role','status');
  const prompts=make('details','',panel);make('summary','A question if I want one',prompts);
  make('p','Choose whichever question fits. You may also decide that these pieces do not belong together.',prompts);
@@ -2798,6 +2836,7 @@ function setCarriedInquiryPractice(next){
  function sameRecord(a,b){return !!a&&!!b&&JSON.stringify(a)===JSON.stringify(b);}
  function show(){
   const selected=controls.map(c=>records.find(r=>r.id===c.value));
+  const anchorId=selected[0]?.id||'';if(anchorId!==suggestionAnchor){suggestionAnchor=anchorId;rejected.clear();clearSuggestion();}connection.hidden=!selected[0]||!!selected[0]?.excludeSuggestion;
   views.forEach((view,i)=>{view.replaceChildren();const r=selected[i];if(!r)return;make('h4',r.label,view);
    make('p',r.when?'Recorded or updated '+new Date(r.when).toLocaleString():r.group==='Current notebook entries'?'Current wording · not a frozen historical record':'No recorded date',view);
    for(const section of r.sections){if(section.label)make('strong',section.label,view);make('p',section.text,view);}
@@ -2807,15 +2846,15 @@ function setCarriedInquiryPractice(next){
   note.textContent=selected.every(Boolean)&&!paired?'Choose a different second piece if you want to compare.':records.length<2?'There are not two distinct pieces to compare yet. No extra writing is required.':'';
  }
  function refresh(){
-  if(owner!==state){owner=state;panel.open=false;records=[];signature='';controls.forEach(c=>c.replaceChildren());views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;practice.open=false;practice.hidden=true;resetPractice();}
+  if(owner!==state){owner=state;panel.open=false;records=[];signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;controls.forEach(c=>c.replaceChildren());views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;practice.open=false;practice.hidden=true;resetPractice();}
   if(!panel.open)return;
   const next=thinkingRecords(state),key=JSON.stringify(next);if(key===signature)return;
-  const old=controls.map(c=>records.find(r=>r.id===c.value));records=next;signature=key;
+  const old=controls.map(c=>records.find(r=>r.id===c.value));records=next;signature=key;clearSuggestion();rejected.clear();
   controls.forEach((c,i)=>{c.replaceChildren(new Option('Choose a piece…',''));const groups=new Map();for(const r of records){if(!groups.has(r.group)){const group=document.createElement('optgroup');group.label=r.group;groups.set(r.group,group);c.append(group);}groups.get(r.group).append(new Option(r.label+(r.when?' · '+new Date(r.when).toLocaleDateString():''),r.id));}const prior=records.find(r=>r.id===old[i]?.id);if(sameRecord(prior,old[i]))c.value=prior.id;});
   show();
  }
- controls.forEach(c=>c.addEventListener('change',show));panel.addEventListener('toggle',()=>{if(panel.open)refresh();else{controls.forEach(c=>{c.value='';});views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;prompts.hidden=true;practice.open=false;practice.hidden=true;resetPractice();signature='';}});
+ controls.forEach(c=>c.addEventListener('change',show));panel.addEventListener('toggle',()=>{if(panel.open)refresh();else{controls.forEach(c=>{c.value='';});views.forEach(v=>v.replaceChildren());answer.textContent='';prompts.open=false;prompts.hidden=true;practice.open=false;practice.hidden=true;resetPractice();signature='';suggestionAnchor='';rejected.clear();clearSuggestion();connection.hidden=true;}});
  window.addEventListener('field:save',refresh);
 })();
-</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
+</script><style>#portrait-compare-thinking{margin:.7rem 0;padding:.6rem;border:1px solid #c3d2c5;border-radius:10px;overflow-wrap:anywhere}#portrait-compare-thinking summary{cursor:pointer;min-height:44px;padding:.5rem 0}.thinking-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.thinking-compare-grid select{max-width:100%;width:100%}.thinking-piece{white-space:pre-wrap;overflow-wrap:anywhere}.thinking-piece p{margin:.45rem 0}#portrait-compare-thinking button{min-height:44px;margin:.2rem}#portrait-compare-thinking [hidden]{display:none!important}#thinking-connection{margin:.6rem 0;border-top:1px solid #c3d2c5;padding:.6rem 0}#thinking-connection p{overflow-wrap:anywhere}#thinking-practice-bridge{margin:.6rem 0;padding:.55rem;border-top:1px solid #c3d2c5}#thinking-practice-bridge select{max-width:100%;width:100%}#thinking-practice-bridge label{display:block}@media(max-width:650px){.thinking-compare-grid{grid-template-columns:1fr}}</style>
 </body></html>
