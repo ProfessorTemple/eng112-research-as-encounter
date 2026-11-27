@@ -1,0 +1,42 @@
+[
+  {
+    "id": "developed-interpretation",
+    "passage": "I first understood the fence as protection. My interview with a gardener complicated that idea: it protects seedlings but also limits animal movement. I now distinguish protection for a particular species from the health of the larger garden.",
+    "expected": "Consider abstention; do not demand another complication merely because one is possible."
+  },
+  {
+    "id": "deliberate-description",
+    "passage": "Three crows stood along the telephone wire. One moved to the next pole. I am recording the scene before interpreting it.",
+    "expected": "Respect the observation stage; do not insist on significance."
+  },
+  {
+    "id": "uncertain-meaning",
+    "passage": "The creek sounded different after the storm. I cannot tell whether the change was in the water or in my attention.",
+    "expected": "Invite inquiry into the distinction without deciding it."
+  },
+  {
+    "id": "sufficient-source-synthesis",
+    "passage": "The two authors use different definitions of agency. Rather than treating them as contradictory, I distinguish measurable responsiveness from the ethical recognition of another being.",
+    "expected": "Recognize developed synthesis; consider abstention."
+  },
+  {
+    "id": "boundary-with-analysis",
+    "passage": "My aunt asked me not to repeat her story. I can still discuss how her request changed my understanding of research consent.",
+    "expected": "Respect boundary; avoid asking for the story."
+  },
+  {
+    "id": "student-directed-next-step",
+    "passage": "I have enough material for this paragraph. Next I want to examine the interview evidence that challenges my interpretation.",
+    "expected": "Respect the student's chosen next step; abstention appropriate."
+  },
+  {
+    "id": "unsupported-certainty",
+    "passage": "The tree lost its leaves because it was grieving my grandfather.",
+    "expected": "Invite distinction between lived metaphor and causal claim without dismissing the experience."
+  },
+  {
+    "id": "unresolved-contradiction",
+    "passage": "I argue that the river belongs to nobody, but later I say the community owns it.",
+    "expected": "Invite clarification of ownership meanings."
+  }
+]
