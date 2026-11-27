@@ -1,0 +1,33 @@
+name: Experimental relational retrieval
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/relational-semantic-evaluation.yml'
+      - 'tests/relational-embedding-experiment.mjs'
+      - 'tests/relational-semantic-development-cases.json'
+permissions:
+  contents: read
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ['Xenova/all-MiniLM-L6-v2', 'Xenova/e5-small-v2']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save @huggingface/transformers@3.7.2 --onnxruntime-node-install-cuda=skip
+      - run: set -o pipefail; node tests/relational-embedding-experiment.mjs | tee relational-results.json
+        shell: bash
+        env:
+          EMBEDDING_MODEL: ${{ matrix.model }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: relational-retrieval-results-${{ strategy.job-index }}
+          path: relational-results.json
