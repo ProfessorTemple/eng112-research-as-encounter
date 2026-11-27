@@ -102,6 +102,9 @@ await page.locator('#ws-essay-export').click();
 const word=await wordPromise;
 expect(word.suggestedFilename()).toMatch(/\.docx$/i);
 expect(await word.failure()).toBeNull();
+const xml=require('child_process').execFileSync('python3',['-c','import zipfile,sys,xml.etree.ElementTree as E; z=zipfile.ZipFile(sys.argv[1]); assert z.testzip() is None; [E.fromstring(z.read(n)) for n in z.namelist() if n.endswith((".xml",".rels"))]; print(z.read("word/document.xml").decode())',await word.path()],{encoding:'utf8'});
+for(const term of ['Synthetic firefly inquiry','Abstract','Synthetic abstract for export.','Keywords:','agency, fireflies','Synthetic essay paragraph.','References','w:top="1440"'])expect(xml).toContain(term);
+
 const backupPromise=page.waitForEvent('download');
 await page.locator('#page-writing [data-ws-backup]').first().click();
 const backup=await backupPromise;
@@ -114,7 +117,8 @@ try{
 const restored=await fresh.newPage();
 restored.on('dialog',d=>d.accept());
 await restored.goto(url,{waitUntil:'domcontentloaded'});
-await restored.locator('#import-file').setInputFiles(await backup.path());
+const large={...data,auditPadding:'x'.repeat(1100000)};
+await restored.locator('#import-file').setInputFiles({name:'large-synthetic-backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(large))});
 await expect.poll(async()=>restored.evaluate(()=>Object.values(localStorage).some(v=>v.includes('Synthetic essay paragraph.')))).toBeTruthy();
 await restored.waitForLoadState('domcontentloaded');
 if(await restored.locator('#field-workspace').isHidden())await restored.locator('#field-welcome-start').click();
