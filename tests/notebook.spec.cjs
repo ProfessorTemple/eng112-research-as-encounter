@@ -100,6 +100,34 @@ expect(await panel.locator('strong').allTextContents()).toEqual(before);
 }
 expect(errors).toEqual([]);
 });
+test('living inquiry portrait continuity',async({page})=>{
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto(url,{waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="thesis"]').click();
+await page.locator('#lts-nav').getByRole('button',{name:'Build',exact:true}).click();
+await page.locator('#lts-build').getByRole('button',{name:'1. Observation',exact:true}).click();
+await page.locator('#what').fill('Fireflies stop flashing near a possible threat.');
+await page.locator('#lts-build').getByRole('button',{name:'Review my observation',exact:true}).click();
+const portrait=page.locator('#living-inquiry-portrait');
+await portrait.locator('summary').click();
+await expect(portrait).toContainText('Fireflies stop flashing near a possible threat.');
+await expect(portrait).toContainText('Threat and perception');
+await portrait.locator('#portrait-question').fill('What distinguishes perception from intention?');
+await portrait.locator('#portrait-status').selectOption('reconsidered');
+await portrait.locator('#portrait-save').click();
+await expect(portrait.locator('#portrait-message')).toContainText('saved');
+for(const space of ['discover','research','write','thesis']){
+await page.locator('[data-field-space="'+space+'"]').click();
+await expect(portrait.locator('summary')).toBeVisible();
+}
+await page.reload({waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+if(!(await portrait.evaluate(e=>e.open)))await portrait.locator('summary').click();
+await expect(portrait.locator('#portrait-question')).toHaveValue('What distinguishes perception from intention?');
+await expect(portrait.locator('#portrait-status')).toHaveValue('reconsidered');
+expect(errors).toEqual([]);
+});
 test('lexicon phrase refinement and export',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
