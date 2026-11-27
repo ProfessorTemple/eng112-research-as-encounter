@@ -416,7 +416,7 @@
       </div>
     </div>
   </section>
-  <div class="field-invitation" id="field-next-invitation"><span class="field-mini">A possible next move</span><p id="field-next-text">Write about a memory, place, relationship, or unanswered question.</p><button type="button" id="field-next-button">Discover possible ideas in my words →</button></div>
+  <div class="field-invitation" id="field-next-invitation"><span class="field-mini">Next step</span><p id="field-next-text">Write about a memory, place, relationship, or unanswered question.</p><button type="button" id="field-next-button">Discover possible ideas in my words →</button></div>
   <p class="field-privacy"><button class="field-import-link" type="button" id="field-download-backup">Back up my notebook</button> · <button class="field-import-link" type="button" id="field-import-backup">Import an existing Research as Encounter backup</button> · Importing replaces only preview work.</p><p class="field-privacy">Separate preview: work stays in this browser. The regular Research as Encounter application is not changed or overwritten. <a href="./index.html">Return to the regular application</a>.</p>
 </section>
 <div class="field-workspace-shortcuts no-print" role="group" aria-label="Bring your earlier research into the notebook">
@@ -520,8 +520,8 @@
 </div>
 <!-- Primary notebook navigation already provides both writing and research destinations at every viewport. -->
 <section class="panel" id="page-begin" role="tabpanel" aria-labelledby="tab-begin">
-<div id="ux-writing-view"><div class="studio-head"><div class="eyebrow studio-eyebrow">ENG 112 · Freewriting Studio</div><h2>Begin with something that stays with you.</h2><p>Begin with a memory, place, encounter, or question. Write first. Discover later.</p></div>
-<div class="field studio-write"><label for="encounter">Your freewrite</label><p class="hint" id="encounter-help">What happened? What detail stays with you? Your writing stays in this browser.</p><textarea id="encounter" rows="13" placeholder="I remember... / One day I noticed... / I can't stop thinking about..." aria-describedby="encounter-help"></textarea><div class="studio-meter" id="studio-meter"><span id="word-counter">0 words</span><span id="writing-goal">Invitation: 250–400 words, not a requirement</span></div><div class="ux-writing-actions"><button type="button" id="ask-question-now" class="secondary studio-ask">Give me a question</button><button class="primary" id="discover-threads">Notice my words →</button></div></div>
+<div id="ux-writing-view"><div class="studio-head"><div class="eyebrow studio-eyebrow">ENG 112 · Freewriting Studio</div><h2>Write about an experience</h2><p>Describe a memory, place or encounter that stays with you.</p></div>
+<div class="field studio-write"><label for="encounter">Your freewrite</label><p class="hint" id="encounter-help">What happened? What detail stays with you?</p><textarea id="encounter" rows="13" placeholder="I remember... / One day I noticed... / I can't stop thinking about..." aria-describedby="encounter-help"></textarea><div class="studio-meter" id="studio-meter"><span id="word-counter">0 words</span><span id="writing-goal">Invitation: 250–400 words, not a requirement</span></div><div class="ux-writing-actions"><button type="button" id="ask-question-now" class="secondary studio-ask">Give me a question</button><button class="primary" id="discover-threads">Notice my words →</button></div></div>
 <details id="ux-start-help"><summary>Need help getting started?</summary><label class="toggle-row"><input type="checkbox" id="enable-pause-invitations"> Offer a question after I pause while writing (optional)</label><div class="studio-choice" role="group" aria-label="Choose how to begin writing"><button type="button" id="start-own" class="choice-card" aria-pressed="true"><span class="choice-icon" aria-hidden="true">✎</span><strong>I have something in mind</strong><span>Begin with your own experience or observation.</span></button><button type="button" id="start-help" class="choice-card" aria-pressed="false"><span class="choice-icon" aria-hidden="true">✳</span><strong>Help me find a starting point</strong><span>Browse optional invitations to memory and discovery.</span></button></div>
 <div id="starter-area" class="starter-area hidden"><div class="starter-heading"><strong>Choose an invitation, or keep looking.</strong><span class="hint">No obligation to follow any of these.</span></div><div class="starter-note" id="starter-card" aria-live="polite"></div><div class="actions"><button type="button" class="secondary" id="starter-next">Another invitation ↻</button><button type="button" class="secondary" id="starter-use">Keep this nearby as I write</button><button type="button" class="secondary" id="starter-close">I'll follow my own idea</button></div></div>
 </details><details class="self-guide" id="self-guide"><summary>Start somewhere else (optional)</summary>
@@ -538,17 +538,17 @@
 <aside id="pause-invitation" class="pause-invitation hidden" role="note" aria-live="polite"><div><div class="pause-eyebrow">✧ A quiet writing invitation</div><strong>Want a question to keep going?</strong><p>You can keep thinking. Nothing is sent anywhere unless you choose.</p></div><div class="actions"><button type="button" id="offer-nudge" class="primary">Give me a question</button><button type="button" id="snooze-nudge" class="secondary">Not now</button></div><label class="toggle-row"><input type="checkbox" id="disable-nudges"> Turn off pause invitations</label></aside>
 <aside id="nudge-question" class="nudge-question hidden" role="note" aria-live="polite"><div class="pause-eyebrow">✧ One way to go deeper</div><strong>One possible next question</strong><p id="nudge-copy"></p><div class="actions"><button type="button" id="different-nudge" class="secondary">Another question</button><button type="button" id="dismiss-nudge" class="primary">Return to writing</button></div></aside>
 <div class="studio-bottom"><p class="hint">When you are ready, the companion can reflect possible ideas in your writing. You choose what matters, change its suggestions, or return to writing. You do not have to finish the memory.</p><div class="actions"><button class="secondary" id="go-search">Go to research searches</button></div><p class="status" id="save-status" aria-live="polite"></p><p class="tiny" id="studio-privacy">Your writing, searches, evidence notes, and other personal entries stay in this browser; nothing is sent to an AI provider, PCC, or your instructor. If anonymous usage counts are activated, they may count visits and selections among built-in sections and curated sources, never your written words. See the privacy settings at the bottom of this page. Export backups before switching devices, and avoid entering sensitive information about others.</p></div>
-</div><div id="thread-clearing" class="thread-clearing hidden"><div class="clearing-top"><div class="field-thread-head-actions"><button type="button" class="secondary edit-my-freewrite">← Edit My Freewrite</button></div><div><span class="eyebrow studio-eyebrow">Discovery Clearing · First look</span><h3>What might your words be reaching toward?</h3><p>These possible threads come from <strong>words, phrases, and questions in your own freewrite</strong>. You decide which relationships matter. Scholarly lenses come later, and they are optional. No online AI reads your writing.</p></div></div><div id="language-clearing" class="language-clearing"><h4>Words and images from my freewrite</h4><p class="hint">These are words and passages actually present in your writing, not words picked for you from a course list. Choose the ones that matter, or add what we missed. Nothing is preselected for you. Nothing here is an interpretation of your experience.</p><div id="phrase-results" class="phrase-results" role="group" aria-label="Choose significant phrases from your writing"></div><div class="field"><label for="custom-phrase">A word or phrase we missed</label><input id="custom-phrase" placeholder="A phrase, image, question, or word that matters to you"></div><div class="actions"><button type="button" id="add-custom-phrase" class="secondary">Add my words</button></div><details class="highlight-details" open><summary>See those words highlighted in my freewrite</summary><div id="highlighted-preview" class="highlighted-preview" aria-label="Reading copy with your selected phrases marked"></div><p class="tiny">This is a reading copy. The original writing above is unchanged.</p></details><button type="button" class="primary ux-next" id="ux-to-concepts">Explore connections between my words →</button></div><div id="ux-concepts-view" hidden><h3 tabindex="-1" id="ux-concepts-heading">3. Explore connections</h3><h4>Build concepts from my words</h4><p class="hint">The program offers possible pairings from words in your sentences. These aren't interpretations or facts. Select what matters, or add your own concept, before following a path. Scholarly terms come later.</p><div id="thread-results" class="thread-results" aria-live="polite"></div><div class="field"><label for="custom-thread">A thread we missed</label><input id="custom-thread" placeholder="Use your own words, such as 'being watched' or 'belonging'"></div><div class="actions"><button type="button" id="add-custom-thread" class="secondary">Add my idea</button><button type="button" id="follow-selected" class="primary">Follow my chosen ideas →</button><button type="button" id="return-freewrite" class="secondary">Return to my writing</button></div><p class="hint" id="thread-status" aria-live="polite"></p><button type="button" class="secondary" id="ux-back-words">← Back to my words</button></div></div>
+</div><div id="thread-clearing" class="thread-clearing hidden"><div class="clearing-top"><div class="field-thread-head-actions"><button type="button" class="secondary edit-my-freewrite">← Edit My Freewrite</button></div><div><span class="eyebrow studio-eyebrow">Discovery Clearing · First look</span><h3>What might your words be reaching toward?</h3><p>These possible threads come from <strong>words, phrases, and questions in your own freewrite</strong>. You decide which relationships matter. Scholarly lenses come later, and they are optional. No online AI reads your writing.</p></div></div><div id="language-clearing" class="language-clearing"><h2 id="ux-words-heading" tabindex="-1">Notice my words</h2><p>Choose one or two words or phrases that make you curious, or add your own.</p><div id="phrase-results" class="phrase-results" role="group" aria-label="Choose significant phrases from your writing"></div><div class="field"><label for="custom-phrase">A word or phrase we missed</label><input id="custom-phrase" placeholder="A phrase, image, question, or word that matters to you"></div><div class="actions"><button type="button" id="add-custom-phrase" class="secondary">Add my words</button></div><details class="highlight-details"><summary>See those words highlighted in my freewrite</summary><div id="highlighted-preview" class="highlighted-preview" aria-label="Reading copy with your selected phrases marked"></div><p class="tiny">This is a reading copy. The original writing above is unchanged.</p></details><button type="button" class="primary ux-next" id="ux-to-concepts">Continue to my research question →</button></div><div id="ux-concepts-view" hidden><h3 tabindex="-1" id="ux-concepts-heading">Explore more connections (optional)</h3><p>Choose a possible connection or add your own. These are ideas to investigate, not facts.</p><div id="thread-results" class="thread-results" aria-live="polite"></div><div class="field"><label for="custom-thread">A thread we missed</label><input id="custom-thread" placeholder="Use your own words, such as 'being watched' or 'belonging'"></div><div class="actions"><button type="button" id="add-custom-thread" class="secondary">Add my idea</button><button type="button" id="follow-selected" class="primary">Continue to my research question →</button><button type="button" id="return-freewrite" class="secondary">Return to my writing</button></div><p class="hint" id="thread-status" aria-live="polite"></p><button type="button" class="secondary" id="ux-back-words">← Back to my words</button></div></div>
 <details class="legacy-bridge" id="ux-manual"><summary>Optional: enter research ideas yourself or revisit the earlier Prototype 2 approach</summary><p class="hint">You can still name three concepts manually or write about an assumption. This is optional and never required before you freewrite.</p><div class="field"><label for="assumption">An assumption or uncertainty, if one emerges</label><textarea id="assumption" rows="2" placeholder="At first I thought... / Now I wonder..."></textarea></div><div class="grid"><div class="field"><label for="idea1">Idea 1</label><input id="idea1" placeholder="An idea in your own language"></div><div class="field"><label for="idea2">Idea 2</label><input id="idea2" placeholder="A second idea"></div><div class="field"><label for="idea3">Idea 3</label><input id="idea3" placeholder="A third idea"></div></div><div class="actions"><button class="secondary" id="go-explore">Explore these ideas →</button><button class="secondary" id="example">Load grandmother's garden example</button></div></details>
 </section>
 <section class="panel hidden" id="page-explore" role="tabpanel" aria-labelledby="tab-explore">
-<h2>What do I want to understand?</h2>
+<h2>Develop my research question</h2>
 <div id="student-owned-concepts" class="student-owned-concepts"></div>
 <div id="explore-question-example" class="question-example" hidden></div>
 <div class="field">
 <label for="thesis-question">My working research question</label>
 <textarea id="thesis-question" rows="3" placeholder="What makes me curious about this experience?"></textarea>
-<p class="hint" id="explore-question-hint">Begin with a question, not an answer.</p>
+<p class="hint" id="explore-question-hint">Write one thing you want to understand. You can revise it later.</p>
 </div>
 <button type="button" class="primary ux-next" id="explore-continue">Continue to research →</button>
 <details id="explore-extra-tools">
@@ -567,7 +567,7 @@
 </details>
 </section>
 <section class="panel hidden" id="page-search" role="tabpanel" aria-labelledby="tab-search">
-<h2>Research Studio</h2>
+<h2>Search for sources</h2>
 <section id="research-studio-next" aria-label="Guided research studio">
  <p>Choose search terms from your working question.</p><div class="field"><label for="rs-working-question">My working research question</label><textarea id="rs-working-question" rows="3" placeholder="What do I want to understand about my experience?"></textarea><p class="hint">Your question can change as you read.</p></div>
  <div class="rs-step"><h3>1. Build my search</h3><p class="hint">Choose one or two ideas from your question.</p>
@@ -576,7 +576,7 @@
  <div id="rs-term-gloss" class="hint" aria-live="polite"></div><button type="button" class="primary rs-primary" id="rs-build">Build my search →</button>
  <div id="rs-output" hidden><div class="field"><label for="rs-query">My editable search</label><textarea id="rs-query" rows="2"></textarea></div><p class="hint" id="rs-connection"></p><button type="button" class="secondary" id="rs-copy">Copy search</button> <button type="button" class="secondary" id="rs-save-query">Save search to journal</button><p id="rs-local-status" role="status" class="hint"></p><details id="rs-alternatives"><summary>Explore alternative searches (optional)</summary><p class="hint">Try a broader search or a related concept. These are possibilities, not search results. Your original ideas stay unchanged.</p><div id="rs-alternative-list"></div><p id="rs-alt-status" role="status"></p></details></div></div>
  <div class="rs-step" id="rs-database-step" hidden><h3>2. Find the right database</h3><div id="rs-databases"></div><details><summary>Broaden, narrow, or try another database</summary><p>Too few results? Remove a concept or try synonyms joined by OR. Too many? Add a distinct concept with AND. Start broad when you are unsure, and move to a subject database when you know your focus.</p><a href="https://libguides.pittcc.edu/az/databases" target="_blank" rel="noopener">Browse all PCC databases by subject</a></details></div>
- <div class="rs-step" id="rs-discovery-step" hidden><h3>3. Bring back a discovery</h3><div class="field"><label for="rs-outcome">How did your database search go?</label><select id="rs-outcome"><option value="">Choose an outcome (optional)</option><option value="none">No results</option><option value="many">Too many results</option><option value="irrelevant">Results were not relevant</option><option value="found">Found useful sources</option><option value="words">Discovered new vocabulary</option></select></div><div id="rs-refine" aria-live="polite"></div><div class="field"><label for="rs-discovery">Did you encounter a useful new word or phrase? (optional)</label><input id="rs-discovery" maxlength="100"></div><button type="button" class="secondary" id="rs-add">Keep this word for later (optional)</button><p id="rs-discovery-status" role="status" class="hint"></p> <button type="button" class="secondary" data-tab="journal">Record a source in my Reading Journal</button></div>
+ <div class="rs-step" id="rs-discovery-step" hidden><h3>3. Bring back a discovery</h3><div class="field"><label for="rs-outcome">How did your database search go?</label><select id="rs-outcome"><option value="">Choose an outcome (optional)</option><option value="none">No results</option><option value="many">Too many results</option><option value="irrelevant">Results were not relevant</option><option value="found">Found useful sources</option><option value="words">Discovered new vocabulary</option></select></div><div id="rs-refine" aria-live="polite"></div><div class="field"><label for="rs-discovery">Did you encounter a useful new word or phrase? (optional)</label><input id="rs-discovery" maxlength="100"></div><button type="button" class="secondary" id="rs-add">Keep this word for later (optional)</button><p id="rs-discovery-status" role="status" class="hint"></p> <button type="button" class="primary" data-tab="journal">Continue to my Reading Journal →</button></div>
  <p role="status" id="rs-status" class="hint"></p>
 </section>
 <details id="rs-search-help"><summary>Need help choosing search words?</summary><div id="rs-translation" hidden></div><details id="rs-saved-words"><summary>Words I have collected</summary><div id="rs-words" class="rs-words"></div></details></details><details class="rs-advanced" id="rs-advanced"><summary>Explore more keywords and advanced search options</summary>
@@ -635,7 +635,7 @@
  <div class="field-actions"><button type="button" class="field-secondary" id="field-catalog-more">Show more leads</button></div>
  <p class="field-mini">PCC reserve titles use verified record links where available; otherwise they open a title-specific catalog search. E-books may require PCC authentication. Check the original source before quoting or citing.</p>
 </details>
-<h3>Films, talks, and essays</h3><p class="hint">Explore assigned and suggested conversations. Links go to official or publisher pages when possible; some films require course or streaming access. The application does not embed copyrighted footage.</p><div class="stack" id="media-list" aria-live="polite"></div><div class="actions"><button id="go-journal" class="primary">Open my Reading Journal →</button></div>
+<h3>Films, talks, and essays</h3><p class="hint">Explore assigned and suggested conversations. Links go to official or publisher pages when possible; some films require course or streaming access. The application does not embed copyrighted footage.</p><div class="stack" id="media-list" aria-live="polite"></div><div class="actions"><button id="go-journal" class="primary">Continue to my Reading Journal →</button></div>
 </section>
 <section class="panel hidden" id="page-journal" role="tabpanel" aria-labelledby="tab-journal">
 <h2>The Reading Journal</h2><p>Finding a source begins the conversation. Now <strong>read, watch, or listen</strong> and return with specific evidence. Save a passage, scene, or idea, then ask how it meets, challenges, or changes your own experience.</p>
@@ -676,7 +676,7 @@
 <div class="field"><label for="note-connection">What does this do to <em>your</em> thinking?</label><textarea id="note-connection" rows="3" placeholder="This matters to my encounter because… / This makes me question…"></textarea><p id="note-attention" class="hint" hidden></p></div>
 <div class="actions"><button id="save-source-note" class="primary">Save this evidence and reflection</button><button id="clear-note" class="secondary">Clear entry</button></div><p id="note-status" class="status" aria-live="polite"></p>
 <h3>My collected evidence</h3><p class="hint">A source can offer several passages, even contradictory ones. Return to your notes, revise them, or remove anything that no longer helps.</p><div id="note-list" class="stack" aria-live="polite"></div>
-<div class="actions"><button id="journal-to-return" class="primary">Return to my living thesis →</button></div>
+<div class="actions"><button id="journal-to-return" class="primary">Continue to my Three-Story Thesis →</button></div>
 </section>
 <section class="panel hidden" id="page-return" role="tabpanel" aria-labelledby="tab-return">
 <h2>Living Three-Story Thesis</h2><nav id="thesis-jump-nav" aria-label="Jump to thesis writing fields" class="no-print"><p><strong>Ready to write?</strong> Jump directly to a writing box. You can return to the guidance anytime.</p><div class="actions"><a href="#what">1. Observation</a><a href="#soWhat">2. Interpretation</a><a href="#nowWhat">3. Significance</a><a href="#thesis-draft">My working thesis</a></div></nav><details id="thesis-tucker-guide" class="no-print"><summary>Read about the Three-Story Thesis (Trisha Tucker)</summary><p>A thesis can be several connected sentences rather than a single declaration. Think of it as a house: each floor needs the support of the floor below.</p><div class="tucker-house"><section><h4>Third floor · Significance</h4><p>Why does your interpretation matter? Connect it to a wider understanding without making a claim larger than your evidence supports.</p></section><section><h4>Second floor · Interpretation</h4><p>Offer a meaningful, supportable reading of what you noticed. Another reader might reasonably interpret it differently. Ask why, how, and to what effect.</p></section><section><h4>First floor · Observation</h4><p>Begin with a specific fact, detail, experience, or pattern that a reader can recognize or verify. This is the foundation, not yet the argument.</p></section></div><h4>An ENG 112 example: listening to a dog</h4><p><strong>Observation:</strong> My dog pauses at the edge of the trail and looks back at me before continuing.</p><p><strong>Interpretation:</strong> This repeated exchange invites me to reconsider our walk as a negotiation rather than an activity I alone direct.</p><p><strong>Significance:</strong> Attending to such exchanges may help us rethink human authority and recognize the participation of other beings in shared places.</p><p class="hint">Illustrative example, not a research finding. Your own observations and sources must support your interpretation. The three floors work together; they need not become three separate paragraphs.</p><p class="hint">Reading guide paraphrased from the course handout <cite>The Three-Story Thesis</cite>, which credits Professor Trisha Tucker et al., <cite>Building a ‘Three-Story’ Thesis Statement</cite>. ENG 112 example added for this notebook.</p></details><style>#thesis-tucker-guide{margin:0 0 1rem;background:#fffefa}#thesis-tucker-guide summary{min-height:44px;align-content:center;color:#245d4c}#thesis-tucker-guide summary:focus-visible{outline:3px solid #245d4c;outline-offset:3px}.tucker-house{display:grid;gap:.35rem;max-width:660px;margin:1rem auto}.tucker-house section{border:1px solid #9cb2a4;border-radius:8px;padding:.65rem 1rem;background:#eef4e9}.tucker-house section:first-child{background:#f5ebd6}.tucker-house section:last-child{background:#dbeadd;border-bottom:5px solid #245d4c}.tucker-house h4{margin:0}.tucker-house p{margin:.35rem 0}</style><style>#thesis-jump-nav{padding:.75rem;border:1px solid #9cb2a4;border-radius:12px;margin:.65rem 0 1rem;background:#f2f7ef}#thesis-jump-nav p{margin:0}#thesis-jump-nav a{display:inline-flex;align-items:center;min-height:44px;padding:.45rem .75rem;border:1px solid #245d4c;border-radius:8px;color:#245d4c;background:white;font-weight:650}#what,#soWhat,#nowWhat,#thesis-draft{scroll-margin-top:100px}</style><p>What is different now that you have spent time with sources? Your memory, research questions, and the passages you chose are voices that can be braided, not placed into isolated paragraphs.</p>
@@ -759,8 +759,8 @@
 <p class="notice">Nothing here is submitted to your instructor. Download or print your notes before leaving this device. Do not enter private information about other people.</p>
 </section>
 <section class="panel hidden writing-space" id="page-biblio" role="tabpanel" aria-labelledby="tab-biblio">
-  <div class="writing-head"><div class="eyebrow">Writing Studio · Part One</div><h2>Annotated Bibliography: Mapping the Research Conversation</h2>
-  <p>Imagine you are teaching your classmates what each source contributes. Explain it in your own words, evaluate it, and show how it joins your research question. Write one part at a time.</p></div>
+  <div class="writing-head"><div class="eyebrow">Writing Studio · Part One</div><h2>Annotated Bibliography</h2>
+  <p>Explain each source in your own words and how it contributes to your question.</p></div>
   <div class="ws-banner" role="note"><strong>What this project asks:</strong> Five <em>outside</em> sources, at least three from PCC Library databases, with 150–200 words for each annotation. Course texts such as McAnulty, Abram, and Grandin do not count toward the five. <span class="ws-small">AI may assist with search terms and concept clarification, not write annotations or submitted prose.</span></div>
   <div class="ws-toolbar no-print"><span class="ws-save-indicator" id="ws-bib-save" role="status" aria-live="polite">Changes save in this browser.</span><div class="ws-toolbar-actions"><button type="button" class="secondary" data-ws-backup>Back up all work (.json)</button><button type="button" class="primary" id="ws-bib-export">Download editable Word (.docx)</button></div></div>
   <details class="ws-tips"><summary>What goes in this document?</summary><p>Page 1: title page. Page 2: Research Path Overview (200–300 words), working three-story thesis, and 5–8 search keywords. Page 3 onward: five alphabetized annotated sources. Finish with the State of the Research Path (150–200 words), revised question, and AI Use Disclosure. <strong>No separate abstract or References page</strong> for this assignment.</p></details>
@@ -829,7 +829,7 @@ function button(text,fn,cls='secondary'){let el=document.createElement('button')
 function elt(tag,cls='',text=''){let e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;}
 function persist(){if(notebookResetting)return false;FIELDS.forEach(id=>state.fields[id]=$(id).value);const status=$('save-status');const notice=message=>{if(status.textContent!==message)status.textContent=message;};try{localStorage.setItem(STORAGE,JSON.stringify(state));notice('Saved in this browser. Export your work before switching devices.');window.dispatchEvent(new Event('field:save'));return true;}catch(e){notice('Browser saving is unavailable. Please download your journal.');return false;}}
 function restore(){try{let v=JSON.parse(localStorage.getItem(STORAGE)||'null');if(v&&typeof v==='object'){state={...state,...v};state.intellectualTrail=cleanIntellectualTrail(state.intellectualTrail);}}catch(e){} FIELDS.forEach(id=>{if(typeof state.fields?.[id]==='string')$(id).value=state.fields[id];});}
-function tab(name){if(name==='begin'&&typeof uxWritingStage==='function')uxWritingStage('writing',false);['begin','explore','search','read','journal','return','biblio','writing'].forEach(x=>{$('page-'+x).classList.toggle('hidden',x!==name);$('tab-'+x).setAttribute('aria-selected',String(x===name));$('tab-'+x).tabIndex=x===name?0:-1;}); if(name==='explore')renderExplore();if(name==='read'){renderBooks();renderMedia();}if(name==='journal')renderReadingJournal();if(name==='search')prepareSearch();if(name==='return'){renderJournal();renderPathwayMap();}window.dispatchEvent(new CustomEvent('field:tabchange',{detail:{name}}));window.scrollTo({top:0,behavior:'instant'});}
+function tab(name){if(name==='begin'&&typeof uxWritingStage==='function')uxWritingStage('writing',false);['begin','explore','search','read','journal','return','biblio','writing'].forEach(x=>{$('page-'+x).classList.toggle('hidden',x!==name);$('tab-'+x).setAttribute('aria-selected',String(x===name));$('tab-'+x).tabIndex=x===name?0:-1;}); if(name==='explore')renderExplore();if(name==='read'){renderBooks();renderMedia();}if(name==='journal')renderReadingJournal();if(name==='search')prepareSearch();if(name==='return'){renderJournal();renderPathwayMap();}window.dispatchEvent(new CustomEvent('field:tabchange',{detail:{name}}));const workspace=$('field-workspace'),heading=$('page-'+name)?.querySelector('h2');if(workspace&&!workspace.hidden&&heading){heading.tabIndex=-1;heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'auto'});}else window.scrollTo({top:0,behavior:'instant'});}
 // V2: score whole concepts with exact-token matching, never substring overlaps such as "man" in "human".
 const STOP=new Set(['about','along','there','where','which','these','those','with','that','this','have','from','their','some','other','often','think','thought','remember','would','could','should','like','into','then','what','more','than','human','when','were','they']);
 function normTokens(s){return norm(s).split(/\s+/).filter(t=>t&&t.length>2&&!STOP.has(t));}
@@ -1726,10 +1726,10 @@ if(!/[“"][^“”"]{8,}[”"]/.test(body))out.push(flag('Consider direct voice
 "use strict";
 const get=id=>document.getElementById(id);
 const SPACE={
- discover:{name:"Discover",title:"Start with an experience",hint:"Follow the words and questions that grow from your own encounter.",pages:[["begin","Freewrite"],["explore","Explore concepts"]]},
- research:{name:"Research",title:"Follow an inquiry",hint:"Build searches, encounter sources, and record discoveries.",pages:[["search","Build a search"],["read","Find sources"],["journal","Reading Journal"],["biblio","Annotated bibliography"]]},
+ discover:{name:"Discover",title:"Start with an experience",hint:"Follow the words and questions that grow from your own encounter.",pages:[["begin","Freewrite"],["explore","Develop my research question"]]},
+ research:{name:"Research",title:"Follow an inquiry",hint:"Build searches, encounter sources, and record discoveries.",pages:[["search","Build a search"],["read","Find sources"],["journal","Reading Journal"]]},
  thesis:{name:"Thesis",title:"Develop your living thesis",hint:"Connect observation, interpretation, and significance.",pages:[["return","Living Three-Story Thesis"]]},
- write:{name:"Write",title:"Let the essay emerge",hint:"Bring sources into conversation, draft, check, and revise.",pages:[["writing","Writing Studio"]]}
+ write:{name:"Write",title:"Let the essay emerge",hint:"Bring sources into conversation, draft, check, and revise.",pages:[["writing","My essay draft"],["biblio","Annotated bibliography"]]}
 };
 const PAGES=Object.fromEntries(Object.entries(SPACE).flatMap(([space,item])=>item.pages.map(([id,label],i)=>[id,{space,label,index:i}])));
 const NEXT={
@@ -1738,7 +1738,7 @@ const NEXT={
  search:["read","Find sources worth investigating"],
  read:["journal","Take notes on something you actually read, heard, or watched"],
  journal:["return","Return to your living thesis with new evidence"],
- return:["writing","Carry your thesis into your essay draft"],
+ return:["biblio","Continue to my annotated bibliography"],
  biblio:["writing","Begin or continue my essay with these sources"],
  writing:["writing","Review my draft when I am ready"]
 };
@@ -1748,13 +1748,13 @@ const make=(tag,cls,txt)=>{const el=document.createElement(tag);if(cls)el.classN
 const root=get("field-notebook-compass");if(!root)return;
 let activeTab="begin",liveUpdates=0;
 function field(){if(!state.fieldNotebook||typeof state.fieldNotebook!=="object")state.fieldNotebook={lastTab:"begin",discoveries:[]};if(!Array.isArray(state.fieldNotebook.discoveries))state.fieldNotebook.discoveries=[];return state.fieldNotebook;}
-function navigate(id){if(!PAGES[id])return;tab(id);const heading=get('page-'+id)?.querySelector('h2');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'auto'});}}
+function navigate(id){if(!PAGES[id])return;tab(id);}
 function renderNav(id){
  const p=PAGES[id];if(!p)return;
  activeTab=id;const space=SPACE[p.space];
  for(const button of document.querySelectorAll("[data-field-space]"))button.setAttribute("aria-pressed",String(button.dataset.fieldSpace===p.space));
  get("field-space-caption").textContent=space.name.toUpperCase();
- get("field-section-title").textContent=space.name+" · "+p.label;
+ get("field-section-title").textContent=id==='begin'?'Discover · Step 1 of 3 · Freewrite':id==='explore'?'Discover · Step 3 of 3 · Research question':space.name+' · '+p.label;
  get("field-section-help").textContent=space.hint;
  const detours=get("field-route-detours");detours.open=false;detours.hidden=space.pages.length<2;
  const nav=get("field-subnav");nav.replaceChildren();nav.hidden=space.pages.length<2;
@@ -1797,32 +1797,19 @@ function renderRoute(id){
  writing:[f.draft?'Continue your own essay. Use evidence and your experience to develop the interpretation.':'Begin with a passage of your own writing. You can draft before every part of the inquiry is settled.','Continue my essay',()=>routeFocus('ws-essay-rich')]
  };
  const task=actions[id];if(!task)return;
- get('field-route-task').hidden=['explore','writing','search'].includes(id);get('field-route-instruction').textContent=task[0];const action=get('field-route-action');action.textContent=task[1];action.onclick=task[2];
+ get('field-route-task').hidden=true;get('field-route-instruction').textContent=task[0];const action=get('field-route-action');action.textContent=task[1];action.onclick=task[2];
 }
 function renderInvitation(id){
  renderRoute(id);
- const next=NEXT[id];
- if(id==="writing"||id==="explore"||id==="search"){get("field-next-invitation").hidden=true;return;}
- get("field-next-invitation").hidden=false;
- if(id==="begin"&&!get("encounter")?.value?.trim()){
-  get("field-next-text").textContent="Begin by describing something that stays with you. You can discover research language afterward.";
-  get("field-next-button").textContent="Begin my freewriting ↓";
-  get("field-next-button").onclick=()=>{const el=get("encounter");el.scrollIntoView({block:"center"});el.focus();};
- }else{
-  const f=routeFacts(),routes={
-    begin:['explore','Develop my working question','You have an experience to investigate. Name what you want to understand before searching.'],
-    explore:['search','Develop my working question','Your question matters more than choosing a lens.'],
-    search:['journal','Record what I found','Once you have opened and read a useful source, bring a passage and its location back here. If the search did not help, revise it above.'],
-    read:['journal','Record a source note','Bring back a passage from a source you actually read.'],
-    journal:['return','Develop my working thesis','Use your encounter and source notes to develop an interpretation; return to research if needed.'],
-    return:['writing','Begin or continue my essay','Use your working interpretation to begin a draft. You can revise it as you write.'],
-    biblio:['writing','Begin or continue my essay','Keep your annotations and carry relevant evidence into your essay.']
-  };
-  const route=routes[id]||[next[0],next[1],'Continue when ready.'];
-  get("field-next-text").textContent=route[2];
-  get("field-next-button").textContent=route[1]+" →";
-  get("field-next-button").onclick=()=>navigate(route[0]);
- }
+ const next=get('field-next-invitation');
+ const routes={
+   return:['biblio','Continue to my annotated bibliography','When your working thesis is ready, explain what each source contributes.'],
+   biblio:['writing','Continue to my essay draft','When ready, carry your sources into your essay.']
+ };
+ const route=routes[id];next.hidden=!route;if(!route)return;
+ get('field-next-text').textContent=route[2];
+ get('field-next-button').textContent=route[1]+' →';
+ get('field-next-button').onclick=()=>navigate(route[0]);
 }
 function trailItem(host,title,txt,page){
  const cell=make("div","field-trail-item");
@@ -2242,17 +2229,17 @@ function uxWritingStage(stage,focus=true){
  g('thread-clearing').classList.toggle('hidden',stage==='writing');
  g('language-clearing').hidden=stage!=='words';
  g('ux-concepts-view').hidden=stage!=='concepts';
- const n=g('ux-stage-label');if(n)n.textContent=({writing:'1. Begin with an encounter',words:'2. Notice my words',concepts:'3. Explore connections'})[stage];
- if(focus){const target=stage==='writing'?g('encounter'):stage==='words'?g('language-clearing'):g('ux-concepts-heading');target.setAttribute('tabindex',stage==='writing'?'0':'-1');target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}
+ const label=({writing:"Step 1 of 3 · Freewrite",words:"Step 2 of 3 · Notice my words",concepts:"Optional · Explore more connections"})[stage];const n=g("ux-stage-label");if(n)n.textContent=label;if(!g("page-begin").classList.contains("hidden"))g("field-section-title").textContent="Discover · "+label;
+ if(focus){const target=stage==='writing'?g('ux-writing-view').querySelector('h2'):stage==='words'?g('ux-words-heading'):g('ux-concepts-heading');target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}
 }
 (function(){
  const g=id=>document.getElementById(id);
- const trail=document.createElement('div');trail.id='ux-journey';trail.innerHTML='<strong id="ux-stage-label">1. Begin with an encounter</strong><div><button type="button" class="secondary" id="ux-writing-back">Freewrite</button><button type="button" class="secondary" id="ux-words-nav">Notice my words</button><button type="button" class="secondary" id="ux-concepts-nav">Explore connections</button></div>';
+ const trail=document.createElement('div');trail.id='ux-journey';trail.innerHTML='<strong id="ux-stage-label">Step 1 of 3 · Freewrite</strong><details id="ux-stage-tools"><summary>Revisit my words or explore more connections</summary><div><button type="button" class="secondary" id="ux-writing-back">Freewrite</button><button type="button" class="secondary" id="ux-words-nav">Notice my words</button><button type="button" class="secondary" id="ux-concepts-nav">Explore more connections</button></div></details>';
  g('page-begin').prepend(trail);
- g('ux-writing-back').onclick=()=>uxWritingStage('writing');
- g('ux-words-nav').onclick=()=>studioThreads();
- g('ux-concepts-nav').onclick=()=>{if(!g('encounter').value.trim()){uxWritingStage('writing');return;}renderPhrases();renderStudentThreads();uxWritingStage('concepts');};
- g('ux-to-concepts').onclick=()=>{saveChosenPhrases();renderStudentThreads();uxWritingStage('concepts');};
+ g('ux-writing-back').onclick=()=>{g('ux-stage-tools').open=false;uxWritingStage('writing');};
+ g('ux-words-nav').onclick=()=>{g('ux-stage-tools').open=false;studioThreads();};
+ g('ux-concepts-nav').onclick=()=>{g('ux-stage-tools').open=false;if(!g('encounter').value.trim()){uxWritingStage('writing');return;}renderPhrases();renderStudentThreads();uxWritingStage('concepts');};
+ g('ux-to-concepts').onclick=()=>{saveChosenPhrases();tab('explore');};
  g('ux-back-words').onclick=()=>uxWritingStage('words');
  g('return-freewrite').onclick=()=>uxWritingStage('writing');
  uxWritingStage('writing',false);
@@ -2750,7 +2737,7 @@ window.addEventListener('field:save',()=>{if(draftOwner!==state){if(host.childNo
   else returnToEssay();
  });
  resume.id='field-resume-draft';
- function syncResume(){const hasDraft=!!g('ws-essay-body').value.trim();resume.hidden=g('page-writing').classList.contains('hidden')&&!hasDraft;resume.textContent=hasDraft?'Return to my draft':'Start my draft';}
+ function syncResume(){const hasDraft=!!g('ws-essay-body').value.trim();resume.hidden=g('page-writing').classList.contains('hidden');resume.textContent=hasDraft?'Return to my draft':'Start my draft';}
  window.addEventListener('field:tabchange',syncResume);window.addEventListener('field:save',syncResume);syncResume();
  card.addEventListener('field:revisit-trail',event=>{
   if(!d.open){d.open=true;refresh();}else if(!host.querySelector('#ic-trail-entry'))refresh();
@@ -3626,7 +3613,7 @@ function setCarriedInquiryPractice(next){
  if(read&&heading&&book){
   const intro=heading.nextElementSibling;const accessNote=intro?.nextElementSibling,courseNote=accessNote?.nextElementSibling;
   if(intro?.tagName==='P')intro.textContent='Find a source to read. Bring one useful passage back to your Reading Journal.';
-  heading.textContent='Find a source to read';
+  heading.textContent='Find and read a source';
   if(access&&accessNote?.classList.contains('info')&&courseNote?.classList.contains('info')){
    const help=fold('read-access-help','Help accessing sources and course readings',[access,accessNote,courseNote],book);
    book.before(help);
@@ -3637,7 +3624,7 @@ function setCarriedInquiryPractice(next){
  const journal=g('page-journal'),pdf=journal?.querySelector('.jstor-guide'),shelf=g('source-shelf');
  if(journal&&pdf&&shelf){
   const heading=journal.querySelector('h2'),intro=heading.nextElementSibling;
-  if(intro?.tagName==='P')intro.textContent='Record one passage and explain what it helps you understand.';
+  if(intro?.tagName==='P')intro.textContent='Record one passage, its location and what it helps you understand.';
   const citation=intro?.nextElementSibling;
   if(citation?.classList.contains('info'))fold('journal-citation-help','Help with page numbers and citations',[citation],citation);
   const shelfHeading=shelf.previousElementSibling;
@@ -3693,5 +3680,30 @@ function setCarriedInquiryPractice(next){
  field.addEventListener('blur',consider);
  g('note-relationship').addEventListener('change',consider);
  window.addEventListener('field:tabchange',e=>{if(e.detail?.name==='journal')consider();else clearNotebookReflectionAttention();});
+})();
+</script><style>
+#field-route-task[hidden]{display:none!important}
+#ux-stage-tools>summary,#thesis-optional-jumps>summary{min-height:44px;padding:.45rem 0;cursor:pointer}
+#ux-writing-view .ux-writing-actions{grid-template-columns:1fr}
+#ux-writing-view .ux-writing-actions #ask-question-now{width:auto}
+#page-begin h2,#page-return h2,#page-journal h2,#page-biblio h2,#page-writing h2,#page-read h2{scroll-margin-top:1rem}
+#field-next-invitation button{min-height:48px}
+</style><script>
+(function(){
+ const g=id=>document.getElementById(id);
+ // Keep one primary action in Freewrite; the invitation is still available.
+ const help=g('ux-start-help'),ask=g('ask-question-now');
+ if(help&&ask)help.querySelector('summary').after(ask);
+ // The thesis's direct writing-field shortcuts are useful only when deliberately requested.
+ const jump=g('thesis-jump-nav');
+ if(jump){const d=document.createElement('details'),s=document.createElement('summary');d.id='thesis-optional-jumps';s.textContent='Jump to a thesis writing field (optional)';jump.before(d);d.append(s,jump);}
+ // Keep the assignment itself visible, even when the detailed requirements are collapsed.
+ const bib=g('page-biblio'),requirements=g('bibliography-requirements');
+ if(bib&&requirements){const s=requirements.querySelector('summary');s.textContent='Required bibliography: 5 outside sources · at least 3 from PCC databases';}
+ // Place the next action immediately after the relevant assignment, not after the hidden essay.
+ const next=g('field-next-invitation'),panels=['return','biblio'];
+ function positionNext(name){if(panels.includes(name))g('page-'+name).after(next);}
+ window.addEventListener('field:tabchange',e=>positionNext(e.detail?.name));
+ const active=document.querySelector('.field-original-nav [aria-selected="true"]');positionNext(active?.dataset.tab);
 })();
 </script></body></html>
