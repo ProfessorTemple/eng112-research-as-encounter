@@ -1277,9 +1277,13 @@ restore();state.studio=state.studio||{mode:'own',disableNudges:false};$('enable-
     window.fieldResearchTranslation=question=>{
       if(!String(question||'').trim())return null;
       const text=normalized(question);
-      const exact=LENSES.find(l=>[l.label,...(l.wordForms||[]).map(x=>x[0])].some(word=>text.includes(normalized(word))));
+      const exact=LENSES.flatMap(l=>[l.label,...(l.wordForms||[]).map(x=>x[0])].filter(word=>text.includes(normalized(word))).map(word=>({lens:l,length:word.length}))).sort((a,b)=>b.length-a.length)[0]?.lens;
       const chosen=LENSES.find(l=>(state.lenses||[]).includes(l.id)&&!(state.rejectedLenses||[]).includes(l.id));
-      return exact||chosen||recommendedLenses()[0]?.lens||null;
+      const lens=exact||chosen||recommendedLenses()[0]?.lens;
+      if(!lens)return null;
+      // Ontology is not always an inquiry into persons. Keep the search direction grounded.
+      if(lens.id==='ontology'&&!['personhood','person','persons','being a person','what it means to be a person'].some(w=>text.includes(normalized(w))))return {...lens,searchPhrase:'ontology'};
+      return lens;
     };
     window.fieldAcademicGloss=term=>{
       const value=normalized(term);if(!String(term||'').trim())return null;
