@@ -24,7 +24,7 @@ test('model a conceptual connection and land at the research heading with no tex
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await page.locator('#encounter').fill('A synthetic test encounter involving fireflies and the body.');
  await page.evaluate(()=>{state.studio=state.studio||{};state.studio.selectedPhrases=['fireflies','Baby','body'];for(const id of ['idea1','idea2','idea3'])document.getElementById(id).value='';persist();});
- await page.locator('#field-route-action').click();
+ await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Develop my research question',exact:true}).click();
  await expect(page.locator('#explore-question-example')).toContainText('fireflies + body');await expect(page.locator('#thesis-question')).toHaveValue('');
  await page.locator('#thesis-question').fill('How do mammals and fireflies interact?');await page.locator('#explore-continue').click();
  const h=page.locator('#page-search h2');await expect(h).toBeFocused();await expect(h).toBeInViewport();
@@ -39,7 +39,7 @@ test('guidance gradually recedes after real saved searches and remains available
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await page.locator('#encounter').fill('A synthetic test of how fireflies and the body respond to their surroundings.');
  await page.evaluate(()=>{state.studio=state.studio||{};state.studio.selectedPhrases=['fireflies','body'];for(const id of ['idea1','idea2','idea3'])document.getElementById(id).value='';persist();});
- await page.locator('#field-route-action').click();
+ await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Develop my research question',exact:true}).click();
  const question=page.locator('#thesis-question'),example=page.locator('#explore-question-example'),searchExample=page.locator('#rs-search-example');
  await expect(example.locator('.model-question')).toBeVisible();await expect(example).toContainText('Sensory ecology studies');
  const inquiry='How do mammals and fireflies interact?';
@@ -62,7 +62,7 @@ test('interdisciplinary models explain academic words without making claims or f
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await page.locator('#encounter').fill('A synthetic encounter exploring personhood and trees.');
  await page.evaluate(()=>{state.studio=state.studio||{};state.studio.selectedPhrases=['personhood','trees'];for(const id of ['idea1','idea2','idea3'])document.getElementById(id).value='';persist();});
- await page.locator('#field-route-action').click();const example=page.locator('#explore-question-example');
+ await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Develop my research question',exact:true}).click();const example=page.locator('#explore-question-example');
  await expect(example).toContainText('ontology (philosophy)');await expect(example).toContainText('what exists');await expect(page.locator('#thesis-question')).toHaveValue('');
  await page.evaluate(()=>{state.studio.selectedPhrases=['film','identity'];renderExplore();});await expect(example).toContainText('cultural representation');await expect(page.locator('#thesis-question')).toHaveValue('');
  await page.evaluate(()=>{state.studio.selectedPhrases=['grandmother','memory'];renderExplore();});await expect(example).toContainText('intergenerational knowledge');await expect(page.locator('#thesis-question')).toHaveValue('');
@@ -103,9 +103,9 @@ test('concept exploration has one clear question-first action and hides optional
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await page.locator('#encounter').fill('I watched fireflies and remembered how my body responded when I was a child.');
- await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();
+ await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Develop my research question',exact:true}).click();
  const panel=page.locator('#page-explore'),extra=page.locator('#explore-extra-tools'),question=page.locator('#thesis-question'),go=page.locator('#explore-continue');
- await expect(panel.getByRole('heading',{name:'What do I want to understand?'})).toBeVisible();await expect(question).toBeVisible();await expect(go).toBeVisible();
+ await expect(panel.getByRole('heading',{name:'Develop my research question'})).toBeVisible();await expect(question).toBeVisible();await expect(go).toBeVisible();
  await expect(extra).not.toHaveAttribute('open','');await expect(page.locator('#lens-garden')).toBeHidden();await expect(page.locator('#student-style-companion')).toBeHidden();await expect(page.locator('#connection-list')).toBeHidden();
  await expect(page.locator('#field-route-task')).toBeHidden();await expect(page.locator('#field-next-invitation')).toBeHidden();await expect(panel.locator('button.primary:visible')).toHaveCount(1);
  await go.click();await expect(question).toBeFocused();await expect(page.locator('#explore-question-hint')).toContainText('Write one thing');
@@ -144,7 +144,7 @@ test('interdisciplinary invitations recognize philosophy and cultural studies wi
   await page.locator('[data-field-space="discover"]').click();
   if(await page.locator('#encounter').isHidden()){await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Freewrite',exact:true}).click();}
   await page.locator('#encounter').fill(passage);
-  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();await page.locator('#explore-extra-tools > summary').click();
+  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Develop my research question',exact:true}).click();await page.locator('#explore-extra-tools > summary').click();
  }
  for(const [passage,id] of [
  ['I wondered about the nature of reality and what exists. What is real?','ontology'],
@@ -167,7 +167,7 @@ test('contextual lenses distinguish family conversation from ecology and abstain
   await page.locator('[data-field-space="discover"]').click();
   if(await page.locator('#encounter').isHidden()){await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Freewrite',exact:true}).click();}
   await page.locator('#encounter').fill(passage);
-  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Explore concepts',exact:true}).click();await page.locator('#explore-extra-tools > summary').click();
+  await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Develop my research question',exact:true}).click();await page.locator('#explore-extra-tools > summary').click();
  }
  await examine('I talked with my grandfather about his childhood. We shared a conversation about what matters.');
  await expect(lenses).toContainText('Intergenerational');expect(await lenses.locator('[data-lens]').count()).toBeLessThanOrEqual(2);await expect(lenses).not.toContainText('Ecology and environment');
@@ -181,9 +181,13 @@ test('guided route shows actual work and a single next task while optional detou
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  const recap=page.locator('#field-route-recap'),action=page.locator('#field-route-action'),detours=page.locator('#field-route-detours');
- await expect(recap).toContainText('a fresh notebook');await expect(action).toHaveText('Begin my freewrite');await expect(detours).not.toHaveAttribute('open','');
- await action.click();await expect(page.locator('#encounter')).toBeFocused();await page.locator('#encounter').fill('I remember talking with my grandfather about his childhood.');
- await expect(recap).toContainText('Experience recorded');await expect(action).toHaveText('Develop my working question');await action.click();
+ await expect(recap).toContainText('a fresh notebook');await expect(action).toBeHidden();await expect(detours).not.toHaveAttribute('open','');
+ await page.locator('#encounter').fill('I remember talking with my grandfather about his childhood.');
+ await expect(recap).toContainText('Experience recorded');await expect(page.locator('#discover-threads')).toBeVisible();await page.locator('#discover-threads').click();
+ const wordsHeading=page.locator('#ux-words-heading');await expect(wordsHeading).toBeFocused();await expect(wordsHeading).toBeInViewport();await expect(recap).toBeVisible();
+ await page.locator('#custom-phrase').fill('grandfather');await page.locator('#add-custom-phrase').click();await expect(recap).toContainText('Words selected');
+ await expect(page.locator('#ux-stage-tools')).not.toHaveAttribute('open','');await expect(page.locator('#highlighted-preview')).toBeHidden();
+ await page.locator('#ux-to-concepts').click();
  await expect(page.locator('#page-explore h2')).toBeFocused();
  const question='How do family stories shape what I understand about the past?';await page.locator('#thesis-question').fill(question);
  await expect(recap).toContainText('Working question written');await page.locator('#explore-continue').click();await expect(page.locator('#page-search h2')).toBeFocused();await expect(action).toBeHidden();
@@ -976,9 +980,12 @@ test('navigation offers only relevant destinations and does not redirect a writi
  const nav=page.locator('#field-subnav'),next=page.locator('#field-next-invitation'),resume=page.locator('#field-resume-draft');
  await expect(page.locator('.ws-mobile-jumps')).toHaveCount(0);
  await page.locator('[data-field-space="discover"]').click();await expect(nav).toBeHidden();await expect(nav.locator('button')).toHaveCount(2);
- await page.locator('[data-field-space="research"]').click();await expect(nav).toBeHidden();await expect(nav.locator('button')).toHaveCount(4);
- await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:'Annotated bibliography',exact:true}).click();await expect(next).toBeVisible();await expect(next.locator('button')).toContainText('Begin or continue my essay');
- await next.locator('button').click();await expect(page.locator('#page-writing')).toBeVisible();await expect(nav).toBeHidden();await expect(next).toBeHidden();await expect(resume).toHaveText('Start my draft');
+ await page.locator('[data-field-space="research"]').click();await expect(nav).toBeHidden();await expect(nav.locator('button')).toHaveCount(3);
+ await page.locator('[data-field-space="thesis"]').click();await expect(next).toBeVisible();await expect(next.locator('button')).toContainText('Continue to my annotated bibliography');
+ await next.locator('button').click();await expect(page.locator('#page-biblio h2')).toBeFocused();await expect(page.locator('#page-biblio h2')).toBeInViewport();
+ await expect(nav.getByRole('button',{name:'Annotated bibliography',exact:true})).toBeVisible();await expect(nav.getByRole('button',{name:'My essay draft',exact:true})).toBeVisible();
+ await expect(next).toBeVisible();await expect(next.locator('button')).toContainText('Continue to my essay draft');
+ await next.locator('button').click();await expect(page.locator('#page-writing h2')).toBeFocused();await expect(nav).toBeVisible();await expect(next).toBeHidden();await expect(resume).toHaveText('Start my draft');
  await resume.click();const editor=page.locator('#ws-essay-rich');await expect(editor).toBeFocused();await editor.fill('I can write without an optional prompt.');await expect(resume).toHaveText('Return to my draft');await expect(next).toBeHidden();
  await page.locator('[data-field-space="thesis"]').click();await expect(nav).toBeHidden();await expect(next).toBeVisible();
  await resume.click();await expect(editor).toBeFocused();await expect(editor).toHaveText('I can write without an optional prompt.');await expect(next).toBeHidden();
@@ -1002,7 +1009,7 @@ test('welcome and writing support stay quiet until deliberately requested',async
  await opt.check();await encounter.fill('I watched the creek after the rain and noticed small changes in the current today.');
  await expect(pause).toBeVisible();
  await pause.getByRole('button',{name:'Not now',exact:true}).click();await opt.uncheck();await expect(pause).toBeHidden();
- await page.locator('#ask-question-now').click();await expect(question).toBeVisible();
+ if(!(await help.evaluate(e=>e.open)))await help.locator('summary').click();await page.locator('#ask-question-now').click();await expect(question).toBeVisible();
  await page.locator('#dismiss-nudge').click();await expect(encounter).toBeFocused();
  await page.locator('[data-field-space="write"]').click();const context=page.locator('#field-context-help');
  await expect(context).not.toHaveAttribute('open','');await expect(page.locator('#ux-context')).toBeHidden();
@@ -1026,7 +1033,8 @@ test('activity-specific help stays optional and moves with the student without c
  ['Reading Journal','journal','Not sure what to do with a passage?','A PDF on your shelf'],
  ['Annotated bibliography','biblio','Not sure what belongs in an annotation?','Begin with one source']
  ]){
-  await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:label,exact:true}).click();
+  if(id==='biblio'){await page.locator('[data-field-space="write"]').click();}else await page.locator('#field-route-detours > summary').click();
+  await nav.getByRole('button',{name:label,exact:true}).click();
   await expect(page.locator('#page-'+id+' #field-context-help')).toBeVisible();
   await expect(help).not.toHaveAttribute('open','');await expect(summary).toHaveText(question);
   await summary.click();await expect(help).toContainText(phrase);
@@ -1034,7 +1042,7 @@ test('activity-specific help stays optional and moves with the student without c
  await page.locator('[data-field-space="thesis"]').click();
  await expect(page.locator('#page-return #field-context-help')).toBeVisible();
  await expect(help).not.toHaveAttribute('open','');await expect(summary).toHaveText('Need help developing your thesis?');
- await page.locator('[data-field-space="write"]').click();
+ await page.locator('[data-field-space="write"]').click();await nav.getByRole('button',{name:'My essay draft',exact:true}).click();
  await expect(page.locator('#page-writing #field-context-help')).toBeVisible();
  await expect(help).not.toHaveAttribute('open','');await summary.click();
  await expect(help).toContainText('Reflect on a passage');
