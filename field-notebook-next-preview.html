@@ -878,12 +878,45 @@ function questionObjects(){let raw=terms();if(!raw.length)return [{kind:'Start h
 }
 function questions(){return questionObjects().map(x=>x.q);}
 function saveArray(key,value){if(!Array.isArray(state[key]))state[key]=[];if(!state[key].includes(value))state[key].push(value);persist();}
+// Guidance follows completed activity, not a judgment of ability. No new saved-state fields.
+function notebookGuidanceLevel(){
+ const saved=Array.isArray(state.savedSearches)?state.savedSearches:[];
+ const count=new Set(saved.filter(x=>typeof x==='string').map(x=>x.trim().toLowerCase().replace(/\s+/g,' ')).filter(Boolean)).size;
+ return count===0?'model':count===1?'practice':'independent';
+}
+function showNotebookModel(host,model,cue,independentCue,kind){
+ const level=notebookGuidanceLevel();
+ const signature=JSON.stringify([level,model,cue,independentCue,kind]);
+ if(host.dataset.guidanceSignature===signature)return;
+ host.dataset.guidanceSignature=signature;host.replaceChildren();host.hidden=false;
+ const make=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=txt;return n;};
+ const addModel=target=>{
+  if(!model)return;
+  target.append(make('p','',model.bridge),make('p','model-question',model.question));
+  if(model.explanation)target.append(make('p','hint',model.explanation));
+ };
+ if(level==='model'&&model){addModel(host);host.append(make('p','hint',cue));return;}
+ host.append(make('p','',level==='independent'?independentCue:cue));
+ if(model&&level!=='model'){
+  const details=make('details','guidance-example','');
+  details.append(make('summary','','See an example if I need one'));addModel(details);host.append(details);
+ }
+}
 // Model one possible connection without assigning a claim or supplying a student's final question.
 function questionModel(chosen,encounter){
  const own=unique(chosen.map(x=>String(x).trim()).filter(Boolean)).slice(0,6),joined=own.join(' ');
  const has=re=>re.test(joined);
  if(has(/\bfirefl(?:y|ies)\b/i)&&has(/\b(?:body|bodily|baby|childhood|child)\b/i)){
-  return {bridge:'Example: fireflies + body → a question about bodily responses',question:'How might the human body respond during an encounter with fireflies?'};
+  return {bridge:'Example: fireflies + body → sensory ecology',question:'How might the human body sense or respond to fireflies?',explanation:'Sensory ecology studies how living beings sense and respond to their surroundings. The broader research term could be animal perception; humans are mammals, but that does not mean every mammal responds in the same way.'};
+ }
+ if(has(/\b(?:grandmother|grandfather|grandparent|family)\b/i)&&has(/\b(?:memory|memories|childhood|story|stories|tradition|traditions)\b/i)){
+  return {bridge:'Example: family + memory → intergenerational knowledge',question:'How might family stories shape what I understand about the past?',explanation:'Intergenerational knowledge is knowledge passed between generations. It is one possible connection, not a conclusion about your family.'};
+ }
+ if(has(/\b(?:personhood|person|being|beings|existence|reality)\b/i)&&has(/\b(?:animal|animals|nonhuman|tree|trees|river|rivers|relationship|relationships)\b/i)){
+  return {bridge:'Example: living beings + relationships → ontology (philosophy)',question:'How might relationships with other beings shape what I understand a person to be?',explanation:'Ontology asks what exists and what it means to be. Different philosophical and cultural traditions may answer differently.'};
+ }
+ if(has(/\b(?:media|film|television|advertising|social media)\b/i)&&has(/\b(?:identity|culture|stereotype|stereotypes|representation|portrayal)\b/i)){
+  return {bridge:'Example: media + identity → cultural representation',question:'How might media portrayals shape the way people understand identity?',explanation:'Cultural representation examines how meanings and identities are depicted or communicated. It invites investigation rather than a predetermined answer.'};
  }
  if(own.length>=2)return {bridge:'Example: '+own[0]+' + '+own[1]+' → ask about a relationship',question:'What might connect “'+own[0]+'” and “'+own[1]+'” in this experience?'};
  if(own.length===1)return {bridge:'Example: '+own[0]+' → ask about something you noticed',question:'What might help me understand my experience of “'+own[0]+'”?'};
@@ -915,7 +948,7 @@ function renderExplore(){
    if(chosen.length){const line=elt('p','');line.append(elt('strong','','Words I chose: '),document.createTextNode(chosen.slice(0,6).join(' · ')));host.append(line);}
    const example=$('explore-question-example');example.replaceChildren();
    const pair=questionModel(chosen,$('encounter').value);
-   example.hidden=!pair;if(pair){example.append(elt('p','',pair.bridge),elt('p','model-question',pair.question),elt('p','hint','Now write your own question. You can use a different connection.'));}
+   showNotebookModel(example,pair,'Write your own question about a connection you notice. You can use a different connection.','What relationship do you want to investigate next? Write your own question.','question');
 
  }
  if(window.FieldWritingPatterns)window.FieldWritingPatterns.render({state,freewrite:$('encounter').value,persist});
@@ -1673,7 +1706,7 @@ const make=(tag,cls,txt)=>{const el=document.createElement(tag);if(cls)el.classN
 const root=get("field-notebook-compass");if(!root)return;
 let activeTab="begin",liveUpdates=0;
 function field(){if(!state.fieldNotebook||typeof state.fieldNotebook!=="object")state.fieldNotebook={lastTab:"begin",discoveries:[]};if(!Array.isArray(state.fieldNotebook.discoveries))state.fieldNotebook.discoveries=[];return state.fieldNotebook;}
-function navigate(id){if(!PAGES[id])return;tab(id);}
+function navigate(id){if(!PAGES[id])return;tab(id);const heading=get('page-'+id)?.querySelector('h2');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'auto'});}}
 function renderNav(id){
  const p=PAGES[id];if(!p)return;
  activeTab=id;const space=SPACE[p.space];
@@ -2074,8 +2107,8 @@ function showGloss(){
 }
 function translate(){
  const question=g('rs-working-question').value,example=g('rs-search-example'),pair=searchModel(question);
- example.replaceChildren();example.hidden=!pair;
- if(pair){example.append(node('p','','Example search from your question'),node('p','model-question',pair.join(' AND ')),node('p','hint','AND connects two ideas. Try these words or choose your own below.'));}
+ const model=pair?{bridge:'Example search from your question',question:pair.join(' AND '),explanation:'AND connects two ideas. A broader academic term can help you find research that uses different words from your own.'}:null;
+ showNotebookModel(example,model,'Choose one or two ideas from your question. Try your own search words below.','Choose your own search terms. If results are not useful, revise one term.','search');
  const host=g('rs-translation'),l=window.fieldResearchTranslation?.(question);
  host.replaceChildren();host.hidden=!l?.searchPhrase;if(host.hidden)return;
  const heading=node('h4','','One possible academic connection');
@@ -3593,6 +3626,8 @@ function setCarriedInquiryPractice(next){
 .question-example .model-question{font-weight:650}
 #page-search h2{scroll-margin-top:1rem}
 #rs-search-help>summary{min-height:44px;padding:.55rem 0}
+.guidance-example>summary{min-height:44px;padding:.55rem 0;cursor:pointer;font-weight:600}
+#page-explore h2{scroll-margin-top:1rem}
 </style><script>
 (function(){
  const g=id=>document.getElementById(id),help=g('rs-search-help'),advanced=g('rs-advanced');
