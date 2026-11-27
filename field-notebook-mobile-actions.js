@@ -34,7 +34,7 @@
     const currentY=Math.max(0,window.scrollY);
     const delta=currentY-previousY;
     previousY=currentY;
-    if(bar.closest('#field-notebook-utilities')||!mobile.matches||currentY<MIN_SCROLL||panelOpen()||(keyboardNavigating&&bar.contains(document.activeElement))){
+    if(!mobile.matches||currentY<MIN_SCROLL||panelOpen()||(keyboardNavigating&&bar.contains(document.activeElement))){
       accumulated=0;
       show();
       return;
