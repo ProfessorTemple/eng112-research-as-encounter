@@ -170,7 +170,7 @@ for(const passage of ['My family has a story, but I do not want to explain it.',
  await input.fill(passage);
  await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
  await expect(result).toContainText('Respecting a boundary');
- await expect(result).toContainText('keep this knowledge private');
+ await expect(result).toContainText('Knowledge can remain private');
  await expect(result.locator('details')).toHaveCount(0);
 }
 await input.fill('I want to explain how my family remembers the creek.');
