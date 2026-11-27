@@ -283,8 +283,8 @@ test('failed backup storage does not announce success or reload',async({page})=>
   };
  });
  await page.locator('#import-file').setInputFiles({name:'failure-test.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({fields:{},followed:[],savedBooks:[],intellectualTrail:[{text:'Synthetic restoration failure test',relationship:'Extends'}]}))});
- await expect.poll(()=>messages.some(m=>m.includes('Could not restore this file'))).toBeTruthy();
- expect(messages.some(m=>m.includes('Backup restored into the preview'))).toBeFalsy();
+ await expect.poll(()=>messages.some(m=>m.includes('Unable to restore this backup')&&m.includes('Browser storage could not save'))).toBeTruthy();
+ expect(messages.some(m=>m.includes('Your research and writing backup has been restored')||m.includes('Backup restored into the preview'))).toBeFalsy();
  expect(await page.evaluate(()=>window.__auditNoReload)).toBe(true);
  await expect(page.locator('#what')).toHaveValue(previous);
 });
