@@ -67,6 +67,38 @@ test('interdisciplinary models explain academic words without making claims or f
  await page.evaluate(()=>{state.studio.selectedPhrases=['film','identity'];renderExplore();});await expect(example).toContainText('cultural representation');await expect(page.locator('#thesis-question')).toHaveValue('');
  await page.evaluate(()=>{state.studio.selectedPhrases=['grandmother','memory'];renderExplore();});await expect(example).toContainText('intergenerational knowledge');await expect(page.locator('#thesis-question')).toHaveValue('');
 });
+
+test('responsive search guidance is one nonblocking invitation after a deliberate search action',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="research"]').click();
+ await page.locator('#rs-working-question').fill('How do fireflies respond to their surroundings?');
+ await page.locator('#rs-a').fill('nature');await page.locator('#rs-b').fill('animals');
+ await expect(page.locator('#rs-connection')).toBeHidden();
+ await page.locator('#rs-build').click();
+ await expect(page.locator('#rs-connection')).toContainText('Your question mentions fireflies');
+ await expect(page.locator('#rs-query')).toHaveValue('nature AND animals');
+ await page.locator('#rs-outcome').selectOption('none');
+ const help=page.locator('#rs-refine');await expect(help).toContainText('No results');await expect(help).toContainText('nature');await expect(help.locator('p')).toHaveCount(1);await expect(help.getByRole('button')).toHaveCount(0);
+ await page.locator('#rs-outcome').selectOption('many');await expect(help).toContainText('one specific');await expect(help.locator('p')).toHaveCount(1);
+ await page.locator('#rs-outcome').selectOption('irrelevant');await expect(help).toContainText('changing just that term');
+ await page.locator('#rs-a').fill('fireflies');await page.locator('#rs-b').fill('communication');await page.locator('#rs-build').click();
+ await expect(page.locator('#rs-connection')).not.toContainText('large research area');await expect(help).toBeEmpty();await expect(page.locator('#rs-query')).toHaveValue('fireflies AND communication');
+ await expect(page.locator('#rs-alternatives')).not.toHaveAttribute('open','');
+});
+test('unresolved reflection receives a quiet optional invitation only after leaving the response field',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="research"]').click();await page.locator('#field-route-detours > summary').click();await page.locator('#field-subnav').getByRole('button',{name:'Reading Journal',exact:true}).click();
+ const reflection=page.locator('#note-connection'),cue=page.locator('#note-attention'),author=page.locator('#note-author-idea');
+ await author.fill('The source considers relationships between trees.');
+ await reflection.fill('I always thought trees lived independently, but now I am not sure what individuality means.');
+ await expect(cue).toBeHidden();
+ await author.focus();await expect(cue).toBeVisible();await expect(cue).toContainText('do not need to resolve it yet');await expect(author).toBeFocused();
+ await expect(reflection).toHaveValue('I always thought trees lived independently, but now I am not sure what individuality means.');
+ await reflection.fill('I used to think trees lived independently, but now I understand that they interact.');await author.focus();await expect(cue).toBeHidden();
+ await reflection.fill('I am not sure what I want to write.');await author.focus();await expect(cue).toBeHidden();
+ await reflection.fill('I always thought trees lived independently, but now I am not sure what individuality means.');await author.focus();await expect(cue).toBeVisible();
+ await page.locator('#clear-note').click();await expect(cue).toBeHidden();
+});
 test('concept exploration has one clear question-first action and hides optional tools until requested',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
