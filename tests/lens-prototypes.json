@@ -136,5 +136,93 @@
     ],
     "question": "What becomes visible only through repeated encounters?",
     "caution": "Do not assume change has one cause."
+  },
+  {
+    "id": "metaphor",
+    "family": "language",
+    "description": "Figurative language carries meaning between different domains of experience.",
+    "anchors": [
+      "Grief arrived in waves",
+      "The house held its breath"
+    ],
+    "question": "What does this image allow you to express that literal language cannot?",
+    "caution": "Do not treat figurative language as literal evidence."
+  },
+  {
+    "id": "absence",
+    "family": "perception",
+    "description": "Missing or overlooked presences can shape an encounter.",
+    "anchors": [
+      "The usual birdsong was missing",
+      "Nobody mentioned the cleaners"
+    ],
+    "question": "What is absent, and how do you know?",
+    "caution": "Absence alone does not establish a cause."
+  },
+  {
+    "id": "interdependence",
+    "family": "more-than-human relationships",
+    "description": "Living systems depend on networks of relationships.",
+    "anchors": [
+      "Roots and fungi exchange resources",
+      "Pollinators sustain plant reproduction"
+    ],
+    "question": "What relationships make this encounter possible?",
+    "caution": "Avoid assuming every relationship is beneficial."
+  },
+  {
+    "id": "positionality",
+    "family": "ways of knowing",
+    "description": "Social position and experience influence interpretation.",
+    "anchors": [
+      "A visitor sees the village differently from a resident",
+      "My upbringing shaped my assumptions"
+    ],
+    "question": "How might your position shape what you notice?",
+    "caution": "Do not reduce people to identity categories."
+  },
+  {
+    "id": "representation",
+    "family": "language",
+    "description": "Accounts of others involve choices about voice and framing.",
+    "anchors": [
+      "A reporter quotes only the manager",
+      "A storyteller speaks on behalf of neighbors"
+    ],
+    "question": "Whose voice is present and whose is missing?",
+    "caution": "Do not presume intentional exclusion."
+  },
+  {
+    "id": "productive-tension",
+    "family": "uncertainty",
+    "description": "Two plausible interpretations can coexist and complicate one another.",
+    "anchors": [
+      "The garden felt both freeing and demanding",
+      "Protection can also restrict choice"
+    ],
+    "question": "What becomes visible when both interpretations remain open?",
+    "caution": "Do not manufacture a contradiction."
+  },
+  {
+    "id": "ecological-memory",
+    "family": "memory and time",
+    "description": "Past events leave traces in living systems and landscapes.",
+    "anchors": [
+      "Old flood marks remain on trees",
+      "A forest bears signs of earlier fires"
+    ],
+    "question": "What traces of earlier events shape the present?",
+    "caution": "Distinguish physical traces from conscious recollection."
+  },
+  {
+    "id": "communication",
+    "family": "more-than-human relationships",
+    "description": "Signals and responses can coordinate behavior without human language.",
+    "anchors": [
+      "A dog shifts posture before another approaches",
+      "Insects respond to patterned flashes"
+    ],
+    "question": "What observable signals and responses occur?",
+    "caution": "Do not assume a signal has a human-like meaning."
   }
 ]
