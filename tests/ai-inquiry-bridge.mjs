@@ -13,12 +13,13 @@ export function createInquiryBridge({request, fallback, timeoutMs=4000}) {
       if(consent!==true)return local('not authorized');
       if(typeof passage!=='string'||!passage.trim()||passage.length>6000||!Array.isArray(notes)||notes.length>3||notes.some(n=>typeof n!=='string'||n.length>1500))return local('input bounds');
       if(typeof request!=='function')return local('unavailable');
+      const authorizedNotes=[...notes];
       const controller=new AbortController();active=controller;
       let timer,onAbort;
       try {
-        const response=await Promise.race([Promise.resolve().then(()=>controller.signal.aborted?Promise.reject(new Error('cancelled')):request({passage,notes:[...notes],signal:controller.signal})),new Promise((_,reject)=>{onAbort=()=>reject(new Error('aborted'));controller.signal.addEventListener('abort',onAbort,{once:true});timer=setTimeout(()=>controller.abort(),timeoutMs);})]);
+        const response=await Promise.race([Promise.resolve().then(()=>controller.signal.aborted?Promise.reject(new Error('cancelled')):request({passage,notes:[...authorizedNotes],signal:controller.signal})),new Promise((_,reject)=>{onAbort=()=>reject(new Error('aborted'));controller.signal.addEventListener('abort',onAbort,{once:true});timer=setTimeout(()=>controller.abort(),timeoutMs);})]);
         if(id!==generation)return {kind:'stale'};
-        const checked=validateInquiryResponse(response,[passage,...notes]);
+        const checked=validateInquiryResponse(response,[passage,...authorizedNotes]);
         if(!checked.ok)return local('invalid response');
         if(checked.response.status==='abstain')return local('abstention');
         return {kind:'experimental',question:checked.response.question};
