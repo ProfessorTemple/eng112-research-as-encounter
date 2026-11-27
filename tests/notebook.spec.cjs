@@ -177,6 +177,57 @@ await input.fill('I want to explain how my family remembers the creek.');
 await companion.getByRole('button',{name:'Reflect on this paragraph',exact:true}).click();
 await expect(result).not.toContainText('Respecting a boundary');
 });
+test('intellectual trail exports and restores across a fresh browser context',async({page,browser})=>{
+await page.goto(url,{waitUntil:'domcontentloaded'});
+const synthetic='I revised my account of the garden after talking with my aunt.';
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+const entry={text:synthetic,relationship:'Complicates',created:new Date('2026-11-26T18:00:00Z').toISOString()};
+await page.evaluate(e=>{
+ const key=Object.keys(localStorage).find(k=>{try{const v=JSON.parse(localStorage.getItem(k));return v&&typeof v==='object'&&v.fields&&Array.isArray(v.followed)&&Array.isArray(v.savedBooks);}catch{return false;}});
+ if(!key)throw Error('Cannot locate notebook storage');
+ const obj=JSON.parse(localStorage.getItem(key));obj.intellectualTrail=[e];localStorage.setItem(key,JSON.stringify(obj));
+},entry);
+await page.reload({waitUntil:'domcontentloaded'});
+if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+await page.locator('[data-field-space="write"]').click();
+const companion=page.locator('section[aria-label="My Inquiry Companion"]');
+await companion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+await companion.getByText('My living intellectual trail (optional)',{exact:true}).click();
+await expect(companion.getByText(synthetic,{exact:true})).toBeVisible();
+const downloadPromise=page.waitForEvent('download');
+await page.locator('#download-txt').evaluate(el=>el.click());
+const downloaded=await downloadPromise;
+const stream=await downloaded.createReadStream();
+const chunks=[];for await(const chunk of stream)chunks.push(chunk);
+const journal=Buffer.concat(chunks).toString('utf8');
+expect(journal).toContain('MY LIVING INTELLECTUAL TRAIL');
+expect(journal).toContain(synthetic);
+expect(journal).toContain('Complicates');
+const backupPromise=page.waitForEvent('download');
+await page.locator('#download-json').evaluate(el=>el.click());
+const backup=await backupPromise;
+const parts=[];for await(const part of await backup.createReadStream())parts.push(part);
+const data=JSON.parse(Buffer.concat(parts).toString('utf8'));
+expect(data.intellectualTrail).toEqual([entry]);
+const fresh=await browser.newContext({acceptDownloads:true,viewport:{width:1440,height:900}});
+try{
+ const restored=await fresh.newPage();
+ restored.on('dialog',d=>d.accept());
+ await restored.goto(url,{waitUntil:'domcontentloaded'});
+ await restored.locator('#import-file').setInputFiles({name:'notebook-backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...data,intellectualTrail:[entry,{text:'',relationship:'Extends'},{text:'oversized'.repeat(300),relationship:'Challenges'},{text:'A valid second discovery',relationship:'Forged',created:'invalid'}]}))});
+ await expect.poll(async()=>restored.evaluate(()=>Object.values(localStorage).some(value=>value.includes(synthetic)))).toBeTruthy();
+ await restored.reload({waitUntil:'domcontentloaded'});
+ if(await restored.locator('#field-workspace').isHidden())await restored.locator('#field-welcome-start').click();
+ await restored.locator('[data-field-space="write"]').click();
+ const restoredCompanion=restored.locator('section[aria-label="My Inquiry Companion"]');
+ await restoredCompanion.getByText('Open my inquiry, sources and paragraph directions',{exact:true}).click();
+ await restoredCompanion.getByText('My living intellectual trail (optional)',{exact:true}).click();
+ await expect(restoredCompanion.getByText(synthetic,{exact:true})).toBeVisible();
+ await expect(restoredCompanion.getByText('A valid second discovery',{exact:true})).toBeVisible();
+ await expect(restoredCompanion.getByText('Forged',{exact:true})).toHaveCount(0);
+ await expect(restoredCompanion.getByText('oversized'.repeat(300),{exact:true})).toHaveCount(0);
+}finally{await fresh.close();}
+});
 test('selected context and relational reflection remain student directed',async({page})=>{
 await page.goto(url,{waitUntil:'domcontentloaded'});
 if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
