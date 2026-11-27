@@ -2166,16 +2166,6 @@ function useAcademicSearch(phrase){
  g('rs-outcome').value='';g('rs-search-help').open=false;g('rs-result-help').open=false;
  showGloss();updateSearchChoice();build(true);refine();
 }
-function placeWord(w){
- const value=String(w||'').trim();if(!value)return;
- preservePreviousSearch();
- const a=g('rs-a'),b=g('rs-b');
- if(!a.value.trim())a.value=value;
- else if(a.value.trim().toLowerCase()!==value.toLowerCase())b.value=value;
- else b.value='';
- g('rs-outcome').value='';g('rs-search-help').open=false;g('rs-result-help').open=false;
- showGloss();updateSearchChoice();build(true);refine();
-}
 function showGloss(){
  const host=g('rs-term-gloss');host.replaceChildren();
  for(const id of ['rs-a','rs-b']){
@@ -2221,7 +2211,7 @@ function draw(){
  translate();showGloss();
  const host=g('rs-words');host.replaceChildren();
  const ws=words();
- for(const w of ws){const first=g('rs-a').value.trim();const label=first&&first.toLowerCase()!==w.toLowerCase()?first+' AND '+w:w;const b=node('button','secondary','Try '+label+' →');b.type='button';b.addEventListener('click',()=>placeWord(w));host.append(b);}
+ for(const w of ws){const pair=academicSearchPair(w);const b=node('button','secondary','Try '+pair.filter(Boolean).join(' AND ')+' →');b.type='button';b.addEventListener('click',()=>useAcademicSearch(w));host.append(b);}
  if(!ws.length)host.append(node('p','hint','No saved keywords yet. Type your own ideas below or return to Discover.'));
 }
 function saveDiscovery(w,origin){if(!Array.isArray(state.keywordBank))state.keywordBank=[];if(!state.keywordBank.some(x=>String(x).toLowerCase()===w.toLowerCase()))state.keywordBank.push(w);if(!Array.isArray(state.livingLexicon))state.livingLexicon=[];let entry=state.livingLexicon.find(x=>String(x.word).toLowerCase()===w.toLowerCase());if(!entry){entry={word:w,origins:[],reflection:''};state.livingLexicon.push(entry);}if(!entry.origins.includes(origin))entry.origins.push(origin);entry.dismissed=false;persist();}
