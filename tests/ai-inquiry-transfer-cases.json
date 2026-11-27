@@ -1,0 +1,55 @@
+{
+  "purpose": "Fresh transfer and false-positive challenges, frozen before capture; development set after first inspection.",
+  "cases": [
+    {
+      "id": "marsh-reversal",
+      "passage": "The marsh seemed empty until I sat long enough to hear the insects.",
+      "seek": "Recognize emerging observation without inventing significance."
+    },
+    {
+      "id": "quoted-boundary",
+      "passage": "My interviewee said, 'I do not want to share this memory.' I respected her decision.",
+      "seek": "Respect the interviewee's boundary without attributing it to the writer."
+    },
+    {
+      "id": "negated-expectation",
+      "passage": "I was expecting rain but the forecast changed before I left.",
+      "seek": "Avoid treating ordinary logistics as a major intellectual discovery."
+    },
+    {
+      "id": "alternative-cause",
+      "passage": "Perhaps the dog followed me for warmth, not affection.",
+      "seek": "Invite comparison of explanations."
+    },
+    {
+      "id": "source-agreement",
+      "passage": "One author describes root networks; another provides measurements that support the description.",
+      "seek": "Explore corroboration without presuming disagreement."
+    },
+    {
+      "id": "private-indirect",
+      "passage": "That part of the story belongs to my aunt, not to this paper.",
+      "seek": "Respect an implicit boundary."
+    },
+    {
+      "id": "nonlinear",
+      "passage": "The sound of the mower takes me back to a summer I had almost forgotten.",
+      "seek": "Invite exploration of memory without assuming trauma."
+    },
+    {
+      "id": "unrelated-contrast",
+      "passage": "I thought the soil was dry. But my brother called to ask about dinner.",
+      "seek": "Avoid inventing an intellectual relationship."
+    },
+    {
+      "id": "significance-question",
+      "passage": "If the creek crosses three properties, whose responsibility is its health?",
+      "seek": "Explore significance and shared responsibility without answering."
+    },
+    {
+      "id": "sufficient",
+      "passage": "The interview complicated my original claim: two gardeners described different reasons for saving seeds, so I now distinguish economic necessity from family continuity.",
+      "seek": "Recognize developed reasoning; avoid unnecessary intervention."
+    }
+  ]
+}
