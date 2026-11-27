@@ -277,9 +277,13 @@ test('failed backup storage does not announce success or reload',async({page})=>
  await page.locator('#ws-final-keywords').fill('garden, memory, reciprocity');
  await page.locator('#ws-essay-rich').fill('Original essay before failed import.');
  await page.locator('#ws-review-btn').click();
+ await page.locator('#ws-source-ref-0').evaluate(el=>{el.value='Synthetic original source reference';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ await page.locator('#ws-source-annotation-0').evaluate(el=>{el.value='Original research annotation about seed reciprocity.';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ await page.locator('#ws-review-btn').click();
  const storageKey='eng112-living-field-notebook-next-preview-20261123';
  const savedBefore=await page.evaluate(key=>localStorage.getItem(key),storageKey);
  expect(savedBefore).toContain('Original essay before failed import.');
+ expect(savedBefore).toContain('Original research annotation about seed reciprocity.');
  const messages=[];
  page.on('dialog',async d=>{messages.push(d.message());await d.accept();});
  await page.evaluate(()=>{
@@ -298,6 +302,8 @@ test('failed backup storage does not announce success or reload',async({page})=>
  await expect(page.locator('#ws-abstract')).toHaveValue('Original abstract before failed import.');
  await expect(page.locator('#ws-final-keywords')).toHaveValue('garden, memory, reciprocity');
  await expect(page.locator('#ws-essay-rich')).toContainText('Original essay before failed import.');
+ await expect(page.locator('#ws-source-ref-0')).toHaveValue('Synthetic original source reference');
+ await expect(page.locator('#ws-source-annotation-0')).toHaveValue('Original research annotation about seed reciprocity.');
  expect(await page.evaluate(key=>localStorage.getItem(key),storageKey)).toBe(savedBefore);
 });
 test('selected context and relational reflection remain student directed',async({page})=>{
