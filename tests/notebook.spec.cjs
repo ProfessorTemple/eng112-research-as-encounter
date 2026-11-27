@@ -599,6 +599,29 @@ await page.locator('[data-field-space="research"]').click();await expect(page.lo
 await page.locator('#field-resume-draft').click();await expect(editor).toBeFocused();
 expect(errors).toEqual([]);
 });
+test('draft essentials stay visible and failed version saves never claim success or overwrite writing',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="write"]').click();
+ const editor=page.locator('#ws-essay-rich'),status=page.locator('#ws-version-status'),quick=page.locator('.ws-lens-callout'),versions=page.locator('#ws-version-select');
+ await expect(quick).not.toHaveAttribute('open','');await expect(page.locator('#ws-essay-count')).toBeVisible();
+ expect(await page.evaluate(()=>!!(document.getElementById('ws-essay-count').compareDocumentPosition(document.getElementById('ws-draft-aids'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBeTruthy();
+ await editor.fill('An earlier version of my own writing.');
+ await page.locator('#ws-snapshot').click();await expect(status).toContainText('A version of your writing is saved');
+ await expect(quick).not.toHaveAttribute('open','');await expect(versions.locator('option')).toHaveCount(2);
+ await editor.fill('My current writing should remain intact.');
+ await quick.locator('summary').click();await quick.getByRole('button',{name:'Return to the scene',exact:true}).click();
+ await expect(status).toContainText('A version of your writing is saved');
+ const key='eng112-living-field-notebook-next-preview-20261123';
+ const before=await page.evaluate(k=>localStorage.getItem(k),key);
+ await page.evaluate(k=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(name,value){if(this===localStorage&&name===k)throw new DOMException('Simulated storage failure','QuotaExceededError');return original.call(this,name,value);};},key);
+ await page.locator('#ws-snapshot').click();await expect(status).toContainText('A version could not be saved');
+ await expect(versions.locator('option')).toHaveCount(2);
+ await versions.selectOption('0');await page.locator('#ws-restore-version').click();
+ await expect(status).toContainText('A version could not be saved');await expect(editor).toHaveText('My current writing should remain intact.');
+ expect(await page.evaluate(k=>localStorage.getItem(k),key)).toBe(before);expect(errors).toEqual([]);
+});
 test('returning student may pick up a thread or continue without it',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
  await page.goto(url,{waitUntil:'domcontentloaded'});
