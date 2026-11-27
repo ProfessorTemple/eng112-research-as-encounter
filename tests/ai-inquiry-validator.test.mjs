@@ -13,6 +13,10 @@ const cases=[
 ['invalid category',{...base,rationale_type:'grade'},false],
 ['empty evidence span',{...base,evidence:[' ']},false],
 ['abstention with advice',{...base,status:'abstain'},false],
+['explicit thesis',{...base,question:'The thesis is that nature heals us. Why?'},false],
+['explicit interpretation',{...base,question:'Your interpretation should be that trees heal us. Why?'},false],
+['legitimate thesis inquiry',{...base,question:'What might your thesis reveal about memory?'},true],
+['legitimate interpretation inquiry',{...base,question:'How might your interpretation change if you return to this encounter?'},true],
 ['nonobject',null,false],
 ['answer not question',{...base,question:'Here is your thesis.'},false]
 ];
