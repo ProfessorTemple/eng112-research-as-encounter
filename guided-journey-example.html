@@ -25,7 +25,7 @@ h1:focus,h2:focus,.notice:focus{outline:2px solid #80551e;outline-offset:4px}
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
 const REFERENCE_VIEW=new URLSearchParams(location.search).get('view')==='journal';
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0,evidencePlan:'',assumptionPlan:'',alternativePlan:'',inquiryReviewed:false,initialThesis:'',strengthenedThesis:'',evidenceReadiness:'',writingEvidenceNote:'',researchReturn:0,essayTitle:'',essayDraft:'',reconsideredThesis:'',thesisReflection:'',writingComplete:false,strands:[],sourceOrigin:'',braidSections:[],braidActive:'',draftBraidId:'',revisionStarted:false,revisionOriginal:'',revisionPasses:{},revisionChecks:{},revisionFinished:false,revisionThesisReturn:false,paperName:'',paperCourse:'',paperDate:'',paperAbstract:'',paperKeywords:'',paperReferences:'',paperDisclosure:'',figures:[],essayReview:{},courseSection:'',firstEncounter:'',firstEncounterRecovered:false,criticalLens:'',reciprocityReflection:'',agencyDecisions:[],quietRevision:false,noteEditReturn:0,bibInitialized:false,bibReturn:9,bibPhase:0,bibActive:'',bibEntries:[],bibCarry:[],bibLens:'',bibThesis:'',bibOverview:'',bibKeywords:'',bibState:'',bibQuestion:'',bibDate:'',bibDisclosure:''});
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0,evidencePlan:'',assumptionPlan:'',alternativePlan:'',inquiryReviewed:false,initialThesis:'',strengthenedThesis:'',evidenceReadiness:'',writingEvidenceNote:'',researchReturn:0,essayTitle:'',essayDraft:'',reconsideredThesis:'',thesisReflection:'',writingComplete:false,strands:[],sourceOrigin:'',braidSections:[],braidActive:'',draftBraidId:'',revisionStarted:false,revisionOriginal:'',revisionPasses:{},revisionChecks:{},revisionFinished:false,revisionThesisReturn:false,paperName:'',paperCourse:'',paperDate:'',paperAbstract:'',paperKeywords:'',paperReferences:'',paperDisclosure:'',figures:[],essayReview:{},courseSection:'',firstEncounter:'',firstEncounterRecovered:false,criticalLens:'',reciprocityReflection:'',agencyDecisions:[],quietRevision:false,independentRevision:false,noteEditReturn:0,bibInitialized:false,bibReturn:9,bibPhase:0,bibActive:'',bibEntries:[],bibCarry:[],bibLens:'',bibThesis:'',bibOverview:'',bibKeywords:'',bibState:'',bibQuestion:'',bibDate:'',bibDisclosure:''});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
@@ -1243,6 +1243,7 @@ function revisionRequirements(st=state){return [
 ];}
 function revisionNext(state){
  const passes=state.revisionPasses||{};
+ if(state.independentRevision===true)return state.revisionFinished&&passes.completeness?.reviewed?29:28;
  const first=revisionLayers().findIndex(x=>!passes[x.id]?.reviewed);
  return first<0?(state.revisionFinished?29:28):24+first;
 }
@@ -1813,8 +1814,13 @@ function supportDrawer(root,label,build){
 function quietRevisionControl(root,apply){
  const label=el('label','','option'),check=el('input');check.type='checkbox';check.checked=state.quietRevision===true;
  label.append(check,el('span','Quiet revision · show suggestions only when I open them'));
- check.addEventListener('change',()=>{state.quietRevision=check.checked;save();apply();});
- root.append(label);
+ const independent=el('div');independent.hidden=!check.checked;
+ independent.append(el('p','If you have reviewed discovery, structure, braiding and voice independently, you can go directly to the assignment check. Unvisited notebook reviews will not be marked complete.','hint'),btn('Continue independently to assignment check →',()=>{
+  if(!String(state.essayDraft||'').trim()){notice('Keep an essay draft in the editor before continuing.');return;}
+  state.independentRevision=true;save();go(28);
+ },'secondary'));
+ check.addEventListener('change',()=>{state.quietRevision=check.checked;if(!check.checked)state.independentRevision=false;independent.hidden=!check.checked;save();apply();});
+ root.append(label,independent);
 }
 
 function adaptiveRevisionCard(root,layer){
@@ -1850,6 +1856,7 @@ function renderRevision(root,step){
   quietRevisionControl(root,guidance.apply);
   supportDrawer(root,'More revision tools',tools=>{layerContext(tools,layer);const d=el('details');const original=el('p',state.revisionOriginal);original.style.whiteSpace='pre-wrap';d.append(el('summary','Compare with my draft before layered revision'),original);tools.append(d);if(step===24)tools.append(btn('Reconsider my working thesis again',()=>{state.revisionThesisReturn=true;go(21);},'quiet'));});
  }else{
+  if(state.independentRevision===true)root.append(el('p','You chose to review independently. Confirm the assignment requirements below; the optional notebook review pages remain available.', 'hint'),btn('Return to guided revision',()=>{state.independentRevision=false;state.quietRevision=false;save();go(revisionNext(state));},'quiet'));
   root.append(el('p','Draft word count: '+revisionWordCount(state.essayDraft)+' (approximate; main essay only).','hint'));
   const group=el('fieldset');group.append(el('legend','Check your submission document yourself'));
   const status=el('p','','hint');status.setAttribute('role','status');
@@ -1865,10 +1872,10 @@ function renderRevisionSummary(root){
  const n=revisionChecks(state),total=revisionRequirements().length;
  root.append(el('p',storageOK?'Your layered revision review is saved on this device.':'Your review is kept in this session; download or back up your work before closing.','callout'));
  const complete=revisionLayers().filter(x=>state.revisionPasses?.[x.id]?.reviewed).length;
- root.append(el('p',complete+' of 5 revision lenses reviewed. '+n+' of '+total+' assignment requirement groups self-confirmed.'));
+ root.append(el('p',complete+' of 5 revision lenses reviewed in the notebook. '+n+' of '+total+' assignment requirement groups self-confirmed.'));if(state.independentRevision===true)root.append(el('p','You chose independent revision. Unvisited review pages are not counted as completed, and your assignment checks remain your responsibility.','hint'));
  if(n<total){const d=el('div','','callout');d.append(el('h2','Still to verify'));for(const req of revisionRequirements().filter(x=>!state.revisionChecks?.[x.id]))d.append(el('p',req.label));root.append(d);}
  root.append(el('p','A saved review is not a grade or a completed submission. Check the full assignment and finish the APA document, including actual visuals and citations.','hint'));
- root.append(btn('Prepare my Word document →',()=>go(30)));supportDrawer(root,'Review my work or return to revision',tools=>{agencyHistory(tools);fxPreview(tools);essayMeter(tools);tools.append(btn('Download my revised essay text',downloadEssayOnly,'secondary'),btn('Return to assignment check',()=>go(28),'secondary'),btn('Revisit my revision lenses',()=>go(24),'quiet'));});
+ root.append(btn('Prepare my Word document →',()=>go(30)));supportDrawer(root,'Review my work or return to revision',tools=>{agencyHistory(tools);fxPreview(tools);essayMeter(tools);tools.append(btn('Download my revised essay text',downloadEssayOnly,'secondary'),btn('Return to assignment check',()=>go(28),'secondary'),btn('Revisit my revision lenses',()=>{state.independentRevision=false;save();go(24);},'quiet'));});
 }
 
 function citationNormalize(value){return String(value||'').normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/[’']/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();}
