@@ -157,10 +157,10 @@ test('responsive search guidance is one nonblocking invitation after a deliberat
  await page.locator('#rs-build').click();
  await expect(page.locator('#rs-connection')).toContainText('Your question mentions fireflies');
  await expect(page.locator('#rs-query')).toHaveValue('nature AND animals');
- if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');
- const help=page.locator('#rs-refine');await expect(help).toContainText('No results');await expect(help).toContainText('nature');await expect(help.locator('p')).toHaveCount(1);await expect(help.getByRole('button')).toHaveCount(0);
- await page.locator('#rs-outcome').selectOption('many');await expect(help).toContainText('one specific');await expect(help.locator('p')).toHaveCount(1);
- await page.locator('#rs-outcome').selectOption('irrelevant');await expect(help).toContainText('changing just that term');
+ if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();await page.locator('#rs-outcome').selectOption('none');
+ const help=page.locator('#rs-refine');await expect(help).toContainText('Try a different search');await expect(help).toContainText('nature');await expect(help.getByRole('button',{name:'Try selected search →'})).toBeVisible();
+ await page.locator('#rs-outcome').selectOption('many');await expect(help).toContainText('more focused combination');await expect(help.locator('p')).toHaveCount(1);
+ await page.locator('#rs-outcome').selectOption('irrelevant');await expect(help).toContainText('Try another combination');
  if(!(await page.locator('#rs-keyword-editor').evaluate(e=>e.open)))await page.locator('#rs-keyword-editor > summary').click();await page.locator('#rs-a').fill('fireflies');await page.locator('#rs-b').fill('communication');await page.locator('#rs-build').click();
  await expect(page.locator('#rs-connection')).not.toContainText('large research area');await expect(help).toBeEmpty();await expect(page.locator('#rs-query')).toHaveValue('fireflies AND communication');
  await expect(page.locator('#rs-alternatives')).not.toHaveAttribute('open','');
@@ -192,6 +192,21 @@ test('concept exploration has one clear question-first action and hides optional
  await extra.locator(':scope > summary').click();await expect(page.locator('#lens-garden')).toBeVisible();await extra.locator(':scope > summary').click();
  const inquiry='How does childhood memory shape what I notice about fireflies?';await question.fill(inquiry);await go.click();await expect(page.locator('#page-search')).toBeVisible();await expect(page.locator('#rs-working-question')).toHaveValue(inquiry);await expect(page.locator('#page-search h2')).toBeFocused();
  await page.locator('[data-field-space="discover"]').click();await expect(question).toHaveValue(inquiry);await expect(extra).not.toHaveAttribute('open','');expect(errors).toEqual([]);
+});
+test('irrelevant results reveal actionable interdisciplinary search choices without opening any help menu',async({page})=>{
+ await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
+ await page.locator('[data-field-space="research"]').click();
+ await page.locator('#rs-working-question').fill('Do miracle happen when we are in a tight situation?');
+ await expect(page.locator('#rs-search-example')).toContainText('hope AND uncertainty');
+ await page.locator('#rs-a').fill('miracle');await page.locator('#rs-b').fill('tight');await page.locator('#rs-build').click();
+ await page.locator('#rs-already-searched').click();
+ await expect(page.locator('#rs-outcome')).toBeVisible();await expect(page.locator('#rs-more-research')).not.toHaveAttribute('open','');
+ await page.locator('#rs-outcome').selectOption('irrelevant');
+ const help=page.locator('#rs-refine');await expect(help).toBeVisible();await expect(help).toContainText('hope AND uncertainty');await expect(help).toContainText('miracles AND religious experience');await expect(help).toContainText('coincidence AND meaning making');
+ await expect(page.locator('#rs-article-action')).toBeHidden();
+ await help.getByRole('radio').nth(1).check();await help.getByRole('button',{name:'Try selected search →'}).click();
+ await expect(page.locator('#rs-query')).toHaveValue('miracles AND religious experience');await expect(page.locator('#rs-copy')).toBeVisible();
+ expect(await page.evaluate(()=>state.savedSearches.includes('miracle AND tight'))).toBeTruthy();
 });
 test('academic suggestion builds its displayed query with occupied search fields and backup remains visible',async({page})=>{
  await page.goto(url,{waitUntil:'domcontentloaded'});if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
@@ -312,8 +327,8 @@ await page.locator('#rs-build').click();
 await expect(page.locator('#rs-query')).toHaveValue('human wildlife interactions AND ecological interdependence');
 if(!(await page.locator('#rs-search-options').evaluate(e=>e.open)))await page.locator('#rs-search-options > summary').click();await page.locator('#rs-save-query').click();
 await expect(page.locator('#rs-local-status')).toContainText(/saved/i);
-if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');
-await expect(page.locator('#rs-refine')).toContainText('No results');
+if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();await page.locator('#rs-outcome').selectOption('none');
+await expect(page.locator('#rs-refine')).toContainText('Try a different search');
 if(!(await page.locator('#rs-new-word-help').evaluate(e=>e.open)))await page.locator('#rs-new-word-help > summary').click();if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();if(!(await page.locator('#rs-new-word-help').evaluate(e=>e.open)))await page.locator('#rs-new-word-help > summary').click();if(!(await page.locator('#rs-keyword-import').evaluate(e=>e.open)))await page.locator('#rs-keyword-import > summary').click();await page.locator('#rs-discovery').fill('agency');
 await page.locator('#rs-add').click();
 await expect(page.locator('#rs-keyword-next')).toContainText('agency');
@@ -463,7 +478,7 @@ test('a complete student-led inquiry preserves evidence, authorship and reversib
  await page.locator('#field-route-detours > summary').click();await nav.getByRole('button',{name:'Build a search',exact:true}).click();
  if(!(await page.locator('#rs-keyword-editor').evaluate(e=>e.open)))await page.locator('#rs-keyword-editor > summary').click();await page.locator('#rs-a').fill('water movement');await page.locator('#rs-b').fill('watershed');
  await page.locator('#rs-build').click();if(!(await page.locator('#rs-search-options').evaluate(e=>e.open)))await page.locator('#rs-search-options > summary').click();await page.locator('#rs-save-query').click();
- if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('none');await expect(page.locator('#rs-refine')).toContainText('No results');
+ if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();await page.locator('#rs-outcome').selectOption('none');await expect(page.locator('#rs-refine')).toContainText('Try a different search');
  await page.locator('[data-field-space="thesis"]').click();
  const thesisNav=page.locator('#lts-nav');
  await thesisNav.getByRole('button',{name:'Build',exact:true}).click();
@@ -1171,7 +1186,7 @@ test('first-time route resumes chosen words and unfinished searches without reop
  await page.locator('#explore-continue').click();
  if(!(await page.locator('#rs-keyword-editor').evaluate(e=>e.open)))await page.locator('#rs-keyword-editor > summary').click();await page.locator('#rs-a').fill('fireflies');await page.locator('#rs-b').fill('communication');
  await page.locator('#rs-build').click();await expect(page.locator('#rs-ready-heading')).toBeFocused();
- await page.locator('#rs-query').fill('fireflies AND signaling');if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();if(!(await page.locator('#rs-result-help').evaluate(e=>e.open)))await page.locator('#rs-result-help > summary').click();await page.locator('#rs-outcome').selectOption('many');
+ await page.locator('#rs-query').fill('fireflies AND signaling');if(await page.locator('#rs-discovery-step').isHidden())await page.locator('#rs-already-searched').click();await page.locator('#rs-outcome').selectOption('many');
  await page.reload({waitUntil:'domcontentloaded'});
  if(await page.locator('#field-workspace').isHidden())await page.locator('#field-welcome-start').click();
  await expect(page.locator('#rs-return-heading')).toBeFocused();
