@@ -4,6 +4,26 @@
 
 [Stable classroom notebook](https://professortemple.github.io/eng112-research-as-encounter/field-notebook-preview.html) · [Experimental notebook](https://professortemple.github.io/eng112-research-as-encounter/field-notebook-next-preview.html) · [Commit history](https://github.com/ProfessorTemple/eng112-research-as-encounter/commits/main/) · [Actions](https://github.com/ProfessorTemple/eng112-research-as-encounter/actions)
 
+## Guided Journey classroom release candidate 1 — November 28, 2026
+
+[Guided Journey release candidate](https://professortemple.github.io/eng112-research-as-encounter/guided-journey-example.html) · [Browser testing workflow](https://github.com/ProfessorTemple/eng112-research-as-encounter/actions/workflows/classroom-readiness.yml)
+
+**Status: release candidate; not yet certified classroom-ready.** Planned pedagogical architecture, integration corrections, cognitive-load refinements, and accessible visual communication are committed. Preserve the existing stable notebook separately until the Guided Journey release gates pass.
+
+Verified in the current development session:
+- Application and regression-test JavaScript syntax.
+- 120/120 direct checks of the actual application functions: 35 snapshot round trips, 35 visual journey states, 35 progress mappings, seven lens choices, five research returns, two independent revision paths, one inquiry pivot.
+- 39 browser regression cases are present. The dedicated Chromium workflow is committed; completed results are not yet available. Older research-option selectors were aligned with the simplified interface.
+
+Remaining release gates:
+- Execute the browser suite; investigate every failure and rerun. A missing workflow result is not a pass.
+- Verify real PDF import, backup/restore with attachments, bibliography and final DOCX downloads, keyboard navigation, 320px reflow, visible focus, and student text preservation.
+- Perform manual screen-reader and representative student usability checks; do not claim ADA/WCAG conformance from syntax or automated tests alone.
+- Verify the public Pages deployment matches the candidate and opens without runtime errors. Do not replace the stable link before validation.
+- Freeze feature work except for release-blocking fixes. Retain the same localStorage key and provide backup instructions before any migration.
+
+The earlier audit results below apply to their respective notebook versions; they do not establish browser verification of this Guided Journey candidate.
+
 ## How to read this tracker
 
 - **Implemented:** code is committed, not necessarily browser-verified.
