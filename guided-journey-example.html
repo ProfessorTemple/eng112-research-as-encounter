@@ -777,7 +777,7 @@ function evidenceCandidates(state){
  const terms=words([state.strengthenedThesis||state.workingThesis,state.evidencePlan].join(' '));
  return (state.notes||[]).map(n=>({id:n.id,title:n.title||'Untitled source',matches:terms.filter(t=>words([n.title,n.passage,n.reflection,...(n.pdfKeywords||[])].join(' ')).includes(t))})).sort((a,b)=>b.matches.length-a.matches.length);
 }
-function writingResume(state){const p=Number(state.researchReturn);return p===19||p===20||p===23?p:0;}
+function writingResume(state){const p=Number(state.researchReturn);return [16,17,19,20,23].includes(p)?p:0;}
 function hasUnfinishedArticle(state){return state.journalStage!=='saved'&&['title','author','pdfName','doi','passage','reflection'].some(k=>String(state[k]||'').trim());}
 function findPageExcerpt(text,query){
  const t=String(text||'').replace(/\s+/g,' ').trim(),q=String(query||'').trim().toLowerCase();
@@ -1040,7 +1040,7 @@ function cleanStrand(input,id){
 }
 function availableStrands(state){
  const items=(Array.isArray(state.strands)?state.strands:[]).filter(n=>n&&Object.prototype.hasOwnProperty.call(strandTypes(),n.type)&&n.passage&&(n.type!=='interview'||n.permission===true));
- return [...(String(state.encounter||'').trim()?[{id:'original-encounter',type:'lived',title:'My original encounter',passage:state.encounter,locator:'Opening freewrite'}]:[]),...items];
+ return [...(String(state.encounter||'').trim()?[{id:'original-encounter',type:'lived',title:'My saved encounter',passage:state.encounter,locator:'Current freewrite'}]:[]),...items];
 }
 function strandGuidance(state,focus){
  const results=[];
@@ -2493,7 +2493,7 @@ function bibAudit(st){
 function bibSeed(st){
  return {bibLens:st.bibLens||st.criticalLens||'',bibThesis:st.bibThesis||st.reconsideredThesis||st.strengthenedThesis||st.workingThesis||'',bibQuestion:st.bibQuestion||st.question||'',bibKeywords:st.bibKeywords||[...new Set([...(st.keywords||[]),...(st.words||[])])].slice(0,8).join(', ')};
 }
-function openBibliography(){state.bibReturn=state.step===34?9:state.step;if(!state.bibInitialized){Object.assign(state,bibSeed(state));state.bibInitialized=true;}go(34);}
+function openBibliography(){if(state.step!==34)state.bibReturn=state.step;if(!state.bibInitialized){Object.assign(state,bibSeed(state));state.bibInitialized=true;}go(34);}
 function bibLeave(){const p=state.bibReturn;go(Number.isInteger(p)&&p>=1&&p<=33?p:9);}
 function bibSet(id,key,value){
  state.bibEntries=bibEntries(state).map(x=>x.id===id?{...x,[key]:value}:x);save();
@@ -2511,9 +2511,13 @@ function bibBody(st){
  body+=wordP('AI Use Disclosure',{bold:true,align:'center',keep:true})+prose(st.bibDisclosure);
  return body;
 }
+function bibliographyThesisStatus(st){
+ const imported=String(st.workingThesis||'').trim(),later=String(st.reconsideredThesis||st.strengthenedThesis||'').trim();
+ return !!(st.bibInitialized&&imported&&later&&conceptNormalize(imported)!==conceptNormalize(later)&&conceptNormalize(imported)===conceptNormalize(st.bibThesis));
+}
 function bibCarryForward(){
- if(state.bibQuestion.trim()&&state.question!==state.bibQuestion&&confirm('Use your revised bibliography question as the current research question?'))state.question=state.bibQuestion;
- if(state.bibLens.trim()&&state.criticalLens!==state.bibLens&&confirm('Use the bibliography’s primary lens as your working critical lens?'))state.criticalLens=state.bibLens;
+ if(state.bibQuestion.trim()&&state.question!==state.bibQuestion&&confirm('Use your revised bibliography question as the current research question?')){const previous=state.question;state.question=state.bibQuestion;questionChanged(state,previous);}
+ if(state.bibLens.trim()&&(state.criticalLens!==state.bibLens||state.lensNeedsReview)&&confirm('Use the bibliography’s primary lens as your working critical lens?')){state.criticalLens=state.bibLens;state.lensNeedsReview=false;}
  if(state.bibThesis.trim()&&state.workingThesis!==state.bibThesis&&confirm('Carry your bibliography thesis into the working-thesis field? Your saved essay and later thesis drafts will not be replaced.')){if(!state.initialThesis)state.initialThesis=state.workingThesis||state.bibThesis;state.workingThesis=state.bibThesis;state.thesisSaved=false;state.inquiryReviewed=false;}
  save();bibLeave();
 }
@@ -2724,7 +2728,7 @@ function render(focus=false){app.replaceChildren();controlSequence=0;const step=
  if(state.thesisSaved){const done=el('div','','callout');done.setAttribute('role','status');done.append(el('p',storageOK?'✓ Working thesis saved on this device.':'Working thesis kept in this session. Save a backup.'));body.append(done);}
  body.append(btn('Bring together my current story drafts',()=>{if(state.workingThesis.trim()&&!confirm('Replace your working thesis with the current three story drafts?'))return;state.workingThesis=assembleThreeStories([state.storyOne,state.storyTwo,state.storyThree]);state.thesisSaved=false;save();render(true);},'quiet'));
  thesisEvidence(body);
- body.append(btn('Return to my research',()=>go(9),'quiet'));
+ body.append(btn('Return to my research',()=>{state.researchReturn=16;go(9);},'quiet'));
  }
  if(step===17){
  const model=thesisDiagnostic(state);
@@ -2742,7 +2746,7 @@ function render(focus=false){app.replaceChildren();controlSequence=0;const step=
   if(!state.evidencePlan.trim()||!state.assumptionPlan.trim()||!state.alternativePlan.trim()){notice('Record a brief response to each of the three questions before continuing.');return;}
   state.inquiryReviewed=true;if(!state.initialThesis)state.initialThesis=state.workingThesis;if(!state.strengthenedThesis)state.strengthenedThesis=state.workingThesis;save();go(18);
  }));
- body.append(btn('Return to my research',()=>go(9),'quiet'));
+ body.append(btn('Return to my research',()=>{state.researchReturn=17;go(9);},'quiet'));
  }
  if(step===18){
  body.append(el('p','Strengthen your working thesis using your inquiry plan. You do not need to settle every question before you begin drafting.'));
@@ -2771,6 +2775,7 @@ function render(focus=false){app.replaceChildren();controlSequence=0;const step=
  if(step===23){braidEditor(body);if(bibSelected(state).length)body.append(el('p','Your '+bibSelected(state).length+' bibliography source selection(s) are marked in the map. Other reading notes remain available.','hint'));body.append(btn('Review my annotated bibliography',openBibliography,'quiet'));}
  if(step===20){
  body.append(el('p','Write in your own voice. Your working thesis gives you direction, but your essay can change your understanding.'),el('h2','My working thesis'),el('div',state.reconsideredThesis||state.strengthenedThesis||state.workingThesis,'callout'));if(state.reconsideredThesis&&state.thesisReflection)body.append(el('p','Revision focus: '+state.thesisReflection,'hint'));
+ if(bibliographyThesisStatus(state)){const comparison=el('details');comparison.append(el('summary','Compare my bibliography thesis with my current thesis'),el('p','Bibliography thesis (earlier working field)','hint'),el('p',state.workingThesis),el('p','Your later thesis remains in use above. Reconsider it only if your inquiry calls for it.','hint'));body.append(comparison);}
  if(state.writingEvidenceNote)body.append(el('p','My evidence plan: '+state.writingEvidenceNote,'hint'));
  body.append(field('Working essay title','essayTitle'),field('My essay draft','essayDraft',14,'Start with the section you know best. Bring lived detail, community knowledge and research into conversation. Use your own literary or analytical voice.'));
  body.append(btn('Save draft and reconsider my working thesis →',()=>{if(!state.essayDraft.trim()){notice('Write a draft before reconsidering your thesis.');return;}if(!state.reconsideredThesis)state.reconsideredThesis=state.strengthenedThesis||state.workingThesis;go(21);}));
