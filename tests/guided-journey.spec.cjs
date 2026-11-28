@@ -104,3 +104,21 @@ test('intellectual trail preserves student text and permits an unchanged thesis'
  await expect(page.getByText('First saved working thesis',{exact:true})).toBeVisible();
  await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
 });
+
+test('continuity review identifies a possible crossing without changing the essay',async({page})=>{
+ const first='The garden carried family memory and belonging. I noticed how the trees surrounded the place.';
+ const tangent='Astronomers measure distant planets by observing orbital periods and stellar brightness. Telescope instruments detect wavelengths emitted by galaxies. Calculations estimate planetary mass, atmospheric composition, temperature, radiation, and gravity across vast distances.';
+ const last='The garden and belonging return through family memory and our shared place.';
+ const draft=[first,tangent,last].join('\n\n');
+ await seed(page,{...fixture,step:25,question:'How does garden memory shape belonging?',workingThesis:'Garden memory shapes belonging.',strengthenedThesis:'',reconsideredThesis:'',essayDraft:draft});
+ await expect(page.getByRole('heading',{name:'Check one change of direction',exact:true})).toBeVisible();
+ await page.getByText('Follow my central inquiry',{exact:true}).click();
+ await page.getByLabel('My critical lens (optional)',{exact:true}).fill('Cultural studies and family belonging');
+ await page.getByLabel('My critical lens (optional)',{exact:true}).blur();
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
+ await click(page,'Save this review and continue →');
+ await expect(page.getByRole('heading',{name:'Revise for braiding',exact:true})).toBeVisible();
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.criticalLens).toBe('Cultural studies and family belonging');
+ expect(saved.essayDraft).toBe(draft);
+});
