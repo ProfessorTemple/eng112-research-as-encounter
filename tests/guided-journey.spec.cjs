@@ -237,3 +237,18 @@ test('particularity guides observation and abstract prose without changing stude
  await expect(page.getByText(encounter,{exact:true}).last()).toBeVisible();
  await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
 });
+
+test('intellectual presence prompts interpretation without judging authorship or rewriting',async({page})=>{
+ const draft='Smith (2020) discusses family learning and cultural knowledge.\n\nJones (2021) describes family learning and cultural knowledge.';
+ const interpretation='Family learning and cultural knowledge can shape how I listen.';
+ await seed(page,{...fixture,step:27,essayDraft:draft,storyTwo:interpretation});
+ await expect(page.getByRole('heading',{name:'Make room for your interpretation',exact:true})).toBeVisible();
+ await page.getByText('Where is my thinking visible?',{exact:true}).click();
+ const panel=page.locator('details').filter({has:page.locator('summary').filter({hasText:'Where is my thinking visible?'})});
+ await expect(panel.getByText(interpretation,{exact:true})).toBeVisible();
+ await expect(panel.getByText('This is a revision prompt based on wording, not a judgment of authorship',{exact:false})).toBeVisible();
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
+ await click(page,'Save and check assignment completeness →');
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.essayDraft).toBe(draft);expect(saved.storyTwo).toBe(interpretation);
+});
