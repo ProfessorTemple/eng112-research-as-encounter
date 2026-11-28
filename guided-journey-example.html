@@ -3,7 +3,7 @@
 <style>
 :root{color-scheme:light;--ink:#203e34;--muted:#526c60;--green:#245d4c;--line:#c5d3c8;--paper:#faf9f2;--soft:#eef3ea}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}header{background:#203f34;color:white;padding:1rem max(1rem,calc((100% - 640px)/2))}header small{color:#dce5db;display:block;letter-spacing:.08em;font-size:.72rem}header strong{font-size:1.12rem}main{max-width:650px;margin:0 auto;padding:1.15rem 1rem 2rem}h1{font-family:Georgia,serif;font-size:clamp(1.75rem,5vw,2.35rem);line-height:1.14;margin:.5rem 0 .9rem;font-weight:500}h2{font-size:1.12rem;margin:.9rem 0 .35rem}p{margin:.55rem 0 1rem}small,.hint{font-size:.88rem;color:var(--muted)}button,input,textarea,select,a.action{font:inherit}button,a.action{cursor:pointer;min-height:48px;border:1px solid var(--green);border-radius:9px;padding:.7rem .85rem;background:transparent;color:var(--green);font-weight:650;text-align:center;text-decoration:none}button.primary,a.primary{display:block;width:100%;background:var(--green);color:#fff;margin-top:1rem}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a26d28;outline-offset:3px}textarea,input[type=text]{display:block;width:100%;border:1px solid #9ab0a2;border-radius:8px;padding:.7rem;background:white;color:var(--ink);margin:.35rem 0 .8rem;font:inherit}textarea{resize:vertical}label{font-weight:600}fieldset{border:0;padding:0;margin:.75rem 0;min-width:0}legend{font-weight:650;margin-bottom:.4rem}.option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:9px;padding:.7rem;margin:.45rem 0;background:#fff;font-weight:500;cursor:pointer}.option:has(input:checked){background:var(--soft);border-color:var(--green)}.option input{margin:.3rem 0 0;flex:none;width:20px;height:20px;accent-color:var(--green)}.option span{min-width:0}.option small{display:block;margin-top:.2rem}.progress{display:flex;gap:5px;margin:.4rem 0 1.1rem}.progress span{flex:1;height:5px;background:#dce5db;border-radius:6px}.progress .done{background:#398063}.progress .current{background:#245d4c}.topline{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.85rem}.callout{background:var(--soft);border-left:3px solid #608976;padding:.75rem .9rem;margin:.8rem 0}.callout p{margin:.25rem 0}.query{font-weight:650;overflow-wrap:anywhere}.choice{display:block;width:100%;text-align:left;margin:.55rem 0;background:#fff}.choice small{display:block;font-weight:400}.secondary{display:inline-block;margin:.4rem 0;max-width:100%;overflow-wrap:anywhere}select{display:block;width:100%;padding:.65rem;margin:.35rem 0 .8rem;border:1px solid #9ab0a2;border-radius:8px;background:#fff;color:var(--ink)}select:focus-visible,summary:focus-visible{outline:3px solid #a26d28;outline-offset:3px}.quiet{border:0;padding:.4rem .15rem;min-height:44px;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:.65rem}.nav button{font-size:.88rem}.notice{font-size:.9rem;color:var(--muted);min-height:1.2em}.notice:empty{display:none}.screenreader{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
  .strength-row{padding:.65rem 0;border-top:1px solid var(--line)}.strength-row p{margin:.2rem 0}.strength-label{font-weight:650;font-size:.85rem}.strength-track{display:flex;gap:4px;margin:.35rem 0}.strength-track span{height:7px;flex:1;border-radius:4px;background:#dce5db}.strength-track .missing{background:#a33a35}.strength-track .developing{background:#a56c17}.strength-track .promising{background:#398063}
-</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 24</small></header><main id="app"></main>
+</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 25</small></header><main id="app"></main>
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
@@ -327,7 +327,7 @@ function thesisResumeStep(state){
 }
 function journalTabLink(){
  const a=el('a','Open Reading Journal in a new tab ↗','action secondary');
- const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided24');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
+ const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided25');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
  return a;
 }
 function renderJournalReference(){
@@ -890,7 +890,7 @@ function revisionRequirements(){return [
 function revisionNext(state){
  const passes=state.revisionPasses||{};
  const first=revisionLayers().findIndex(x=>!passes[x.id]?.reviewed);
- return first<0?28:24+first;
+ return first<0?(state.revisionFinished?29:28):24+first;
 }
 function revisionChecks(state){
  const c=state.revisionChecks||{};
@@ -923,12 +923,79 @@ function layerContext(root,layer){
   const d=el('details');d.append(el('summary','Revisit my original encounter'),el('p',state.encounter||'No original encounter saved.'));root.append(d);
  }
 }
+function revisionCue(state,layer){
+ const text=String(state.essayDraft||'').trim(), blocks=draftBlocks(text);
+ const thesis=String(state.reconsideredThesis||state.strengthenedThesis||state.workingThesis||'');
+ const cue=(label,question,excerpt='',context='')=>({label,question,excerpt:bridgeExcerpt(excerpt),context});
+ if(!blocks.length)return cue('Begin with material','Write a little of your essay before asking the notebook to suggest a revision.');
+ if(layer==='discovery'){
+  if(blocks.length<2)return cue('Allow discovery to unfold','What might this passage lead you to investigate or reconsider as the essay develops?',blocks[0].text);
+  const last=blocks[blocks.length-1], prior=blocks.slice(0,-1).map(b=>b.text).join(' ');
+  const thesisTerms=new Set(bridgeTerms(thesis)), earlier=new Set(bridgeTerms(prior));
+  const emerging=bridgeTerms(last.text).filter(w=>earlier.has(w)&&!thesisTerms.has(w)).slice(0,3);
+  if(thesis&&emerging.length>=2)return cue('An emerging thread','Your ending and earlier writing share these words: '+emerging.join(', ')+'. Do they name a developing insight that your working thesis should reflect, or are they details that already belong to it?',last.text);
+  const shared=bridgeOverlap(blocks[0].text,last.text);
+  if(shared.length)return cue('Return with changed understanding','Your opening and ending both use '+shared.join(', ')+'. What has your inquiry helped you understand differently? You can keep the recurrence if it develops meaning.',last.text);
+  return cue('Revisit your central question','Does this ending answer, complicate or reopen your original question? Compare it with the working thesis. A literal return to the opening is optional.',last.text);
+ }
+ if(layer==='structure'){
+  if(blocks.length<2)return cue('Give the next idea room','As you develop another section, decide what idea will carry the reader forward. A short passage or poetic fragment can be intentional.',blocks[0].text);
+  let index=1;
+  for(let i=1;i<blocks.length;i++){if(!bridgeOverlap(blocks[i-1].text,blocks[i].text).length&&revisionWordCount(blocks[i].text)>=25){index=i;break;}}
+  const a=blocks[index-1],b=blocks[index],common=bridgeOverlap(a.text,b.text);
+  return cue('Examine one crossing',common.length?'Both passages use '+common.join(', ')+'. Does the second develop the first idea, introduce a new dimension or deliberately return to an image?':'These neighboring passages do not share much exact vocabulary. Is their relationship already clear through an image, contrast, question or analytical connection? Only revise if a reader needs more guidance.',b.text,'Previous passage: '+bridgeExcerpt(a.text,true));
+ }
+ if(layer==='braiding'){
+  const attributed=/\b(?:according to|(?:author|researcher|study|article|research) (?:argues?|shows?|finds?|suggests?|reports?)|personal communication)\b|\b(?:18|19|20)\d{2}[a-z]?\s*[,)]/i;
+  const interview=/\b(?:personal communication|interviewee|my (?:mother|father|grandmother|grandfather|aunt|uncle|neighbor|friend) (?:said|told|remembered|described))\b/i;
+  const lived=/\b(?:I (?:saw|heard|noticed|felt|watched|remember|remembered|experienced|stood|walked|observed)|my (?:childhood|memory|experience|family))\b/i;
+  const idx=blocks.findIndex(b=>interview.test(b.text));
+  if(idx>=0)return cue('Listen to a community voice','What knowledge does this person bring, and how does it deepen or complicate your own experience or research? Keep their words, context and your interpretation distinct.',blocks[idx].text);
+  const source=blocks.find(b=>attributed.test(b.text));
+  if(source)return cue('Read beyond the citation','What does this source help you see that you could not see alone? Consider bringing an actual lived detail, community voice or contrasting source into this discussion if it serves the idea.',source.text);
+  const scene=blocks.find(b=>lived.test(b.text));
+  if(scene)return cue('Treat lived experience as evidence','What does this particular experience reveal, and what could another voice help you understand differently? You do not need a scholarly citation for the fact that you experienced something.',scene.text);
+  return cue('Choose one meaningful connection','Find a place where your own observation, an interview, a course reading or outside research could change the meaning of another strand. Not every paragraph needs all strands.',blocks[0].text);
+ }
+ if(layer==='voice'){
+  const sensory=/\b(?:heard|sound|smell|scent|touched|felt|texture|light|shadow|warm|cold|voice|color|colour|wind|rain|taste)\b/i;
+  const scene=/\b(?:I (?:saw|noticed|remember|remembered|walked|stood|watched|felt|heard|experienced)|my (?:childhood|grandmother|grandfather|mother|father))\b/i;
+  const b=blocks.find(x=>scene.test(x.text)&&!sensory.test(x.text));
+  if(b)return cue('Return to a lived detail','If this moment matters to your inquiry, could a specific action, remembered detail or sensory observation help the reader experience it? A precise analytical explanation is also a valid choice. Do not invent details.',b.text);
+  const expressive=blocks.find(x=>sensory.test(x.text));
+  if(expressive)return cue('Notice your expressive choices','Which detail or image here carries meaning beyond description? Consider whether your own explanation, metaphor or a later echo would deepen it. Keep the style that feels right for your essay.',expressive.text);
+  return cue('Make your interpretation visible','Where does this passage move beyond reporting information into your own thinking? Clarify what you make of the evidence without forcing first person, imagery or poetry.',blocks[0].text);
+ }
+ if(layer==='completeness'){
+  const marker=text.match(/\[(?:[^\]\n]{0,100}\b(?:insert|verify|citation needed|check source|add citation|add source|figure|placeholder|todo)\b[^\]\n]{0,100})\]|\b(?:CITATION NEEDED|VERIFY PAGE|CHECK SOURCE|TODO)\b/i);
+  if(marker)return cue('Resolve a drafting marker','Check whether this marker still needs a source, page number, visual or other material in your actual submission.',marker[0]);
+  const count=revisionWordCount(text);
+  if(count<1200||count>1500)return cue('Review the main-essay length','The editor contains about '+count+' words. The course guide expects approximately 1,200–1,500 words in the main essay. Check the actual submission document; develop or trim only where it serves the writing.');
+  const remaining=revisionRequirements().find(x=>!state.revisionChecks?.[x.id]);
+  return remaining?cue('Verify one requirement','Check this in your actual submission document: '+remaining.label):cue('Read the submission document once more','You have self-confirmed all five groups. Check the finished file, including formatting and actual visuals, before submitting it yourself.');
+ }
+ return cue('Read for meaning','Choose one aspect of the essay to revisit.');
+}
+function adaptiveRevisionCard(root,layer){
+ const host=el('div','','callout');const heading=el('h2','One next revision move');root.append(host);
+ let last='';
+ function refresh(){
+  const model=revisionCue(state,layer.id),key=JSON.stringify(model);if(key===last)return;last=key;
+  host.replaceChildren(heading,el('h3',model.label),el('p',model.question));
+  if(model.context){const d=el('details');d.append(el('summary','See the neighboring passage'),el('p',model.context));host.append(d);}
+  if(model.excerpt){const d=el('details');d.append(el('summary','See the passage to revisit'),el('p',model.excerpt,'query'));host.append(d);}
+  host.append(el('p','A suggestion based on your text and saved notes, not a grade or a verdict. Keep what works in your own voice.','hint'));
+ }
+ refresh();return refresh;
+}
+
 function renderRevision(root,step){
  const layer=revisionLayers()[step-24];
  if(!state.revisionStarted){state.revisionOriginal=state.essayDraft||'';state.revisionStarted=true;save();}
- root.append(el('p',layer.question,'callout'),el('p',layer.hint));
+ root.append(el('p',layer.hint));const refreshCue=adaptiveRevisionCard(root,layer);
  if(step<28){
   root.append(field('My essay draft','essayDraft',14));
+  document.getElementById('input-essayDraft').addEventListener('blur',refreshCue);
   root.append(btn(step===27?'Save and check assignment completeness →':'Save this review and continue →',()=>{
    if(!state.essayDraft.trim()){notice('Keep an essay draft in the editor before continuing.');return;}
    state.revisionPasses=revisionPass(state,layer.id);save();go(step+1);
@@ -943,7 +1010,7 @@ function renderRevision(root,step){
   const status=el('p','','hint');status.setAttribute('role','status');
   function refresh(){status.textContent=revisionChecks(state)+' of '+revisionRequirements().length+' groups confirmed by you.';}
   for(const x of revisionRequirements()){const l=el('label','','option'),c=el('input');c.type='checkbox';c.checked=state.revisionChecks?.[x.id]===true;
-   c.addEventListener('change',()=>{state.revisionChecks={...(state.revisionChecks||{}),[x.id]:c.checked};state.revisionFinished=false;save();refresh();});l.append(c,el('span',x.label));group.append(l);}
+   c.addEventListener('change',()=>{state.revisionChecks={...(state.revisionChecks||{}),[x.id]:c.checked};state.revisionFinished=false;save();refresh();refreshCue();});l.append(c,el('span',x.label));group.append(l);}
   root.append(group,status);refresh();
   root.append(btn('Save my revision review →',()=>{state.revisionPasses=revisionPass(state,'completeness');state.revisionFinished=true;save();go(29);}));
   root.append(el('p','You can save your review with items still unchecked. Finish and verify those items in your submission document. This notebook does not submit anything to Moodle.','hint'),btn('Download essay text to prepare my document',downloadEssayOnly,'secondary'));
