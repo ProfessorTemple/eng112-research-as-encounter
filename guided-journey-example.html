@@ -3,7 +3,7 @@
 <style>
 :root{color-scheme:light;--ink:#203e34;--muted:#526c60;--green:#245d4c;--line:#c5d3c8;--paper:#faf9f2;--soft:#eef3ea}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}header{background:#203f34;color:white;padding:1rem max(1rem,calc((100% - 640px)/2))}header small{color:#dce5db;display:block;letter-spacing:.08em;font-size:.72rem}header strong{font-size:1.12rem}main{max-width:650px;margin:0 auto;padding:1.15rem 1rem 2rem}h1{font-family:Georgia,serif;font-size:clamp(1.75rem,5vw,2.35rem);line-height:1.14;margin:.5rem 0 .9rem;font-weight:500}h2{font-size:1.12rem;margin:.9rem 0 .35rem}p{margin:.55rem 0 1rem}small,.hint{font-size:.88rem;color:var(--muted)}button,input,textarea,select,a.action{font:inherit}button,a.action{cursor:pointer;min-height:48px;border:1px solid var(--green);border-radius:9px;padding:.7rem .85rem;background:transparent;color:var(--green);font-weight:650;text-align:center;text-decoration:none}button.primary,a.primary{display:block;width:100%;background:var(--green);color:#fff;margin-top:1rem}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a26d28;outline-offset:3px}textarea,input[type=text]{display:block;width:100%;border:1px solid #9ab0a2;border-radius:8px;padding:.7rem;background:white;color:var(--ink);margin:.35rem 0 .8rem;font:inherit}textarea{resize:vertical}label{font-weight:600}fieldset{border:0;padding:0;margin:.75rem 0;min-width:0}legend{font-weight:650;margin-bottom:.4rem}.option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:9px;padding:.7rem;margin:.45rem 0;background:#fff;font-weight:500;cursor:pointer}.option:has(input:checked){background:var(--soft);border-color:var(--green)}.option input{margin:.3rem 0 0;flex:none;width:20px;height:20px;accent-color:var(--green)}.option span{min-width:0}.option small{display:block;margin-top:.2rem}.progress{display:flex;gap:5px;margin:.4rem 0 1.1rem}.progress span{flex:1;height:5px;background:#dce5db;border-radius:6px}.progress .done{background:#398063}.progress .current{background:#245d4c}.topline{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.85rem}.callout{background:var(--soft);border-left:3px solid #608976;padding:.75rem .9rem;margin:.8rem 0}.callout p{margin:.25rem 0}.query{font-weight:650;overflow-wrap:anywhere}.choice{display:block;width:100%;text-align:left;margin:.55rem 0;background:#fff}.choice small{display:block;font-weight:400}.secondary{display:inline-block;margin:.4rem 0;max-width:100%;overflow-wrap:anywhere}select{display:block;width:100%;padding:.65rem;margin:.35rem 0 .8rem;border:1px solid #9ab0a2;border-radius:8px;background:#fff;color:var(--ink)}select:focus-visible,summary:focus-visible{outline:3px solid #a26d28;outline-offset:3px}.quiet{border:0;padding:.4rem .15rem;min-height:44px;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:.65rem}.nav button{font-size:.88rem}.notice{font-size:.9rem;color:var(--muted);min-height:1.2em}.notice:empty{display:none}.screenreader{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
  .strength-row{padding:.65rem 0;border-top:1px solid var(--line)}.strength-row p{margin:.2rem 0}.strength-label{font-weight:650;font-size:.85rem}.strength-track{display:flex;gap:4px;margin:.35rem 0}.strength-track span{height:7px;flex:1;border-radius:4px;background:#dce5db}.strength-track .missing{background:#a33a35}.strength-track .developing{background:#a56c17}.strength-track .promising{background:#398063}
-</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 44</small></header><main id="app"></main>
+</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 45</small></header><main id="app"></main>
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
@@ -398,7 +398,7 @@ function thesisResumeStep(state){
 }
 function journalTabLink(){
  const a=el('a','Open Reading Journal in a new tab ↗','action secondary');
- const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided44');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
+ const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided45');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
  return a;
 }
 function renderJournalReference(){
@@ -431,6 +431,45 @@ function particularityCues(text){
  const findings=/\b(?:participants?|respondents?|samples?|observations?|records?|findings?|measurements?|specimens?|plots?|sites?|archives?|interviews?)\b/i;
  return {action:action.test(t),setting:setting.test(t)||named.test(t),measure:measure.test(t),quote:quote.test(t),detail:detail.test(t),relationship:relationship.test(t),finding:research.test(t)&&findings.test(t),grounded:quote.test(t)||measure.test(t)||research.test(t)&&findings.test(t)||action.test(t)&&(setting.test(t)||named.test(t)||detail.test(t)||relationship.test(t))};
 }
+function voicePresenceModel(st){
+ const blocks=draftBlocks(st.essayDraft).filter(b=>!/^\[Figure [1-3]\]$/i.test(b.text));
+ if(!blocks.length)return null;
+ const attributed=/\b(?:according to|personal communication|(?:the |this )?(?:author|researcher|study|article|research|interviewee|report) (?:argues?|shows?|finds?|suggests?|reports?|describes?|explains?|states?|concludes?))\b|\b(?:18|19|20)\d{2}[a-z]?\s*[,)]/i;
+ const writerMove=/\b(?:I (?:interpret|wonder|question|argue|realiz\w*|understand|recogniz\w*|began to|reconsider\w*|had assumed|noticed)|this (?:contrast|relationship|distinction|comparison|encounter|difference|suggests|raises)|taken together|in my experience|rather than|this matters because|what remains unclear|a possible explanation)\b/i;
+ const glossary=integrationGlossary(st);
+ const profile=blocks.map((b,i)=>({b,i,attributed:attributed.test(b.text),move:writerMove.test(b.text),concrete:particularityCues(b.text).grounded,terms:conceptHits(b.text,glossary.map(g=>g.term)).map(t=>glossary.find(g=>g.key===conceptNormalize(t))).filter(Boolean)}));
+ const studentRecords=[{origin:'Your interpretation',text:st.storyTwo},{origin:'Your thesis reflection',text:st.thesisReflection},...(Array.isArray(st.notes)?st.notes:[]).map(n=>({origin:'Your reading reflection · '+String(n.title||'Reading note').slice(0,100),text:n.reflection})),...(Array.isArray(st.connections)?st.connections:[]).map(n=>({origin:'Your source comparison',text:n.reflection})),...(Array.isArray(st.braidSections)?st.braidSections:[]).map(n=>({origin:'Your planned connection',text:n.connection}))].filter(x=>String(x.text||'').trim());
+ const base={kind:'open',label:'Make your thinking visible',question:'Choose one place where your own interpretation meets another voice. What do you make of that relationship? Your contribution can be analytical, creative, questioning or reflective, with or without first person.',excerpt:bridgeExcerpt(blocks[0].text),reference:'',origin:''};
+ function result(kind,label,question,p,term=''){
+  const match=studentRecords.map((r,i)=>({...r,i,score:bridgeOverlap(p.b.text,r.text).length})).filter(r=>r.score>=2).sort((a,b)=>b.score-a.score||a.i-b.i)[0];
+  return {...base,kind,label,question,excerpt:bridgeExcerpt(p.b.text),reference:match?bridgeExcerpt(match.text):'',origin:match?.origin||'',term};
+ }
+ // A source-rich passage is not a problem by itself. Examine adjacent passages too.
+ for(const p of profile){
+  if(!p.attributed||p.move)continue;
+  const neighbors=[profile[p.i-1],profile[p.i+1]].filter(Boolean);
+  if(neighbors.some(n=>n.move&&bridgeOverlap(p.b.text,n.b.text).length>=1))continue;
+  if(neighbors.some(n=>n.attributed&&!n.move)||((p.b.text.match(/\b(?:18|19|20)\d{2}[a-z]?\s*[,)]/g)||[]).length>=2))
+   return result('sources','Make room for your interpretation','These passages contain several source-attribution cues. Where do you explain what the sources reveal, complicate or leave uncertain in your inquiry? If that interpretation already appears elsewhere, keep the source discussion as it is. A first-person statement is not required.',p);
+ }
+ for(const p of profile){
+  if(p.terms.length<2||p.move||p.concrete)continue;
+  const neighbors=[profile[p.i-1],profile[p.i+1]].filter(Boolean);
+  if(neighbors.some(n=>(n.move||n.concrete)&&bridgeOverlap(p.b.text,n.b.text).length>=2))continue;
+  const term=p.terms[0];
+  return result('concept','Explain a concept in your own voice','Choose what '+term.term+' contributes to this particular inquiry. How would you explain its meaning to a reader using your own words and evidence? '+(term.definition?'Check the way your source defines it.':'Return to the original source for its definition.')+' Keep specialized language when it clarifies the idea; do not simplify merely to satisfy the notebook.',p,term.term);
+ }
+ return base;
+}
+function voicePresencePanel(root){
+ const d=el('details');d.append(el('summary','Where is my thinking visible?'));const host=el('div');d.append(host);
+ function refresh(){const m=voicePresenceModel(state);host.replaceChildren();if(!m){host.append(el('p','Begin with a draft before revisiting your voice.','hint'));return;}
+ host.append(el('h3',m.label),el('p',m.question),el('p',m.excerpt,'query'));
+ if(m.reference)host.append(el('h4',m.origin),el('p',m.reference));
+ host.append(el('p','This is a revision prompt based on wording, not a judgment of authorship, AI use, honesty or writing style. It does not establish that your interpretation is absent.','hint'));}
+ d.addEventListener('toggle',()=>{if(d.open)refresh();});root.append(d);
+}
+
 function particularityModel(st,mode='draft'){
  const observation=String(st.storyOne||'').trim(),encounter=String(st.encounter||st.firstEncounter||'').trim();
  const excerpt=t=>bridgeExcerpt(t);
@@ -1403,7 +1442,7 @@ function layerContext(root,layer){
  }else if(layer.id==='structure'){continuityPanel(root);braidSummary(root);creativeBridgeControl(root);}
  else if(layer.id==='braiding'){root.append(journalTabLink());reciprocityPanel(root);braidSummary(root);strandShelf(root);}
  else if(layer.id==='voice'){
-  const d=el('details');d.append(el('summary','Revisit my original encounter'),el('p',state.encounter||'No original encounter saved.'));root.append(d);particularityPanel(root);translationVoicePanel(root);
+  const d=el('details');d.append(el('summary','Revisit my original encounter'),el('p',state.encounter||'No original encounter saved.'));root.append(d);voicePresencePanel(root);particularityPanel(root);translationVoicePanel(root);
  }
 }
 function revisionCue(state,layer){
@@ -1430,6 +1469,7 @@ function revisionCue(state,layer){
   return cue('Examine one crossing',common.length?'Both passages use '+common.join(', ')+'. Does the second develop the first idea, introduce a new dimension or deliberately return to an image?':'These neighboring passages do not share much exact vocabulary. Is their relationship already clear through an image, contrast, question or analytical connection? Only revise if a reader needs more guidance.',b.text,'Previous passage: '+bridgeExcerpt(a.text,true));
  }
  if(layer==='braiding'){
+  const v=voicePresenceModel(state);if(v?.kind==='sources')return cue(v.label,v.question,v.excerpt,v.reference?v.origin+': '+v.reference:'');
   const integration=conceptualIntegration(state);if(integration)return {label:integration.label,question:integration.question,excerpt:integration.excerpt,context:integration.context};
   const reciprocal=reciprocityCue(state);if(!['open','early'].includes(reciprocal.kind))return {label:reciprocal.label,question:reciprocal.question,excerpt:reciprocal.excerpt,context:''};
   const attributed=/\b(?:according to|(?:author|researcher|study|article|research) (?:argues?|shows?|finds?|suggests?|reports?)|personal communication)\b|\b(?:18|19|20)\d{2}[a-z]?\s*[,)]/i;
@@ -1444,6 +1484,7 @@ function revisionCue(state,layer){
   return cue('Choose one meaningful connection','Find a place where your own observation, an interview, a course reading or outside research could change the meaning of another strand. Not every paragraph needs all strands.',blocks[0].text);
  }
  if(layer==='voice'){
+  const v=voicePresenceModel(state);if(v?.kind==='sources'||v?.kind==='concept')return cue(v.label,v.question,v.excerpt,v.reference?v.origin+': '+v.reference:'');
   const p=particularityModel(state);if(p?.kind==='abstract')return cue(p.label,p.question,p.excerpt,p.reference?(p.origin+': '+p.reference):'');
   const sensory=/\b(?:heard|sound|smell|scent|touched|felt|texture|light|shadow|warm|cold|voice|color|colour|wind|rain|taste)\b/i;
   const scene=/\b(?:I (?:saw|noticed|remember|remembered|walked|stood|watched|felt|heard|experienced)|my (?:childhood|grandmother|grandfather|mother|father))\b/i;
@@ -1813,6 +1854,7 @@ function engagementMove(st,id){
   return {question:'Locate the place where McAnulty enters your inquiry. Explain what his writing helps you understand, rather than adding a citation merely to fulfill the requirement.',excerpt:''};
  }
  if(id==='discovery'){const sig=endingSignificance(st);if(sig&&['scope','generic','repeat','bridge'].includes(sig.kind))return {question:sig.prompt,excerpt:sig.excerpt};const m=intellectualTrail(st);return {question:m.question,excerpt:m.after||m.before||''};}
+ if(id==='voice'||id==='braid'){const v=voicePresenceModel(st);if(v?.kind==='sources'||v?.kind==='concept')return {question:v.question,excerpt:v.excerpt};}
  if(id==='experience'||id==='voice'){const p=particularityModel(st);if(p?.kind==='abstract')return {question:p.question,excerpt:p.excerpt};}
  if(id==='experience'){const r=reciprocityCue(st);if(r.kind==='living')return {question:r.question,excerpt:r.excerpt};}
  if(id==='experience'&&e.scene)return {question:'What does this lived moment reveal after you encounter other voices? Develop its significance without inventing details.',excerpt:e.scene};
@@ -1856,7 +1898,7 @@ function essayReviewSignals(st){
  if(strands.some(x=>x.type==='course')||/\bMcAnulty\b/i.test(draft))result.sources.push('A course-source cue is present; verify actual engagement.');
  if((st.braidSections||[]).some(x=>x.idea?.trim()&&Array.isArray(x.keys)&&x.keys.length>=2&&x.connection?.trim()))result.braid.push('A planned connection between materials is recorded.');
  if(draft&&conceptualIntegration(st))result.braid.push('Two distinct concept cues were located in connected writing. Check whether their relationship is developed.');if(blocks.length>=2){const c=continuityScan(st);result.braid.push('Continuity review: '+c.label+'. This is a wording cue, not a judgment.');}
- if(draft){const p=particularityModel(st);result.voice.push(p?.kind==='abstract'?'A possible abstract passage is available to review for specific evidence.':'Read your own draft for the precision and effect of your chosen style.');}
+ if(draft){const v=voicePresenceModel(st);if(v&&v.kind!=='open')result.voice.push('A passage is available to review for your own interpretation. This is not an authorship assessment.');const p=particularityModel(st);result.voice.push(p?.kind==='abstract'?'A possible abstract passage is available to review for specific evidence.':'Read your own draft for the precision and effect of your chosen style.');}
  const figures=(st.figures||[]).length;if(figures)result.visuals.push(figures+' image attachment(s) recorded; verify placement and purpose.');
  if(draft&&st.paperReferences?.trim()){const a=citationAudit(draft,st.paperReferences);result.apa.push(a.citations+' recognizable author-date citation(s); '+a.issues.length+' possible citation issue(s).');}
  if(st.paperAbstract?.trim())result.apa.push('An abstract is saved.');
