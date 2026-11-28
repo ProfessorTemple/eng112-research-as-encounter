@@ -150,3 +150,17 @@ test('conceptual translation offers editable searches and preserves student voic
  await expect(page.getByRole('heading',{name:'phenomenology',exact:true})).toBeVisible();
  await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
 });
+
+test('conceptual integration invites interpretation without changing the draft',async({page})=>{
+ const draft='Sensory regulation and phenomenology offer perspectives on my walk. I noticed the creek in the woods.';
+ await seed(page,{...fixture,step:26,essayDraft:draft});
+ await expect(page.getByRole('heading',{name:'Bring two concepts into conversation',exact:true})).toBeVisible();
+ await expect(page.getByText('Consider the difference between explaining a sensory response',{exact:false})).toBeVisible();
+ await page.getByText('What did my encounters teach me?',{exact:true}).click();
+ await expect(page.getByRole('heading',{name:'sensory regulation',exact:true})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'phenomenology',exact:true})).toBeVisible();
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
+ await click(page,'Save this review and continue →');
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.essayDraft).toBe(draft);expect(saved.step).toBe(27);
+});
