@@ -505,3 +505,21 @@ test('conversational filler does not masquerade as a remembered detail',async({p
   await expect(page.getByRole('heading',{name:'Discover my words',exact:true})).toBeVisible();
  }
 });
+
+test('everyday phrases suggest bounded concepts without assigning a lens',async({page})=>{
+ const cases=[
+ ['Why did it matter that he waited until I finished talking?','Communication studies / relational ethics'],
+ ['Why did nobody have to explain why we were there?','Anthropology / cultural studies'],
+ ['Why did the room feel different when she was gone?','Place studies / memory'],
+ ['How did my dog know before I said anything?','Animal behavior and communication'],
+ ['Why did everyone know my name when I walked in?','Sociology / cultural studies'],
+ ["Why couldn't I think with all the noise?",'Psychology / disability studies']
+ ];
+ for(const [question,lens] of cases){
+  await seed(page,{...fixture,step:3,encounter:question,question,words:[],search:'',criticalLens:'',notes:[],history:[],keywords:[]});
+  await page.getByText('My working critical lens (optional)',{exact:true}).click();
+  await expect(page.getByRole('heading',{name:lens,exact:true})).toBeVisible();
+  await expect(page.getByLabel('My working lens',{exact:true})).toHaveValue('');
+  expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).question,KEY)).toBe(question);
+ }
+});
