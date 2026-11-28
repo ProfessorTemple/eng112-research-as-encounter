@@ -301,3 +301,55 @@ test('quiet revision and grouped tools preserve student control and required che
  await expect(page.getByRole('button',{name:'Save my revision review →',exact:true})).toBeVisible();
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);expect(saved.essayDraft).toBe(essay);
 });
+
+test('complete notebook backup restores writing and attachment bytes in a fresh browser',async({page,browser})=>{
+ const pdf=Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [] /Count 0 >>\nendobj\n%%EOF\n');
+ const initial={...fixture,step:20,pdfId:'backup-pdf',pdfName:'source.pdf',notes:[{...fixture.notes[0],pdfId:'backup-pdf',pdfName:'source.pdf'}],figures:[{id:'backup-image',number:1,ext:'png',name:'original.png',width:2,height:2,title:'Original figure',alt:'A green square',note:''}]};
+ await seed(page,initial);
+ const png=await page.evaluate(async({pdf})=>{
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=2;const c=canvas.getContext('2d');c.fillStyle='green';c.fillRect(0,0,2,2);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png')),bytes=await blob.arrayBuffer();
+  const write=record=>new Promise((resolve,reject)=>{
+   const req=indexedDB.open('eng112-guided-journey-example-v1-pdf-shelf',1);
+   req.onupgradeneeded=()=>req.result.createObjectStore('files',{keyPath:'id'});
+   req.onerror=()=>reject(req.error);
+   req.onsuccess=()=>{const db=req.result,tx=db.transaction('files','readwrite');tx.objectStore('files').put(record);tx.oncomplete=()=>{db.close();resolve();};tx.onabort=()=>{db.close();reject(tx.error);};};
+  });
+  await write({id:'backup-pdf',name:'source.pdf',mime:'application/pdf',bytes:new Uint8Array(pdf).buffer});
+  await write({id:'backup-image',name:'original.png',mime:'image/png',bytes});
+  return Array.from(new Uint8Array(bytes));
+ },{pdf:[...pdf]});
+ await page.getByText('Backup or restore my notebook',{exact:true}).click();
+ const [download]=await Promise.all([page.waitForEvent('download'),click(page,'Download complete backup (.zip)')]);
+ expect(download.suggestedFilename()).toBe('living-field-notebook-complete.zip');
+ const bytes=await fs.readFile(await download.path());expect(bytes.subarray(0,4).toString('hex')).toBe('504b0304');
+ const fresh=await browser.newContext({acceptDownloads:true});
+ try{
+  const target=await fresh.newPage();await target.goto(url);
+  await target.getByText('Backup or restore my notebook',{exact:true}).click();
+  target.once('dialog',d=>d.accept());
+  await target.getByLabel('Restore a notebook backup (.zip or .json)',{exact:true}).setInputFiles({name:'backup.zip',mimeType:'application/zip',buffer:bytes});
+  await expect(target.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
+  const restored=await target.evaluate(async k=>{
+   const st=JSON.parse(localStorage.getItem(k));
+   const read=id=>new Promise((resolve,reject)=>{const req=indexedDB.open(k+'-pdf-shelf',1);req.onerror=()=>reject(req.error);req.onsuccess=()=>{const db=req.result,tx=db.transaction('files','readonly'),get=tx.objectStore('files').get(id);get.onsuccess=()=>resolve(Array.from(new Uint8Array(get.result.bytes)));get.onerror=()=>reject(get.error);tx.oncomplete=()=>db.close();};});
+   return {st,pdf:await read(st.notes[0].pdfId),image:await read(st.figures[0].id)};
+  },KEY);
+  expect(restored.st.notes[0].pdfId).not.toBe('backup-pdf');expect(restored.st.pdfId).toBe(restored.st.notes[0].pdfId);
+  expect(restored.st.figures[0].id).not.toBe('backup-image');expect(restored.pdf).toEqual([...pdf]);expect(restored.image).toEqual(png);
+  expect(restored.st.figures[0].alt).toBe('A green square');
+  await target.getByText('Backup or restore my notebook',{exact:true}).click();
+  const corrupt=Buffer.from(bytes);corrupt[60]^=1;
+  await target.getByLabel('Restore a notebook backup (.zip or .json)',{exact:true}).setInputFiles({name:'corrupt.zip',mimeType:'application/zip',buffer:corrupt});
+  await expect(target.getByText('Backup checksum failed.',{exact:false})).toBeVisible();
+  await expect(target.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
+  await target.reload();await expect(target.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
+ }finally{await fresh.close();}
+});
+test('legacy text-only backup can be restored without attachments',async({page})=>{
+ await page.goto(url);await page.getByText('Backup or restore my notebook',{exact:true}).click();
+ page.once('dialog',d=>d.accept());
+ const legacy={prototype:'guided-journey-v1',step:1,encounter:'My earlier freewrite.'};
+ await page.getByLabel('Restore a notebook backup (.zip or .json)',{exact:true}).setInputFiles({name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacy))});
+ await expect(page.getByLabel('My experience',{exact:true})).toHaveValue(legacy.encounter);
+});
