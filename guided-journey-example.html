@@ -1261,6 +1261,21 @@ function diachronicInquiry(st,before,after){
  if(same)return {id:'stable',prompt:'Your thesis wording is unchanged or nearly identical after normalization. What did your reading help you understand more precisely, or what question remains?',origin:'Saved thesis comparison',excerpt:''};
  return {id:'unclassified',prompt:'The saved wording changed. Did your interpretation change, become more precise, or simply become easier to express? Identify one particular reason in your own words.',origin:'Saved thesis comparison',excerpt:''};
 }
+function intellectualProvenance(st, before, after){
+ const clean=x=>String(x||'').trim(),norm=x=>clean(x).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+ const reflection=clean(st.thesisReflection),target=new Set(bridgeTerms([after,reflection].join(' '))),earlier=new Set(bridgeTerms(before));
+ const notes=Array.isArray(st.notes)?st.notes:[],strands=Array.isArray(st.strands)?st.strands:[],connections=Array.isArray(st.connections)?st.connections:[];
+ const records=[];
+ const add=(id,title,kind,passage,interpretation,identity)=>{if(!clean(passage)&&!clean(interpretation))return;records.push({id,title:clean(title)||kind,kind,passage:clean(passage),interpretation:clean(interpretation),identity:clean(identity)});};
+ add('encounter','My opening encounter','Lived experience',st.firstEncounter||st.encounter,'','');
+ for(const n of notes)if(n)add('note:'+n.id,n.title,'Reading journal',n.passage,n.reflection,n.author);
+ for(const n of strands)if(n&&['course','diary','lived','history','interview'].includes(n.type)&&(n.type!=='interview'||n.permission===true))add('strand:'+n.id,n.title,({course:'Course reading',diary:'Nature diary',lived:'Lived experience',history:'Historical material',interview:'Approved interview'})[n.type],n.passage,n.reflection,'');
+ for(const c of connections)if(c&&clean(c.reflection)){const titles=[c.left,c.right].map(id=>notes.find(n=>n.id===id)?.title).filter(Boolean);add('comparison:'+c.left+':'+c.right,titles.join(' + ')||'My source comparison','Student synthesis','',c.reflection,'');}
+ const mentions=(r)=>{if(!reflection||r.kind==='Student synthesis'||r.kind==='Lived experience')return false;const t=' '+norm(reflection)+' ',title=norm(r.title);return title.length>=8&&title.split(' ').length>=2&&t.includes(' '+title+' ');};
+ const ranked=records.map((r,i)=>{const terms=bridgeTerms(r.passage+' '+r.interpretation),shared=terms.filter(t=>target.has(t)),novel=shared.filter(t=>!earlier.has(t));const named=mentions(r);return {...r,shared,novel,named,i,score:(named?10:0)+novel.length*2+shared.length};}).filter(r=>r.named||r.shared.length>=2).sort((a,b)=>b.score-a.score||a.i-b.i);
+ const picks=[];for(const r of ranked){if(picks.some(x=>x.kind===r.kind))continue;picks.push(r);if(picks.length===2)break;}
+ return {records:picks,reflection,prompt:picks.length?'What did one of these materials contribute, and what did you make of it yourself? If it did not influence your thinking, say so. Identify the actual passage or moment before attributing an idea.':'Can you name one particular encounter, reading or conversation that contributed to your interpretation? If no particular influence comes to mind, leave the connection open.'};
+}
 function intellectualTrail(st){
  const clean=x=>String(x||'').trim(),cmp=x=>clean(x).replace(/\s+/g,' ');
  const original=clean(st.firstEncounter),saved=clean(st.encounter),first=clean(st.initialThesis),working=clean(st.workingThesis),strengthened=clean(st.strengthenedThesis),current=clean(st.reconsideredThesis),reflection=clean(st.thesisReflection);
@@ -1287,7 +1302,7 @@ function intellectualTrail(st){
  else question='Your thesis wording differs. What changed in the meaning, if anything? Consider a particular experience, passage or conversation that helps explain why.';
  const movement=diachronicInquiry(st,before,after);
  if(movement&&movement.id!=='stable'&&movement.id!=='unclassified')question=movement.prompt;
- return {movement,intermediate:strengthened&&cmp(strengthened)!==cmp(before)&&cmp(strengthened)!==cmp(after)?strengthened:'',encounter:original||saved,encounterLabel:original?(st.firstEncounterRecovered?'Earliest available saved encounter':'Opening freewrite saved before research'):'Saved freewrite (earliest version not separately retained)',before,beforeLabel:first?'First saved working thesis':'Working thesis (earliest version not separately retained)',after,afterLabel:current?'Reconsidered thesis':strengthened?'Strengthened working thesis':'Current working thesis',relation,added,retained,material,reflection,last,question};
+ return {provenance:intellectualProvenance(st,before,after),movement,intermediate:strengthened&&cmp(strengthened)!==cmp(before)&&cmp(strengthened)!==cmp(after)?strengthened:'',encounter:original||saved,encounterLabel:original?(st.firstEncounterRecovered?'Earliest available saved encounter':'Opening freewrite saved before research'):'Saved freewrite (earliest version not separately retained)',before,beforeLabel:first?'First saved working thesis':'Working thesis (earliest version not separately retained)',after,afterLabel:current?'Reconsidered thesis':strengthened?'Strengthened working thesis':'Current working thesis',relation,added,retained,material,reflection,last,question};
 }
 function intellectualTrailPanel(root){
  const d=el('details');d.append(el('summary','How my thinking changed'));const host=el('div');d.append(host);
@@ -1300,6 +1315,9 @@ function intellectualTrailPanel(root){
   if(m.movement&& !['stable','unclassified'].includes(m.movement.id)){host.append(el('p','Possible development noticed in '+m.movement.origin.toLowerCase()+'. Check whether this describes your own thinking; the notebook cannot establish a change of belief.','hint'));}
   if(m.last){const end=el('details');end.append(el('summary','Compare my current ending'),el('p',m.last));host.append(end);}
   if(m.reflection){const reflection=el('details');reflection.append(el('summary','My reflection on the change'),el('p',m.reflection));host.append(reflection);}
+  const provenance=el('details');provenance.append(el('summary','Where did my insight come from?'),el('p','These are possible materials to compare, not verified origins of your idea. A saved passage is different from your interpretation of it.','hint'));
+  for(const r of m.provenance.records){const item=el('div','','callout');item.append(el('h3',r.title),el('p',r.kind+(r.named?' · Title appears in your reflection':' · Possible connection through shared wording'),'hint'));if(r.passage)item.append(el('p',r.kind==='Lived experience'?'My recorded experience':'My saved passage or material','hint'),el('p',r.passage));if(r.interpretation)item.append(el('p','My own saved interpretation','hint'),el('p',r.interpretation));provenance.append(item);}
+  provenance.append(el('p',m.provenance.prompt));host.append(provenance);
   host.append(el('h3','One next move'),el('p',m.question));
  }
  d.addEventListener('toggle',()=>{if(d.open)refresh();});root.append(d);return ()=>{if(d.open)refresh();};
