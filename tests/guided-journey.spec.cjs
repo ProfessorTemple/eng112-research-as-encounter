@@ -18,6 +18,10 @@ test('guided writing, revision, APA, figure and DOCX journey',async({page})=>{
  await expect(page.getByRole('heading',{name:'My Living Braiding Map',exact:true})).toBeVisible();
  await click(page,'Begin drafting my essay →');
  await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
+ await page.getByText('Essay Strength Meter · review my writing',{exact:true}).click();
+ await page.getByLabel('Lived experience and reflection',{exact:true}).selectOption('developing');
+ await expect(page.getByText('1 of 7 dimensions reviewed by you.',{exact:true})).toBeVisible();
+ await page.getByText('Essay Strength Meter · review my writing',{exact:true}).click();
  await click(page,'Save draft and reconsider my working thesis →');
  await click(page,'Save my writing and reflection →');
  await click(page,'Begin my layered revision →');
@@ -38,7 +42,7 @@ test('guided writing, revision, APA, figure and DOCX journey',async({page})=>{
  await expect(page.getByText('No obvious mismatch in the patterns recognized.',{exact:false})).toBeVisible();
  await click(page,'Continue to original visuals →');
  await page.getByText('Figure 1 · add image',{exact:true}).click();
- const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWZsAAAAASUVORK5CYII=','base64');
+ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGPUiHdkIAUwkaR6VMOohiGlAQCXBQDo6OntngAAAABJRU5ErkJggg==','base64');
  await page.getByLabel('Choose image for Figure 1').setInputFiles({name:'sample.png',mimeType:'image/png',buffer:png});
  await expect(page.getByLabel('Figure title',{exact:true})).toBeVisible();
  await page.getByLabel('Figure title',{exact:true}).fill('Original test image');
