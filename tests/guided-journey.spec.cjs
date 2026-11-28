@@ -700,3 +700,19 @@ test('revised inquiry cannot revive unrelated fallback words',async({page})=>{
  await seed(page,{...fixture,step:3,question:'Why did this matter to me?',words:['urban trees','shade'],keywords:[],notes:[],search:'urban trees AND shade',inquiryRevised:true});
  await expect(page.getByLabel('Search words (you can edit these)',{exact:true})).toHaveValue('');
 });
+
+test('visual hierarchy keeps optional planning and formatting tools collapsed',async({page})=>{
+ await seed(page,{...fixture,step:23});
+ await expect(page.getByRole('button',{name:'Begin drafting my essay →',exact:true})).toBeVisible();
+ const support=page.locator('details').filter({has:page.locator('summary').filter({hasText:'Review my plan and evidence'})}).first();
+ await expect(support).not.toHaveAttribute('open','');
+ await page.getByText('What remains to explore? (optional)',{exact:true}).click();
+ await page.getByLabel('My remaining question or gap',{exact:true}).fill('A question about family memory.');
+ await page.reload();
+ await page.getByText('What remains to explore? (optional)',{exact:true}).click();
+ await expect(page.getByLabel('My remaining question or gap',{exact:true})).toHaveValue('A question about family memory.');
+ await seed(page,{...fixture,step:33});
+ await expect(page.getByRole('button',{name:'Download my Word document (.docx)',exact:true})).toBeVisible();
+ const format=page.getByText('Word document formatting',{exact:true}).locator('..');
+ await expect(format).not.toHaveAttribute('open','');
+});
