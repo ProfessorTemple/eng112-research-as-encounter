@@ -353,3 +353,41 @@ test('legacy text-only backup can be restored without attachments',async({page})
  await page.getByLabel('Restore a notebook backup (.zip or .json)',{exact:true}).setInputFiles({name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacy))});
  await expect(page.getByLabel('My experience',{exact:true})).toHaveValue(legacy.encounter);
 });
+
+test('research review edits an earlier note without losing its context or essay',async({page})=>{
+ const first={...fixture.notes[0],question:'My earlier question',search:'my earlier search'};
+ const second={id:'n2',title:'Second study',author:'Jones',year:'2021',passage:'Another passage',reflection:'Another reflection',sourceOrigin:'book'};
+ await seed(page,{...fixture,step:9,thesisStep:20,notes:[first,second],criticalLens:'Cultural memory'});
+ await expect(page.getByRole('button',{name:'Continue my writing journey →',exact:true})).toHaveCount(1);
+ await page.getByText('Review my research materials',{exact:true}).click();
+ await page.getByText('Garden study',{exact:true}).first().click();
+ await click(page,'Edit this saved note');
+ await expect(page.getByLabel('What does it help you understand?',{exact:true})).toHaveValue(first.reflection);
+ await page.getByLabel('What does it help you understand?',{exact:true}).fill('A revised reflection on the encounter.');
+ await click(page,'Save my reading note →');await click(page,'Return to my saved notes →');
+ await expect(page.getByRole('heading',{name:'Review my research',exact:true})).toBeVisible();
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.notes.map(n=>n.id)).toEqual(['n1','n2']);expect(saved.notes[0].question).toBe(first.question);expect(saved.notes[0].search).toBe(first.search);expect(saved.notes[0].reflection).toBe('A revised reflection on the encounter.');
+ expect(saved.essayDraft).toBe(essay);expect(saved.criticalLens).toBe('Cultural memory');
+ await click(page,'Continue my writing journey →');
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
+});
+test('research detour without notes returns to question and starts a fresh source',async({page})=>{
+ await seed(page,{...fixture,step:20,notes:[],activeNoteId:'',journalStage:'details',title:'',passage:'',reflection:'',researchReturn:0});
+ await page.getByText('Writing tools and research',{exact:true}).click();
+ await page.getByText('Need to revisit my plan or evidence?',{exact:true}).click();
+ await click(page,'Find another source');
+ await expect(page.getByLabel('My research question',{exact:true})).toHaveValue(fixture.question);
+ await page.getByLabel('Search words (you can edit these)',{exact:true}).fill('family memory AND gardens');
+ await click(page,'Use this search →');
+ await click(page,'Already searched? Continue');
+ await page.getByRole('button',{name:/^I found a source/}).click();await click(page,'Add my source →');
+ await expect(page.getByLabel('Source title',{exact:true})).toHaveValue('');
+ await click(page,'Return to my writing journey');
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
+});
+test('source comparison resumes existing writing instead of restarting thesis',async({page})=>{
+ await seed(page,{...fixture,step:11,thesisStep:23,connectionReflection:'A comparison of perspectives.'});
+ await click(page,'Continue my writing journey →');
+ await expect(page.getByRole('heading',{name:'My Living Braiding Map',exact:true})).toBeVisible();
+});
