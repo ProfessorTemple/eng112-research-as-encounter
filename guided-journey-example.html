@@ -2,18 +2,19 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>My Living Field Notebook | Guided Journey example</title>
 <style>
 :root{color-scheme:light;--ink:#203e34;--muted:#526c60;--green:#245d4c;--line:#c5d3c8;--paper:#faf9f2;--soft:#eef3ea}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}header{background:#203f34;color:white;padding:1rem max(1rem,calc((100% - 640px)/2))}header small{color:#dce5db;display:block;letter-spacing:.08em;font-size:.72rem}header strong{font-size:1.12rem}main{max-width:650px;margin:0 auto;padding:1.15rem 1rem 2rem}h1{font-family:Georgia,serif;font-size:clamp(1.75rem,5vw,2.35rem);line-height:1.14;margin:.5rem 0 .9rem;font-weight:500}h2{font-size:1.12rem;margin:.9rem 0 .35rem}p{margin:.55rem 0 1rem}small,.hint{font-size:.88rem;color:var(--muted)}button,input,textarea,select,a.action{font:inherit}button,a.action{cursor:pointer;min-height:48px;border:1px solid var(--green);border-radius:9px;padding:.7rem .85rem;background:transparent;color:var(--green);font-weight:650;text-align:center;text-decoration:none}button.primary,a.primary{display:block;width:100%;background:var(--green);color:#fff;margin-top:1rem}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a26d28;outline-offset:3px}textarea,input[type=text]{display:block;width:100%;border:1px solid #9ab0a2;border-radius:8px;padding:.7rem;background:white;color:var(--ink);margin:.35rem 0 .8rem;font:inherit}textarea{resize:vertical}label{font-weight:600}fieldset{border:0;padding:0;margin:.75rem 0;min-width:0}legend{font-weight:650;margin-bottom:.4rem}.option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:9px;padding:.7rem;margin:.45rem 0;background:#fff;font-weight:500;cursor:pointer}.option:has(input:checked){background:var(--soft);border-color:var(--green)}.option input{margin:.3rem 0 0;flex:none;width:20px;height:20px;accent-color:var(--green)}.option span{min-width:0}.option small{display:block;margin-top:.2rem}.progress{display:flex;gap:5px;margin:.4rem 0 1.1rem}.progress span{flex:1;height:5px;background:#dce5db;border-radius:6px}.progress .done{background:#398063}.progress .current{background:#245d4c}.topline{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.85rem}.callout{background:var(--soft);border-left:3px solid #608976;padding:.75rem .9rem;margin:.8rem 0}.callout p{margin:.25rem 0}.query{font-weight:650;overflow-wrap:anywhere}.choice{display:block;width:100%;text-align:left;margin:.55rem 0;background:#fff}.choice small{display:block;font-weight:400}.secondary{display:inline-block;margin:.4rem 0}.quiet{border:0;padding:.4rem .15rem;min-height:44px;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:.65rem}.nav button{font-size:.88rem}.notice{font-size:.9rem;color:var(--muted);min-height:1.2em}.notice:empty{display:none}.screenreader{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
-</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 12</small></header><main id="app"></main>
+</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 13</small></header><main id="app"></main>
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false});
+const REFERENCE_VIEW=new URLSearchParams(location.search).get('view')==='journal';
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));storageOK=true;}catch(e){storageOK=false;}const n=document.getElementById('save-state');if(n)n.textContent=storageOK?'Saved on this device':'Backup recommended';}
+function save(){if(REFERENCE_VIEW)return;try{localStorage.setItem(KEY,JSON.stringify(state));storageOK=true;}catch(e){storageOK=false;}const n=document.getElementById('save-state');if(n)n.textContent=storageOK?'Saved on this device':'Backup recommended';}
 function backup(){save();const a=el('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({prototype:'guided-journey-v1',...state},null,2)],{type:'application/json'}));a.download='guided-journey-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 function btn(label,fn,cls='primary'){const b=el('button',label,cls);b.type='button';b.addEventListener('click',fn);return b;}
-function go(step){state.step=step;save();render(true);}
+function go(step){if(REFERENCE_VIEW)return;state.step=step;if(step>=12&&step<=16)state.thesisStep=step;save();render(true);}
 function field(label,key,rows=0,placeholder=''){const wrap=el('div'),id='input-'+key,l=el('label',label),x=el(rows?'textarea':'input');l.htmlFor=id;x.id=id;if(rows)x.rows=rows;else x.type='text';x.placeholder=placeholder;x.value=state[key]||'';x.addEventListener('input',()=>{state[key]=x.value;if(key==='connectionReflection')state.connectionComplete=false;if(['storyOne','storyTwo','storyThree','workingThesis'].includes(key))state.thesisSaved=false;save();});wrap.append(l,x);return wrap;}
 function notice(text){const n=document.getElementById('notice');if(n)n.textContent=text;}
 function norm(s){return String(s||'').trim().toLowerCase();}
@@ -274,10 +275,11 @@ function linkNotePDF(noteId,pdfId,filename){
  if(state.activeNoteId===noteId){state.pdfId=pdfId;state.pdfName=filename;}
  save();return true;
 }
-function notePDFControls(root,n){
+function notePDFControls(root,n,reference=false){
  const status=el('p','','hint');status.setAttribute('role','status');
  if(n.pdfId)root.append(btn('Open saved PDF ↗',()=>openSavedPDF(n.pdfId,status),'secondary'),btn('Download PDF',()=>downloadSavedPDF(n.pdfId,status),'quiet'));
- else root.append(el('p','Original PDF not stored yet. Attach it once to read it again here.','hint'));
+ else root.append(el('p',reference?'Original PDF not attached. Attach it from the main notebook.':'Original PDF not stored yet. Attach it once to read it again here.','hint'));
+ if(reference){root.append(status);return;}
  const details=el('details');details.append(el('summary',n.pdfId?'Reattach original PDF if needed':'Attach original PDF'));
  const label=el('label','Choose the PDF that belongs to this article');const input=el('input');
  input.type='file';input.accept='.pdf,application/pdf';input.id='attach-'+n.id;label.htmlFor=input.id;
@@ -313,7 +315,39 @@ function downloadSavedPDF(id,status){
   setTimeout(()=>URL.revokeObjectURL(url),60000);status.textContent='Download requested. Keep a copy in your own files.';
  }).catch(e=>{status.textContent=e.message||'Unable to download this PDF.';});
 }
+function thesisResumeStep(state){
+ const p=Number(state.thesisStep);
+ if(Number.isInteger(p)&&p>=12&&p<=16)return p;
+ if(state.workingThesis?.trim())return 16;
+ if(state.storyThree?.trim())return 15;
+ if(state.storyTwo?.trim())return 14;
+ if(state.storyOne?.trim())return 13;
+ return 12;
+}
+function journalTabLink(){
+ const a=el('a','Open Reading Journal in a new tab ↗','action secondary');
+ const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided13');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
+ return a;
+}
+function renderJournalReference(){
+ app.replaceChildren();
+ document.title='Reading Journal | My Living Field Notebook';
+ const title=el('h1','My Reading Journal');app.append(title,el('p','Reference tab · Keep this tab open while working on your thesis in the original notebook tab.','hint'));
+ if(!storageOK)app.append(el('p','Saved notebook data is unavailable in this browser.','hint'));
+ if(state.question)app.append(el('h2','My research question'),el('div',state.question,'callout'));
+ const notes=state.notes||[];app.append(el('h2',notes.length+' saved reading note'+(notes.length===1?'':'s')));
+ if(!notes.length)app.append(el('p','No saved reading notes yet. Return to your original notebook to add a source.'));
+ for(const n of notes)showNote(app,n,true);
+ app.append(el('p','This tab is for reading only. Edit notes or attach missing PDFs in the original notebook.','hint'));
+}
+function refreshReference(){
+ try{const raw=localStorage.getItem(KEY);const next=raw?{...blank(),...JSON.parse(raw)}:blank();
+  const changed=JSON.stringify([next.notes,next.question])!==JSON.stringify([state.notes,state.question])||!storageOK;
+  state=next;storageOK=true;if(changed)renderJournalReference();
+ }catch(e){storageOK=false;renderJournalReference();}
+}
 function thesisEvidence(root){
+ root.append(journalTabLink());
  const details=el('details');details.append(el('summary','Consult my research notes and PDFs'));
  for(const n of state.notes||[])showNote(details,n);
  if(state.connections?.length){details.append(el('h2','My earlier source connections'));for(const c of state.connections)details.append(el('p',c.reflection));}
@@ -350,10 +384,10 @@ function commitReadingNote(){
  if(!state.activeNoteId){state.activeNoteId=record.id;state.nextNoteId=(state.nextNoteId||1)+1;}
  state.notes=upsertReadingNote(state.notes||[],record);state.articleReturnId='';state.journalStage='saved';save();render(true);
 }
-function showNote(root,n){
+function showNote(root,n,reference=false){
  const box=el('article','','callout');box.append(el('h2',n.title||'Untitled source'),el('p',[n.author,n.year,n.publication].filter(Boolean).join(' · '),'hint'));
  if(n.location)box.append(el('p','Location: '+n.location,'hint'));
- box.append(el('p',n.passage),el('h2','My reflection'),el('p',n.reflection));notePDFControls(box,n);root.append(box);
+ box.append(el('p',n.passage),el('h2','My reflection'),el('p',n.reflection));if(n.doi&&/^https?:\/\//i.test(n.doi)){const link=el('a','Article link ↗');link.href=n.doi;link.target='_blank';link.rel='noopener noreferrer';box.append(link);}notePDFControls(box,n,reference);root.append(box);
 }
 function nextSearchModel(state,note){
  if(!note)return null;
@@ -455,7 +489,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(confirmation,el('p','You have recorded '+(state.notes||[]).length+' reading note'+((state.notes||[]).length===1?'':'s')+'.'));
  if(note)body.append(el('p',note.title,'query'));
  if(state.question)body.append(el('h2','Your research question'),el('p',state.question));
- body.append(el('h2','Ready to connect your ideas?'),el('p','You can move forward now and return to research whenever you need more evidence.'),btn('Brainstorm my Three-Story Thesis →',()=>go(12)),btn('Add another article',()=>{
+ body.append(el('h2','Ready to connect your ideas?'),el('p','You can move forward now and return to research whenever you need more evidence.'),btn('Review my sources and continue →',()=>go(9)),btn('Add another article',()=>{
   const draft=startAnotherArticle(state);if(!draft){notice('Save your reading note first.');return;}
   state=draft;go(6);
  },'secondary'),btn('Find my next source in the library →',()=>{state.nextSearch='';go(7);},'secondary'),btn('Edit this reading note',()=>{state.journalStage='passage';save();render(true);},'quiet'));
@@ -497,7 +531,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(btn('Return to my research →',()=>go(state.notesReturn===8?6:state.notesReturn||6)));
  }
  if(step===9){
- body.append(el('p','Review your collected articles before moving into synthesis. Your unfinished article is kept separately.'));
+ body.append(el('p','Revisit your reading notes and notice what you have discovered. When ready, begin your Three-Story Thesis. You can return to research later.'));
  const saved=state.notes||[];
  body.append(el('h2',saved.length+' completed reading note'+(saved.length===1?'':'s')));
  for(const n of saved)showNote(body,n);
@@ -505,7 +539,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(state.journalStage!=='saved'&&['pdfName','title','author','doi','passage','reflection'].some(k=>String(state[k]||'').trim())){
   body.append(el('h2','Unfinished article'),el('p',state.title||state.pdfName||'Citation not yet identified'),el('p','This article is not counted as a completed reading note.','hint'));
  }
- if(saved.length)body.insertBefore(btn('Brainstorm my Three-Story Thesis →',()=>go(12)),body.children[1]||null);
+ if(saved.length){const resume=thesisResumeStep(state);const label=resume>12?'Continue my Three-Story Thesis →':'Brainstorm my Three-Story Thesis →';body.insertBefore(btn(label,()=>go(resume)),body.children[1]||null);body.insertBefore(journalTabLink(),body.children[2]||null);body.append(btn(label,()=>go(resume)));}
  if(saved.length>=2)body.append(btn('Compare two sources (optional)',()=>go(10),'quiet'));
  body.append(btn('Return to my Reading Journal',()=>go(6),'secondary'));if(state.workingThesis.trim())body.append(btn('Return to my working thesis',()=>go(16),'quiet'));
  body.append(el('p','Keep your original PDFs. The notebook backup contains notes and citations, not PDF files.','hint'));
@@ -556,7 +590,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(state.question)body.append(el('div',state.question,'callout'));
  body.append(el('p',(state.notes||[]).length+' reading note(s) available to consult.','hint'));
  for(const [label,description] of [['Story One · Observation','What you experienced, noticed or found.'],['Story Two · Interpretation','What it means when considered alongside your research.'],['Story Three · Significance','Why that particular interpretation matters beyond the immediate encounter.']]){const box=el('div','','callout');box.append(el('h2',label),el('p',description));body.append(box);}
- body.append(btn('Begin with Story One →',()=>go(13)));
+ body.append(btn('Begin with Story One →',()=>go(13)),journalTabLink());
  }
  if(step===13){
  body.append(el('p','Start with a specific observation. Describe what happened or what you noticed before explaining what it means.'));
@@ -710,5 +744,5 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  },'quiet'),btn('Save backup',backup,'quiet'));
  if(step!==8&&state.notes?.length)nav.append(btn('My saved notes ('+state.notes.length+')',()=>{state.notesReturn=step;go(8);},'quiet'));app.append(nav);if(focus){title.focus({preventScroll:true});window.scrollTo({top:0,behavior:'auto'});}save();
 }
-render();
+if(REFERENCE_VIEW){renderJournalReference();window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null)refreshReference();});window.addEventListener('focus',refreshReference);}else render();
 </script></body></html>
