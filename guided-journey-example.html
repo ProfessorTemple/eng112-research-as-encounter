@@ -207,7 +207,7 @@ function directions(text){const q=norm(text);if(/\bmiracles?\b/.test(q))return [
  if(/\b(?:memory|memories|stories|story|heritage|traditions?|ancestry|oral history)\b/.test(q)&&/\b(?:grandmother|grandfather|parents?|family|generations?|ancestors?|memory|memories)\b/.test(q))return [{q:'family stories AND memory',d:'How stories shape remembered experience.'},{q:'intergenerational knowledge AND oral history',d:'How knowledge moves between generations.'}];
  const words=state.words.slice(0,2);return words.length?[{q:words.join(' AND '),d:'Start with your own words; revise them as you discover academic language.'}]:[];}
 function choices(text,exclude=false){const prior=new Set([...state.history,state.search].map(norm));const all=[...discoveredDirections(state,text),...translationDirections(text,state.encounter,state.words),...directions(text)];const anchor=state.search.split(/\s+AND\s+/i)[0]||state.words[0];for(const w of state.keywords)if(anchor&&norm(anchor)!==norm(w))all.unshift({q:anchor+' AND '+w,d:'Combine an earlier topic with a word you found.'});const seen=new Set();return all.filter(x=>{const k=norm(x.q);if(seen.has(k)||exclude&&prior.has(k))return false;seen.add(k);return true;}).slice(0,3);}
-function makeSearch(q){if(!q.trim()){notice('Enter at least one search word.');return;}if(state.search&&!state.history.includes(state.search))state.history.push(state.search);state.search=q.trim();state.library='copy';state.outcome='';go(4);}
+function makeSearch(q){if(!q.trim()){notice('Enter at least one search word.');return;}if(hasUnfinishedArticle(state)&&!confirm('Start a new search and discard the unfinished source entry? Your completed notes will remain saved.'))return;if(state.search&&!state.history.includes(state.search))state.history.push(state.search);const previous=state.journalStage==='saved'?state.activeNoteId:'';pdfRequest++;state=nextArticleState(state);state.articleReturnId=previous;state.search=q.trim();state.library='copy';state.outcome='';go(4);}
 function showOptions(root,list){if(!list.length){root.append(el('p','No new modeled combination is available. Try your own search below.','hint'));}let picked=list[0]?.q||'';const group=el('fieldset'),legend=el('legend','Choose a research direction');group.append(legend);for(const item of list){const l=el('label','','option'),r=el('input');r.type='radio';r.name='direction';r.value=item.q;r.checked=item.q===picked;r.addEventListener('change',()=>{picked=item.q;custom.value=picked;});const body=el('span',item.q);body.append(el('small',item.d));l.append(r,body);group.append(l);}if(list.length)root.append(group);const label=el('label','Search words (you can edit these)');label.htmlFor='query';const custom=el('input');custom.type='text';custom.id='query';custom.value=picked;root.append(label,custom,btn('Use this search →',()=>makeSearch(custom.value)));}
 let pdfRequest=0;
 const pdfBase='https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/legacy/build/';
@@ -2285,8 +2285,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(state.question)body.append(el('div',state.question,'callout'));
  const proceed=q=>{
   if(!usableSearch(q)){notice('Enter a complete search or use the suggested combination.');return;}
-  if(hasUnfinishedArticle(state)&&!confirm('Start a new search and discard the unfinished source entry?'))return;
-  state=nextArticleState(state);makeSearch(q.trim());
+  makeSearch(q.trim());
  };
  if(model){
   const guide=el('section','','callout');
@@ -2596,6 +2595,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===9){go(6);return;}
  if(step===8){go(state.notesReturn===8?6:state.notesReturn||6);return;}
  if(step===7){go(6);return;}
+ if(step===6&&state.journalStage==='saved'&&state.noteEditReturn){const dest=state.noteEditReturn;state.noteEditReturn=0;go(dest===9?9:8);return;}
  if(step===6&&state.journalStage==='saved'){state.journalStage='passage';save();render(true);return;}
  if(step===6&&state.journalStage==='passage'){state.journalStage='details';save();render(true);return;}
  if(step===6&&state.articleReturnId){
