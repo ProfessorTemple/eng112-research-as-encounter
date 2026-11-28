@@ -132,3 +132,21 @@ test('conceptual connections are not confused with a repeated original thesis',a
  await expect(page.getByText('Second set of wording: cultural memory, heritage, displacement, migration',{exact:true})).toBeVisible();
  await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
 });
+
+test('conceptual translation offers editable searches and preserves student voice',async({page})=>{
+ const question='Why do loud sounds overwhelm me, but walking in the woods helps me notice things?';
+ const encounter='I heard loud sounds in the city and felt overwhelmed. Walking in the woods helped me notice the birds.';
+ await seed(page,{...fixture,step:3,question,encounter,words:['loud sounds','woods'],keywords:[],history:[],search:''});
+ await expect(page.getByText('sensory regulation: How a person manages or responds to sensory input.',{exact:false})).toBeVisible();
+ await expect(page.getByText('phenomenology: A philosophical approach to describing and examining lived experience.',{exact:false})).toBeVisible();
+ await expect(page.getByLabel('My research question',{exact:true})).toHaveValue(question);
+ await page.getByLabel('Search words (you can edit these)',{exact:true}).fill('woods AND sensory regulation');
+ await click(page,'Use this search →');
+ let saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.search).toBe('woods AND sensory regulation');expect(saved.question).toBe(question);expect(saved.encounter).toBe(encounter);
+ const draft='Phenomenology helps me describe this walk. I notice the birds.';
+ await seed(page,{...fixture,step:27,essayDraft:draft});
+ await page.getByText('Make academic language my own',{exact:true}).click();
+ await expect(page.getByRole('heading',{name:'phenomenology',exact:true})).toBeVisible();
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
+});
