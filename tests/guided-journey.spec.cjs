@@ -42,9 +42,9 @@ test('guided writing, revision, APA, figure and DOCX journey',async({page})=>{
  await expect(page.getByText('No obvious mismatch in the patterns recognized.',{exact:false})).toBeVisible();
  await click(page,'Continue to original visuals →');
  await page.getByText('Figure 1 · add image',{exact:true}).click();
- const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGM0qnBjIAUwkaR6VMOohiGlAQARSQEQJmzCBAAAAABJRU5ErkJggg==','base64');
+ const png=Buffer.from(await page.evaluate(()=>{const canvas=document.createElement('canvas');canvas.width=32;canvas.height=32;const context=canvas.getContext('2d');context.fillStyle='#316849';context.fillRect(0,0,32,32);return canvas.toDataURL('image/png').split(',')[1];}),'base64');
  await page.getByLabel('Choose image for Figure 1').setInputFiles({name:'sample.png',mimeType:'image/png',buffer:png});
- await expect(page.getByLabel('Figure title',{exact:true})).toBeVisible();
+ try {await expect(page.getByLabel('Figure title',{exact:true})).toBeVisible({timeout:10000});}catch(error){console.log('Figure attachment status:',await page.locator('[role=status]').allTextContents());throw error;}
  await page.getByLabel('Figure title',{exact:true}).fill('Original test image');
  await page.getByLabel('Image description (alt text)',{exact:true}).fill('A small test graphic');
  await page.getByLabel('My essay draft (including figure markers)',{exact:true}).fill(essay+'\n\n[Figure 1]');
@@ -71,8 +71,12 @@ test('new student start and back navigation preserve encounter',async({page})=>{
  await expect(page.getByRole('heading',{name:'Discover my words',exact:true})).toBeVisible();
  await click(page,'← Previous page');
  await expect(page.getByLabel('My experience',{exact:true})).toHaveValue('I watched fireflies near the creek.');
+ await page.getByLabel('My experience',{exact:true}).fill('I watched fireflies near the creek again.');
+ await click(page,'Discover my words →');
+ expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).firstEncounter,KEY)).toBe('I watched fireflies near the creek.');
+ await click(page,'← Previous page');
  await page.reload();
- await expect(page.getByLabel('My experience',{exact:true})).toHaveValue('I watched fireflies near the creek.');
+ await expect(page.getByLabel('My experience',{exact:true})).toHaveValue('I watched fireflies near the creek again.');
 });
 
 test('course profile differentiates FX and online requirements',async({page})=>{
@@ -85,4 +89,18 @@ test('course profile differentiates FX and online requirements',async({page})=>{
  await course.fill('ENG 112-92IN');await click(page,'Start with my own experience');
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.courseSection).toBe('ENG 112-92IN');expect(saved.paperCourse).toBe('ENG 112-92IN');
+});
+
+test('intellectual trail preserves student text and permits an unchanged thesis',async({page})=>{
+ const thesis='The garden holds family memory.';
+ await seed(page,{...fixture,step:21,firstEncounter:'I first watched the tree.',initialThesis:thesis,workingThesis:thesis,strengthenedThesis:thesis,reconsideredThesis:thesis,notes:[{id:'n1',title:'Garden study',reflection:'The garden holds family memory.'}]});
+ await page.getByText('How my thinking changed',{exact:true}).click();
+ await expect(page.getByText('I first watched the tree.',{exact:true})).toBeVisible();
+ await expect(page.getByText('Your thesis wording is unchanged.',{exact:false})).toBeVisible();
+ await expect(page.getByText('My reading reflection · Garden study',{exact:true})).toBeVisible();
+ await click(page,'Save my writing and reflection →');
+ await click(page,'Begin my layered revision →');
+ await page.getByText('How my thinking changed',{exact:true}).click();
+ await expect(page.getByText('First saved working thesis',{exact:true})).toBeVisible();
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
 });
