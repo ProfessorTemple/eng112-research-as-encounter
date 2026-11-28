@@ -335,7 +335,7 @@
     <button type="button" class="primary field-welcome-primary" id="field-welcome-start" aria-controls="field-workspace">Start Here <span aria-hidden="true">→</span></button>
     <p id="field-welcome-saved" class="hint" role="status" hidden>Your notebook already has writing or research saved on this device. Start Here will keep it.</p>
     <button type="button" class="secondary" id="field-welcome-new-essay" hidden>Start a new essay</button>
-    <p class="field-welcome-note">Your work stays in this browser. Download a backup before switching devices.</p><p class="field-welcome-note" id="field-practice-note" hidden>Practice workspace: separate from your usual notebook. Use fictional examples for testing. Navigation audit A12.</p>
+    <p class="field-welcome-note">Your work stays in this browser. Download a backup before switching devices.</p><p class="field-welcome-note" id="field-practice-note" hidden>Practice workspace: separate from your usual notebook. Use fictional examples for testing. Navigation audit A13.</p>
   </div>
   <div class="field-welcome-help">
     <details id="jstor-welcome-import" class="field-welcome-import">
@@ -581,7 +581,7 @@
  <div id="rs-database-step" hidden><div id="rs-databases"></div></div>
  <div id="rs-away" hidden><p>In the library, paste your search and read an article’s abstract (short summary). Return to this notebook when ready.</p><button type="button" id="rs-library-return" class="primary">Bring back what I found →</button><button type="button" id="rs-reopen-library" class="secondary">Open the library again</button></div><button type="button" id="rs-already-searched" class="secondary">Already searched? Bring back what I found</button><button type="button" id="rs-manual-copy" class="secondary" hidden>I copied the words myself →</button>
  <details id="rs-search-options"><summary>Search tools (optional)</summary><button type="button" class="secondary" id="rs-save-query">Keep this search in my notebook</button><details id="rs-alternatives"><summary>Explore alternative searches (optional)</summary><p class="hint">Try a broader search or a related concept.</p><div id="rs-alternative-list"></div><p id="rs-alt-status" role="status"></p></details></details></div></div>
- <div class="rs-step" id="rs-discovery-step" hidden><h3 id="rs-return-heading" tabindex="-1">3. Bring my article into the notebook</h3><p id="rs-return-progress" class="hint"></p><p>Downloaded a PDF or found an article to read? Add it to your Reading Journal.</p><button type="button" id="rs-bring-article" class="primary" data-tab="journal">Add my article or PDF →</button><details id="rs-more-research"><summary>I need to search again</summary><details id="rs-new-word-help" open><summary>I found new keywords</summary><details id="rs-keyword-import" open><summary>Add or paste keywords</summary><div class="field"><label for="rs-discovery">Paste or type the words you found</label><textarea id="rs-discovery" rows="3" maxlength="2400" placeholder="Separate words or phrases with semicolons or new lines."></textarea></div><button type="button" class="primary" id="rs-add">Keep my new keywords →</button></details><p id="rs-discovery-status" role="status" class="hint"></p><div id="rs-keyword-next" hidden></div></details><button type="button" id="rs-review-search" class="secondary">Review my last search</button><details id="rs-result-help"><summary>Need help with my search results?</summary><div class="field"><label for="rs-outcome">How did your database search go?</label><select id="rs-outcome"><option value="">Choose an outcome (optional)</option><option value="none">No results</option><option value="many">Too many results</option><option value="irrelevant">Results were not relevant</option><option value="found">Found useful sources</option><option value="words">Discovered new vocabulary</option></select></div><div id="rs-refine" aria-live="polite"></div></details></details></div>
+ <div class="rs-step" id="rs-discovery-step" hidden><h3 id="rs-return-heading" tabindex="-1">3. What happened at the library?</h3><p id="rs-return-progress" class="hint"></p><div id="rs-result-help"><div class="field"><label for="rs-outcome">How did your search go?</label><select id="rs-outcome"><option value="">Choose what happened</option><option value="none">No results</option><option value="many">Too many results</option><option value="irrelevant">Results were not relevant</option><option value="found">Found useful sources</option><option value="words">Discovered new vocabulary</option></select></div><div id="rs-refine" aria-live="polite"></div></div><div id="rs-article-action"><p>Found a useful article or downloaded a PDF?</p><button type="button" id="rs-bring-article" class="primary" data-tab="journal">Add my article or PDF →</button></div><details id="rs-more-research"><summary>I need to search again</summary><details id="rs-new-word-help" open><summary>I found new keywords</summary><details id="rs-keyword-import" open><summary>Add or paste keywords</summary><div class="field"><label for="rs-discovery">Paste or type the words you found</label><textarea id="rs-discovery" rows="3" maxlength="2400" placeholder="Separate words or phrases with semicolons or new lines."></textarea></div><button type="button" class="primary" id="rs-add">Keep my new keywords →</button></details><p id="rs-discovery-status" role="status" class="hint"></p><div id="rs-keyword-next" hidden></div></details><button type="button" id="rs-review-search" class="secondary">Review my last search</button></details></div>
  <p role="status" id="rs-status" class="hint"></p>
 </section>
 <details id="rs-search-help"><summary>Need help choosing search words?</summary><div id="rs-translation" hidden></div><details id="rs-saved-words"><summary>Words I have collected</summary><div id="rs-words" class="rs-words"></div></details></details><details class="rs-advanced" id="rs-advanced"><summary>Explore more keywords and advanced search options</summary>
@@ -979,8 +979,35 @@ function questionModel(chosen,encounter){
  if(own.length===1)return {bridge:'Example: '+own[0]+' → ask about something you noticed',question:'What might help me understand my experience of “'+own[0]+'”?'};
  return null;
 }
+// Interdisciplinary bridges are possible directions, not findings.
+function notebookInquiryDirections(question){
+ const q=String(question||'');
+ if(/\bmiracles?\b/i.test(q)&&/\b(?:tight|difficult|stress(?:ful)?|pressure|crisis|desperate|hardship|uncertain(?:ty)?|need|trouble|hope|situations?)\b/i.test(q))return [
+  {pair:['hope','uncertainty'],why:'Psychology: how people sustain hope when outcomes are uncertain.'},
+  {pair:['miracles','religious experience'],why:'Religious studies: how people understand events as miraculous.'},
+  {pair:['coincidence','meaning making'],why:'Psychology and philosophy: how people interpret unexpected events.'},
+  {pair:['perceived control','stress'],why:'Psychology: how people respond when they cannot control an outcome.'}
+ ];
+ if(/\bfirefl(?:y|ies)\b/i.test(q)&&/\b(?:flash(?:es|ing)?|blink(?:s|ing)?|glow(?:s|ing)?|communication|signals?|near)\b/i.test(q))return [
+  {pair:['fireflies','flashing behavior'],why:'Explore when and how fireflies flash.'},
+  {pair:['fireflies','communication'],why:'Explore the role of flashing in communication.'},
+  {pair:['fireflies','light pollution'],why:'Investigate whether artificial light changes flashing behavior.'},
+  {pair:['fireflies','human disturbance'],why:'Investigate possible effects of human activity.'}
+ ];
+ if(/\b(?:bird|birds)\b/i.test(q)&&/\b(?:noise|sound|calls|communication|urban)\b/i.test(q))return [
+  {pair:['birds','communication'],why:'Explore how birds communicate.'},
+  {pair:['birds','urban noise'],why:'Explore how birds respond to noise in cities.'},
+  {pair:['bird communication','noise pollution'],why:'Investigate possible interference with bird signals.'}
+ ];
+ if(/\b(?:family|grandmother|grandfather|grandparents)\b/i.test(q)&&/\b(?:memory|memories|stories|story|childhood|past)\b/i.test(q))return [
+  {pair:['family stories','memory'],why:'Explore how family stories shape remembered experience.'},
+  {pair:['intergenerational knowledge','oral history'],why:'Explore how memories and knowledge are passed across generations.'}
+ ];
+ return [];
+}
 function searchModel(question){
  const q=String(question||'').trim();if(!q)return null;
+ const directions=notebookInquiryDirections(q);if(directions.length)return directions[0].pair;
  const patterns=[
   [/\bfirefl(?:y|ies)\b/i,/\b(?:flash(?:es|ing)?|blink(?:s|ing)?|glow(?:s|ing)?|light up)\b/i,'fireflies','flashing behavior'],
   [/\b(?:mammal|mammals)\b/i,/\bfirefl(?:y|ies)\b/i,'mammals','fireflies'],
@@ -2163,7 +2190,7 @@ function academicSearchPair(phrase){
 function useAcademicSearch(phrase){
  const pair=academicSearchPair(phrase);if(!pair.length)return;
  preservePreviousSearch();g('rs-a').value=pair[0];g('rs-b').value=pair[1]||'';
- g('rs-outcome').value='';g('rs-search-help').open=false;g('rs-result-help').open=false;
+ g('rs-outcome').value='';g('rs-search-help').open=false;
  showGloss();updateSearchChoice();build(true);refine();
 }
 function showGloss(){
@@ -2260,15 +2287,46 @@ function build(refined=false){
  ['rs-output','rs-database-step'].forEach(id=>g(id).hidden=false);
  recommendations();alternatives();g('rs-save-query').textContent='Keep this search in my notebook';g('rs-keyword-editor').open=false;g('rs-search-options').open=false;status('');renderReturnedWords();setResearchPhase('search',true);
 }
+function recoveryChoices(outcome,question,first,second,previous,discovered){
+ const normalize=t=>String(t||'').trim().toLowerCase().replace(/\s+/g,' ');
+ const signature=pair=>pair.map(normalize).filter(Boolean).sort().join(' AND ');
+ const tried=new Set((previous||[]).filter(x=>typeof x==='string').map(x=>signature(x.split(/\s+AND\s+/i))));
+ const seen=new Set(),out=[];
+ function add(pair,why){const key=signature(pair);if(!key||tried.has(key)||seen.has(key))return;seen.add(key);out.push({pair,why});}
+ const specific=notebookInquiryDirections(question);
+ if(outcome==='none'){if(first)add([first],'Search one idea first to find broader results.');if(second)add([second],'Try the other idea by itself.');}
+ for(const choice of specific)add(choice.pair,choice.why);
+ const model=searchModel(question)||[];
+ if(model.length)add(model,'Return to words connected to your working question.');
+ for(const w of returnedKeywordList(discovered))if(model[0]&&normalize(w)!==normalize(model[0]))add([model[0],w],'Combine your topic with a word you found in the library.');
+ if(outcome!=='many'){if(first)add([first],'Explore this idea by itself before narrowing.');if(second&&outcome==='none')add([second],'See how this idea is used in articles.');}
+ return out.slice(0,3);
+}
 function refine(){
  const host=g('rs-refine'),outcome=g('rs-outcome').value;
- const advice=notebookOutcomeAttention(outcome,g('rs-a').value,g('rs-b').value,g('rs-query').value);
- if(host.textContent===advice)return;
- host.replaceChildren();if(advice)host.append(node('p','hint',advice));
- // Alternative searches remain available in the existing optional disclosure.
+ const unsuccessful=['none','many','irrelevant'].includes(outcome);
+ g('rs-article-action').hidden=unsuccessful||outcome==='words';
+ host.replaceChildren();
+ if(!outcome||outcome==='found')return;
+ if(outcome==='words'){g('rs-more-research').open=true;g('rs-new-word-help').open=true;return;}
+ if(!unsuccessful)return;
+ const q=g('rs-working-question').value,query=g('rs-query').value;
+ const options=recoveryChoices(outcome,q,g('rs-a').value,g('rs-b').value,[...(state.savedSearches||[]),query],state.returnedResearchKeywords);
+ host.append(node('h4','','Try a different search'));
+ const directions=notebookInquiryDirections(q);
+ const explanation=directions.length&&/\bmiracles?\b/i.test(q)?'“Tight situation” can mean stress or uncertainty. You can also investigate what makes people interpret events as miracles. Choose the direction that fits your question.':outcome==='none'?'Start with fewer words or a related concept.':outcome==='many'?'Choose a more focused combination or add a specific term.':'Try another combination related to your question.';
+ host.append(node('p','',explanation));
+ if(options.length){
+  const group=node('fieldset','rs-refined-choices');group.append(node('legend','field-screen-reader','Choose a new search'));
+  let selected=0;
+  options.forEach((item,i)=>{const row=node('label','rs-refined-choice'),radio=node('input','');radio.type='radio';radio.name='rs-recovery-choice';radio.checked=i===0;radio.value=String(i);radio.addEventListener('change',()=>{selected=i;});const body=node('span','');body.append(node('strong','',item.pair.join(' AND ')),node('small','',item.why));row.append(radio,body);group.append(row);});
+  host.append(group);
+  const next=node('button','primary','Try selected search →');next.type='button';next.addEventListener('click',()=>{const pair=options[selected].pair;preservePreviousSearch();g('rs-a').value=pair[0]||'';g('rs-b').value=pair[1]||'';g('rs-outcome').value='';showGloss();updateSearchChoice();build(true);refine();});host.append(next);
+ }else host.append(node('p','hint','No new grounded combination is available yet. Try a more specific question or enter a new word below.'));
+ const edit=node('button','secondary','Edit my own search words');edit.type='button';edit.addEventListener('click',()=>{setResearchPhase('search');g('rs-keyword-editor').open=true;const h=g('rs-keyword-editor').querySelector('summary');h.focus({preventScroll:true});h.scrollIntoView({block:'start',behavior:'auto'});});host.append(edit);
 }
-g('rs-outcome').addEventListener('change',refine);
-g('rs-build').addEventListener('click',()=>{g('rs-outcome').value='';g('rs-result-help').open=false;build();refine();persist();});
+g('rs-outcome').addEventListener('change',()=>{refine();persist();});
+g('rs-build').addEventListener('click',()=>{g('rs-outcome').value='';build();refine();persist();});
 g('rs-query').addEventListener('change',recommendations);
 g('rs-copy').addEventListener('click',async()=>{
  const query=g('rs-query').value.trim();if(!query){status('Build your search first.');return;}
@@ -2374,8 +2432,8 @@ function setResearchPhase(phase,land=false){
  progress.hidden=!refined;progress.textContent=refined?'New search created. Any earlier built search is kept.':'';
  setLibraryAction(state.researchLibraryAction);
  g('rs-return-progress').textContent=query?'Your last search: '+query:'';
- g('rs-search-help').hidden=back;if(back){g('rs-search-help').open=false;g('rs-more-research').open=!!g('rs-discovery').value.trim();g('rs-result-help').open=false;g('rs-keyword-editor').open=false;g('rs-new-word-help').open=!!g('rs-discovery').value.trim();g('rs-keyword-import').open=!!g('rs-discovery').value.trim()||!returnedKeywordList(state.returnedResearchKeywords).length;}
- if(land){persist();const target=back?g('rs-return-heading'):heading;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}
+ g('rs-search-help').hidden=back;if(back){g('rs-search-help').open=false;g('rs-more-research').open=!!g('rs-discovery').value.trim()||g('rs-outcome').value==='words';g('rs-keyword-editor').open=false;g('rs-new-word-help').open=!!g('rs-discovery').value.trim();g('rs-keyword-import').open=!!g('rs-discovery').value.trim()||!returnedKeywordList(state.returnedResearchKeywords).length;}
+ if(back)refine();if(land){persist();const target=back?g('rs-return-heading'):heading;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'auto'});}
 }
 g('rs-library-return').addEventListener('click',()=>{setResearchPhase('return',true);});
 g('rs-already-searched').addEventListener('click',()=>setResearchPhase('return',true));
@@ -3940,4 +3998,4 @@ function setCarriedInquiryPractice(next){
  });
  // Retain the original database link and browser history; no cross-site tracking.
 })();
-</script><style>#rs-bring-article{display:block;width:100%;min-height:48px;margin:.55rem 0}#custom-source-details>summary{min-height:44px;padding:.55rem 0;cursor:pointer}#rs-discovery-step h3{margin:.35rem 0}#rs-library-return,#rs-keyword-next button{display:block;width:100%;min-height:48px;margin:.45rem 0}#rs-return-heading{scroll-margin-top:1rem}#rs-keyword-next[hidden]{display:none!important}#rs-keyword-next{border-top:1px solid #b6c8bc;margin-top:.6rem;padding-top:.6rem}#rs-bring-article{font-weight:600}#rs-keyword-import>summary{min-height:44px;padding:.45rem 0;cursor:pointer}#rs-refined-heading{scroll-margin-top:1rem}#rs-keyword-next .rs-refined-choices{padding:0;border:0;margin:.35rem 0;min-width:0}#rs-keyword-next .rs-refined-choice{display:flex;align-items:flex-start;gap:.65rem;border:1px solid #b6c8bc;border-radius:8px;padding:.65rem;margin:.45rem 0;min-height:44px;cursor:pointer}#rs-keyword-next .rs-refined-choice:has(input:checked){border-color:#245d4c;background:#edf4ed}#rs-keyword-next .rs-refined-choice input{width:20px;height:20px;flex:none;margin:.2rem 0;accent-color:#245d4c}#rs-keyword-next .rs-refined-choice span{min-width:0;overflow-wrap:anywhere}#rs-keyword-next .rs-refined-choice small{display:block;margin-top:.2rem;font-size:.88rem}#rs-keyword-next .rs-returned-definitions{margin-top:.85rem;border-top:1px solid #b6c8bc;padding-top:.55rem}#rs-keyword-next .rs-returned-definitions p{margin:.4rem 0;font-size:.92rem}#rs-output[hidden],#rs-discovery-step[hidden],#rs-round-progress[hidden]{display:none!important}#rs-review-search{min-height:44px;margin:.5rem 0}#rs-bring-article{margin:.6rem 0 1rem}#rs-round-progress{font-weight:600;color:#245d4c}#rs-copy[hidden],#rs-database-step[hidden],#rs-away[hidden],#rs-already-searched[hidden],#rs-manual-copy[hidden]{display:none!important}#rs-already-searched,#rs-reopen-library,#rs-manual-copy{min-height:44px;margin:.5rem 0;font-size:.95rem}#rs-away p{margin:.4rem 0}#rs-search-help[hidden]{display:none!important}#rs-more-research>summary,#journal-pdf-tools>summary{min-height:44px;padding:.5rem 0;cursor:pointer}#rs-return-progress{font-size:.9rem}#journal-pdf-tools .jstor-guide{margin:0;padding:.5rem}#journal-pdf-tools .jstor-guide>details{margin:.3rem 0}#journal-add-pdf{display:block;width:100%;min-height:48px;margin:.5rem 0}#journal-first-task{margin:.5rem 0}#journal-file-hint{margin:.25rem 0 .65rem}#journal-pdf-tools>summary{font-size:1rem}#field-save-progress{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .75rem;margin:.45rem 0}#field-save-progress #field-quick-save{min-height:44px;border:1px solid #245d4c;border-radius:8px;background:#fffcf6;color:#245d4c;padding:.45rem .7rem;font-weight:650}#field-save-progress #field-actions-note{font-size:.85rem;flex:1 1 180px;color:#526b61}</style></body></html>
+</script><style>#rs-bring-article{display:block;width:100%;min-height:48px;margin:.55rem 0}#custom-source-details>summary{min-height:44px;padding:.55rem 0;cursor:pointer}#rs-discovery-step h3{margin:.35rem 0}#rs-library-return,#rs-keyword-next button{display:block;width:100%;min-height:48px;margin:.45rem 0}#rs-return-heading{scroll-margin-top:1rem}#rs-keyword-next[hidden]{display:none!important}#rs-keyword-next{border-top:1px solid #b6c8bc;margin-top:.6rem;padding-top:.6rem}#rs-bring-article{font-weight:600}#rs-keyword-import>summary{min-height:44px;padding:.45rem 0;cursor:pointer}#rs-refined-heading{scroll-margin-top:1rem}#rs-keyword-next .rs-refined-choices{padding:0;border:0;margin:.35rem 0;min-width:0}#rs-keyword-next .rs-refined-choice{display:flex;align-items:flex-start;gap:.65rem;border:1px solid #b6c8bc;border-radius:8px;padding:.65rem;margin:.45rem 0;min-height:44px;cursor:pointer}#rs-keyword-next .rs-refined-choice:has(input:checked){border-color:#245d4c;background:#edf4ed}#rs-keyword-next .rs-refined-choice input{width:20px;height:20px;flex:none;margin:.2rem 0;accent-color:#245d4c}#rs-keyword-next .rs-refined-choice span{min-width:0;overflow-wrap:anywhere}#rs-keyword-next .rs-refined-choice small{display:block;margin-top:.2rem;font-size:.88rem}#rs-keyword-next .rs-returned-definitions{margin-top:.85rem;border-top:1px solid #b6c8bc;padding-top:.55rem}#rs-keyword-next .rs-returned-definitions p{margin:.4rem 0;font-size:.92rem}#rs-output[hidden],#rs-discovery-step[hidden],#rs-round-progress[hidden]{display:none!important}#rs-review-search{min-height:44px;margin:.5rem 0}#rs-bring-article{margin:.6rem 0 1rem}#rs-round-progress{font-weight:600;color:#245d4c}#rs-copy[hidden],#rs-database-step[hidden],#rs-away[hidden],#rs-already-searched[hidden],#rs-manual-copy[hidden]{display:none!important}#rs-already-searched,#rs-reopen-library,#rs-manual-copy{min-height:44px;margin:.5rem 0;font-size:.95rem}#rs-away p{margin:.4rem 0}#rs-search-help[hidden]{display:none!important}#rs-more-research>summary,#journal-pdf-tools>summary{min-height:44px;padding:.5rem 0;cursor:pointer}#rs-return-progress{font-size:.9rem}#journal-pdf-tools .jstor-guide{margin:0;padding:.5rem}#journal-pdf-tools .jstor-guide>details{margin:.3rem 0}#journal-add-pdf{display:block;width:100%;min-height:48px;margin:.5rem 0}#journal-first-task{margin:.5rem 0}#journal-file-hint{margin:.25rem 0 .65rem}#journal-pdf-tools>summary{font-size:1rem}#field-save-progress{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .75rem;margin:.45rem 0}#field-save-progress #field-quick-save{min-height:44px;border:1px solid #245d4c;border-radius:8px;background:#fffcf6;color:#245d4c;padding:.45rem .7rem;font-weight:650}#field-save-progress #field-actions-note{font-size:.85rem;flex:1 1 180px;color:#526b61}#rs-article-action[hidden]{display:none!important}#rs-result-help{margin:.4rem 0 .7rem}#rs-refine .rs-refined-choices{padding:0;border:0;margin:.35rem 0;min-width:0}#rs-refine .rs-refined-choice{display:flex;align-items:flex-start;gap:.6rem;border:1px solid #b6c8bc;border-radius:8px;padding:.55rem;margin:.4rem 0;min-height:44px;cursor:pointer}#rs-refine .rs-refined-choice:has(input:checked){border-color:#245d4c;background:#edf4ed}#rs-refine .rs-refined-choice input{width:20px;height:20px;flex:none;accent-color:#245d4c}#rs-refine .rs-refined-choice span{min-width:0;overflow-wrap:anywhere}#rs-refine .rs-refined-choice small{display:block;font-size:.88rem}#rs-refine button{min-height:44px;margin:.35rem 0}#rs-refine button.primary{display:block;width:100%}</style></body></html>
