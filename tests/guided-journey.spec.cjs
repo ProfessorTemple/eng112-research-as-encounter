@@ -586,3 +586,24 @@ test('intellectual provenance does not invent a connection when evidence is abse
  await page.getByText('Where did my insight come from?',{exact:true}).click();
  await expect(page.getByText('Can you name one particular encounter, reading or conversation',{exact:false})).toBeVisible();
 });
+
+test('intellectual agency distinguishes student moves from source reporting and quoted language',async({page})=>{
+ const cases=[
+ ['According to the study, family conversations transmit wisdom. In my experience, family conversations involved questions from both generations.','A possible application of knowledge'],
+ ['According to the study, family conversations transmit wisdom. This does not fully explain the family conversations I observed.','A possible complication'],
+ ['According to the study, family conversations transmit wisdom. Taken together, these family conversations and interviews suggest reciprocal learning.','A possible contribution through synthesis'],
+ ['According to the study, family conversations transmit wisdom. This raises a question about family conversations and silence.','An inquiry you are opening'],
+ ['According to the study, the author argues that this raises a question about family conversations.','Make a place for your response'],
+ ['According to the study, “Taken together, these findings matter.”','Make a place for your response'],
+ ['My grandfather sat beside me in the diner.','Recognize your own contribution']
+ ];
+ for(const [draft,label] of cases){
+  await seed(page,{...fixture,step:27,essayDraft:draft});
+  await page.getByText('More revision tools',{exact:true}).click();
+  await page.getByText('Where is my thinking visible?',{exact:true}).click();
+  await page.getByText('How am I contributing to this conversation?',{exact:true}).click();
+  const panel=page.getByText('How am I contributing to this conversation?',{exact:true}).locator('..');
+  await expect(panel.getByRole('heading',{name:label,exact:true})).toBeVisible();
+  expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).essayDraft,KEY)).toBe(draft);
+ }
+});
