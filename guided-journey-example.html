@@ -157,7 +157,8 @@ function encounterAttention(text){
  const general=/\b(?:important|meaningful|special|interesting|different|nice|good|bad|happy|sad|changed my life|meant a lot|learned a lot|made me feel|felt something)\b/i;
  const conversation=/\b(?:conversation|talked|talking|spoke|chatted|discussion)\b/i;
  const person=/\b(?:grandfather|grandmother|grandparent|father|mother|parent|friend|teacher|neighbor|neighbour|brother|sister|someone|family)\b/i;
- const content=/\b(?:about|told me|said that|asked me|explained|described|shared|remembered how|story about)\s+[\p{L}]/iu;
+ const contentPattern=/\b(?:about|told me|said that|asked me|explained|described|shared|remembered how|story about)\s+[\p{L}]/iu;
+ const content={test(value){return [...value.matchAll(new RegExp(contentPattern.source,'giu'))].some(m=>{const tail=value.slice(m.index+m[0].length-1).split(/[.!?;\n]/)[0].trim();return !/^(?:(?:some|different|random|important|personal|a few|a lot of|many|various)\s+)*(?:stuff|things|something|anything|everything|nothing|life|a lot)(?:\s+in general)?$/i.test(tail);});}};
  const specific=/[“"][^”"\n]{5,}[”"]|\b(?:because|when|after|until|while)\s+(?:I|he|she|they|we|my|the)\s+[\p{L}]+/i;
  const observation=/\b(?:watched|heard|noticed|saw|smelled|touched|listened|observed)\s+\S+|\bfelt\s+(?:the|a|an|my|his|her|their)\s+\S+/i;
  if(conversation.test(t)&&!content.test(t)&&!specific.test(t))return {kind:'conversation',question:person.test(t)?'What did the person say, do or share, or what about simply being together, made this particular conversation stay with you?':'What was one particular moment or exchange in that conversation that stayed with you?'};
