@@ -38,8 +38,12 @@ function extractArticleCitation(info={},lines=[],xmp={}){
  const patterns={title:'(?:article title|title)',author:'(?:author\\(s\\)|authors?|by)',publication:'(?:source|journal(?: title)?|publication(?: title)?|periodical)',date:'(?:publication date|published|date|year)',keywords:'(?:(?:author[- ]supplied|author|subject)\\s+)?(?:key\\s*words?|keywords?|subject terms)',doi:'(?:doi|digital object identifier)',stable:'(?:stable url|permalink|persistent link)'};
  const labelRe=new RegExp('^(?:'+Object.values(patterns).join('|')+'|abstract|document type|publisher|issn|isbn|accessed|database|volume|issue|pages|language)\\s*(?::|$)','i');
  const readLabel=(name)=>{const re=new RegExp('^'+patterns[name]+'\\s*(?::\\s*(.*)|$)','i');const i=lines.findIndex(line=>re.test(line));if(i<0)return '';const m=lines[i].match(re);if(m[1]?.trim())return clean(m[1]);const next=clean(lines[i+1]);return labelRe.test(next)?'':next;};
- const title=clean(xmp.title||info.Title),author=clean(xmp.author||info.Author);
+ const firstUsable=(...values)=>values.map(clean).find(usable)||'';
+ const title=firstUsable(xmp.title,info.Title),author=firstUsable(xmp.author,info.Author);
  const t=readLabel('title'),a=readLabel('author'),pub=readLabel('publication'),date=readLabel('date');
+ // JSTOR covers often print the title on the line(s) immediately before Author(s).
+ const authorIndex=lines.findIndex(line=>/^Author\(s\)\s*:/i.test(line));
+ const coverTitle=authorIndex>0&&authorIndex<=4&&pub&&readLabel('stable')?clean(lines.slice(0,authorIndex).filter(line=>!/^(?:jstor|downloaded from|content downloaded from|publisher|stable url)\b/i.test(line)&&!labelRe.test(line)).join(' ')):'';
  const publication=pub.replace(/,\s*(?:vol(?:ume)?\.?\s*\d|no\.?\s*\d|issue\s+\d|pp?\.?\s*\d|\(?\d{4}\b).*$/i,'').trim();
  const year=(date.match(/\b(?:19|20)\d{2}\b/)||pub.match(/\b(?:19|20)\d{2}\b/)||[])[0]||'';
  // Only use a DOI in a labeled field or early citation text, not the references.
@@ -48,7 +52,7 @@ function extractArticleCitation(info={},lines=[],xmp={}){
  const stable=readLabel('stable'),stableUrl=/^https?:\/\/(?:www\.)?jstor\.org\/stable\/[^\s]+$/i.test(stable)?stable.replace(/[.,;]+$/,''):'';
  const k=readLabel('keywords');
  const keywords=k?k.split(/[;,•]/).map(clean).filter(x=>x.length>1&&x.length<100&&!/^(abstract|keywords)$/i.test(x)).slice(0,15):[];
- return {title:usable(t)?t:usable(title)?title:'',author:usable(a)?a:usable(author)?author:'',publication:usable(publication)?publication:'',year,doi:doi?'https://doi.org/'+doi.replace(/[.,;]+$/,''):stableUrl,keywords,hasText:lines.join('').length>20};
+ return {title:firstUsable(t,coverTitle,title),author:usable(a)?a:usable(author)?author:'',publication:usable(publication)?publication:'',year,doi:doi?'https://doi.org/'+doi.replace(/[.,;]+$/,''):stableUrl,keywords,hasText:lines.join('').length>20};
 }
 async function readArticlePDF(file){
  // PDF bytes are passed to the reader in this browser, not to a citation or AI service.
@@ -98,6 +102,8 @@ function render(focus=false){app.replaceChildren();const step=state.step;
   state.pdfName=selected.name;save();
   fileStatus.textContent='Reading citation details from your PDF…';next.disabled=true;
   try{
+   const signature=new Uint8Array(await selected.slice(0,5).arrayBuffer());
+   if(String.fromCharCode(...signature)!=='%PDF-')throw Error('Not a PDF');
    const found=await readArticlePDF(selected);
    if(token!==pdfRequest||state.step!==6||!file.isConnected)return;
    const conflict=['title','author','doi'].some(k=>found[k]&&String(state[k]||'').trim()&&norm(state[k])!==norm(found[k]));
