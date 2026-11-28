@@ -462,3 +462,28 @@ test('narrow viewport reflow and unique accessible control IDs throughout the jo
   expect(result.headings,'main heading at step '+step).toBe(1);
  }
 });
+
+test('six classroom inquiries remain distinct and preserve student choice',async({page})=>{
+ const cases=[
+ {encounter:'I had a conversation with my grandfather at Waffle House. It was important to me.',question:"How does listening to my grandfather's advice help me understand our relationship?",words:['grandfather','listening','advice'],lens:'Intergenerational learning',search:'"grandfather" AND "intergenerational learning"'},
+ {encounter:'I watched fireflies flashing beside the creek as the porch light came on.',question:'How does artificial light affect communication between fireflies?',words:['fireflies','artificial light','communication'],lens:'Animal behavior and communication',search:'fireflies AND ("artificial light" OR "light pollution")'},
+ {encounter:'Traffic stopped on my holiday trip. When I arrived, my family was still waiting.',question:'How might people interpret coincidences as miracles during holiday travel?',words:['holiday travel','miracles','coincidences'],lens:'Religious studies / meaning-making',search:'"holiday travel" AND "meaning-making"'},
+ {encounter:'My grandmother showed me her handwritten recipe and told me how she learned it from her mother.',question:'How do family recipes and traditions preserve cultural memory across generations?',words:['family recipes','traditions','cultural memory'],lens:'Cultural memory / oral history',search:'"family recipes" AND "intergenerational memory"'},
+ {encounter:'I heard the hand dryer in the school restroom and covered my ears.',question:'How do loud sounds affect sensory regulation and neurodiversity in public spaces?',words:['loud sounds','sensory regulation','public spaces'],lens:'Psychology / disability studies',search:'"public spaces" AND "sensory regulation"'},
+ {encounter:'I felt happy and it was a really special experience that changed my life in a lot of ways.',question:'Why was this experience important?',words:['happy','special','experience'],lens:'',search:''}
+ ];
+ for(const c of cases){
+  await seed(page,{...fixture,...c,step:3,criticalLens:'',notes:[],keywords:[],history:[],search:''});
+  await expect(page.getByLabel('Search words (you can edit these)',{exact:true})).toHaveValue(c.search);
+  await page.getByText('My working critical lens (optional)',{exact:true}).click();
+  if(c.lens)await expect(page.getByRole('heading',{name:c.lens,exact:true})).toBeVisible();
+  else await expect(page.getByText('No well-grounded lens suggestion yet.',{exact:false})).toBeVisible();
+  await expect(page.getByLabel('My working lens',{exact:true})).toHaveValue('');
+  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);expect(saved.question).toBe(c.question);expect(saved.encounter).toBe(c.encounter);
+ }
+ await seed(page,{...fixture,step:1,encounter:cases[5].encounter});
+ await click(page,'Discover my words →');
+ await expect(page.getByRole('heading',{name:'Return to the moment',exact:true})).toBeVisible();
+ await click(page,'Continue with what I remember →');
+ await expect(page.getByRole('heading',{name:'Discover my words',exact:true})).toBeVisible();
+});
