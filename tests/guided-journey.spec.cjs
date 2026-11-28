@@ -164,3 +164,20 @@ test('conceptual integration invites interpretation without changing the draft',
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.essayDraft).toBe(draft);expect(saved.step).toBe(27);
 });
+
+test('a vague encounter invites attention without requiring private disclosure or an environmental lens',async({page})=>{
+ const opening='I had a conversation with my grandfather at Waffle House. It was important to me.';
+ await seed(page,{...fixture,step:1,encounter:opening,firstEncounter:'',words:[],question:'',notes:[],workingThesis:'',initialThesis:''});
+ await click(page,'Discover my words →');
+ await expect(page.getByRole('heading',{name:'Return to the moment',exact:true})).toBeVisible();
+ await expect(page.getByText('What did the person say, do or share',{exact:false})).toBeVisible();
+ const expanded=opening+' I remember how he gave me advice about listening to others.';
+ await page.getByLabel('My experience',{exact:true}).fill(expanded);
+ await click(page,'Continue with what I remember →');
+ await expect(page.getByRole('heading',{name:'Discover my words',exact:true})).toBeVisible();
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.encounter).toBe(expanded);
+ await seed(page,{...fixture,step:3,encounter:expanded,question:'How do advice and stories from my grandfather help me learn?',words:['grandfather','advice'],keywords:[],notes:[]});
+ await expect(page.getByText('intergenerational learning: Learning through exchanges',{exact:false})).toBeVisible();
+ await expect(page.getByText('environmental justice:',{exact:false})).toHaveCount(0);
+});
