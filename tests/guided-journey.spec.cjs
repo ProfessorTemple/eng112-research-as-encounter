@@ -181,3 +181,25 @@ test('a vague encounter invites attention without requiring private disclosure o
  await expect(page.getByText('intergenerational learning: Learning through exchanges',{exact:false})).toBeVisible();
  await expect(page.getByText('environmental justice:',{exact:false})).toHaveCount(0);
 });
+
+test('bounded follow-up preserves original experience and permits a student-selected lens',async({page})=>{
+ const opening='I had a conversation with my grandfather at Waffle House. It was important to me.';
+ await seed(page,{...fixture,step:1,encounter:opening,firstEncounter:'',words:[],question:'',notes:[],workingThesis:'',initialThesis:'',criticalLens:''});
+ await click(page,'Discover my words →');
+ await page.getByLabel('My experience',{exact:true}).fill(opening+' It was very nice.');
+ await click(page,'Continue with what I remember →');
+ await expect(page.getByText('You have added to the encounter.',{exact:false})).toBeVisible();
+ const expanded=opening+' I remember how he gave me advice about listening to others.';
+ await page.getByLabel('My experience',{exact:true}).fill(expanded);
+ await click(page,'Continue with what I remember →');
+ let saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.firstEncounter).toBe(opening);expect(saved.encounter).toBe(expanded);
+ await seed(page,{...fixture,step:3,firstEncounter:opening,encounter:expanded,question:'How do advice and stories from my grandfather help me learn?',words:['grandfather','advice'],keywords:[],notes:[],criticalLens:''});
+ await page.getByText('My working critical lens (optional)',{exact:true}).click();
+ await expect(page.getByLabel('My working lens',{exact:true})).toHaveValue('');
+ await click(page,'Explore Intergenerational learning');
+ await expect(page.getByLabel('My working lens',{exact:true})).toHaveValue('Intergenerational learning · intergenerational learning');
+ await click(page,'Use this search →');
+ saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.criticalLens).toContain('Intergenerational learning');expect(saved.encounter).toBe(expanded);
+});
