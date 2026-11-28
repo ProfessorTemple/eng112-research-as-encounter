@@ -71,6 +71,33 @@ async function readArticlePDF(file){
   return extractArticleCitation(meta.info||{},lines.filter(Boolean),xmp);
  }finally{await task.destroy().catch(()=>{});}
 }
+function doiIdentifier(value){
+ const s=String(value||'').trim().replace(/^(?:https?:\/\/(?:dx\.)?doi\.org\/|doi\s*:\s*)/i,'');
+ return /^10\.\d{4,9}\/[-._;()/:A-Z0-9]+$/i.test(s)?s:'';
+}
+function crossrefCitation(record,requested){
+ if(!record||!requested||doiIdentifier(record.DOI).toLowerCase()!==requested.toLowerCase())throw Error('Citation identifier did not match');
+ const clean=s=>String(s||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+ const authors=(Array.isArray(record.author)?record.author:[]).map(a=>clean(a.name||[a.given,a.family,a.suffix].filter(Boolean).join(' '))).filter(Boolean);
+ const year=['published-print','published','published-online','issued'].map(k=>record[k]?.['date-parts']?.[0]?.[0]).find(y=>Number.isInteger(y)&&y>=1000&&y<=2100);
+ return {title:clean(record.title?.[0]),author:authors.join('; '),year:year?String(year):'',publication:clean(record['container-title']?.[0]),doi:'https://doi.org/'+requested};
+}
+async function resolveDOI(value){
+ const doi=doiIdentifier(value);if(!doi)return null;
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+ try{
+  // Only the public DOI is sent; no PDF or notebook contents.
+  const response=await fetch('https://api.crossref.org/works/'+encodeURIComponent(doi),{signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',headers:{Accept:'application/json'}});
+  if(!response.ok)throw Error('Citation service unavailable');
+  const data=await response.json();return crossrefCitation(data.message,doi);
+ }finally{clearTimeout(timer);}
+}
+function mergeCitation(pdf,registry){
+ if(!registry)return pdf;
+ const result={...pdf};
+ for(const k of ['title','author','year','publication','doi'])if(registry[k])result[k]=registry[k];
+ return result;
+}
 function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===0){app.append(el('p','GUIDED JOURNEY · WORKING EXAMPLE','hint'),el('h1','Start here'),el('p','Begin with something you experienced. Follow one small step at a time.'));app.append(btn(state.encounter?'Continue my example →':'Try the holiday miracle example →',()=>{if(!state.encounter)state.encounter=SAMPLE;go(1);}),btn('Start with my own experience',()=>{if(state.encounter&&!confirm('Replace this separate example?'))return;state=blank();go(1);},'secondary'));return;}
  const top=el('div','','topline');top.append(el('span',step<=5?'Research journey · '+step+' of 5':'Reading Journal'),el('span',storageOK?'Saved on this device':'Backup recommended'));top.lastChild.id='save-state';const progress=el('div','','progress');progress.setAttribute('aria-label','Research journey progress');for(let i=1;i<=5;i++)progress.append(el('span','',i<step?'done':i===step?'current':''));app.append(top,progress);
@@ -82,11 +109,31 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===4){body.append(el('div',state.search,'callout query'));if(state.library==='copy'){body.append(el('p','Copy these keywords to search in the library.'),btn('Copy search and continue →',async()=>{try{await navigator.clipboard.writeText(state.search);state.library='open';save();render(true);}catch(e){notice('Automatic copying is unavailable. Select the search words and copy them manually.');document.getElementById('manual-copy').hidden=false;}}));const manual=btn('I copied it myself →',()=>{state.library='open';save();render(true);},'secondary');manual.id='manual-copy';manual.hidden=true;body.append(manual);}else if(state.library==='open'){body.append(el('p','Search copied. Paste it into Academic Search Complete.'));const link=el('a','Open Academic Search Complete ↗','action primary');link.href='https://libguides.pittcc.edu/asc';link.target='_blank';link.rel='noopener noreferrer';link.addEventListener('click',()=>{state.library='away';save();setTimeout(()=>render(false),0);});body.append(link,el('p','Read a title and abstract (short summary). Return to this tab after searching.','hint'));}else{body.append(el('p','When you return from the library, tell the notebook what happened.'),btn('I’m back from the library →',()=>go(5)));}if(state.library!=='away')body.append(btn('Already searched? Continue',()=>go(5),'quiet'));}
  if(step===5){if(!state.outcome){body.append(el('p','Choose what happened.'));for(const [id,label,desc] of [['article','I found an article','Bring a useful source into my notebook.'],['words','I found new keywords','Learn the words and search again.'],['retry','My search did not work','Try a more meaningful combination.'],['question','My question is changing','Reconsider what I want to understand.']]){const b=btn(label,()=>{state.outcome=id;save();render(true);},'choice');b.append(el('small',desc));body.append(b);}}else if(state.outcome==='article'){body.append(el('p','Choose your downloaded article. The notebook will try to fill in its citation details.'),btn('Add my article →',()=>go(6)));}else if(state.outcome==='words'){body.append(el('p','Paste keywords from a title or abstract. Separate them with semicolons or new lines.'));const t=el('textarea');t.rows=3;t.setAttribute('aria-label','New keywords');t.value=state.keywords.join('; ');body.append(t,btn('Find new combinations →',()=>{state.keywords=[...new Set(t.value.split(/[;\n]+/).map(x=>x.trim()).filter(x=>x&&!/^(abstract|author[- ]supplied keywords|keywords)$/i.test(x)))].slice(0,20);state.outcome='retry';save();render(true);}));}else if(state.outcome==='retry'){body.append(el('p','Your earlier search is kept. Choose a different direction.'));showOptions(body,choices(state.question,true));if(state.keywords.length){const defs={'anthropogenic effects':'Effects caused by human activities.','communication disruption':'Interference with signals.','intraspecific interaction':'Interaction within a species.','interspecific interaction':'Interaction between species.','light pollution':'Artificial light that alters nighttime conditions.'};body.append(el('h2','Words you discovered'));for(const w of state.keywords)body.append(el('p',w+(defs[norm(w)]?': '+defs[norm(w)]:' · Check its meaning in your source.'),'hint'));}}else{body.append(field('My revised question','question',3),btn('Explore my revised question →',()=>go(3)));}if(state.outcome)body.append(btn('Choose a different outcome',()=>{state.outcome='';save();render(true);},'quiet'));}
  if(step===6){
- body.append(el('p','Choose the PDF you downloaded from the library. The notebook will look for the title, authors, publication, year, link, and keywords. Check what it finds.'));
+ body.append(el('p','Choose your downloaded PDF. The notebook reads it here and uses its public DOI (if found) to look up citation details in Crossref. Check what it finds.'));
  const label=el('label','Choose my article PDF (or enter details below)');label.htmlFor='pdf';
  const file=el('input');file.id='pdf';file.type='file';file.accept='.pdf,application/pdf';
  const fileStatus=el('p',state.pdfName?'Previously selected: '+state.pdfName:'Your PDF is read in this browser. Keep your original file.','hint');fileStatus.id='pdf-status';fileStatus.setAttribute('role','status');
  body.append(label,file,fileStatus,el('h2','1. Check my source details'),field('Article title','title'),field('Author(s)','author'),field('Publication year','year'),field('Journal or publication','publication'),field('DOI or article link','doi'));
+ const lookup=btn('Fill missing details from DOI →',async()=>{
+  const doi=doiIdentifier(state.doi);if(!doi)return;
+  const token=++pdfRequest;lookup.disabled=true;next.disabled=true;fileStatus.textContent='Looking up citation details…';
+  try{
+   const record=await resolveDOI(doi);
+   if(token!==pdfRequest||!file.isConnected||doiIdentifier(state.doi).toLowerCase()!==doi.toLowerCase())return;
+   const conflict=['title','author'].some(k=>record[k]&&String(state[k]||'').trim()&&norm(state[k])!==norm(record[k]));
+   if(conflict){fileStatus.textContent='The registered citation differs from your entries. Check the article before editing; nothing was changed.';return;}
+   let count=0;
+   for(const key of ['title','author','year','publication']){
+    if(record[key]&&!String(state[key]||'').trim()){state[key]=record[key];document.getElementById('input-'+key).value=record[key];count++;}
+   }
+   save();fileStatus.textContent=count?'Filled '+count+' missing field(s) from Crossref. Check these against your article.':'No additional fields were filled. Your existing entries were kept.';
+  }catch(error){if(token===pdfRequest&&file.isConnected)fileStatus.textContent='DOI lookup unavailable. Check the DOI or enter the missing details yourself.';}
+  finally{if(token===pdfRequest&&file.isConnected){next.disabled=false;refreshLookup();}}
+ },'secondary');
+ body.append(lookup);
+ function refreshLookup(){lookup.hidden=!doiIdentifier(state.doi)||['title','author','year','publication'].every(k=>String(state[k]||'').trim());lookup.disabled=false;}
+ for(const k of ['title','author','year','publication','doi'])document.getElementById('input-'+k).addEventListener('input',()=>{if(!next.disabled)refreshLookup();});
+ refreshLookup();
  const wordsBox=el('div');wordsBox.id='pdf-keywords';body.append(wordsBox);
  function renderKeywords(){wordsBox.replaceChildren();if(!state.pdfKeywords?.length)return;wordsBox.append(el('p','Keywords printed in the article: '+state.pdfKeywords.join(' · '),'hint'));}
  renderKeywords();
@@ -97,15 +144,24 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  file.addEventListener('change',async()=>{
   const selected=file.files[0];if(!selected)return;
   const token=++pdfRequest;
-  if(!selected.size||selected.size>20*1024*1024){next.disabled=false;fileStatus.textContent='Choose a nonempty PDF up to 20 MB, or enter citation details manually.';return;}
-  if(state.pdfName&&state.pdfName!==selected.name&&['title','author','year','publication','doi','passage','location','reflection'].some(k=>String(state[k]||'').trim())){next.disabled=false;file.value='';fileStatus.textContent='This example holds one article at a time. Your existing citation and reading note are unchanged. Save a backup before starting a different example.';return;}
+  if(!selected.size||selected.size>20*1024*1024){next.disabled=false;refreshLookup();fileStatus.textContent='Choose a nonempty PDF up to 20 MB, or enter citation details manually.';return;}
+  if(state.pdfName&&state.pdfName!==selected.name&&['title','author','year','publication','doi','passage','location','reflection'].some(k=>String(state[k]||'').trim())){next.disabled=false;refreshLookup();file.value='';fileStatus.textContent='This example holds one article at a time. Your existing citation and reading note are unchanged. Save a backup before starting a different example.';return;}
   state.pdfName=selected.name;save();
-  fileStatus.textContent='Reading citation details from your PDF…';next.disabled=true;
+  fileStatus.textContent='Reading citation details from your PDF…';next.disabled=true;lookup.disabled=true;
   try{
    const signature=new Uint8Array(await selected.slice(0,5).arrayBuffer());
    if(String.fromCharCode(...signature)!=='%PDF-')throw Error('Not a PDF');
-   const found=await readArticlePDF(selected);
+   let found=await readArticlePDF(selected);
    if(token!==pdfRequest||state.step!==6||!file.isConnected)return;
+   let registry=null,lookupFailed=false;
+   const extracted=doiIdentifier(found.doi);
+   if(extracted&&(!state.doi||doiIdentifier(state.doi).toLowerCase()===extracted.toLowerCase())){
+    fileStatus.textContent='DOI found. Looking up the article citation…';
+    try{registry=await resolveDOI(extracted);}catch(error){lookupFailed=true;}
+    if(token!==pdfRequest||state.step!==6||!file.isConnected)return;
+    if(state.doi&&doiIdentifier(state.doi).toLowerCase()!==extracted.toLowerCase()){fileStatus.textContent='The DOI changed during lookup. Existing entries were kept.';return;}
+    found=mergeCitation(found,registry);
+   }
    const conflict=['title','author','doi'].some(k=>found[k]&&String(state[k]||'').trim()&&norm(state[k])!==norm(found[k]));
    if(conflict){fileStatus.textContent='The PDF details differ from your existing citation. Nothing was changed. Compare the article with the fields below and edit them yourself.';return;}
    const filled=[],existing=[];
@@ -116,9 +172,9 @@ function render(focus=false){app.replaceChildren();const step=state.step;
     else if(norm(state[key])!==norm(found[key]))existing.push(key);
    }
    state.pdfKeywords=found.keywords||[];renderKeywords();save();
-   fileStatus.textContent=(filled.length?'Filled '+filled.length+' empty citation field(s). Check these against the article before continuing. ':'No additional citation fields were filled. Check the existing details and enter anything missing. ')+(existing.length?'Your existing entries were kept. ':'')+(found.hasText?'':'This PDF may be scanned or image-based. Automatic text reading is unavailable. ');
+   fileStatus.textContent=(filled.length?'Filled '+filled.length+' empty citation field(s). Check these against the article before continuing. ':'No additional citation fields were filled. Check the existing details and enter anything missing. ')+(existing.length?'Your existing entries were kept. ':'')+(registry?'Citation details retrieved from Crossref. ':lookupFailed?'DOI lookup unavailable; you can retry below. ':'')+(found.hasText?'':'This PDF may be scanned or image-based. Automatic text reading is unavailable. ');
   }catch(error){if(token===pdfRequest&&file.isConnected)fileStatus.textContent='Automatic PDF reading was unavailable. Your original PDF is unchanged; enter its citation details below.';}
-  finally{if(token===pdfRequest&&file.isConnected)next.disabled=false;}
+  finally{if(token===pdfRequest&&file.isConnected){next.disabled=false;refreshLookup();}}
  });
 }
  const message=el('p','','notice');message.id='notice';message.setAttribute('role','status');app.append(message);
