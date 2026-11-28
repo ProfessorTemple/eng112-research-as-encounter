@@ -487,3 +487,21 @@ test('six classroom inquiries remain distinct and preserve student choice',async
  await click(page,'Continue with what I remember →');
  await expect(page.getByRole('heading',{name:'Discover my words',exact:true})).toBeVisible();
 });
+
+
+test('conversational filler does not masquerade as a remembered detail',async({page})=>{
+ for(const phrase of ['stuff','different things','life in general','a lot of things']){
+  const encounter='I talked with my grandfather about '+phrase+'. It was special.';
+  await seed(page,{...fixture,step:1,encounter,firstEncounter:''});
+  await click(page,'Discover my words →');
+  await expect(page.getByRole('heading',{name:'Return to the moment',exact:true})).toBeVisible();
+  await click(page,'Continue with what I remember →');
+  await expect(page.getByRole('heading',{name:'Discover my words',exact:true})).toBeVisible();
+  expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).encounter,KEY)).toBe(encounter);
+ }
+ for(const phrase of ['his childhood','losing his father']){
+  await seed(page,{...fixture,step:1,encounter:'I talked with my grandfather about '+phrase+'.'});
+  await click(page,'Discover my words →');
+  await expect(page.getByRole('heading',{name:'Discover my words',exact:true})).toBeVisible();
+ }
+});
