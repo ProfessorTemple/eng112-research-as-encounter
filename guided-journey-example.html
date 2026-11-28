@@ -3,19 +3,19 @@
 <style>
 :root{color-scheme:light;--ink:#203e34;--muted:#526c60;--green:#245d4c;--line:#c5d3c8;--paper:#faf9f2;--soft:#eef3ea}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}header{background:#203f34;color:white;padding:1rem max(1rem,calc((100% - 640px)/2))}header small{color:#dce5db;display:block;letter-spacing:.08em;font-size:.72rem}header strong{font-size:1.12rem}main{max-width:650px;margin:0 auto;padding:1.15rem 1rem 2rem}h1{font-family:Georgia,serif;font-size:clamp(1.75rem,5vw,2.35rem);line-height:1.14;margin:.5rem 0 .9rem;font-weight:500}h2{font-size:1.12rem;margin:.9rem 0 .35rem}p{margin:.55rem 0 1rem}small,.hint{font-size:.88rem;color:var(--muted)}button,input,textarea,select,a.action{font:inherit}button,a.action{cursor:pointer;min-height:48px;border:1px solid var(--green);border-radius:9px;padding:.7rem .85rem;background:transparent;color:var(--green);font-weight:650;text-align:center;text-decoration:none}button.primary,a.primary{display:block;width:100%;background:var(--green);color:#fff;margin-top:1rem}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a26d28;outline-offset:3px}textarea,input[type=text]{display:block;width:100%;border:1px solid #9ab0a2;border-radius:8px;padding:.7rem;background:white;color:var(--ink);margin:.35rem 0 .8rem;font:inherit}textarea{resize:vertical}label{font-weight:600}fieldset{border:0;padding:0;margin:.75rem 0;min-width:0}legend{font-weight:650;margin-bottom:.4rem}.option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:9px;padding:.7rem;margin:.45rem 0;background:#fff;font-weight:500;cursor:pointer}.option:has(input:checked){background:var(--soft);border-color:var(--green)}.option input{margin:.3rem 0 0;flex:none;width:20px;height:20px;accent-color:var(--green)}.option span{min-width:0}.option small{display:block;margin-top:.2rem}.progress{display:flex;gap:5px;margin:.4rem 0 1.1rem}.progress span{flex:1;height:5px;background:#dce5db;border-radius:6px}.progress .done{background:#398063}.progress .current{background:#245d4c}.topline{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.85rem}.callout{background:var(--soft);border-left:3px solid #608976;padding:.75rem .9rem;margin:.8rem 0}.callout p{margin:.25rem 0}.query{font-weight:650;overflow-wrap:anywhere}.choice{display:block;width:100%;text-align:left;margin:.55rem 0;background:#fff}.choice small{display:block;font-weight:400}.secondary{display:inline-block;margin:.4rem 0}.quiet{border:0;padding:.4rem .15rem;min-height:44px;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:.65rem}.nav button{font-size:.88rem}.notice{font-size:.9rem;color:var(--muted);min-height:1.2em}.notice:empty{display:none}.screenreader{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
  .strength-row{padding:.65rem 0;border-top:1px solid var(--line)}.strength-row p{margin:.2rem 0}.strength-label{font-weight:650;font-size:.85rem}.strength-track{display:flex;gap:4px;margin:.35rem 0}.strength-track span{height:7px;flex:1;border-radius:4px;background:#dce5db}.strength-track .missing{background:#a33a35}.strength-track .developing{background:#a56c17}.strength-track .promising{background:#398063}
-</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 14</small></header><main id="app"></main>
+</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 15</small></header><main id="app"></main>
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
 const REFERENCE_VIEW=new URLSearchParams(location.search).get('view')==='journal';
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0,evidencePlan:'',assumptionPlan:'',alternativePlan:'',inquiryReviewed:false});
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0,evidencePlan:'',assumptionPlan:'',alternativePlan:'',inquiryReviewed:false,initialThesis:'',strengthenedThesis:'',evidenceReadiness:'',researchReturn:0,essayTitle:'',essayDraft:'',reconsideredThesis:'',thesisReflection:'',writingComplete:false});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
 function save(){if(REFERENCE_VIEW)return;try{localStorage.setItem(KEY,JSON.stringify(state));storageOK=true;}catch(e){storageOK=false;}const n=document.getElementById('save-state');if(n)n.textContent=storageOK?'Saved on this device':'Backup recommended';}
 function backup(){save();const a=el('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({prototype:'guided-journey-v1',...state},null,2)],{type:'application/json'}));a.download='guided-journey-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 function btn(label,fn,cls='primary'){const b=el('button',label,cls);b.type='button';b.addEventListener('click',fn);return b;}
-function go(step){if(REFERENCE_VIEW)return;state.step=step;if(step>=12&&step<=17)state.thesisStep=step;save();render(true);}
+function go(step){if(REFERENCE_VIEW)return;state.step=step;if(step>=12&&step<=22)state.thesisStep=step;save();render(true);}
 function field(label,key,rows=0,placeholder=''){const wrap=el('div'),id='input-'+key,l=el('label',label),x=el(rows?'textarea':'input');l.htmlFor=id;x.id=id;if(rows)x.rows=rows;else x.type='text';x.placeholder=placeholder;x.value=state[key]||'';x.addEventListener('input',()=>{state[key]=x.value;if(key==='connectionReflection')state.connectionComplete=false;if(['storyOne','storyTwo','storyThree','workingThesis'].includes(key)){state.thesisSaved=false;state.inquiryReviewed=false;}save();});wrap.append(l,x);return wrap;}
 function notice(text){const n=document.getElementById('notice');if(n)n.textContent=text;}
 function norm(s){return String(s||'').trim().toLowerCase();}
@@ -280,7 +280,7 @@ function notePDFControls(root,n,reference=false){
  const status=el('p','','hint');status.setAttribute('role','status');
  if(n.pdfId)root.append(btn('Open saved PDF ↗',()=>openSavedPDF(n.pdfId,status),'secondary'),btn('Download PDF',()=>downloadSavedPDF(n.pdfId,status),'quiet'));
  else root.append(el('p',reference?'Original PDF not attached. Attach it from the main notebook.':'Original PDF not stored yet. Attach it once to read it again here.','hint'));
- if(reference){root.append(status);return;}
+ if(reference){root.append(status);pdfSearchControl(root,n);return;}
  const details=el('details');details.append(el('summary',n.pdfId?'Reattach original PDF if needed':'Attach original PDF'));
  const label=el('label','Choose the PDF that belongs to this article');const input=el('input');
  input.type='file';input.accept='.pdf,application/pdf';input.id='attach-'+n.id;label.htmlFor=input.id;
@@ -318,7 +318,7 @@ function downloadSavedPDF(id,status){
 }
 function thesisResumeStep(state){
  const p=Number(state.thesisStep);
- if(Number.isInteger(p)&&p>=12&&p<=17)return p;
+ if(Number.isInteger(p)&&p>=12&&p<=22)return p;
  if(state.workingThesis?.trim())return 16;
  if(state.storyThree?.trim())return 15;
  if(state.storyTwo?.trim())return 14;
@@ -327,7 +327,7 @@ function thesisResumeStep(state){
 }
 function journalTabLink(){
  const a=el('a','Open Reading Journal in a new tab ↗','action secondary');
- const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided14');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
+ const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided15');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
  return a;
 }
 function renderJournalReference(){
@@ -393,6 +393,56 @@ function renderStrengthMeter(host){
   row.append(label,status,bar,el('p',f.hint,'hint'));host.append(row);
  }
 }
+function evidenceCandidates(state){
+ const stop=new Set('this that with from have what when they their there which because about would could should these those more into some been very only then than will were does your them research evidence article thesis source need find consider people thing things'.split(' '));
+ const words=t=>[...new Set((String(t||'').toLowerCase().match(/[\p{L}]{4,}/gu)||[]).map(w=>/^synchronic(?:istic|ity)?$/.test(w)?'synchronicity':w.replace(/ies$/,'y')).filter(w=>!stop.has(w)))];
+ const terms=words([state.strengthenedThesis||state.workingThesis,state.evidencePlan].join(' '));
+ return (state.notes||[]).map(n=>({id:n.id,title:n.title||'Untitled source',matches:terms.filter(t=>words([n.title,n.passage,n.reflection,...(n.pdfKeywords||[])].join(' ')).includes(t))})).sort((a,b)=>b.matches.length-a.matches.length);
+}
+function writingResume(state){const p=Number(state.researchReturn);return p===19||p===20?p:0;}
+function hasUnfinishedArticle(state){return state.journalStage!=='saved'&&['title','author','pdfName','doi','passage','reflection'].some(k=>String(state[k]||'').trim());}
+function findPageExcerpt(text,query){
+ const t=String(text||'').replace(/\s+/g,' ').trim(),q=String(query||'').trim().toLowerCase();
+ const i=t.toLowerCase().indexOf(q);if(!q||i<0)return '';
+ return (i>90?'…':'')+t.slice(Math.max(0,i-90),i+q.length+130)+(i+q.length+130<t.length?'…':'');
+}
+function returnToWriting(){const p=writingResume(state)||19;pdfRequest++;state.researchReturn=0;go(p);}
+function researchDetour(step){state.researchReturn=step;state.nextSearch='';if(hasUnfinishedArticle(state)){go(6);return;}go(7);}
+function writingContext(root){
+ root.append(journalTabLink());
+ const d=el('details');d.append(el('summary','Consult my research notes and PDFs'));
+ for(const n of state.notes||[])showNote(d,n,true);root.append(d);
+}
+function downloadWriting(){
+ const a=el('a');const text=[state.essayTitle||'My interpretive synthesis','',state.essayDraft||'','','Initial working thesis:',state.initialThesis||state.workingThesis,'','Strengthened working thesis:',state.strengthenedThesis,'','Reconsidered thesis:',state.reconsideredThesis,'','Reflection:',state.thesisReflection].join('\n');
+ a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));a.download='my-interpretive-synthesis.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+async function searchStoredPDF(id,query,report){
+ const record=await pdfTransaction('readonly',store=>store.get(id));if(!record?.blob)throw Error('PDF not available. Attach the original in the main notebook.');
+ if(!pdfLibrary)pdfLibrary=import(pdfBase+'pdf.min.mjs').catch(e=>{pdfLibrary=null;throw e;});
+ const lib=await pdfLibrary;lib.GlobalWorkerOptions.workerSrc=pdfBase+'pdf.worker.min.mjs';
+ const task=lib.getDocument({data:new Uint8Array(await record.blob.arrayBuffer()),isEvalSupported:false,enableXfa:false});
+ const hits=[];let readable=0;
+ try{const pdf=await task.promise;for(let p=1;p<=pdf.numPages;p++){
+  report(p,pdf.numPages);const page=await pdf.getPage(p),content=await page.getTextContent();
+  const text=content.items.map(i=>i.str||'').join(' ');if(text.trim().length>20)readable++;
+  const excerpt=findPageExcerpt(text,query);if(excerpt&&hits.length<12)hits.push({page:p,excerpt});page.cleanup();
+ }return {hits,readable,total:pdf.numPages};}finally{await task.destroy().catch(()=>{});}
+}
+function pdfSearchControl(root,n){
+ if(!n.pdfId)return;
+ const d=el('details');d.append(el('summary','Find a word or phrase in this PDF'));
+ const label=el('label','Search inside this article'),input=el('input');input.type='text';label.htmlFor='pdf-search-'+n.id;input.id=label.htmlFor;
+ const status=el('p','','hint');status.setAttribute('role','status');const results=el('div');
+ const search=btn('Find in PDF',async()=>{const q=input.value.trim();if(!q){status.textContent='Enter a word or phrase.';return;}
+  search.disabled=true;results.replaceChildren();try{const result=await searchStoredPDF(n.pdfId,q,(p,total)=>{status.textContent='Reading page '+p+' of '+total+'…';});
+  status.textContent=result.hits.length?'Showing '+result.hits.length+' matching PDF page(s), up to 12. Verify the printed page number in the original.':result.readable?'No exact text match. Try a shorter term or read the original.':'No readable text found. Open the original PDF.';
+  for(const h of result.hits)results.append(el('p','PDF page '+h.page+': '+h.excerpt,'callout'));
+  }catch(e){status.textContent=e.message||'Unable to search this PDF.';}finally{search.disabled=false;}
+ },'secondary');
+ d.append(label,input,search,status,results);root.append(d);
+}
+
 function thesisEvidence(root){
  root.append(journalTabLink());
  const details=el('details');details.append(el('summary','Consult my research notes and PDFs'));
@@ -521,8 +571,8 @@ function fallbackSearch(state,note){
 }
 function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===0){app.append(el('p','GUIDED JOURNEY · WORKING EXAMPLE','hint'),el('h1','Start here'),el('p','Begin with something you experienced. Follow one small step at a time.'));app.append(btn(state.encounter?'Continue my example →':'Try the holiday miracle example →',()=>{if(!state.encounter)state.encounter=SAMPLE;go(1);}),btn('Start with my own experience',()=>{if(state.encounter&&!confirm('Replace this separate example?'))return;state=blank();go(1);},'secondary'));return;}
- const top=el('div','','topline');top.append(el('span',step<=5?'Research journey · '+step+' of 5':step===7?'Continue my research':step>=12?'Three-Story Thesis · '+Math.min(step-11,6)+' of 6':step>=9?'Connect and Write':'Reading Journal'),el('span',storageOK?'Saved on this device':'Backup recommended'));top.lastChild.id='save-state';const progress=el('div','','progress');progress.setAttribute('aria-label','Research journey progress');for(let i=1;i<=5;i++)progress.append(el('span','',i<step?'done':i===step?'current':''));app.append(top,progress);
- const title=el('h1',({1:'My freewrite',2:'Discover my words',3:'Connect my ideas',4:'Search the library',5:'What did you discover?',6:state.journalStage==='saved'?'Reading note saved':'My Reading Journal',7:'Build my next search',8:'My saved reading notes',9:'Review my research',10:'Connect my sources',11:'My source connection saved',12:'Brainstorm my Three-Story Thesis',13:'Story One · Observation',14:'Story Two · Interpretation',15:'Story Three · Significance',16:'My working thesis',17:'Test my thesis against evidence'})[step]);title.tabIndex=-1;app.append(title);
+ const top=el('div','','topline');top.append(el('span',step<=5?'Research journey · '+step+' of 5':step===7?'Continue my research':step>=18?'Connect and Write · '+(step-17)+' of 5':step>=12?'Three-Story Thesis · '+(step-11)+' of 6':step>=9?'Connect and Write':'Reading Journal'),el('span',storageOK?'Saved on this device':'Backup recommended'));top.lastChild.id='save-state';const progress=el('div','','progress');progress.setAttribute('aria-label','Research journey progress');for(let i=1;i<=5;i++)progress.append(el('span','',i<step?'done':i===step?'current':''));app.append(top,progress);
+ const title=el('h1',({1:'My freewrite',2:'Discover my words',3:'Connect my ideas',4:'Search the library',5:'What did you discover?',6:state.journalStage==='saved'?'Reading note saved':'My Reading Journal',7:'Build my next search',8:'My saved reading notes',9:'Review my research',10:'Connect my sources',11:'My source connection saved',12:'Brainstorm my Three-Story Thesis',13:'Story One · Observation',14:'Story Two · Interpretation',15:'Story Three · Significance',16:'My working thesis',17:'Test my thesis against evidence',18:'Strengthen my working thesis',19:'Do I have enough evidence?',20:'Draft my essay',21:'Reconsider my working thesis',22:'My writing and reflection saved'})[step]);title.tabIndex=-1;app.append(title);
  const body=el('section');app.append(body);
  if(step===1){body.append(el('p','Describe an experience that stays with you.'),field('My experience','encounter',7),btn('Discover my words →',()=>{if(!state.encounter.trim()){notice('Write a little about your experience first.');return;}go(2);}));}
  if(step===2){body.append(el('p','Choose two or three phrases that make you curious.'));const group=el('fieldset');group.append(el('legend','Words from your writing','screenreader'));const cue=el('div','','callout');function refresh(){const w=state.words.map(norm);cue.hidden=w.length<2;cue.textContent=w.some(x=>x.includes('miracle'))&&w.some(x=>/waiting|late|traffic/.test(x))?'Possible connection: waiting for something beyond your control can open questions about hope and uncertainty.':w.length>=2?'What relationship do you notice between '+w[0]+' and '+w[1]+'?':'';}for(const w of wordOptions(state.encounter)){const l=el('label','','option'),r=el('input');r.type='checkbox';r.checked=state.words.includes(w);r.addEventListener('change',()=>{state.words=r.checked?[...state.words,w]:state.words.filter(x=>x!==w);save();refresh();});l.append(r,el('span',w));group.append(l);}refresh();body.append(group,cue,btn('Connect my ideas →',()=>{if(!state.words.length){notice('Choose at least one word.');return;}go(3);}));}
@@ -536,7 +586,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(confirmation,el('p','You have recorded '+(state.notes||[]).length+' reading note'+((state.notes||[]).length===1?'':'s')+'.'));
  if(note)body.append(el('p',note.title,'query'));
  if(state.question)body.append(el('h2','Your research question'),el('p',state.question));
- body.append(el('h2','Ready to connect your ideas?'),el('p','You can move forward now and return to research whenever you need more evidence.'),btn('Review my sources and continue →',()=>go(9)),btn('Add another article',()=>{
+ body.append(el('h2','Ready to connect your ideas?'),el('p','You can move forward now and return to research whenever you need more evidence.'),btn(writingResume(state)?'Return to my writing journey →':'Review my sources and continue →',()=>{if(writingResume(state))returnToWriting();else go(9);}),btn('Add another article',()=>{
   const draft=startAnotherArticle(state);if(!draft){notice('Save your reading note first.');return;}
   state=draft;go(6);
  },'secondary'),btn('Find my next source in the library →',()=>{state.nextSearch='';go(7);},'secondary'),btn('Edit this reading note',()=>{state.journalStage='passage';save();render(true);},'quiet'));
@@ -586,7 +636,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(state.journalStage!=='saved'&&['pdfName','title','author','doi','passage','reflection'].some(k=>String(state[k]||'').trim())){
   body.append(el('h2','Unfinished article'),el('p',state.title||state.pdfName||'Citation not yet identified'),el('p','This article is not counted as a completed reading note.','hint'));
  }
- if(saved.length){const resume=thesisResumeStep(state);const label=resume>12?'Continue my Three-Story Thesis →':'Brainstorm my Three-Story Thesis →';body.insertBefore(btn(label,()=>go(resume)),body.children[1]||null);body.insertBefore(journalTabLink(),body.children[2]||null);body.append(btn(label,()=>go(resume)));}
+ if(saved.length){const resume=writingResume(state)||thesisResumeStep(state);const label=resume>=18?'Continue my writing journey →':resume>12?'Continue my Three-Story Thesis →':'Brainstorm my Three-Story Thesis →';body.insertBefore(btn(label,()=>{if(writingResume(state))returnToWriting();else go(resume);}),body.children[1]||null);body.insertBefore(journalTabLink(),body.children[2]||null);body.append(btn(label,()=>{if(writingResume(state))returnToWriting();else go(resume);}));}
  if(saved.length>=2)body.append(btn('Compare two sources (optional)',()=>go(10),'quiet'));
  body.append(btn('Return to my Reading Journal',()=>go(6),'secondary'));if(state.workingThesis.trim())body.append(btn('Return to my working thesis',()=>go(16),'quiet'));
  body.append(el('p','Keep your original PDFs. The notebook backup contains notes and citations, not PDF files.','hint'));
@@ -668,7 +718,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(field('My working thesis','workingThesis',6));const meter=el('section');meter.setAttribute('aria-label','Three-Story Strength Meter');body.append(meter);renderStrengthMeter(meter);document.getElementById('input-workingThesis').addEventListener('input',()=>renderStrengthMeter(meter));
  body.append(btn('Save thesis and examine my claims →',()=>{
   if(!state.workingThesis.trim()){notice('Write or revise your working thesis first.');return;}
-  state.thesisSaved=true;save();go(17);
+  if(!state.initialThesis)state.initialThesis=state.workingThesis;state.thesisSaved=true;save();go(17);
  }));
  if(state.inquiryReviewed)body.append(el('p','Your inquiry plan is saved. Revise your thesis with the evidence and assumptions in mind.','callout'));
  if(state.thesisSaved){const done=el('div','','callout');done.setAttribute('role','status');done.append(el('p',storageOK?'✓ Working thesis saved on this device.':'Working thesis kept in this session. Save a backup.'));body.append(done);}
@@ -690,9 +740,49 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(field('How might this change or complicate my thesis?','alternativePlan',3));
  body.append(btn('Save my inquiry plan and revise my thesis →',()=>{
   if(!state.evidencePlan.trim()||!state.assumptionPlan.trim()||!state.alternativePlan.trim()){notice('Record a brief response to each of the three questions before continuing.');return;}
-  state.inquiryReviewed=true;save();go(16);
+  state.inquiryReviewed=true;if(!state.initialThesis)state.initialThesis=state.workingThesis;if(!state.strengthenedThesis)state.strengthenedThesis=state.workingThesis;save();go(18);
  }));
  body.append(btn('Return to my research',()=>go(9),'quiet'));
+ }
+ if(step===18){
+ body.append(el('p','Strengthen your working thesis using your inquiry plan. You do not need to settle every question before you begin drafting.'));
+ const d=el('details');d.open=true;d.append(el('summary','My inquiry plan'),el('h2','Evidence'),el('p',state.evidencePlan),el('h2','Assumption'),el('p',state.assumptionPlan),el('h2','Alternative'),el('p',state.alternativePlan));body.append(d);
+ if(!state.strengthenedThesis)state.strengthenedThesis=state.workingThesis;
+ body.append(field('My strengthened working thesis','strengthenedThesis',6),btn('Check my research readiness →',()=>{if(!state.strengthenedThesis.trim()){notice('Record your working thesis first.');return;}state.evidenceReadiness='';go(19);}));
+ writingContext(body);
+ }
+ if(step===19){
+ body.append(el('p','Check your evidence against your working thesis, not just the number of articles you collected.'),el('div',state.strengthenedThesis||state.workingThesis,'callout'));
+ const candidates=evidenceCandidates(state);
+ body.append(el('h2','Sources to revisit'),el('p','These are vocabulary matches in your saved notes, not verified support for your claims. Open the journal to read and check them.','hint'));
+ for(const n of candidates.slice(0,4))body.append(el('p',n.title+(n.matches.length?' · Possible related words: '+n.matches.slice(0,4).join(', '):' · No clear word match; review for relevance.'),'callout'));
+ if(!candidates.length)body.append(el('p','No saved reading notes yet.'));
+ if(state.evidencePlan)body.append(el('h2','Evidence I said I needed'),el('p',state.evidencePlan));
+ body.append(journalTabLink(),el('h2','My evidence decision'));
+ const group=el('fieldset');group.append(el('legend','Do my sources support my direction?'));
+ for(const [v,label,desc] of [['ready','Enough to begin drafting','I can identify evidence for my central interpretation.'],['gap','A gap remains','I can begin, but I need to investigate or qualify a claim.']]){
+  const l=el('label','','option'),radio=el('input');radio.type='radio';radio.name='readiness';radio.value=v;radio.checked=state.evidenceReadiness===v;
+  radio.addEventListener('change',()=>{state.evidenceReadiness=v;save();});const span=el('span',label);span.append(el('small',desc));l.append(radio,span);group.append(l);
+ }
+ body.append(group,field('Evidence I can use or still need','writingEvidenceNote',3),btn('Begin drafting my essay →',()=>{if(!state.evidenceReadiness||!String(state.writingEvidenceNote||'').trim()){notice('Choose a decision and briefly identify the evidence or gap.');return;}go(20);}));
+ body.append(btn('Find another source first',()=>researchDetour(19),'quiet'));
+ }
+ if(step===20){
+ body.append(el('p','Write in your own voice. Your working thesis gives you direction, but your essay can change your understanding.'),el('h2','My working thesis'),el('div',state.strengthenedThesis||state.workingThesis,'callout'));
+ if(state.writingEvidenceNote)body.append(el('p','My evidence plan: '+state.writingEvidenceNote,'hint'));
+ body.append(journalTabLink(),field('Working essay title','essayTitle'),field('My essay draft','essayDraft',14,'Begin with your encounter. Bring scholarly voices into conversation with your interpretation.'));
+ body.append(btn('Save draft and reconsider my working thesis →',()=>{if(!state.essayDraft.trim()){notice('Write a draft before reconsidering your thesis.');return;}if(!state.reconsideredThesis)state.reconsideredThesis=state.strengthenedThesis||state.workingThesis;go(21);}));
+ const extra=el('details');extra.append(el('summary','Need more evidence while writing?'),btn('Find another source',()=>researchDetour(20),'secondary'));body.append(extra);
+ const notes=el('details');notes.append(el('summary','Consult my research notes and PDFs'));for(const n of state.notes||[])showNote(notes,n,true);body.append(notes);
+ }
+ if(step===21){
+ body.append(el('p','Now that you have drafted, ask whether your working thesis still reflects the essay you actually wrote. Reconsider, qualify or retain it in light of your evidence.'),el('h2','Before drafting'),el('p',state.strengthenedThesis||state.workingThesis,'callout'));
+ const d=el('details');d.append(el('summary','Read my essay draft'),el('p',state.essayDraft));body.append(d);
+ body.append(field('My reconsidered thesis','reconsideredThesis',6),field('What changed in my thinking, and why?','thesisReflection',4),btn('Save my writing and reflection →',()=>{if(!state.reconsideredThesis.trim()||!state.thesisReflection.trim()){notice('Record your reconsidered thesis and reflection.');return;}state.writingComplete=true;go(22);}));
+ writingContext(body);
+ }
+ if(step===22){
+ body.append(el('p','Your essay draft and thesis reflection have been saved in this notebook. This is a draft milestone, not a final submission.','callout'),el('h2','My reconsidered thesis'),el('p',state.reconsideredThesis),el('h2','What changed'),el('p',state.thesisReflection),btn('Download my writing',downloadWriting),btn('Return to my essay draft',()=>go(20),'secondary'));
  }
  if(step===6&&state.journalStage!=='saved'){
  if(state.articleReturnId&&state.journalStage==='details')body.append(el('p','Adding article '+((state.notes||[]).length+1)+' · '+state.notes.length+' reading note'+(state.notes.length===1?'':'s')+' already saved.','hint'));
@@ -794,7 +884,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  const message=el('p','','notice');message.id='notice';message.setAttribute('role','status');app.append(message);
  const nav=el('nav','','nav');nav.setAttribute('aria-label','Notebook navigation');nav.append(btn('← Previous page',()=>{
  if(step===12){go(9);return;}
- if(step>=13&&step<=17){go(step-1);return;}
+ if(step>=13&&step<=22){go(step-1);return;}
  if(step===11){go(10);return;}
  if(step===10){go(9);return;}
  if(step===9){go(6);return;}
@@ -809,7 +899,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  }
  go(step===6?5:step-1);
  },'quiet'),btn('Save backup',backup,'quiet'));
- if(step!==8&&state.notes?.length)nav.append(btn('My saved notes ('+state.notes.length+')',()=>{state.notesReturn=step;go(8);},'quiet'));app.append(nav);if(focus){title.focus({preventScroll:true});window.scrollTo({top:0,behavior:'auto'});}save();
+ if(step!==8&&state.notes?.length)nav.append(btn('My saved notes ('+state.notes.length+')',()=>{state.notesReturn=step;go(8);},'quiet'));if(writingResume(state)&&step<12)nav.append(btn('Return to my writing journey',returnToWriting,'quiet'));app.append(nav);if(focus){title.focus({preventScroll:true});window.scrollTo({top:0,behavior:'auto'});}save();
 }
 if(REFERENCE_VIEW){renderJournalReference();window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null)refreshReference();});window.addEventListener('focus',refreshReference);}else render();
 </script></body></html>
