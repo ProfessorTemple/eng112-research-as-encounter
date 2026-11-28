@@ -141,8 +141,9 @@ test('conceptual translation offers editable searches and preserves student voic
  const question='Why do loud sounds overwhelm me, but walking in the woods helps me notice things?';
  const encounter='I heard loud sounds in the city and felt overwhelmed. Walking in the woods helped me notice the birds.';
  await seed(page,{...fixture,step:3,question,encounter,words:['loud sounds','woods'],keywords:[],history:[],search:''});
- await expect(page.locator('fieldset').getByText('sensory regulation: How a person manages or responds to sensory input.',{exact:false})).toBeVisible();
- await expect(page.locator('fieldset').getByText('phenomenology: A philosophical approach to describing and examining lived experience.',{exact:false})).toBeVisible();
+ await expect(page.getByText('sensory regulation: How a person manages or responds to sensory input.',{exact:false}).first()).toBeVisible();
+ await page.getByText('Explore other search combinations',{exact:true}).click();
+ await expect(page.getByText('phenomenology: A philosophical approach to describing and examining lived experience.',{exact:false}).first()).toBeVisible();
  await expect(page.getByLabel('My research question',{exact:true})).toHaveValue(question);
  await page.getByLabel('Search words (you can edit these)',{exact:true}).fill('woods AND sensory regulation');
  await click(page,'Use this search →');
@@ -184,7 +185,7 @@ test('a vague encounter invites attention without requiring private disclosure o
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.encounter).toBe(expanded);
  await seed(page,{...fixture,step:3,encounter:expanded,question:'How do advice and stories from my grandfather help me learn?',words:['grandfather','advice'],keywords:[],notes:[]});
- await expect(page.locator('fieldset').getByText('intergenerational learning: Learning through exchanges',{exact:false})).toBeVisible();
+ await expect(page.getByText('intergenerational learning: Learning through exchanges',{exact:false}).first()).toBeVisible();
  await expect(page.getByText('environmental justice:',{exact:false})).toHaveCount(0);
 });
 
