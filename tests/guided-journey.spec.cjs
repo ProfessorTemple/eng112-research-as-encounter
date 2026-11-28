@@ -563,3 +563,26 @@ test('diachronic trail distinguishes possible growth from mere wording changes',
   expect(saved.initialThesis).toBe(before);expect(saved.reconsideredThesis).toBe(after);expect(saved.thesisReflection).toBe(reflection);
  }
 });
+
+test('intellectual provenance separates saved material from interpretation and respects interview permission',async({page})=>{
+ const reflection='The Listening Across Generations article helped me think about mutual learning.';
+ const notes=[{id:'n1',title:'Listening Across Generations',passage:'Mutual learning develops through conversation.',reflection:'Grandfather and I learn through conversation.'},{id:'n2',title:'Astronomy research',passage:'Stars orbit galaxies.',reflection:'Telescopes measure orbital periods.'}];
+ const strands=[{id:'p',type:'interview',permission:false,title:'Private interview',passage:'Mutual learning through conversation.'},{id:'c',type:'course',title:'Course text',passage:'Mutual learning through conversation.'}];
+ await seed(page,{...fixture,step:21,firstEncounter:'My grandfather gave advice at Waffle House.',initialThesis:'Grandfather gives advice.',workingThesis:'Grandfather gives advice.',reconsideredThesis:'Mutual learning develops through conversation.',thesisReflection:reflection,notes,strands,connections:[]});
+ await page.getByText('How my thinking changed',{exact:true}).click();
+ await page.getByText('Where did my insight come from?',{exact:true}).click();
+ const panel=page.locator('details').filter({has:page.getByText('Where did my insight come from?',{exact:true})}).last();
+ await expect(panel.getByRole('heading',{name:'Listening Across Generations',exact:true})).toBeVisible();
+ await expect(panel.getByText('My own saved interpretation',{exact:true})).toBeVisible();
+ await expect(panel.getByText('Grandfather and I learn through conversation.',{exact:true})).toBeVisible();
+ await expect(panel.getByRole('heading',{name:'Course text',exact:true})).toBeVisible();
+ await expect(panel.getByRole('heading',{name:'Private interview',exact:true})).toHaveCount(0);
+ await expect(panel.getByRole('heading',{name:'Astronomy research',exact:true})).toHaveCount(0);
+ expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).thesisReflection,KEY)).toBe(reflection);
+});
+test('intellectual provenance does not invent a connection when evidence is absent',async({page})=>{
+ await seed(page,{...fixture,step:21,firstEncounter:'I watered a seedling.',encounter:'I watered a seedling.',initialThesis:'Gardens grow.',workingThesis:'Gardens grow.',reconsideredThesis:'Gardens carry heritage.',thesisReflection:'',notes:[{id:'x',title:'Astronomy research',passage:'Stars orbit galaxies.'}],strands:[],connections:[]});
+ await page.getByText('How my thinking changed',{exact:true}).click();
+ await page.getByText('Where did my insight come from?',{exact:true}).click();
+ await expect(page.getByText('Can you name one particular encounter, reading or conversation',{exact:false})).toBeVisible();
+});
