@@ -1707,6 +1707,41 @@ function layerContext(root,layer){
   const d=el('details');d.append(el('summary','Revisit my original encounter'),el('p',state.encounter||'No original encounter saved.'));root.append(d);voicePresencePanel(root);particularityPanel(root);translationVoicePanel(root);
  }
 }
+function guidanceIntent(label){
+ const x=String(label||'');
+ if(/Make room for your interpretation|Make a place for your response|Read beyond the citation|Think with another voice|Make your interpretation visible|Recognize your own contribution/i.test(x))return 'source-response';
+ if(/Bring two concepts into conversation|possible contribution through synthesis|Choose one meaningful connection/i.test(x))return 'synthesis';
+ if(/Listen before interpreting|Listen to a community voice/i.test(x))return 'interview';
+ if(/Return to a lived detail|Keep the particular|Make the observation more particular/i.test(x))return 'particularity';
+ return '';
+}
+function guidancePreviouslyConsidered(st,layer,model){
+ const intent=guidanceIntent(model?.label),excerpt=String(model?.excerpt||'').trim();
+ return (Array.isArray(st.agencyDecisions)?st.agencyDecisions:[]).some(x=>{
+  if(!x||!['retain','decline','adapt','explore'].includes(x.choice))return false;
+  try{
+   const parts=JSON.parse(x.key);if(!Array.isArray(parts)||parts.length!==5)return false;
+   if(JSON.stringify(parts.slice(1))===JSON.stringify(JSON.parse(agencyKey(layer,model)).slice(1)))return true;
+   // Match a repeated purpose only for the identical passage. Changed writing deserves a fresh review.
+   return !!intent&&!!excerpt&&guidanceIntent(parts[1])===intent&&String(parts[3]||'').trim()===excerpt;
+  }catch{return false;}
+ });
+}
+function orchestrateGuidance(st,layer,candidates){
+ const unique=[],seen=new Set();
+ for(const c of candidates){
+  if(!c?.model?.question)continue;
+  const key=agencyKey('',c.model);if(seen.has(key))continue;seen.add(key);unique.push(c);
+ }
+ unique.sort((a,b)=>b.priority-a.priority);
+ if(!unique.length)return null;
+ if(layer==='completeness'||st.quietRevision===true||st.independentRevision===true)return unique[0].model;
+ // Preserve the selected decision on reopening; do not silently substitute another prompt.
+ const first=unique[0].model;
+ if(agencyRead(st,layer,first))return first;
+ // A repeated purpose from an earlier layer should not crowd out a distinct, relevant move.
+ return unique.find(c=>!guidancePreviouslyConsidered(st,layer,c.model))?.model||first;
+}
 function revisionCue(state,layer){
  const text=String(state.essayDraft||'').trim(), blocks=draftBlocks(text);
  const thesis=String(state.reconsideredThesis||state.strengthenedThesis||state.workingThesis||'');
@@ -1731,9 +1766,13 @@ function revisionCue(state,layer){
   return cue('Examine one crossing',common.length?'Both passages use '+common.join(', ')+'. Does the second develop the first idea, introduce a new dimension or deliberately return to an image?':'These neighboring passages do not share much exact vocabulary. Is their relationship already clear through an image, contrast, question or analytical connection? Only revise if a reader needs more guidance.',b.text,'Previous passage: '+bridgeExcerpt(a.text,true));
  }
  if(layer==='braiding'){
-  const v=voicePresenceModel(state);if(v?.kind==='sources')return cue(v.label,v.question,v.excerpt,v.reference?v.origin+': '+v.reference:'');
-  const integration=conceptualIntegration(state);if(integration)return {label:integration.label,question:integration.question,excerpt:integration.excerpt,context:integration.context};
-  const reciprocal=reciprocityCue(state);if(!['open','early'].includes(reciprocal.kind))return {label:reciprocal.label,question:reciprocal.question,excerpt:reciprocal.excerpt,context:''};
+  const v=voicePresenceModel(state),integration=conceptualIntegration(state),reciprocal=reciprocityCue(state);
+  const coordinated=orchestrateGuidance(state,layer,[
+   {priority:90,model:v?.kind==='sources'?cue(v.label,v.question,v.excerpt,v.reference?v.origin+': '+v.reference:''):null},
+   {priority:80,model:reciprocal.kind==='interview'?cue(reciprocal.label,reciprocal.question,reciprocal.excerpt):null},
+   {priority:70,model:integration?cue(integration.label,integration.question,integration.excerpt,integration.context):null},
+   {priority:50,model:!['open','early','interview'].includes(reciprocal.kind)?cue(reciprocal.label,reciprocal.question,reciprocal.excerpt):null}
+  ]);if(coordinated)return coordinated;
   const attributed=/\b(?:according to|(?:author|researcher|study|article|research) (?:argues?|shows?|finds?|suggests?|reports?)|personal communication)\b|\b(?:18|19|20)\d{2}[a-z]?\s*[,)]/i;
   const interview=/\b(?:personal communication|interviewee|my (?:mother|father|grandmother|grandfather|aunt|uncle|neighbor|friend) (?:said|told|remembered|described))\b/i;
   const lived=/\b(?:I (?:saw|heard|noticed|felt|watched|remember|remembered|experienced|stood|walked|observed)|my (?:childhood|memory|experience|family))\b/i;
@@ -1746,9 +1785,12 @@ function revisionCue(state,layer){
   return cue('Choose one meaningful connection','Find a place where your own observation, an interview, a course reading or outside research could change the meaning of another strand. Not every paragraph needs all strands.',blocks[0].text);
  }
  if(layer==='voice'){
-  const v=voicePresenceModel(state);if(v?.kind==='sources'||v?.kind==='concept')return cue(v.label,v.question,v.excerpt,v.reference?v.origin+': '+v.reference:'');
-  const agency=intellectualAgency(state);if(agency?.candidate)return cue(agency.label,agency.question,agency.excerpt,agency.context);
-  const p=particularityModel(state);if(p?.kind==='abstract')return cue(p.label,p.question,p.excerpt,p.reference?(p.origin+': '+p.reference):'');
+  const v=voicePresenceModel(state),agency=intellectualAgency(state),p=particularityModel(state);
+  const coordinated=orchestrateGuidance(state,layer,[
+   {priority:90,model:['sources','concept'].includes(v?.kind)?cue(v.label,v.question,v.excerpt,v.reference?v.origin+': '+v.reference:''):null},
+   {priority:80,model:agency?.candidate?cue(agency.label,agency.question,agency.excerpt,agency.context):null},
+   {priority:70,model:p?.kind==='abstract'?cue(p.label,p.question,p.excerpt,p.reference?p.origin+': '+p.reference:''):null}
+  ]);if(coordinated)return coordinated;
   const sensory=/\b(?:heard|sound|smell|scent|touched|felt|texture|light|shadow|warm|cold|voice|color|colour|wind|rain|taste)\b/i;
   const scene=/\b(?:I (?:saw|noticed|remember|remembered|walked|stood|watched|felt|heard|experienced)|my (?:childhood|grandmother|grandfather|mother|father))\b/i;
   const b=blocks.find(x=>scene.test(x.text)&&!sensory.test(x.text));
@@ -1818,12 +1860,7 @@ function restraintMode(st,layer,model){
  if(layer==='completeness')return {open:true,reason:'required'};
  const current=agencyRead(st,layer,model);
  if(current&&['retain','decline','adapt','explore'].includes(current.choice))return {open:false,reason:'considered'};
- const signature=agencyKey('',model);
- const earlier=(Array.isArray(st.agencyDecisions)?st.agencyDecisions:[]).find(x=>{
-  if(!x||!['retain','decline','adapt','explore'].includes(x.choice))return false;
-  try{const parts=JSON.parse(x.key);return Array.isArray(parts)&&parts.length===5&&JSON.stringify(['',...parts.slice(1)])===signature;}catch{return false;}
- });
- if(earlier)return {open:false,reason:'considered'};
+ if(guidancePreviouslyConsidered(st,layer,model))return {open:false,reason:'considered'};
  if(st.quietRevision===true||st.independentRevision===true)return {open:false,reason:'quiet'};
  return {open:true,reason:'new'};
 }
