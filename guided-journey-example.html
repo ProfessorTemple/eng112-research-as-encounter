@@ -2,11 +2,11 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>My Living Field Notebook | Guided Journey example</title>
 <style>
 :root{color-scheme:light;--ink:#203e34;--muted:#526c60;--green:#245d4c;--line:#c5d3c8;--paper:#faf9f2;--soft:#eef3ea}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}header{background:#203f34;color:white;padding:1rem max(1rem,calc((100% - 640px)/2))}header small{color:#dce5db;display:block;letter-spacing:.08em;font-size:.72rem}header strong{font-size:1.12rem}main{max-width:650px;margin:0 auto;padding:1.15rem 1rem 2rem}h1{font-family:Georgia,serif;font-size:clamp(1.75rem,5vw,2.35rem);line-height:1.14;margin:.5rem 0 .9rem;font-weight:500}h2{font-size:1.12rem;margin:.9rem 0 .35rem}p{margin:.55rem 0 1rem}small,.hint{font-size:.88rem;color:var(--muted)}button,input,textarea,select,a.action{font:inherit}button,a.action{cursor:pointer;min-height:48px;border:1px solid var(--green);border-radius:9px;padding:.7rem .85rem;background:transparent;color:var(--green);font-weight:650;text-align:center;text-decoration:none}button.primary,a.primary{display:block;width:100%;background:var(--green);color:#fff;margin-top:1rem}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a26d28;outline-offset:3px}textarea,input[type=text]{display:block;width:100%;border:1px solid #9ab0a2;border-radius:8px;padding:.7rem;background:white;color:var(--ink);margin:.35rem 0 .8rem;font:inherit}textarea{resize:vertical}label{font-weight:600}fieldset{border:0;padding:0;margin:.75rem 0;min-width:0}legend{font-weight:650;margin-bottom:.4rem}.option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:9px;padding:.7rem;margin:.45rem 0;background:#fff;font-weight:500;cursor:pointer}.option:has(input:checked){background:var(--soft);border-color:var(--green)}.option input{margin:.3rem 0 0;flex:none;width:20px;height:20px;accent-color:var(--green)}.option span{min-width:0}.option small{display:block;margin-top:.2rem}.progress{display:flex;gap:5px;margin:.4rem 0 1.1rem}.progress span{flex:1;height:5px;background:#dce5db;border-radius:6px}.progress .done{background:#398063}.progress .current{background:#245d4c}.topline{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.85rem}.callout{background:var(--soft);border-left:3px solid #608976;padding:.75rem .9rem;margin:.8rem 0}.callout p{margin:.25rem 0}.query{font-weight:650;overflow-wrap:anywhere}.choice{display:block;width:100%;text-align:left;margin:.55rem 0;background:#fff}.choice small{display:block;font-weight:400}.secondary{display:inline-block;margin:.4rem 0}.quiet{border:0;padding:.4rem .15rem;min-height:44px;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:.65rem}.nav button{font-size:.88rem}.notice{font-size:.9rem;color:var(--muted);min-height:1.2em}.notice:empty{display:none}.screenreader{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
-</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 10</small></header><main id="app"></main>
+</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 11</small></header><main id="app"></main>
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:''});
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
@@ -227,8 +227,78 @@ function mergeCitation(pdf,registry){
  for(const k of ['title','author','year','publication','doi'])if(registry[k])result[k]=registry[k];
  return result;
 }
+
+const PDF_DB=KEY+'-pdf-shelf',PDF_STORE='files',PDF_MAX=20*1024*1024;
+function pdfDB(){
+ return new Promise((resolve,reject)=>{
+  if(!window.indexedDB){reject(Error('Browser PDF storage unavailable'));return;}
+  const req=indexedDB.open(PDF_DB,1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(PDF_STORE))req.result.createObjectStore(PDF_STORE,{keyPath:'id'});};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||Error('PDF storage unavailable'));
+  req.onblocked=()=>reject(Error('PDF storage is blocked by another tab'));
+ });
+}
+async function pdfTransaction(mode,action){
+ const db=await pdfDB();
+ return new Promise((resolve,reject)=>{
+  let result,tx;
+  try{tx=db.transaction(PDF_STORE,mode);const req=action(tx.objectStore(PDF_STORE));req.onsuccess=()=>{result=req.result;};}
+  catch(e){db.close();reject(e);return;}
+  tx.oncomplete=()=>{db.close();resolve(result);};
+  tx.onabort=tx.onerror=()=>{db.close();reject(tx.error||Error('PDF storage failed'));};
+ });
+}
+async function retainPDF(file){
+ if(!file||!file.size||file.size>PDF_MAX)throw Error('Choose a PDF up to 20 MB');
+ const signature=new Uint8Array(await file.slice(0,5).arrayBuffer());
+ if(String.fromCharCode(...signature)!=='%PDF-')throw Error('Not a PDF');
+ const id=globalThis.crypto?.randomUUID?.()||'pdf-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+ await pdfTransaction('readwrite',store=>store.put({id,name:file.name,blob:file}));
+ return id;
+}
+function openSavedPDF(id,status){
+ const tab=window.open('about:blank','_blank');
+ if(tab)tab.opener=null;
+ pdfTransaction('readonly',store=>store.get(id)).then(record=>{
+  if(!record?.blob)throw Error('PDF is not available on this device. Attach your original file again.');
+  const url=URL.createObjectURL(record.blob);
+  if(tab&&!tab.closed)tab.location.href=url;
+  else{const a=el('a','Open saved PDF');a.href=url;a.target='_blank';a.rel='noopener noreferrer';status.replaceChildren(a);}
+  setTimeout(()=>URL.revokeObjectURL(url),300000);
+ }).catch(e=>{if(tab&&!tab.closed)tab.close();status.textContent=e.message||'Unable to open saved PDF.';});
+}
+function linkNotePDF(noteId,pdfId,filename){
+ const index=(state.notes||[]).findIndex(n=>n.id===noteId);
+ if(index<0)return false;
+ state.notes[index]={...state.notes[index],pdfId,pdfName:filename};
+ if(state.activeNoteId===noteId){state.pdfId=pdfId;state.pdfName=filename;}
+ save();return true;
+}
+function notePDFControls(root,n){
+ const status=el('p','','hint');status.setAttribute('role','status');
+ if(n.pdfId)root.append(btn('Open saved PDF ↗',()=>openSavedPDF(n.pdfId,status),'secondary'));
+ else root.append(el('p','Original PDF not stored yet. Attach it once to read it again here.','hint'));
+ const details=el('details');details.append(el('summary',n.pdfId?'Reattach original PDF if needed':'Attach original PDF'));
+ const label=el('label','Choose the PDF that belongs to this article');const input=el('input');
+ input.type='file';input.accept='.pdf,application/pdf';input.id='attach-'+n.id;label.htmlFor=input.id;
+ details.append(label,input);root.append(details,status);
+ input.addEventListener('change',async()=>{
+  const file=input.files?.[0];if(!file)return;
+  if(!confirm('Attach '+file.name+' to "'+n.title+'"? Check that this is the correct article.')){input.value='';return;}
+  input.disabled=true;status.textContent='Saving PDF on this device…';
+  try{const id=await retainPDF(file);if(!linkNotePDF(n.id,id,file.name))throw Error('The reading note is no longer available.');if(status.isConnected)render(true);}
+  catch(e){if(status.isConnected){status.textContent=e.message||'PDF could not be saved.';input.disabled=false;}}
+ });
+}
+function sourcePair(notes,left,right){
+ const ids=notes.map(n=>n.id);
+ const a=ids.includes(left)?left:ids[0]||'';
+ const b=ids.includes(right)&&right!==a?right:ids.find(id=>id!==a)||'';
+ return [a,b];
+}
+
 function readingRecord(state){
- const keys=['title','author','year','publication','doi','pdfName','location','passage','reflection','question','search'];
+ const keys=['title','author','year','publication','doi','pdfName','pdfId','location','passage','reflection','question','search'];
  const record={id:state.activeNoteId||'note-'+(state.nextNoteId||1)};
  for(const key of keys)record[key]=String(state[key]||'');
  record.pdfKeywords=Array.isArray(state.pdfKeywords)?[...state.pdfKeywords]:[];
@@ -238,7 +308,7 @@ function upsertReadingNote(notes,record){
  return [...notes.filter(n=>n.id!==record.id),record];
 }
 function nextArticleState(state){
- return {...state,activeNoteId:'',title:'',author:'',year:'',publication:'',doi:'',pdfName:'',pdfKeywords:[],location:'',passage:'',reflection:'',journalStage:'details',articleReturnId:'',pdfImportStatus:''};
+ return {...state,activeNoteId:'',title:'',author:'',year:'',publication:'',doi:'',pdfName:'',pdfKeywords:[],location:'',passage:'',reflection:'',journalStage:'details',articleReturnId:'',pdfImportStatus:'',pdfId:''};
 }
 function startAnotherArticle(state){
  if(state.journalStage!=='saved'||!state.notes?.some(n=>n.id===state.activeNoteId))return null;
@@ -248,7 +318,7 @@ function returnToSavedArticle(state){
  const record=state.notes?.find(n=>n.id===state.articleReturnId);
  if(!record)return null;
  const restored=nextArticleState(state);
- for(const k of ['title','author','year','publication','doi','pdfName','location','passage','reflection'])restored[k]=record[k]||'';
+ for(const k of ['title','author','year','publication','doi','pdfName','pdfId','location','passage','reflection'])restored[k]=record[k]||'';
  restored.pdfKeywords=[...(record.pdfKeywords||[])];
  return {...restored,activeNoteId:record.id,journalStage:'saved',step:6};
 }
@@ -261,7 +331,7 @@ function commitReadingNote(){
 function showNote(root,n){
  const box=el('article','','callout');box.append(el('h2',n.title||'Untitled source'),el('p',[n.author,n.year,n.publication].filter(Boolean).join(' · '),'hint'));
  if(n.location)box.append(el('p','Location: '+n.location,'hint'));
- box.append(el('p',n.passage),el('h2','My reflection'),el('p',n.reflection));root.append(box);
+ box.append(el('p',n.passage),el('h2','My reflection'),el('p',n.reflection));notePDFControls(box,n);root.append(box);
 }
 function nextSearchModel(state,note){
  if(!note)return null;
@@ -349,7 +419,7 @@ function fallbackSearch(state,note){
 function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===0){app.append(el('p','GUIDED JOURNEY · WORKING EXAMPLE','hint'),el('h1','Start here'),el('p','Begin with something you experienced. Follow one small step at a time.'));app.append(btn(state.encounter?'Continue my example →':'Try the holiday miracle example →',()=>{if(!state.encounter)state.encounter=SAMPLE;go(1);}),btn('Start with my own experience',()=>{if(state.encounter&&!confirm('Replace this separate example?'))return;state=blank();go(1);},'secondary'));return;}
  const top=el('div','','topline');top.append(el('span',step<=5?'Research journey · '+step+' of 5':step===7?'Continue my research':'Reading Journal'),el('span',storageOK?'Saved on this device':'Backup recommended'));top.lastChild.id='save-state';const progress=el('div','','progress');progress.setAttribute('aria-label','Research journey progress');for(let i=1;i<=5;i++)progress.append(el('span','',i<step?'done':i===step?'current':''));app.append(top,progress);
- const title=el('h1',({1:'My freewrite',2:'Discover my words',3:'Connect my ideas',4:'Search the library',5:'What did you discover?',6:state.journalStage==='saved'?'Reading note saved':'My Reading Journal',7:'Build my next search',8:'My saved reading notes',9:'Review my research'})[step]);title.tabIndex=-1;app.append(title);
+ const title=el('h1',({1:'My freewrite',2:'Discover my words',3:'Connect my ideas',4:'Search the library',5:'What did you discover?',6:state.journalStage==='saved'?'Reading note saved':'My Reading Journal',7:'Build my next search',8:'My saved reading notes',9:'Review my research',10:'Connect my sources'})[step]);title.tabIndex=-1;app.append(title);
  const body=el('section');app.append(body);
  if(step===1){body.append(el('p','Describe an experience that stays with you.'),field('My experience','encounter',7),btn('Discover my words →',()=>{if(!state.encounter.trim()){notice('Write a little about your experience first.');return;}go(2);}));}
  if(step===2){body.append(el('p','Choose two or three phrases that make you curious.'));const group=el('fieldset');group.append(el('legend','Words from your writing','screenreader'));const cue=el('div','','callout');function refresh(){const w=state.words.map(norm);cue.hidden=w.length<2;cue.textContent=w.some(x=>x.includes('miracle'))&&w.some(x=>/waiting|late|traffic/.test(x))?'Possible connection: waiting for something beyond your control can open questions about hope and uncertainty.':w.length>=2?'What relationship do you notice between '+w[0]+' and '+w[1]+'?':'';}for(const w of wordOptions(state.encounter)){const l=el('label','','option'),r=el('input');r.type='checkbox';r.checked=state.words.includes(w);r.addEventListener('change',()=>{state.words=r.checked?[...state.words,w]:state.words.filter(x=>x!==w);save();refresh();});l.append(r,el('span',w));group.append(l);}refresh();body.append(group,cue,btn('Connect my ideas →',()=>{if(!state.words.length){notice('Choose at least one word.');return;}go(3);}));}
@@ -363,10 +433,10 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(confirmation,el('p','You have recorded '+(state.notes||[]).length+' reading note'+((state.notes||[]).length===1?'':'s')+'.'));
  if(note)body.append(el('p',note.title,'query'));
  if(state.question)body.append(el('h2','Your research question'),el('p',state.question));
- body.append(el('h2','Continue your research'),el('p','Already have another article? Add it to your notebook. Your saved reading notes will stay here.'),btn('Add another article →',()=>{
+ body.append(el('h2','Ready to connect your ideas?'),el('p','You can move forward now and return to research whenever you need more evidence.'),btn('Review my sources and continue →',()=>go(9)),btn('Add another article',()=>{
   const draft=startAnotherArticle(state);if(!draft){notice('Save your reading note first.');return;}
   state=draft;go(6);
- }),btn('Find my next source in the library →',()=>{state.nextSearch='';go(7);},'secondary'),btn('Edit this reading note',()=>{state.journalStage='passage';save();render(true);},'quiet'));
+ },'secondary'),btn('Find my next source in the library →',()=>{state.nextSearch='';go(7);},'secondary'),btn('Edit this reading note',()=>{state.journalStage='passage';save();render(true);},'quiet'));
  }
  if(step===7){
  const note=selectNextReadingNote(state);
@@ -412,8 +482,45 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(state.journalStage!=='saved'&&['pdfName','title','author','doi','passage','reflection'].some(k=>String(state[k]||'').trim())){
   body.append(el('h2','Unfinished article'),el('p',state.title||state.pdfName||'Citation not yet identified'),el('p','This article is not counted as a completed reading note.','hint'));
  }
- body.append(btn('Return to my Reading Journal →',()=>go(6)));
- body.append(btn('Save my research backup',backup,'secondary'));
+ if(saved.length>=2)body.append(btn('Connect my sources →',()=>go(10)));
+ else body.append(el('p','Save two reading notes before comparing sources. You can return to your journal.'));
+ body.append(btn('Return to my Reading Journal',()=>go(6),'secondary'));
+ body.append(el('p','Keep your original PDFs. The notebook backup contains notes and citations, not PDF files.','hint'));
+ }
+ if(step===10){
+ const notes=state.notes||[];
+ body.append(el('p','Compare two sources. You are looking for a relationship, not two separate summaries.'));
+ if(state.question)body.append(el('div',state.question,'callout'));
+ if(notes.length<2){body.append(el('p','Save two reading notes to begin.'),btn('Review my sources →',()=>go(9)));}
+ else{
+  const pair=sourcePair(notes,state.connectionLeft,state.connectionRight);
+  state.connectionLeft=pair[0];state.connectionRight=pair[1];
+  function selectNote(label,key){
+   const l=el('label',label),select=el('select');select.id='choose-'+key;l.htmlFor=select.id;
+   for(const n of notes){const o=el('option',n.title||'Untitled source');o.value=n.id;select.append(o);}
+   select.value=state[key];select.addEventListener('change',()=>{
+    if(state[key]!==select.value&&state.connectionReflection.trim()&&!confirm('Changing sources will clear this comparison reflection. Continue?')){select.value=state[key];return;}
+    const other=key==='connectionLeft'?'connectionRight':'connectionLeft';
+    if(select.value===state[other]){select.value=state[key];notice('Choose two different sources.');return;}
+    state[key]=select.value;state.connectionReflection='';state.connectionKind='';state.connectionComplete=false;save();render(false);
+   });body.append(l,select);
+   const n=notes.find(n=>n.id===state[key]);
+   const box=el('div','','callout');box.append(el('h2',n.title||'Untitled source'),el('p',n.passage),el('p','My reflection: '+n.reflection));body.append(box);
+  }
+  selectNote('First source','connectionLeft');selectNote('Second source','connectionRight');
+  const group=el('fieldset');group.append(el('legend','How do these sources relate?'));
+  for(const [value,label,desc] of [['agree','They reinforce each other','Both point toward a similar interpretation.'],['extend','One extends the other','One adds a new context, idea or perspective.'],['complicate','One complicates or challenges the other','They introduce a tension or limit.']]){
+   const l=el('label','','option'),radio=el('input');radio.type='radio';radio.name='connection';radio.value=value;radio.checked=state.connectionKind===value;
+   radio.addEventListener('change',()=>{state.connectionKind=value;state.connectionComplete=false;save();});const span=el('span',label);span.append(el('small',desc));l.append(radio,span);group.append(l);
+  }
+  body.append(group,field('What do you understand differently when you read these sources together?','connectionReflection',4),btn('Save my connection →',()=>{
+   if(!state.connectionKind||!state.connectionReflection.trim()){notice('Choose a relationship and explain it in your own words.');return;}
+   state.connectionComplete=true;save();notice(storageOK?'Connection saved on this device.':'Connection kept in this session. Save a backup.');
+  }));
+  if(state.connectionComplete)body.append(el('p','Your connection has been saved. You can return to your sources.','callout'));
+  body.append(btn('Return to my sources',()=>go(9),'quiet'));
+ }
+
  }
  if(step===6&&state.journalStage!=='saved'){
  if(state.articleReturnId&&state.journalStage==='details')body.append(el('p','Adding article '+((state.notes||[]).length+1)+' · '+state.notes.length+' reading note'+(state.notes.length===1?'':'s')+' already saved.','hint'));
@@ -421,7 +528,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  const label=el('label','Choose my article PDF (or enter details below)');label.htmlFor='pdf';
  const file=el('input');file.id='pdf';file.type='file';file.accept='.pdf,application/pdf';
  const fileStatus=el('p',state.pdfName?(state.pdfImportStatus==='reading'?'Import was interrupted. Select the same PDF again to finish reading it.':(state.pdfImportStatus||(!state.title&&!state.author?'No citation was saved. Select the PDF again.':'Citation details saved.'))+' · '+state.pdfName):'Your PDF is read in this browser. Keep your original file.','hint');fileStatus.id='pdf-status';fileStatus.setAttribute('role','status');
- body.append(label,file,fileStatus,el('h2','1. Check my source details'),field('Article title','title'),field('Author(s)','author'),field('Publication year','year'),field('Journal or publication','publication'),field('DOI or article link','doi'));
+ body.append(label,file,fileStatus);if(state.pdfId){const pdfStatus=el('p','','hint');pdfStatus.setAttribute('role','status');body.append(btn('Open saved PDF ↗',()=>openSavedPDF(state.pdfId,pdfStatus),'secondary'),pdfStatus);}body.append(el('h2','1. Check my source details'),field('Article title','title'),field('Author(s)','author'),field('Publication year','year'),field('Journal or publication','publication'),field('DOI or article link','doi'));
  const lookup=btn('Fill missing details from DOI →',async()=>{
   const doi=doiIdentifier(state.doi);if(!doi)return;
   const token=++pdfRequest;lookup.disabled=true;next.disabled=true;fileStatus.textContent='Looking up citation details…';
@@ -466,7 +573,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  });
  const next=btn('Confirm details and choose a passage →',()=>{if(!state.title.trim()||!state.author.trim()){notice(doiIdentifier(state.doi)?'Use Fill missing details from DOI, or enter the title and author.':'Select your PDF again, or enter the title and author from the article.');return;}state.journalStage='passage';save();render(true);});
  body.append(next,btn('Finish this article later · Review my research',()=>{pdfRequest++;go(9);},'quiet'));
- const passage=el('section');passage.hidden=state.journalStage!=='passage';passage.append(el('h2','2. Notice a meaningful passage'),el('p','Read your article. Choose a passage that matters to your question.'),field('Page or section','location'),field('One meaningful passage','passage',3),field('What does it help you understand?','reflection',3),btn('Save my reading note →',commitReadingNote));body.append(passage);
+ const passage=el('section');passage.hidden=state.journalStage!=='passage';passage.append(el('h2','2. Notice a meaningful passage'),el('p','Read your article. Choose a passage that matters to your question.'),field('Page or section','location'),field('One meaningful passage','passage',3),field('What does it help you understand?','reflection',3));if(state.pdfId){const pdfStatus=el('p','','hint');pdfStatus.setAttribute('role','status');passage.append(btn('Open saved PDF ↗',()=>openSavedPDF(state.pdfId,pdfStatus),'secondary'),pdfStatus);}passage.append(btn('Save my reading note →',commitReadingNote));body.append(passage);
  if(state.journalStage==='passage'){for(const n of [...body.children])if(n!==passage)n.hidden=true;body.append(btn('Review my source details',()=>{state.journalStage='details';save();render(true);},'quiet'));}
  file.addEventListener('change',async()=>{
   const selected=file.files[0];if(!selected)return;
@@ -478,6 +585,9 @@ function render(focus=false){app.replaceChildren();const step=state.step;
   try{
    const signature=new Uint8Array(await selected.slice(0,5).arrayBuffer());
    if(String.fromCharCode(...signature)!=='%PDF-')throw Error('Not a PDF');
+   let retained=false;
+   try{const id=await retainPDF(selected);if(token!==pdfRequest||!file.isConnected)return;state.pdfId=id;retained=true;save();}
+   catch(e){if(token!==pdfRequest||!file.isConnected)return;}
    let found=await readArticlePDF(selected,(p,total)=>{if(token===pdfRequest&&file.isConnected)fileStatus.textContent='Reading page '+p+' of '+total+'…';},()=>token===pdfRequest&&file.isConnected);
    if(token!==pdfRequest||state.step!==6||!file.isConnected)return;
    let registry=null,lookupFailed=false;
@@ -504,13 +614,14 @@ function render(focus=false){app.replaceChildren();const step=state.step;
     else if(norm(state[key])!==norm(found[key]))existing.push(key);
    }
    state.pdfKeywords=found.keywords||[];renderKeywords();state.pdfImportStatus='Scanned '+found.scannedPages+' page(s); readable text on '+found.textPages+'. '+(found.title||found.author||found.doi?'Citation read. Check the fields below.':'No reliable citation identified. Import a library citation or enter details manually.');save();
-   fileStatus.textContent='Scanned '+found.scannedPages+' page(s); readable text on '+found.textPages+'. '+(filled.length?'Filled '+filled.length+' empty citation field(s). Check these against the article before continuing. ':'No additional citation fields were filled. Check the existing details and enter anything missing. ')+(existing.length?'Your existing entries were kept. ':'')+(registry?'Citation details retrieved from Crossref. ':lookupFailed?'DOI lookup unavailable; you can retry below. ':!found.doi?'No DOI detected. You can also import a library RIS citation using the option below. ':'')+(found.hasText?'':'This PDF may be scanned or image-based. Automatic text reading is unavailable. ');
+   fileStatus.textContent=(retained?'PDF saved on this device. ':'PDF could not be stored; keep your original file. ')+'Scanned '+found.scannedPages+' page(s); readable text on '+found.textPages+'. '+(filled.length?'Filled '+filled.length+' empty citation field(s). Check these against the article before continuing. ':'No additional citation fields were filled. Check the existing details and enter anything missing. ')+(existing.length?'Your existing entries were kept. ':'')+(registry?'Citation details retrieved from Crossref. ':lookupFailed?'DOI lookup unavailable; you can retry below. ':!found.doi?'No DOI detected. You can also import a library RIS citation using the option below. ':'')+(found.hasText?'':'This PDF may be scanned or image-based. Automatic text reading is unavailable. ');
   }catch(error){if(token===pdfRequest&&file.isConnected){state.pdfImportStatus='PDF reading failed. Select the file again or paste its DOI below.';save();fileStatus.textContent=state.pdfImportStatus;}}
   finally{if(token===pdfRequest&&file.isConnected){next.disabled=false;refreshLookup();}}
  });
 }
  const message=el('p','','notice');message.id='notice';message.setAttribute('role','status');app.append(message);
  const nav=el('nav','','nav');nav.setAttribute('aria-label','Notebook navigation');nav.append(btn('← Previous page',()=>{
+ if(step===10){go(9);return;}
  if(step===9){go(6);return;}
  if(step===8){go(state.notesReturn===8?6:state.notesReturn||6);return;}
  if(step===7){go(6);return;}
