@@ -1,0 +1,37 @@
+name: Classroom readiness
+on:
+  push:
+    paths:
+      - guided-journey-example.html
+      - tests/**
+      - .github/workflows/classroom-readiness.yml
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - guided-journey-example.html
+      - tests/**
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --package-lock=false @playwright/test@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Serve notebook
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/notebook-server.log 2>&1 &
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:8765/guided-journey-example.html >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - run: npx playwright test tests/guided-journey.spec.cjs --workers=2 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: classroom-test-results
+          path: test-results/
+          if-no-files-found: ignore
