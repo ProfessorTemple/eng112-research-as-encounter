@@ -430,3 +430,35 @@ test('bibliography milestone preserves student annotations and carries selected 
  await click(page,'Add my chosen reference entries');
  await expect(page.getByLabel('My References entries',{exact:true})).toHaveValue('Existing, A. (2020). *Existing book*. Publisher.\nAuthor, A. (2022). *A book*. Publisher.');
 });
+
+test('keyboard navigation, validation feedback and page focus on a narrow viewport',async({page})=>{
+ await page.setViewportSize({width:320,height:640});
+ await seed(page,{...fixture,step:0,encounter:'',courseSection:''});
+ await page.keyboard.press('Tab');await expect(page.getByRole('link',{name:'Skip to notebook content'})).toBeFocused();
+ await page.keyboard.press('Enter');await expect(page.locator('main')).toBeFocused();
+ await page.getByLabel('Course and section (for example, ENG 112-02FX)').fill('ENG 112-02FX');
+ await page.getByRole('button',{name:'Start with my own experience',exact:true}).focus();await page.keyboard.press('Enter');
+ await expect(page.getByRole('heading',{name:'My freewrite',exact:true})).toBeFocused();
+ await page.getByRole('button',{name:'Discover my words →',exact:true}).focus();await page.keyboard.press('Enter');
+ await expect(page.getByText('Write a little about your experience first.',{exact:true})).toBeFocused();
+ await page.getByLabel('My experience',{exact:true}).fill('I watched fireflies near the creek.');
+ await click(page,'Discover my words →');await expect(page.getByRole('heading',{name:'Discover my words',exact:true})).toBeFocused();
+ await click(page,'← Previous page');await click(page,'← Previous page');await expect(page.getByRole('heading',{name:'Start here',exact:true})).toBeFocused();
+});
+test('narrow viewport reflow and unique accessible control IDs throughout the journey',async({page})=>{
+ await page.setViewportSize({width:320,height:640});
+ const long='VeryLongUnbrokenSourceTitle'.repeat(9);
+ const notes=[{...fixture.notes[0],title:long,pdfId:'test-pdf'}];
+ for(const step of [1,2,3,4,5,6,8,9,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34]){
+  await seed(page,{...fixture,step,notes,journalStage:step===6?'details':'saved',bibPhase:1,bibEntries:[{id:'n1',reference:'Smith, A. (2020). *Garden study*. Publisher.',annotation:'My writing',role:'Context',link:'',verified:true}]});
+  const result=await page.evaluate(()=>{
+   const root=document.querySelector('main'),ids=[...root.querySelectorAll('[id]')].map(x=>x.id);
+   const controls=[...root.querySelectorAll('input:not([type=hidden]),textarea,select')].filter(x=>x.getClientRects().length&&(!x.closest('details')||[...root.querySelectorAll('details')].filter(d=>d.contains(x)).every(d=>d.open)));
+   return {width:document.documentElement.scrollWidth,viewport:innerWidth,duplicates:ids.filter((x,i)=>ids.indexOf(x)!==i),unnamed:controls.filter(x=>!(x.labels?.length||x.getAttribute('aria-label')||x.getAttribute('aria-labelledby'))).map(x=>x.id||x.outerHTML.slice(0,120)),headings:root.querySelectorAll('h1').length};
+  });
+  expect(result.width, 'horizontal reflow at step '+step).toBeLessThanOrEqual(result.viewport+1);
+  expect(result.duplicates,'duplicate IDs at step '+step).toEqual([]);
+  expect(result.unnamed,'unlabeled controls at step '+step).toEqual([]);
+  expect(result.headings,'main heading at step '+step).toBe(1);
+ }
+});
