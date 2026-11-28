@@ -6,7 +6,7 @@
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6});
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:''});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
@@ -109,13 +109,25 @@ function upsertReadingNote(notes,record){
  return [...notes.filter(n=>n.id!==record.id),record];
 }
 function nextArticleState(state){
- return {...state,activeNoteId:'',title:'',author:'',year:'',publication:'',doi:'',pdfName:'',pdfKeywords:[],location:'',passage:'',reflection:'',journalStage:'details'};
+ return {...state,activeNoteId:'',title:'',author:'',year:'',publication:'',doi:'',pdfName:'',pdfKeywords:[],location:'',passage:'',reflection:'',journalStage:'details',articleReturnId:''};
+}
+function startAnotherArticle(state){
+ if(state.journalStage!=='saved'||!state.notes?.some(n=>n.id===state.activeNoteId))return null;
+ return {...nextArticleState(state),step:6,articleReturnId:state.activeNoteId};
+}
+function returnToSavedArticle(state){
+ const record=state.notes?.find(n=>n.id===state.articleReturnId);
+ if(!record)return null;
+ const restored=nextArticleState(state);
+ for(const k of ['title','author','year','publication','doi','pdfName','location','passage','reflection'])restored[k]=record[k]||'';
+ restored.pdfKeywords=[...(record.pdfKeywords||[])];
+ return {...restored,activeNoteId:record.id,journalStage:'saved',step:6};
 }
 function commitReadingNote(){
  if(!state.passage.trim()||!state.reflection.trim()){notice('Add a passage and your own reflection first.');return;}
  const record=readingRecord(state);
  if(!state.activeNoteId){state.activeNoteId=record.id;state.nextNoteId=(state.nextNoteId||1)+1;}
- state.notes=upsertReadingNote(state.notes||[],record);state.journalStage='saved';save();render(true);
+ state.notes=upsertReadingNote(state.notes||[],record);state.articleReturnId='';state.journalStage='saved';save();render(true);
 }
 function showNote(root,n){
  const box=el('article','','callout');box.append(el('h2',n.title||'Untitled source'),el('p',[n.author,n.year,n.publication].filter(Boolean).join(' · '),'hint'));
@@ -139,7 +151,10 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(confirmation,el('p','You have recorded '+(state.notes||[]).length+' reading note'+((state.notes||[]).length===1?'':'s')+'.'));
  if(note)body.append(el('p',note.title,'query'));
  if(state.question)body.append(el('h2','Your research question'),el('p',state.question));
- body.append(el('p','Now use something you learned from this article to guide your next search.'),btn('Find my next source →',()=>{state.nextSearch='';go(7);}),btn('Edit this reading note',()=>{state.journalStage='passage';save();render(true);},'quiet'));
+ body.append(el('h2','Continue your research'),el('p','Already have another article? Add it to your notebook. Your saved reading notes will stay here.'),btn('Add another article →',()=>{
+  const draft=startAnotherArticle(state);if(!draft){notice('Save your reading note first.');return;}
+  state=draft;go(6);
+ }),btn('Find my next source in the library →',()=>{state.nextSearch='';go(7);},'secondary'),btn('Edit this reading note',()=>{state.journalStage='passage';save();render(true);},'quiet'));
  }
  if(step===7){
  body.append(el('p','Choose a word or idea from your reading and use it to deepen your research.'));
@@ -162,6 +177,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(btn('Return to my research →',()=>go(state.notesReturn===8?6:state.notesReturn||6)));
  }
  if(step===6&&state.journalStage!=='saved'){
+ if(state.articleReturnId&&state.journalStage==='details')body.append(el('p','Adding article '+((state.notes||[]).length+1)+' · '+state.notes.length+' reading note'+(state.notes.length===1?'':'s')+' already saved.','hint'));
  body.append(el('p','Choose your downloaded PDF. The notebook reads it here and uses its public DOI (if found) to look up citation details in Crossref. Check what it finds.'));
  const label=el('label','Choose my article PDF (or enter details below)');label.htmlFor='pdf';
  const file=el('input');file.id='pdf';file.type='file';file.accept='.pdf,application/pdf';
@@ -236,6 +252,11 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===7){go(6);return;}
  if(step===6&&state.journalStage==='saved'){state.journalStage='passage';save();render(true);return;}
  if(step===6&&state.journalStage==='passage'){state.journalStage='details';save();render(true);return;}
+ if(step===6&&state.articleReturnId){
+  const hasDraft=['title','author','year','publication','doi','pdfName','location','passage','reflection'].some(k=>String(state[k]||'').trim());
+  if(hasDraft&&!confirm('Discard this unfinished article and return to your saved reading note?'))return;
+  const previous=returnToSavedArticle(state);if(previous){pdfRequest++;state=previous;go(6);return;}
+ }
  go(step===6?5:step-1);
  },'quiet'),btn('Save backup',backup,'quiet'));
  if(step!==8&&state.notes?.length)nav.append(btn('My saved notes ('+state.notes.length+')',()=>{state.notesReturn=step;go(8);},'quiet'));app.append(nav);if(focus){title.focus({preventScroll:true});window.scrollTo({top:0,behavior:'auto'});}save();
