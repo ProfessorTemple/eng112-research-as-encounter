@@ -42,7 +42,7 @@ test('guided writing, revision, APA, figure and DOCX journey',async({page})=>{
  await expect(page.getByText('No obvious mismatch in the patterns recognized.',{exact:false})).toBeVisible();
  await click(page,'Continue to original visuals →');
  await page.getByText('Figure 1 · add image',{exact:true}).click();
- const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGPUiHdkIAUwkaR6VMOohiGlAQCXBQDo6OntngAAAABJRU5ErkJggg==','base64');
+ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGM0qnBjIAUwkaR6VMOohiGlAQARSQEQJmzCBAAAAABJRU5ErkJggg==','base64');
  await page.getByLabel('Choose image for Figure 1').setInputFiles({name:'sample.png',mimeType:'image/png',buffer:png});
  await expect(page.getByLabel('Figure title',{exact:true})).toBeVisible();
  await page.getByLabel('Figure title',{exact:true}).fill('Original test image');
@@ -64,6 +64,7 @@ test('guided writing, revision, APA, figure and DOCX journey',async({page})=>{
 });
 test('new student start and back navigation preserve encounter',async({page})=>{
  await page.goto(url);
+ await page.getByLabel('Course and section (for example, ENG 112-02FX)',{exact:true}).fill('ENG 112-10SY');
  await click(page,'Start with my own experience');
  await page.getByLabel('My experience',{exact:true}).fill('I watched fireflies near the creek.');
  await click(page,'Discover my words →');
@@ -72,4 +73,16 @@ test('new student start and back navigation preserve encounter',async({page})=>{
  await expect(page.getByLabel('My experience',{exact:true})).toHaveValue('I watched fireflies near the creek.');
  await page.reload();
  await expect(page.getByLabel('My experience',{exact:true})).toHaveValue('I watched fireflies near the creek.');
+});
+
+test('course profile differentiates FX and online requirements',async({page})=>{
+ await seed(page,{...fixture,step:0,encounter:''});
+ const course=page.getByLabel('Course and section (for example, ENG 112-02FX)',{exact:true});
+ await course.fill('ENG 112-01FX');await course.blur();
+ await expect(page.getByText('FX: Use at least one relevant physical book',{exact:false})).toBeVisible();
+ await course.fill('ENG 112-10SY');await course.blur();
+ await expect(page.getByText('IN/SY: A relevant physical library book is encouraged',{exact:false})).toBeVisible();
+ await course.fill('ENG 112-92IN');await click(page,'Start with my own experience');
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.courseSection).toBe('ENG 112-92IN');expect(saved.paperCourse).toBe('ENG 112-92IN');
 });
