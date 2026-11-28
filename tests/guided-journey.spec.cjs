@@ -97,7 +97,7 @@ test('intellectual trail preserves student text and permits an unchanged thesis'
  await seed(page,{...fixture,step:21,firstEncounter:'I first watched the tree.',initialThesis:thesis,workingThesis:thesis,strengthenedThesis:thesis,reconsideredThesis:thesis,notes:[{id:'n1',title:'Garden study',reflection:'The garden holds family memory.'}]});
  await page.getByText('How my thinking changed',{exact:true}).click();
  await expect(page.getByText('I first watched the tree.',{exact:true})).toBeVisible();
- await expect(page.getByText('Your thesis wording is unchanged.',{exact:false})).toBeVisible();
+ await expect(page.getByText('Your thesis wording is unchanged or nearly identical after normalization.',{exact:false})).toBeVisible();
  await expect(page.getByText('My reading reflection · Garden study',{exact:true})).toBeVisible();
  await click(page,'Save my writing and reflection →');
  await click(page,'Begin my layered revision →');
@@ -185,7 +185,9 @@ test('a vague encounter invites attention without requiring private disclosure o
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.encounter).toBe(expanded);
  await seed(page,{...fixture,step:3,encounter:expanded,question:'How do advice and stories from my grandfather help me learn?',words:['grandfather','advice'],keywords:[],notes:[]});
- await expect(page.getByText('intergenerational learning: Learning through exchanges',{exact:false}).first()).toBeVisible();
+ const learning=page.getByText('intergenerational learning: Learning through exchanges',{exact:false}).first();
+ if(!(await learning.isVisible()))await page.getByText('Explore other search combinations',{exact:true}).click();
+ await expect(learning).toBeVisible();
  await expect(page.getByText('environmental justice:',{exact:false})).toHaveCount(0);
 });
 
@@ -408,7 +410,11 @@ test('bibliography milestone preserves student annotations and carries selected 
  await page.getByRole('checkbox',{name:/Research source 1/}).check();
  await page.getByLabel('Source to annotate',{exact:true}).selectOption('ab0');
  await expect(page.getByLabel('My annotation',{exact:true})).toHaveValue('My own annotation, not the reading note.');
+ const sourceChooser=page.getByText('Choose five outside sources from my Reading Journal',{exact:true});
+ await expect(sourceChooser.locator('..')).not.toHaveAttribute('open','');
+ await sourceChooser.click();
  await page.getByRole('checkbox',{name:/Research source 2/}).check();
+ await expect(page.getByRole('checkbox',{name:/Research source 2/})).toBeChecked();
  await click(page,'Continue to State of the Research Path →');
  for(let i=0;i<3;i++)await page.getByRole('checkbox',{name:'Research source '+i,exact:true}).check();
  await page.getByLabel('My State of the Research Path',{exact:true}).fill('My own account of the changed inquiry.');
@@ -559,7 +565,7 @@ test('diachronic trail distinguishes possible growth from mere wording changes',
   await expect(page.getByText(prompt,{exact:false}).first()).toBeVisible();
   await expect(page.getByText('No reflection or material selected yet',{exact:true})).toBeVisible();
   await page.getByText('Compare my intermediate thesis',{exact:true}).click();
-  await expect(page.getByText('An intermediate formulation.',{exact:true})).toBeVisible();
+  await expect(page.getByText('Compare my intermediate thesis',{exact:true}).locator('..').getByText('An intermediate formulation.',{exact:true})).toBeVisible();
   const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
   expect(saved.initialThesis).toBe(before);expect(saved.reconsideredThesis).toBe(after);expect(saved.thesisReflection).toBe(reflection);
  }
