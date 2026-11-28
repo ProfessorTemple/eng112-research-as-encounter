@@ -607,3 +607,30 @@ test('intellectual agency distinguishes student moves from source reporting and 
   expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).essayDraft,KEY)).toBe(draft);
  }
 });
+
+test('independent revision is reversible and never marks optional reviews complete',async({page})=>{
+ const draft='My grandfather listened to my account. I reconsidered what listening means.';
+ await seed(page,{...fixture,step:24,essayDraft:draft,quietRevision:false,independentRevision:false,revisionPasses:{},revisionFinished:false,revisionChecks:{}});
+ const quiet=page.getByRole('checkbox',{name:'Quiet revision · show suggestions only when I open them'});
+ const independent=page.getByRole('button',{name:'Continue independently to assignment check →',exact:true});
+ await expect(independent).toBeHidden();
+ await quiet.check();
+ await expect(independent).toBeVisible();
+ await independent.click();
+ await expect(page.getByText('You chose to review independently.',{exact:false})).toBeVisible();
+ let saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.step).toBe(28);expect(saved.independentRevision).toBe(true);
+ expect(saved.revisionPasses).toEqual({});expect(saved.essayDraft).toBe(draft);
+ await page.reload();
+ await expect(page.getByRole('button',{name:'Return to guided revision',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Return to guided revision',exact:true}).click();
+ saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.step).toBe(24);expect(saved.independentRevision).toBe(false);
+ expect(saved.essayDraft).toBe(draft);
+ await quiet.check();await independent.click();
+ await page.getByRole('button',{name:'Save my revision review →',exact:true}).click();
+ saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.step).toBe(29);expect(Object.keys(saved.revisionPasses)).toEqual(['completeness']);
+ expect(saved.revisionChecks).toEqual({});
+ await expect(page.getByText('1 of 5 revision lenses reviewed in the notebook.',{exact:false})).toBeVisible();
+});
