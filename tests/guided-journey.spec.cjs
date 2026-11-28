@@ -634,3 +634,19 @@ test('independent revision is reversible and never marks optional reviews comple
  expect(saved.revisionChecks).toEqual({});
  await expect(page.getByText('1 of 5 revision lenses reviewed in the notebook.',{exact:false})).toBeVisible();
 });
+
+test('revised inquiry preserves intellectual history without automatically recycling stale directions',async({page})=>{
+ const old='How do urban trees provide shade?',question='How does listening shape family relationships?';
+ const notes=[{id:'a',question:old,title:'Urban trees and shade',passage:'Urban canopy and shade.',reflection:'Trees provide shade.'},{id:'b',question:old,title:'Family listening and communication',passage:'Family listening and communication.',reflection:'Listening helps family relationships.'}];
+ await seed(page,{...fixture,step:5,outcome:'question',question:old,words:['urban trees','shade'],keywords:['light pollution'],search:'urban trees AND shade',nextSearch:'trees AND shade',criticalLens:'Urban ecology',activeNoteId:'a',notes});
+ await page.getByLabel('My revised question',{exact:true}).fill(question);
+ await page.reload();
+ await expect(page.getByLabel('My revised question',{exact:true})).toHaveValue(question);
+ await click(page,'Explore my revised question →');
+ await page.getByText('My working critical lens (optional)',{exact:true}).click();
+ await expect(page.getByText('Your question has changed since you recorded this lens.',{exact:false})).toBeVisible();
+ await expect(page.getByLabel('My working lens',{exact:true})).toHaveValue('Urban ecology');
+ await expect(page.getByLabel('Search words (you can edit these)',{exact:true})).not.toHaveValue(/urban trees|light pollution/i);
+ let saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.notes).toEqual(notes);expect(saved.essayDraft).toBe(essay);expect(saved.nextSearch).toBe('');
+});
