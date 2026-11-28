@@ -134,6 +134,68 @@ function showNote(root,n){
  if(n.location)box.append(el('p','Location: '+n.location,'hint'));
  box.append(el('p',n.passage),el('h2','My reflection'),el('p',n.reflection));root.append(box);
 }
+function nextSearchModel(state,note){
+ if(!note)return null;
+ const tidy=x=>String(x||'').toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g,' ').trim();
+ const q=tidy([state.question,...(state.words||[])].join(' '));
+ const source=[['article title',note.title],['published keywords',(note.pdfKeywords||[]).join('; ')],['selected passage',note.passage],['your reflection',note.reflection]];
+ const prior=new Set([state.search,...(state.history||[])].map(tidy));
+ const normalizeQuery=x=>tidy(x).split(/\s+and\s+/).sort().join(' and ');
+ const priorPairs=new Set([...prior].map(normalizeQuery));
+ const has=(t,p)=>p.test(tidy(t));
+ const models=[
+ {term:'synchronicity',p:/\bsynchronicit(?:y|ies)\b/,definition:'A meaningful coincidence without an established causal connection.',links:[
+ [/miracl|coinciden|mean(?:ing|ingful)|spirit|faith|religio|holiday|unexpected/,'meaning making','How people interpret experiences as meaningful.','Examine how a surprising event becomes meaningful, rather than assuming it is a miracle.'],
+ [/expect|hope|uncertain|wait|stress|control|travel/,'expectation','What people anticipate will happen.','Explore how expectations shape the way people interpret coincidences.'],
+ [/miracl|faith|religio|spirit|holiday/,'religious experience','Experiences interpreted through spiritual or religious beliefs.','Compare psychological and religious ways of interpreting an unexpected event.']]},
+ {term:'bioluminescence',p:/\bbioluminescen(?:ce|t)\b/,definition:'Light produced by a living organism.',links:[[/firefl|light|signal|communicat|insect/,'animal communication','The exchange of signals among animals.','Connect living light with the ways animals send signals.'],[/human|pollut|artificial|night|firefl/,'light pollution','Artificial light that changes nighttime conditions.','Investigate how human lighting affects living light.']]},
+ {term:'intraspecific communication',p:/\bintraspecific (?:communication|signaling|signalling)\b/,definition:'Communication between members of the same species.',links:[[/firefl|animal|insect|signal|communicat/,'animal behavior','How animals act and respond.','Explore how signals influence behavior within a species.']]},
+ {term:'light pollution',p:/\blight pollution\b/,definition:'Artificial light that alters nighttime conditions.',links:[[/firefl|insect|animal|signal|communicat|night/,'animal communication','The exchange of signals among animals.','Explore whether artificial lighting changes animal signals.']]},
+ {term:'interspecific communication',p:/\binterspecific (?:communication|signaling|signalling)\b/,definition:'Communication between different species.',links:[[/dog|animal|human|pet|communicat/,'human-animal relationships','The interactions and bonds between humans and other animals.','Explore how communication shapes relationships across species.']]},
+ {term:'anthropomorphism',p:/\banthropomorph(?:ism|ic|izing)\b/,definition:'Attributing human qualities or intentions to nonhuman beings.',links:[[/dog|animal|pet|human|communicat|emotion/,'animal cognition','How animals perceive, learn and think.','Compare human interpretations with research on animal capacities.']]},
+ {term:'oral history',p:/\boral histor(?:y|ies)\b/,definition:'Knowledge of the past gathered through spoken accounts.',links:[[/family|grandmother|parent|memor|stor|tradition/,'collective memory','How groups remember and interpret the past.','Connect personal stories with shared memory.']]},
+ {term:'reciprocity',p:/\breciprocity\b/,definition:'Mutual exchange or responsibility within a relationship.',links:[[/nature|earth|plant|tree|land|river|water|animal|indigenous|ecolog/,'environmental ethics','The study of responsibilities toward the living world.','Explore the ethical implications of mutual relationships with the living world.']]},
+ {term:'ontological',p:/\bontolog(?:ical|y)\b/,definition:'Relating to the nature of being or what is understood to exist.',links:[[/indigenous|animis|nature|world|human|being|exist|spirit/,'relational ontology','An understanding of beings as constituted through relationships.','Explore how different understandings of existence shape relationships with the world.']]},
+ {term:'ecological grief',p:/\becological grief\b/,definition:'Grief associated with environmental loss or change.',links:[[/loss|grief|climat|environment|nature|place|land/,'place attachment','Emotional connections to particular places.','Explore how bonds with a place affect responses to environmental loss.']]}
+ ];
+ for(const m of models){
+  const evidence=source.find(([label,text])=>has(text,m.p));
+  if(!evidence)continue;
+  for(const [pattern,bridge,bridgeDef,reason] of m.links){
+   if(!pattern.test(q))continue;
+   const query=m.term+' AND '+bridge;
+   if(priorPairs.has(normalizeQuery(query)))continue;
+   return {term:m.term,origin:evidence[0],definition:m.definition,bridge,bridgeDef,reason,query};
+  }
+ }
+ // A transparent fallback: only pair a recognizable source phrase with a student's existing topic.
+ const stop=new Set('the and for with from into upon about this that these those their they have been being were was are not but when where what how why can could should would may might will people study research article effects effect role using based analysis understanding author meaningful new during which between through toward towards evidence experience experiences'.split(' '));
+ const tokens=t=>tidy(t).match(/[\p{L}][\p{L}-]{2,}/gu)||[];
+ const cleanPhrase=t=>tidy(t).replace(/^[^\p{L}]+|[^\p{L}]+$/gu,'');
+ const valid=t=>t.length>=3&&t.length<=65&&/^[\p{L}][\p{L}\s'-]*$/u.test(t)&&tokens(t).some(w=>!stop.has(w));
+ const anchors=[...(state.words||[]),...String(state.search||'').split(/\s+AND\s+/i),...tokens(state.question)].map(cleanPhrase).filter(valid).filter(t=>!tokens(t).every(w=>stop.has(w)));
+ const candidates=(note.pdfKeywords||[]).map(t=>({term:cleanPhrase(t),origin:'published keywords',rank:4}));
+ const titleWords=tokens(note.title);
+ for(let i=0;i<titleWords.length-1;i++)if(!stop.has(titleWords[i])&&!stop.has(titleWords[i+1]))candidates.push({term:titleWords.slice(i,i+2).join(' '),origin:'article title',rank:2});
+ for(const w of titleWords)if(w.length>5&&!stop.has(w))candidates.push({term:w,origin:'article title',rank:1});
+ for(const c of candidates){
+  const t=c.term;
+  if(!valid(t)||q.includes(t))continue;
+  const relevant=tokens(t).some(w=>w.length>3&&!stop.has(w)&&[note.passage,note.reflection].some(x=>tokens(x).includes(w)));
+  c.rank+=relevant?5:0;
+ }
+ candidates.sort((a,b)=>b.rank-a.rank);
+ for(const c of candidates){
+  if(!valid(c.term)||q.includes(c.term))continue;
+  for(const a of anchors){
+   if(a===c.term||a.includes(c.term)||c.term.includes(a))continue;
+   const query=a+' AND '+c.term;
+   if(priorPairs.has(normalizeQuery(query)))continue;
+   return {term:c.term,origin:c.origin,definition:'',bridge:a,bridgeDef:'',reason:'This is a trial combination of a term from your article and a topic from your earlier research. Check whether the results actually address your question.',query};
+  }
+ }
+ return null;
+}
 function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===0){app.append(el('p','GUIDED JOURNEY · WORKING EXAMPLE','hint'),el('h1','Start here'),el('p','Begin with something you experienced. Follow one small step at a time.'));app.append(btn(state.encounter?'Continue my example →':'Try the holiday miracle example →',()=>{if(!state.encounter)state.encounter=SAMPLE;go(1);}),btn('Start with my own experience',()=>{if(state.encounter&&!confirm('Replace this separate example?'))return;state=blank();go(1);},'secondary'));return;}
  const top=el('div','','topline');top.append(el('span',step<=5?'Research journey · '+step+' of 5':step===7?'Continue my research':'Reading Journal'),el('span',storageOK?'Saved on this device':'Backup recommended'));top.lastChild.id='save-state';const progress=el('div','','progress');progress.setAttribute('aria-label','Research journey progress');for(let i=1;i<=5;i++)progress.append(el('span','',i<step?'done':i===step?'current':''));app.append(top,progress);
@@ -157,14 +219,24 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  }),btn('Find my next source in the library →',()=>{state.nextSearch='';go(7);},'secondary'),btn('Edit this reading note',()=>{state.journalStage='passage';save();render(true);},'quiet'));
  }
  if(step===7){
- body.append(el('p','Choose a word or idea from your reading and use it to deepen your research.'));
- if(state.question)body.append(el('div',state.question,'callout'));
  const note=(state.notes||[]).find(n=>n.id===state.activeNoteId);
- const discovered=note?.pdfKeywords||[];
- if(discovered.length)body.append(el('p','Published keywords: '+discovered.slice(0,5).join(' · '),'hint'));
- const anchor=(state.words||[])[0]||state.search.split(/\s+AND\s+/i)[0]||'';
- if(anchor)body.append(el('p','Try combining '+anchor+' with a concept you noticed in your article.','hint'));
- body.append(field('My next search words','nextSearch',0,anchor?anchor+' AND …':'Enter a new combination'),btn('Search the library →',()=>{
+ const model=nextSearchModel(state,note);
+ body.append(el('p','Your reading has introduced new language. Let’s use it to make your next search more focused.'));
+ if(state.question)body.append(el('div',state.question,'callout'));
+ if(model){
+  const guide=el('section','','callout');
+  guide.append(el('h2','A word your reading introduced'),el('p',model.term,'query'),el('p','Found in: '+model.origin,'hint'));
+  if(model.definition)guide.append(el('p',model.definition));
+  guide.append(el('h2','Connect it with '+model.bridge));
+  if(model.bridgeDef)guide.append(el('p',model.bridgeDef,'hint'));
+  guide.append(el('p',model.reason));
+  body.append(guide);
+  if(!state.nextSearch.trim())state.nextSearch=model.query;
+ }else{
+  body.append(el('p','Look at your saved passage or article title. Choose one meaningful term and combine it with a word from your research question.','hint'));
+  if(note?.title)body.append(el('p','Article: '+note.title,'hint'));
+ }
+ body.append(field('My next search words (edit if you like)','nextSearch',0,'concept AND concept'),btn('Search the library →',()=>{
   const q=state.nextSearch.trim();if(!q){notice('Enter the words you want to search for.');document.getElementById('input-nextSearch').focus();return;}
   if(!state.notes?.some(n=>n.id===state.activeNoteId)){notice('Save your reading note before starting a new search.');return;}
   state=nextArticleState(state);makeSearch(q);
