@@ -25,7 +25,7 @@ h1:focus,h2:focus,.notice:focus{outline:2px solid #80551e;outline-offset:4px}
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
 const REFERENCE_VIEW=new URLSearchParams(location.search).get('view')==='journal';
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0,evidencePlan:'',assumptionPlan:'',alternativePlan:'',inquiryReviewed:false,initialThesis:'',strengthenedThesis:'',evidenceReadiness:'',writingEvidenceNote:'',researchReturn:0,essayTitle:'',essayDraft:'',reconsideredThesis:'',thesisReflection:'',writingComplete:false,strands:[],sourceOrigin:'',braidSections:[],braidActive:'',draftBraidId:'',revisionStarted:false,revisionOriginal:'',revisionPasses:{},revisionChecks:{},revisionFinished:false,revisionThesisReturn:false,paperName:'',paperCourse:'',paperDate:'',paperAbstract:'',paperKeywords:'',paperReferences:'',paperDisclosure:'',figures:[],essayReview:{},courseSection:'',firstEncounter:'',firstEncounterRecovered:false,criticalLens:'',reciprocityReflection:'',agencyDecisions:[],quietRevision:false,independentRevision:false,noteEditReturn:0,bibInitialized:false,bibReturn:9,bibPhase:0,bibActive:'',bibEntries:[],bibCarry:[],bibLens:'',bibThesis:'',bibOverview:'',bibKeywords:'',bibState:'',bibQuestion:'',bibDate:'',bibDisclosure:''});
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0,evidencePlan:'',assumptionPlan:'',alternativePlan:'',inquiryReviewed:false,initialThesis:'',strengthenedThesis:'',evidenceReadiness:'',writingEvidenceNote:'',researchReturn:0,essayTitle:'',essayDraft:'',reconsideredThesis:'',thesisReflection:'',writingComplete:false,strands:[],sourceOrigin:'',braidSections:[],braidActive:'',draftBraidId:'',revisionStarted:false,revisionOriginal:'',revisionPasses:{},revisionChecks:{},revisionFinished:false,revisionThesisReturn:false,paperName:'',paperCourse:'',paperDate:'',paperAbstract:'',paperKeywords:'',paperReferences:'',paperDisclosure:'',figures:[],essayReview:{},courseSection:'',firstEncounter:'',firstEncounterRecovered:false,criticalLens:'',lensNeedsReview:false,reciprocityReflection:'',agencyDecisions:[],quietRevision:false,independentRevision:false,noteEditReturn:0,bibInitialized:false,bibReturn:9,bibPhase:0,bibActive:'',bibEntries:[],bibCarry:[],bibLens:'',bibThesis:'',bibOverview:'',bibKeywords:'',bibState:'',bibQuestion:'',bibDate:'',bibDisclosure:''});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
@@ -148,7 +148,7 @@ function addSaveStatus(root){const n=el('p',storageOK?'Saved on this device':'Ba
 
 function btn(label,fn,cls='primary'){const b=el('button',label,cls);b.type='button';b.addEventListener('click',fn);return b;}
 function go(step){if(REFERENCE_VIEW)return;state.step=step;if(step>=12&&step<=33)state.thesisStep=step;save();render(true);}
-function field(label,key,rows=0,placeholder=''){const wrap=el('div'),id='input-'+key,l=el('label',label),x=el(rows?'textarea':'input');l.htmlFor=id;x.id=id;if(rows)x.rows=rows;else x.type='text';x.placeholder=placeholder;x.value=state[key]||'';x.addEventListener('input',()=>{state[key]=x.value;if(['essayDraft','reconsideredThesis'].includes(key))state.essayReview={};if(['essayDraft','essayTitle','reconsideredThesis'].includes(key)&&state.revisionStarted)invalidateCompleteness(state);if(key==='connectionReflection')state.connectionComplete=false;if(['strengthenedThesis','essayTitle','essayDraft','reconsideredThesis','thesisReflection'].includes(key))state.writingComplete=false;if(['storyOne','storyTwo','storyThree','workingThesis'].includes(key)){state.thesisSaved=false;state.inquiryReviewed=false;}save();});wrap.append(l,x);return wrap;}
+function field(label,key,rows=0,placeholder=''){const wrap=el('div'),id='input-'+key,l=el('label',label),x=el(rows?'textarea':'input');l.htmlFor=id;x.id=id;if(rows)x.rows=rows;else x.type='text';x.placeholder=placeholder;x.value=state[key]||'';x.addEventListener('input',()=>{const previous=state[key];state[key]=x.value;if(key==='question')questionChanged(state,previous);if(key==='criticalLens')state.lensNeedsReview=false;if(['essayDraft','reconsideredThesis'].includes(key))state.essayReview={};if(['essayDraft','essayTitle','reconsideredThesis'].includes(key)&&state.revisionStarted)invalidateCompleteness(state);if(key==='connectionReflection')state.connectionComplete=false;if(['strengthenedThesis','essayTitle','essayDraft','reconsideredThesis','thesisReflection'].includes(key))state.writingComplete=false;if(['storyOne','storyTwo','storyThree','workingThesis'].includes(key)){state.thesisSaved=false;state.inquiryReviewed=false;}save();});wrap.append(l,x);return wrap;}
 function notice(text){const n=document.getElementById('notice');if(!n)return;const active=document.activeElement;if(active instanceof HTMLElement&&active.matches('button, input, select, textarea')&&active.closest('#app'))active.insertAdjacentElement('afterend',n);n.textContent=text;n.focus();}
 function norm(s){return String(s||'').trim().toLowerCase();}
 function encounterAttention(text){
@@ -198,7 +198,7 @@ function possibleLenses(options){
 function earlyLensPanel(root,options){
  const candidates=possibleLenses(options),d=el('details');d.append(el('summary','My working critical lens (optional)'));
  d.append(el('p','A lens is a perspective that helps you investigate your question. It is provisional, not an assigned topic. You can change it after reading or leave it undecided.','hint'));
- const box=field('My working lens','criticalLens',2,'Still exploring, or describe a perspective in your own words');d.append(box);
+ const box=field('My working lens','criticalLens',2,'Still exploring, or describe a perspective in your own words');d.append(box);if(state.lensNeedsReview)d.append(el('p','Your question has changed since you recorded this lens. Keep it if it still fits, or edit or clear it. Your earlier research remains saved.','hint'));
  for(const c of candidates){
   const p=el('div','','callout');p.append(el('h3',c.name),el('p',c.term+': '+c.definition),el('p',c.question,'hint'));
   p.append(btn('Explore '+c.name,()=>{const input=box.querySelector('textarea');if(input.value.trim()&&input.value!==c.name+' · '+c.term&&!confirm('Replace your saved working lens with this possible perspective?'))return;input.value=c.name+' · '+c.term;input.dispatchEvent(new Event('input',{bubbles:true}));input.focus();},'secondary'));d.append(p);
@@ -232,7 +232,24 @@ function directions(text){const q=norm(text);if(/\bmiracles?\b/.test(q))return [
  if(/\bfireflies\b/.test(q))return [...(/\b(?:artificial light|lighting|light pollution|porch light)\b/.test(q)?[{q:'fireflies AND ("artificial light" OR "light pollution")',d:'Investigate the effect of artificial lighting on the firefly behavior you observed.'}]:[]),{q:'fireflies AND flashing behavior',d:'When and how fireflies flash.'},{q:'fireflies AND communication',d:'How flashing works as a signal.'},{q:'fireflies AND light pollution',d:'Whether artificial light changes behavior.'}];
  if(/\b(?:memory|memories|stories|story|heritage|traditions?|ancestry|oral history)\b/.test(q)&&/\b(?:grandmother|grandfather|parents?|family|generations?|ancestors?|memory|memories)\b/.test(q))return [{q:'family stories AND memory',d:'How stories shape remembered experience.'},{q:'intergenerational knowledge AND oral history',d:'How knowledge moves between generations.'}];
  const vague=new Set(['happy','sad','special','important','meaningful','experience','experiences','life','things','thing','nice','good','bad','really','very','felt','feel','feeling','interesting','different','changed','change','remember']);const words=state.words.filter(w=>!norm(w).split(/\s+/).every(t=>vague.has(t))).slice(0,2);return words.length?[{q:words.join(' AND '),d:'Start with your own words; revise them as you discover academic language.'}]:[];}
-function choices(text,exclude=false){const prior=new Set([...state.history,state.search].map(norm));const direct=directions(text),modeled=translationDirections(text,state.encounter,state.words),specific=direct.filter(x=>x.q.startsWith('fireflies AND ('));const all=[...specific,...modeled,...discoveredDirections(state,text),...direct];const anchor=state.search.split(/\s+AND\s+/i)[0]||state.words[0];const nextKeyword=state.keywords.find(w=>anchor&&norm(anchor)!==norm(w)&&!prior.has(norm(anchor+' AND '+w)));if(nextKeyword)all.splice(Math.min(2,all.length),0,{q:anchor+' AND '+nextKeyword,d:'Try a word you found during research. Check that it still fits your current question.'});const seen=new Set();return all.filter(x=>{const k=norm(x.q);if(seen.has(k)||exclude&&prior.has(k))return false;seen.add(k);return true;}).slice(0,3);}
+function inquiryTermsMatch(question,value){
+ const q=new Set(continuityTerms(question));return continuityTerms(value).some(t=>q.has(t));
+}
+function researchNoteFits(st,n){
+ if(!n)return false;
+ const q=String(st.question||'').trim(),old=String(n.question||'').trim();
+ if(!q||!old||conceptNormalize(q)===conceptNormalize(old))return true;
+ return inquiryTermsMatch(q,[n.title,n.passage,n.reflection,...(n.pdfKeywords||[])].join(' '));
+}
+function questionChanged(st,previous){
+ const q=String(st.question||'').trim();
+ if(conceptNormalize(q)===conceptNormalize(previous))return false;
+ st.nextSearch='';
+ st.outcome='';
+ st.lensNeedsReview=!!String(st.criticalLens||'').trim();
+ return true;
+}
+function choices(text,exclude=false){const prior=new Set([...state.history,state.search].map(norm));const direct=directions(text),modeled=translationDirections(text,state.encounter,state.words),specific=direct.filter(x=>x.q.startsWith('fireflies AND ('));const all=[...specific,...modeled,...discoveredDirections(state,text),...direct];const anchor=[...state.search.split(/\s+AND\s+/i),...state.words].find(w=>inquiryTermsMatch(text,w));const nextKeyword=state.keywords.find(w=>anchor&&inquiryTermsMatch(text,w)&&norm(anchor)!==norm(w)&&!prior.has(norm(anchor+' AND '+w)));if(nextKeyword)all.splice(Math.min(2,all.length),0,{q:anchor+' AND '+nextKeyword,d:'Try a word you found during research. Check that it still fits your current question.'});const seen=new Set();return all.filter(x=>{const k=norm(x.q);if(seen.has(k)||exclude&&prior.has(k))return false;seen.add(k);return true;}).slice(0,3);}
 function makeSearch(q){if(!q.trim()){notice('Enter at least one search word.');return;}if(hasUnfinishedArticle(state)&&!confirm('Start a new search and discard the unfinished source entry? Your completed notes will remain saved.'))return;if(state.search&&!state.history.includes(state.search))state.history.push(state.search);const previous=state.journalStage==='saved'?state.activeNoteId:'';pdfRequest++;state=nextArticleState(state);state.articleReturnId=previous;state.search=q.trim();state.library='copy';state.outcome='';go(4);}
 function showOptions(root,list){if(!list.length){root.append(el('p','No new modeled combination is available. Try your own search below.','hint'));}let picked=list[0]?.q||'';const group=el('fieldset'),legend=el('legend','Choose a research direction');group.append(legend);for(const item of list){const l=el('label','','option'),r=el('input');r.type='radio';r.name='direction';r.value=item.q;r.checked=item.q===picked;r.addEventListener('change',()=>{picked=item.q;custom.value=picked;});const body=el('span',item.q);body.append(el('small',item.d));l.append(r,body);group.append(l);}if(list.length)root.append(group);const label=el('label','Search words (you can edit these)');label.htmlFor='query';const custom=el('input');custom.type='text';custom.id='query';custom.value=picked;root.append(label,custom,btn('Use this search →',()=>makeSearch(custom.value)));}
 let pdfRequest=0;
@@ -1519,7 +1536,7 @@ function translationVoicePanel(root){
 }
 
 function integrationGlossary(st){
- const lenses={sensory:['Psychology / sensory experience','Disability studies / access'],embodied:['Embodied experience','Philosophy'],signals:['Animal behavior','Animal behavior'],ecology:['Ecology','Ecology'],memory:['Cultural memory','History'],place:['Place and experience','Cultural memory'],spiritual:['Interpretation','Religious studies'],loss:['Grief and relationship','Interpretation'],labor:['Labor and society','Environmental justice'],reciprocity:['Ethics','Ethics'],ontology:['Philosophy','Worldviews'],attention:['Attention and perception','Digital culture'],urban:['Ecology','Built environment'],weather:['Environmental studies','Community studies'],narrative:['Literary studies','Narrative inquiry'],food:['Cultural studies','Cultural studies'],wellbeing:['Human–nature relationships','Environmental psychology'],time:['Ecology','Ecology'],ethnography:['Anthropology','Anthropology'],history:['History','Material culture']};
+ const lenses={conversation:['Intergenerational learning','Relational knowledge'],presence:['Ethics','Philosophy'],public:['Sociology','Cultural studies'],workhuman:['Labor studies','Social inequality'],listening:['Communication studies','Communication studies'],sharedpractice:['Anthropology','Cultural studies'],absence:['Place studies','Cultural memory'],supportivesilence:['Communication studies','Ethics'],conflictsilence:['Communication studies','Communication studies'],uncertainmeaning:['Interpretation','Communication studies'],mixedmeaning:['Relational studies','Communication studies'],sensory:['Psychology / sensory experience','Disability studies / access'],embodied:['Embodied experience','Philosophy'],signals:['Animal behavior','Animal behavior'],ecology:['Ecology','Ecology'],memory:['Cultural memory','History'],place:['Place and experience','Cultural memory'],spiritual:['Interpretation','Religious studies'],loss:['Grief and relationship','Interpretation'],labor:['Labor and society','Environmental justice'],reciprocity:['Ethics','Ethics'],ontology:['Philosophy','Worldviews'],attention:['Attention and perception','Digital culture'],urban:['Ecology','Built environment'],weather:['Environmental studies','Community studies'],narrative:['Literary studies','Narrative inquiry'],food:['Cultural studies','Cultural studies'],wellbeing:['Human–nature relationships','Environmental psychology'],time:['Ecology','Ecology'],ethnography:['Anthropology','Anthropology'],history:['History','Material culture']};
  const entries=new Map();
  const put=(term,definition,lens,origin='Notebook glossary')=>{const key=conceptNormalize(term);if(key&&!entries.has(key))entries.set(key,{term,definition,lens,origin,key});};
  for(const m of [...translationModels(),...extraTranslationModels(),...additionalHumanModels(),...semanticModels(),...contextualModels()]){const [a,b]=lenses[m.id]||['',''];put(m.term,m.definition,a);put(m.companion,m.companionDef,b);}
@@ -2327,7 +2344,7 @@ function showNote(root,n,reference=false,editable=false){
 function nextSearchModel(state,note){
  if(!note)return null;
  const tidy=x=>String(x||'').toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g,' ').trim();
- const q=tidy([state.question,...(state.words||[])].join(' '));
+ const q=tidy([state.question,...(state.words||[]).filter(w=>inquiryTermsMatch(state.question,w))].join(' '));
  const source=[['article title',note.title],['published keywords',(note.pdfKeywords||[]).join('; ')],['selected passage',note.passage],['your reflection',note.reflection]];
  const prior=new Set([state.search,...(state.history||[])].map(tidy));
  const normalizeQuery=x=>tidy(x).split(/\s+and\s+/).sort().join(' and ');
@@ -2388,15 +2405,16 @@ function nextSearchModel(state,note){
 }
 function selectNextReadingNote(state){
  const notes=Array.isArray(state.notes)?state.notes:[];
- return notes.find(n=>n.id===state.activeNoteId)||notes[notes.length-1]||null;
+ const relevant=notes.filter(n=>researchNoteFits(state,n));return relevant.find(n=>n.id===state.activeNoteId)||relevant[relevant.length-1]||null;
 }
 function usableSearch(value){
  return String(value||'').trim().split(/\s+AND\s+/i).every(part=>/[\p{L}\p{N}]/u.test(part))&&/[\p{L}\p{N}]/u.test(String(value||''))&&!/(?:\.\.\.|…)/.test(String(value||''));
 }
 function fallbackSearch(state,note){
+ if(!note||!researchNoteFits(state,note))return null;
  const clean=x=>String(x||'').trim().replace(/\s+/g,' ');
  const used=new Set([state.search,...(state.history||[])].map(x=>clean(x).toLowerCase().split(/\s+and\s+/).sort().join(' and ')));
- const words=[...(state.words||[]),...String(state.search||'').split(/\s+AND\s+/i)].map(clean).filter(usableSearch);
+ const words=[...(state.words||[]),...String(state.search||'').split(/\s+AND\s+/i)].map(clean).filter(w=>usableSearch(w)&&inquiryTermsMatch(state.question,w));
  const title=clean(note?.title).replace(/[“”"‘’]/g,'');
  const candidates=[...(note?.pdfKeywords||[]),title].map(clean).filter(x=>x.length>=3&&x.length<=150&&usableSearch(x));
  for(const a of words)for(const b of candidates){
@@ -2556,7 +2574,7 @@ function render(focus=false){app.replaceChildren();controlSequence=0;const step=
   edit.append(field('My search words','nextSearch',0),btn('Use my edited search →',()=>proceed(state.nextSearch),'secondary'));
   body.append(edit);
  }else{
-  body.append(el('p','No reliable new combination was found in the saved article. Return to your note to review its title, passage and keywords.'));
+  body.append(el('p','No clear next search was found for your current question. You can revisit your saved notes or enter a new search.'));
   body.append(btn(note?'Review my saved notes →':'Return to my research question →',()=>{if(note){state.notesReturn=7;go(8);}else go(3);}));
   const edit=el('details');edit.append(el('summary','Enter my own search'),field('My search words','nextSearch',0),btn('Use my search →',()=>proceed(state.nextSearch),'secondary'));body.append(edit);
  }
@@ -2572,7 +2590,7 @@ function render(focus=false){app.replaceChildren();controlSequence=0;const step=
  const saved=state.notes||[];
  body.append(el('p','Review your research and carry what you have learned into your working thesis. You can return to research later.'),el('h2',saved.length+' completed reading note'+(saved.length===1?'':'s')));
  if(state.question)body.append(el('p','My research question: '+state.question,'hint'));
- if(state.criticalLens?.trim())body.append(el('p','My working critical lens: '+state.criticalLens,'hint'));
+ if(state.criticalLens?.trim())body.append(el('p','My working critical lens: '+state.criticalLens+(state.lensNeedsReview?' · Revisit if your question has changed.':''),'hint'));
  if(saved.length){body.append(btn(researchHandoff(state).label,continueFromResearch),btn('Work on my annotated bibliography',openBibliography,'secondary'));}
  else body.append(btn('Return to my research question →',()=>go(3)));
  supportDrawer(body,'Review my research materials',tools=>{tools.append(journalTabLink());reviewNoteList(tools,saved);strandShelf(tools);
