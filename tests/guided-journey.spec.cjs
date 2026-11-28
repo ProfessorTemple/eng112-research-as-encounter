@@ -122,3 +122,13 @@ test('continuity review identifies a possible crossing without changing the essa
  expect(saved.criticalLens).toBe('Cultural studies and family belonging');
  expect(saved.essayDraft).toBe(draft);
 });
+
+test('conceptual connections are not confused with a repeated original thesis',async({page})=>{
+ const draft=['Ancestry and kinship helped shape belonging in our family.','Displacement, migration and cultural memory shaped heritage. Across the generations, people crossed borders, carried traditions, shared meals, taught children their songs, kept letters, remembered rituals, and maintained ties to distant homelands despite economic hardship.','Ancestry and kinship still shape belonging in the family.'].join('\n\n');
+ await seed(page,{...fixture,step:25,question:'How do ancestry and kinship shape belonging?',workingThesis:'Ancestry and kinship sustain belonging.',strengthenedThesis:'',reconsideredThesis:'',essayDraft:draft});
+ await expect(page.getByRole('heading',{name:'A possible conceptual relationship',exact:true})).toBeVisible();
+ await page.getByText('Follow my central inquiry',{exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Cultural memory, kinship and belonging',exact:true})).toBeVisible();
+ await expect(page.getByText('Second set of wording: cultural memory, heritage, displacement, migration',{exact:true})).toBeVisible();
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
+});
