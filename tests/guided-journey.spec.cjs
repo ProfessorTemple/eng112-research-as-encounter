@@ -550,7 +550,7 @@ test('diachronic trail distinguishes possible growth from mere wording changes',
  ['Gardens carry memory.','Gardens carry memory.','The reading deepened my understanding.','specific evidence deepened'],
  ['Silence means care.','Silence means care.','I still do not know why he was silent.','What remains unresolved'],
  ['Silence means care.','Silence can mean conflict.','I initially assumed silence was supportive.','earlier assumption'],
- ['Gardens carry memory.','Gardens carry memory!','','wording differs']
+ ['Gardens carry memory.','Gardens carry memory!','','unchanged or nearly identical']
  ];
  for(const [before,after,reflection,prompt] of cases){
   await seed(page,{...fixture,step:21,initialThesis:before,workingThesis:before,strengthenedThesis:'An intermediate formulation.',reconsideredThesis:after,thesisReflection:reflection,notes:[{id:'n1',title:'Unrelated astronomy',reflection:'Telescopes measure orbital periods.'}],connections:[],strands:[],assumptionPlan:'',alternativePlan:''});
@@ -694,4 +694,9 @@ test('bibliography carry-forward applies inquiry relevance without replacing lat
  expect(saved.bibCarry).toEqual(['n1']);expect(saved.notes).toEqual(fixture.notes);
  await click(page,'Begin drafting my essay →');
  await expect(page.getByText('Compare my bibliography thesis with my current thesis',{exact:true})).toBeVisible();
+});
+
+test('revised inquiry cannot revive unrelated fallback words',async({page})=>{
+ await seed(page,{...fixture,step:3,question:'Why did this matter to me?',words:['urban trees','shade'],keywords:[],notes:[],search:'urban trees AND shade',inquiryRevised:true});
+ await expect(page.getByLabel('Search words (you can edit these)',{exact:true})).toHaveValue('');
 });
