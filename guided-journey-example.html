@@ -25,7 +25,7 @@ h1:focus,h2:focus,.notice:focus{outline:2px solid #80551e;outline-offset:4px}
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
 const REFERENCE_VIEW=new URLSearchParams(location.search).get('view')==='journal';
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0,evidencePlan:'',assumptionPlan:'',alternativePlan:'',inquiryReviewed:false,initialThesis:'',strengthenedThesis:'',evidenceReadiness:'',writingEvidenceNote:'',researchReturn:0,essayTitle:'',essayDraft:'',reconsideredThesis:'',thesisReflection:'',writingComplete:false,strands:[],sourceOrigin:'',braidSections:[],braidActive:'',draftBraidId:'',revisionStarted:false,revisionOriginal:'',revisionPasses:{},revisionChecks:{},revisionFinished:false,revisionThesisReturn:false,paperName:'',paperCourse:'',paperDate:'',paperAbstract:'',paperKeywords:'',paperReferences:'',paperDisclosure:'',figures:[],essayReview:{},courseSection:'',firstEncounter:'',firstEncounterRecovered:false,criticalLens:'',lensNeedsReview:false,reciprocityReflection:'',agencyDecisions:[],quietRevision:false,independentRevision:false,noteEditReturn:0,bibInitialized:false,bibReturn:9,bibPhase:0,bibActive:'',bibEntries:[],bibCarry:[],bibLens:'',bibThesis:'',bibOverview:'',bibKeywords:'',bibState:'',bibQuestion:'',bibDate:'',bibDisclosure:''});
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[],storyOne:'',storyTwo:'',storyThree:'',workingThesis:'',thesisSaved:false,thesisStep:0,evidencePlan:'',assumptionPlan:'',alternativePlan:'',inquiryReviewed:false,initialThesis:'',strengthenedThesis:'',evidenceReadiness:'',writingEvidenceNote:'',researchReturn:0,essayTitle:'',essayDraft:'',reconsideredThesis:'',thesisReflection:'',writingComplete:false,strands:[],sourceOrigin:'',braidSections:[],braidActive:'',draftBraidId:'',revisionStarted:false,revisionOriginal:'',revisionPasses:{},revisionChecks:{},revisionFinished:false,revisionThesisReturn:false,paperName:'',paperCourse:'',paperDate:'',paperAbstract:'',paperKeywords:'',paperReferences:'',paperDisclosure:'',figures:[],essayReview:{},courseSection:'',firstEncounter:'',firstEncounterRecovered:false,criticalLens:'',lensNeedsReview:false,inquiryRevised:false,reciprocityReflection:'',agencyDecisions:[],quietRevision:false,independentRevision:false,noteEditReturn:0,bibInitialized:false,bibReturn:9,bibPhase:0,bibActive:'',bibEntries:[],bibCarry:[],bibLens:'',bibThesis:'',bibOverview:'',bibKeywords:'',bibState:'',bibQuestion:'',bibDate:'',bibDisclosure:''});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
@@ -238,14 +238,16 @@ function inquiryTermsMatch(question,value){
 function researchNoteFits(st,n){
  if(!n)return false;
  const q=String(st.question||'').trim(),old=String(n.question||'').trim();
- if(!q||!old||conceptNormalize(q)===conceptNormalize(old))return true;
+ if(!q||old&&conceptNormalize(q)===conceptNormalize(old))return true;
+ if(!old&&!st.inquiryRevised)return true;
  return inquiryTermsMatch(q,[n.title,n.passage,n.reflection,...(n.pdfKeywords||[])].join(' '));
 }
 function questionChanged(st,previous){
  const q=String(st.question||'').trim();
  if(conceptNormalize(q)===conceptNormalize(previous))return false;
+ if(String(previous||'').trim())st.inquiryRevised=true;
  st.nextSearch='';
- st.outcome='';
+ if(st.outcome!=='question')st.outcome='';
  st.lensNeedsReview=!!String(st.criticalLens||'').trim();
  return true;
 }
@@ -1822,7 +1824,7 @@ function restraintMode(st,layer,model){
   try{const parts=JSON.parse(x.key);return Array.isArray(parts)&&parts.length===5&&JSON.stringify(['',...parts.slice(1)])===signature;}catch{return false;}
  });
  if(earlier)return {open:false,reason:'considered'};
- if(st.quietRevision===true)return {open:false,reason:'quiet'};
+ if(st.quietRevision===true||st.independentRevision===true)return {open:false,reason:'quiet'};
  return {open:true,reason:'new'};
 }
 function supportDrawer(root,label,build){
@@ -1853,7 +1855,7 @@ function adaptiveRevisionCard(root,layer){
   if(model.context){const d=el('details');d.append(el('summary','See related material'),el('p',model.context));host.append(d);}
   if(model.excerpt){const d=el('details');d.append(el('summary','See the passage to revisit'),el('p',model.excerpt,'query'));host.append(d);}
   host.append(el('p','A suggestion based on your text and saved notes, not a grade or a verdict. Keep what works in your own voice.','hint'));
-  if(detail){const chosen=el('p','','hint');chosen.setAttribute('role','status');const paint=entry=>{chosen.textContent=entry?'Your decision: '+agencyOptions().find(o=>o.id===entry.choice).label+'. You can continue.':'';chosen.hidden=!entry;};paint(agencyRead(state,layer.id,model));host.append(chosen);agencyPanel(host,layer.id,model,paint);}
+  if(detail){const chosen=el('p','','hint');chosen.setAttribute('role','status');const paint=entry=>{chosen.textContent=entry?'Your decision: '+agencyOptions().find(o=>o.id===entry.choice).label+'. You can continue.':'';chosen.hidden=!entry;};paint(agencyRead(state,layer.id,model));host.append(chosen);agencyPanel(host,layer.id,model,entry=>{paint(entry);if(entry&&['retain','decline'].includes(entry.choice)){summary.textContent='Suggestion already considered · revisit if useful';}});}
   apply();
  }
  refresh();return {refresh,apply};
@@ -2675,7 +2677,7 @@ function render(focus=false){app.replaceChildren();controlSequence=0;const step=
  if(step===16){
  body.append(el('p','This is a working thesis, not a finished essay. Read the three stories as one developing insight.'));
  const map=el('details');map.append(el('summary','Review my three stories'));for(const [label,value] of [['Observation',state.storyOne],['Interpretation',state.storyTwo],['Significance',state.storyThree]])map.append(el('h2',label),el('p',value));body.append(map);
- body.append(el('p','The initial draft joins only your own words. Revise it for coherence, an arguable interpretation and earned significance.','hint'));
+ body.append(el('p','The initial draft joins only your own words. If you revised your three stories after saving a thesis, compare them with the existing thesis below. Your saved wording is not replaced automatically.','hint'));
  body.append(field('My working thesis','workingThesis',6));const meter=el('section');meter.setAttribute('aria-label','Three-Story Strength Meter');body.append(meter);renderStrengthMeter(meter);document.getElementById('input-workingThesis').addEventListener('input',()=>renderStrengthMeter(meter));
  body.append(btn('Save thesis and examine my claims →',()=>{
   if(!state.workingThesis.trim()){notice('Write or revise your working thesis first.');return;}
