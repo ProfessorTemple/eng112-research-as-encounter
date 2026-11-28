@@ -3,7 +3,7 @@
 <style>
 :root{color-scheme:light;--ink:#203e34;--muted:#526c60;--green:#245d4c;--line:#c5d3c8;--paper:#faf9f2;--soft:#eef3ea}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}header{background:#203f34;color:white;padding:1rem max(1rem,calc((100% - 640px)/2))}header small{color:#dce5db;display:block;letter-spacing:.08em;font-size:.72rem}header strong{font-size:1.12rem}main{max-width:650px;margin:0 auto;padding:1.15rem 1rem 2rem}h1{font-family:Georgia,serif;font-size:clamp(1.75rem,5vw,2.35rem);line-height:1.14;margin:.5rem 0 .9rem;font-weight:500}h2{font-size:1.12rem;margin:.9rem 0 .35rem}p{margin:.55rem 0 1rem}small,.hint{font-size:.88rem;color:var(--muted)}button,input,textarea,select,a.action{font:inherit}button,a.action{cursor:pointer;min-height:48px;border:1px solid var(--green);border-radius:9px;padding:.7rem .85rem;background:transparent;color:var(--green);font-weight:650;text-align:center;text-decoration:none}button.primary,a.primary{display:block;width:100%;background:var(--green);color:#fff;margin-top:1rem}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a26d28;outline-offset:3px}textarea,input[type=text]{display:block;width:100%;border:1px solid #9ab0a2;border-radius:8px;padding:.7rem;background:white;color:var(--ink);margin:.35rem 0 .8rem;font:inherit}textarea{resize:vertical}label{font-weight:600}fieldset{border:0;padding:0;margin:.75rem 0;min-width:0}legend{font-weight:650;margin-bottom:.4rem}.option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:9px;padding:.7rem;margin:.45rem 0;background:#fff;font-weight:500;cursor:pointer}.option:has(input:checked){background:var(--soft);border-color:var(--green)}.option input{margin:.3rem 0 0;flex:none;width:20px;height:20px;accent-color:var(--green)}.option span{min-width:0}.option small{display:block;margin-top:.2rem}.progress{display:flex;gap:5px;margin:.4rem 0 1.1rem}.progress span{flex:1;height:5px;background:#dce5db;border-radius:6px}.progress .done{background:#398063}.progress .current{background:#245d4c}.topline{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.85rem}.callout{background:var(--soft);border-left:3px solid #608976;padding:.75rem .9rem;margin:.8rem 0}.callout p{margin:.25rem 0}.query{font-weight:650;overflow-wrap:anywhere}.choice{display:block;width:100%;text-align:left;margin:.55rem 0;background:#fff}.choice small{display:block;font-weight:400}.secondary{display:inline-block;margin:.4rem 0}.quiet{border:0;padding:.4rem .15rem;min-height:44px;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:.65rem}.nav button{font-size:.88rem}.notice{font-size:.9rem;color:var(--muted);min-height:1.2em}.notice:empty{display:none}.screenreader{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
  .strength-row{padding:.65rem 0;border-top:1px solid var(--line)}.strength-row p{margin:.2rem 0}.strength-label{font-weight:650;font-size:.85rem}.strength-track{display:flex;gap:4px;margin:.35rem 0}.strength-track span{height:7px;flex:1;border-radius:4px;background:#dce5db}.strength-track .missing{background:#a33a35}.strength-track .developing{background:#a56c17}.strength-track .promising{background:#398063}
-</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 16</small></header><main id="app"></main>
+</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 17</small></header><main id="app"></main>
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
@@ -327,7 +327,7 @@ function thesisResumeStep(state){
 }
 function journalTabLink(){
  const a=el('a','Open Reading Journal in a new tab ↗','action secondary');
- const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided16');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
+ const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided17');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
  return a;
 }
 function renderJournalReference(){
@@ -504,24 +504,78 @@ async function guidancePDFPages(id,report,isCurrent){
   page.cleanup();if(stopped)break;
  }const result={pages,readable};if(guidancePageCache.size>=8)guidancePageCache.delete(guidancePageCache.keys().next().value);guidancePageCache.set(id,result);return result;}finally{await task.destroy().catch(()=>{});}
 }
+function sourceIdentity(note){
+ const doi=doiIdentifier(note.doi);
+ const title=String(note.title||'').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+ return {doi:doi.toLowerCase(),title,pdfId:note.pdfId||'',id:note.id};
+}
+function distinctVoices(a,b){
+ const x=a.identity,y=b.identity;
+ if(x.id===y.id||x.pdfId&&x.pdfId===y.pdfId||x.doi&&x.doi===y.doi||x.title&&x.title===y.title)return false;
+ return true;
+}
+function voicePair(candidates,focus){
+ const ordered=[...candidates].sort((a,b)=>b.score-a.score);
+ let best=null;
+ const focusTerms=new Set(guidanceTerms(focus));
+ for(let i=0;i<ordered.length;i++)for(let j=i+1;j<ordered.length;j++){
+  const a=ordered[i],b=ordered[j];
+  if(!distinctVoices(a,b))continue;
+  const shared=guidanceTerms(a.excerpt).filter(w=>focusTerms.has(w)&&guidanceTerms(b.excerpt).includes(w));
+  if(shared.length<2)continue;
+  const normText=t=>String(t).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+  if(normText(a.excerpt)===normText(b.excerpt)||normText(a.excerpt).includes(normText(b.excerpt))||normText(b.excerpt).includes(normText(a.excerpt)))continue;
+  const score=a.score+b.score+shared.length*2;
+  if(!best||score>best.score)best={a,b,shared,score,question:voiceQuestion(a,b,focus,shared)};
+ }
+ return best;
+}
+function voiceQuestion(a,b,focus,shared){
+ const x=a.excerpt,y=b.excerpt;
+ const tentative=/\b(?:may|might|could|possibly|uncertain|not necessarily|suggests?)\b/i;
+ const limitation=/\b(?:however|although|but|yet|limited|limitation|unclear|cannot|does not|did not|rather than)\b/i;
+ const causal=/\b(?:caus(?:e|es|ed|ing)|proves?|interven(?:e|es|ed|tion)|creates?|determines?|leads? to|results? in)\b/i;
+ const scope=/\b(?:must|always|never|everyone|all people|only if|necessary)\b/i;
+ const topic=shared.slice(0,2).join(' and ');
+ if(causal.test(focus)||scope.test(focus))return {label:'Test the reach of your claim',text:'What do these passages actually establish about '+topic+'? Distinguish the authors’ interpretations from demonstrated causes or universal conclusions. Would either passage require you to qualify your claim?'};
+ if(limitation.test(x)||limitation.test(y)||tentative.test(x)!==tentative.test(y))return {label:'Look for a complication',text:'Read both passages in context. Does a qualification or limitation in either passage change how you understand '+topic+'? Explain what you can responsibly conclude when you read them together.'};
+ return {label:'Connect the two perspectives',text:'Both passages use language related to '+topic+'. Do their authors interpret that idea similarly, add different dimensions, or introduce a tension? Explain the relationship in your own words, and how it changes your interpretation.'};
+}
+function retainVoiceCandidate(map,n,match,kind,locator){
+ if(!match)return;
+ const item={...match,id:n.id,title:n.title||'Untitled source',locator:locator||'',kind,identity:sourceIdentity(n)};
+ const old=map.get(n.id);
+ if(!old||item.score>old.score)map.set(n.id,item);
+}
+function renderVoicePassage(root,m,label){
+ const box=el('div','','callout');box.append(el('h3',label+' · '+m.title),el('p',m.kind+(m.locator?' · '+m.locator:''),'hint'),el('p',m.excerpt,'query'));
+ box.append(el('p',m.kind==='saved passage'?'Saved note text: verify quotation or paraphrase in the original.':'Extracted PDF text: verify context and printed page number.','hint'));root.append(box);
+}
+function renderVoicePair(root,pair){
+ root.append(el('h2','Bring two scholarly voices into conversation'),el('p','Possible shared language: '+pair.shared.slice(0,4).join(', '),'hint'));
+ renderVoicePassage(root,pair.a,'First voice');renderVoicePassage(root,pair.b,'Second voice');
+ root.append(el('h3',pair.question.label),el('p',pair.question.text),el('p','These are possible connections based on vocabulary and wording cues, not a determination that the authors agree or disagree.','hint'),journalTabLink());
+}
+
 async function guideWriting(state,focus,report,isCurrent){
- const notes=guidanceNotes(state,focus);let best=notes[0]||null,scanned=0,unavailable=0;
+ const bySource=new Map();let scanned=0,unavailable=0;
+ for(const n of state.notes||[])retainVoiceCandidate(bySource,n,guidanceSnippet(focus,n.passage),'saved passage',n.location);
  const pdfs=(state.notes||[]).filter(n=>n.pdfId);
  for(const n of pdfs){
   if(!isCurrent())return null;
   try{
    const data=await guidancePDFPages(n.pdfId,(p,total)=>report(n.title,p,total),isCurrent);if(!isCurrent())return null;
    if(!data.readable){unavailable++;continue;}scanned++;
-   for(const page of data.pages){const m=guidanceSnippet(focus,page.text);if(m&&(!best||m.score>best.score))best={...m,id:n.id,title:n.title||'Untitled source',locator:'PDF page '+page.page,kind:'PDF text'};}
+   for(const page of data.pages)retainVoiceCandidate(bySource,n,guidanceSnippet(focus,page.text),'PDF text','PDF page '+page.page);
   }catch(e){if(!isCurrent())return null;unavailable++;}
  }
- return {best,scanned,unavailable,total:pdfs.length,unattached:(state.notes||[]).length-pdfs.length};
+ const candidates=[...bySource.values()].sort((a,b)=>b.score-a.score);return {best:candidates[0]||null,pair:voicePair(candidates,focus),scanned,unavailable,total:pdfs.length,unattached:(state.notes||[]).length-pdfs.length};
 }
 function writingGuidanceControl(root){
- const box=el('section','','callout');box.append(el('h2','One next writing move'),el('p','Place your cursor in a paragraph or highlight a passage in your draft, then ask the notebook to look for related evidence.','hint'));
+ const box=el('section','','callout');box.append(el('h2','One next writing move'),el('p','Place your cursor in a paragraph or highlight a passage in your draft, then ask the notebook to find related evidence and possible connections between sources.','hint'));
  const status=el('p','','hint');status.setAttribute('role','status');const result=el('div');
  let run=0;
- const action=btn('Find evidence for this paragraph',async()=>{
+ const action=btn('Find research connections for this paragraph',async()=>{
   const editor=document.getElementById('input-essayDraft');
   const focus=draftFocus(editor.value,editor.selectionStart,editor.selectionEnd);
   if(guidanceTerms(focus).length<3){status.textContent='Write or select a few meaningful words first.';return;}
@@ -534,8 +588,10 @@ function writingGuidanceControl(root){
    const changed=draftFocus(editor.value,editor.selectionStart,editor.selectionEnd)!==focus;
    result.append(el('p',changed?'Suggestion for your earlier selection:':'For this part of your draft:', 'hint'),el('p',focus.slice(0,220)+(focus.length>220?'…':'')));
    const m=response.best;
-   if(m){
+   if(response.pair){renderVoicePair(result,response.pair);}
+   else if(m){
     result.append(el('h2','Revisit '+m.title),el('p',m.kind+(m.locator?' · '+m.locator:''),'hint'),el('p',m.excerpt,'query'),el('p','Possible related terms: '+m.matches.slice(0,4).join(', '),'hint'),el('p',guidanceCaution(focus)),el('p',m.kind==='saved passage'?'This is your saved note text. Check whether it is a quotation or paraphrase in the original.':'This is extracted PDF text. Verify the quotation, context and printed page number.','hint'),journalTabLink());
+    result.append(el('p','No second distinct passage with enough shared language was found. One source can still be useful; consult your other sources before deciding whether more research is needed.','hint'));
    }else{
     result.append(el('h2','No clear passage match'),el('p','The notebook did not locate a close vocabulary match. That does not mean your sources are inadequate. Revisit your notes and consider whether this claim needs narrower wording or a different source.'),el('p',guidanceCaution(focus)),journalTabLink());
    }
@@ -874,8 +930,8 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  body.append(el('p','Write in your own voice. Your working thesis gives you direction, but your essay can change your understanding.'),el('h2','My working thesis'),el('div',state.reconsideredThesis||state.strengthenedThesis||state.workingThesis,'callout'));if(state.reconsideredThesis&&state.thesisReflection)body.append(el('p','Revision focus: '+state.thesisReflection,'hint'));
  if(state.writingEvidenceNote)body.append(el('p','My evidence plan: '+state.writingEvidenceNote,'hint'));
  body.append(journalTabLink(),field('Working essay title','essayTitle'),field('My essay draft','essayDraft',14,'Begin with your encounter. Bring scholarly voices into conversation with your interpretation.'));
- body.append(btn('Save draft and reconsider my working thesis →',()=>{if(!state.essayDraft.trim()){notice('Write a draft before reconsidering your thesis.');return;}if(!state.reconsideredThesis)state.reconsideredThesis=state.strengthenedThesis||state.workingThesis;go(21);}));
  writingGuidanceControl(body);
+ body.append(btn('Save draft and reconsider my working thesis →',()=>{if(!state.essayDraft.trim()){notice('Write a draft before reconsidering your thesis.');return;}if(!state.reconsideredThesis)state.reconsideredThesis=state.strengthenedThesis||state.workingThesis;go(21);}));
  const extra=el('details');extra.append(el('summary','Need more evidence while writing?'),btn('Find another source',()=>researchDetour(20),'secondary'));body.append(extra);
  const notes=el('details');notes.append(el('summary','Consult my research notes and PDFs'));for(const n of state.notes||[])showNote(notes,n,true);body.append(notes);
  }
