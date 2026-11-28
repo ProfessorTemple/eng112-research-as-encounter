@@ -6,7 +6,7 @@
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false});
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details',notes:[],activeNoteId:'',nextNoteId:1,nextSearch:'',notesReturn:6,articleReturnId:'',pdfImportStatus:'',pdfId:'',connectionLeft:'',connectionRight:'',connectionKind:'',connectionReflection:'',connectionComplete:false,connections:[]});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
@@ -14,7 +14,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(state));storageOK=tr
 function backup(){save();const a=el('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({prototype:'guided-journey-v1',...state},null,2)],{type:'application/json'}));a.download='guided-journey-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 function btn(label,fn,cls='primary'){const b=el('button',label,cls);b.type='button';b.addEventListener('click',fn);return b;}
 function go(step){state.step=step;save();render(true);}
-function field(label,key,rows=0,placeholder=''){const wrap=el('div'),id='input-'+key,l=el('label',label),x=el(rows?'textarea':'input');l.htmlFor=id;x.id=id;if(rows)x.rows=rows;else x.type='text';x.placeholder=placeholder;x.value=state[key]||'';x.addEventListener('input',()=>{state[key]=x.value;save();});wrap.append(l,x);return wrap;}
+function field(label,key,rows=0,placeholder=''){const wrap=el('div'),id='input-'+key,l=el('label',label),x=el(rows?'textarea':'input');l.htmlFor=id;x.id=id;if(rows)x.rows=rows;else x.type='text';x.placeholder=placeholder;x.value=state[key]||'';x.addEventListener('input',()=>{state[key]=x.value;if(key==='connectionReflection')state.connectionComplete=false;save();});wrap.append(l,x);return wrap;}
 function notice(text){const n=document.getElementById('notice');if(n)n.textContent=text;}
 function norm(s){return String(s||'').trim().toLowerCase();}
 function wordOptions(text){const out=[];const patterns=[/\bholiday miracle\b/i,/\btraffic jam\b/i,/\bholiday dinner\b/i,/\bparents\b/i,/\b(?:being )?late\b/i,/\bwaiting\b/i,/\bfireflies\b/i,/\bgrandmother\b/i,/\btrees\b/i,/\bmemory\b/i];for(const p of patterns){const m=text.match(p);if(m)out.push(m[0]);}const stop=new Set('i me my the and to a an of was were it in on with for that is be have had do did not but they them we you your as at so from can would could when what how why about again go looked remember getting always like'.split(' '));for(const w of text.match(/[\p{L}][\p{L}-]*/gu)||[]){if(w.length>3&&!stop.has(norm(w))&&!out.some(x=>norm(x).split(' ').includes(norm(w))))out.push(w);}return [...new Set([...state.words,...out].map(norm))].slice(0,10);}
@@ -290,6 +290,14 @@ function notePDFControls(root,n){
   catch(e){if(status.isConnected){status.textContent=e.message||'PDF could not be saved.';input.disabled=false;}}
  });
 }
+function storeComparison(state){
+ const record={left:state.connectionLeft,right:state.connectionRight,kind:state.connectionKind,reflection:state.connectionReflection};
+ return [...(state.connections||[]).filter(x=>!(x.left===record.left&&x.right===record.right)),record];
+}
+function loadComparison(state,left,right){
+ const existing=(state.connections||[]).find(x=>x.left===left&&x.right===right);
+ return {...state,connectionLeft:left,connectionRight:right,connectionKind:existing?.kind||'',connectionReflection:existing?.reflection||'',connectionComplete:!!existing};
+}
 function sourcePair(notes,left,right){
  const ids=notes.map(n=>n.id);
  const a=ids.includes(left)?left:ids[0]||'';
@@ -419,7 +427,7 @@ function fallbackSearch(state,note){
 function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===0){app.append(el('p','GUIDED JOURNEY · WORKING EXAMPLE','hint'),el('h1','Start here'),el('p','Begin with something you experienced. Follow one small step at a time.'));app.append(btn(state.encounter?'Continue my example →':'Try the holiday miracle example →',()=>{if(!state.encounter)state.encounter=SAMPLE;go(1);}),btn('Start with my own experience',()=>{if(state.encounter&&!confirm('Replace this separate example?'))return;state=blank();go(1);},'secondary'));return;}
  const top=el('div','','topline');top.append(el('span',step<=5?'Research journey · '+step+' of 5':step===7?'Continue my research':'Reading Journal'),el('span',storageOK?'Saved on this device':'Backup recommended'));top.lastChild.id='save-state';const progress=el('div','','progress');progress.setAttribute('aria-label','Research journey progress');for(let i=1;i<=5;i++)progress.append(el('span','',i<step?'done':i===step?'current':''));app.append(top,progress);
- const title=el('h1',({1:'My freewrite',2:'Discover my words',3:'Connect my ideas',4:'Search the library',5:'What did you discover?',6:state.journalStage==='saved'?'Reading note saved':'My Reading Journal',7:'Build my next search',8:'My saved reading notes',9:'Review my research',10:'Connect my sources'})[step]);title.tabIndex=-1;app.append(title);
+ const title=el('h1',({1:'My freewrite',2:'Discover my words',3:'Connect my ideas',4:'Search the library',5:'What did you discover?',6:state.journalStage==='saved'?'Reading note saved':'My Reading Journal',7:'Build my next search',8:'My saved reading notes',9:'Review my research',10:'Connect my sources',11:'My source connection saved'})[step]);title.tabIndex=-1;app.append(title);
  const body=el('section');app.append(body);
  if(step===1){body.append(el('p','Describe an experience that stays with you.'),field('My experience','encounter',7),btn('Discover my words →',()=>{if(!state.encounter.trim()){notice('Write a little about your experience first.');return;}go(2);}));}
  if(step===2){body.append(el('p','Choose two or three phrases that make you curious.'));const group=el('fieldset');group.append(el('legend','Words from your writing','screenreader'));const cue=el('div','','callout');function refresh(){const w=state.words.map(norm);cue.hidden=w.length<2;cue.textContent=w.some(x=>x.includes('miracle'))&&w.some(x=>/waiting|late|traffic/.test(x))?'Possible connection: waiting for something beyond your control can open questions about hope and uncertainty.':w.length>=2?'What relationship do you notice between '+w[0]+' and '+w[1]+'?':'';}for(const w of wordOptions(state.encounter)){const l=el('label','','option'),r=el('input');r.type='checkbox';r.checked=state.words.includes(w);r.addEventListener('change',()=>{state.words=r.checked?[...state.words,w]:state.words.filter(x=>x!==w);save();refresh();});l.append(r,el('span',w));group.append(l);}refresh();body.append(group,cue,btn('Connect my ideas →',()=>{if(!state.words.length){notice('Choose at least one word.');return;}go(3);}));}
@@ -479,10 +487,11 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  const saved=state.notes||[];
  body.append(el('h2',saved.length+' completed reading note'+(saved.length===1?'':'s')));
  for(const n of saved)showNote(body,n);
+ if(state.connections?.length){body.append(el('h2','My saved source connections'));for(const c of state.connections){const names=[c.left,c.right].map(id=>saved.find(n=>n.id===id)?.title||'Source');const box=el('div','','callout');box.append(el('h2',names.join(' + ')),el('p',c.reflection));body.append(box);}}
  if(state.journalStage!=='saved'&&['pdfName','title','author','doi','passage','reflection'].some(k=>String(state[k]||'').trim())){
   body.append(el('h2','Unfinished article'),el('p',state.title||state.pdfName||'Citation not yet identified'),el('p','This article is not counted as a completed reading note.','hint'));
  }
- if(saved.length>=2)body.append(btn('Connect my sources →',()=>go(10)));
+ if(saved.length>=2)body.insertBefore(btn('Connect my sources →',()=>go(10)),body.children[1]||null);
  else body.append(el('p','Save two reading notes before comparing sources. You can return to your journal.'));
  body.append(btn('Return to my Reading Journal',()=>go(6),'secondary'));
  body.append(el('p','Keep your original PDFs. The notebook backup contains notes and citations, not PDF files.','hint'));
@@ -499,10 +508,10 @@ function render(focus=false){app.replaceChildren();const step=state.step;
    const l=el('label',label),select=el('select');select.id='choose-'+key;l.htmlFor=select.id;
    for(const n of notes){const o=el('option',n.title||'Untitled source');o.value=n.id;select.append(o);}
    select.value=state[key];select.addEventListener('change',()=>{
-    if(state[key]!==select.value&&state.connectionReflection.trim()&&!confirm('Changing sources will clear this comparison reflection. Continue?')){select.value=state[key];return;}
+    if(state[key]!==select.value&&state.connectionReflection.trim()&&!state.connectionComplete&&!confirm('This comparison has unsaved changes. Switch to another pair anyway?')){select.value=state[key];return;}
     const other=key==='connectionLeft'?'connectionRight':'connectionLeft';
     if(select.value===state[other]){select.value=state[key];notice('Choose two different sources.');return;}
-    state[key]=select.value;state.connectionReflection='';state.connectionKind='';state.connectionComplete=false;save();render(false);
+    state=loadComparison(state,key==='connectionLeft'?select.value:state.connectionLeft,key==='connectionRight'?select.value:state.connectionRight);save();render(false);document.getElementById('choose-'+key)?.focus();
    });body.append(l,select);
    const n=notes.find(n=>n.id===state[key]);
    const box=el('div','','callout');box.append(el('h2',n.title||'Untitled source'),el('p',n.passage),el('p','My reflection: '+n.reflection));body.append(box);
@@ -515,12 +524,18 @@ function render(focus=false){app.replaceChildren();const step=state.step;
   }
   body.append(group,field('What do you understand differently when you read these sources together?','connectionReflection',4),btn('Save my connection →',()=>{
    if(!state.connectionKind||!state.connectionReflection.trim()){notice('Choose a relationship and explain it in your own words.');return;}
-   state.connectionComplete=true;save();notice(storageOK?'Connection saved on this device.':'Connection kept in this session. Save a backup.');
+   state.connections=storeComparison(state);state.connectionComplete=true;save();go(11);
   }));
   if(state.connectionComplete)body.append(el('p','Your connection has been saved. You can return to your sources.','callout'));
   body.append(btn('Return to my sources',()=>go(9),'quiet'));
  }
 
+ }
+ if(step===11){
+ const confirmation=el('div','','callout');confirmation.setAttribute('role','status');confirmation.append(el('h2',storageOK?'✓ Source connection saved':'Source connection kept in this session'),el('p',storageOK?'Your interpretation is saved on this device.':'Save a backup before closing.'));
+ body.append(confirmation,el('h2','What I understand now'),el('p',state.connectionReflection));
+ body.append(el('p','You have '+(state.connections||[]).length+' saved source connection(s). You can compare another pair or return to your research.'));
+ body.append(btn('Review my research →',()=>go(9)),btn('Compare more sources',()=>go(10),'secondary'));
  }
  if(step===6&&state.journalStage!=='saved'){
  if(state.articleReturnId&&state.journalStage==='details')body.append(el('p','Adding article '+((state.notes||[]).length+1)+' · '+state.notes.length+' reading note'+(state.notes.length===1?'':'s')+' already saved.','hint'));
@@ -621,6 +636,7 @@ function render(focus=false){app.replaceChildren();const step=state.step;
 }
  const message=el('p','','notice');message.id='notice';message.setAttribute('role','status');app.append(message);
  const nav=el('nav','','nav');nav.setAttribute('aria-label','Notebook navigation');nav.append(btn('← Previous page',()=>{
+ if(step===11){go(10);return;}
  if(step===10){go(9);return;}
  if(step===9){go(6);return;}
  if(step===8){go(state.notesReturn===8?6:state.notesReturn||6);return;}
