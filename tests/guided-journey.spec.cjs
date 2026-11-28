@@ -137,8 +137,8 @@ test('conceptual translation offers editable searches and preserves student voic
  const question='Why do loud sounds overwhelm me, but walking in the woods helps me notice things?';
  const encounter='I heard loud sounds in the city and felt overwhelmed. Walking in the woods helped me notice the birds.';
  await seed(page,{...fixture,step:3,question,encounter,words:['loud sounds','woods'],keywords:[],history:[],search:''});
- await expect(page.getByText('sensory regulation: How a person manages or responds to sensory input.',{exact:false})).toBeVisible();
- await expect(page.getByText('phenomenology: A philosophical approach to describing and examining lived experience.',{exact:false})).toBeVisible();
+ await expect(page.locator('fieldset').getByText('sensory regulation: How a person manages or responds to sensory input.',{exact:false})).toBeVisible();
+ await expect(page.locator('fieldset').getByText('phenomenology: A philosophical approach to describing and examining lived experience.',{exact:false})).toBeVisible();
  await expect(page.getByLabel('My research question',{exact:true})).toHaveValue(question);
  await page.getByLabel('Search words (you can edit these)',{exact:true}).fill('woods AND sensory regulation');
  await click(page,'Use this search →');
@@ -218,4 +218,22 @@ test('third story supports earned significance without forcing a universal claim
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.storyThree).toBe('Listening can make room for my grandfather’s perspective.');
  expect(saved.workingThesis).toContain(two);
+});
+
+test('particularity guides observation and abstract prose without changing student writing',async({page})=>{
+ const encounter='I sat across from my grandfather at Waffle House. He poured coffee and told me to listen.';
+ await seed(page,{...fixture,step:13,encounter,storyOne:'Family relationships are important.'});
+ await expect(page.getByRole('heading',{name:'Make the observation more particular',exact:true})).toBeVisible();
+ const observation=page.getByLabel('My observation',{exact:true});
+ await observation.fill('At Waffle House, my grandfather told me that listening was more important than speaking.');
+ await observation.blur();
+ await expect(page.getByRole('heading',{name:'Keep observation and interpretation distinct',exact:true})).toBeVisible();
+ await click(page,'Continue to Story Two →');
+ const draft='Intergenerational communication is essential for the preservation of cultural knowledge.';
+ await seed(page,{...fixture,step:27,encounter,storyOne:'',essayDraft:draft});
+ await expect(page.getByRole('heading',{name:'Reconnect the idea with a particular',exact:true})).toBeVisible();
+ await page.getByText('Keep my experience and evidence particular',{exact:true}).click();
+ await page.getByText('Revisit a saved particular',{exact:true}).click();
+ await expect(page.getByText(encounter,{exact:true}).last()).toBeVisible();
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
 });
