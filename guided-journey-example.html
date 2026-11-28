@@ -1338,7 +1338,7 @@ function intellectualTrail(st){
  const target=new Set(bridgeTerms([after,reflection,last].join(' ')));
  const ranked=candidates.map((x,i)=>({...x,i,score:bridgeTerms(x.text).filter(t=>target.has(t)).length})).sort((a,b)=>b.score-a.score||a.i-b.i);
  const material=ranked.find(x=>x.score>0)||null;
- const relation=!before||!after?'incomplete':cmp(before)===cmp(after)?'unchanged':'different';
+ const relation=!before||!after?'incomplete':conceptNormalize(before)===conceptNormalize(after)?'unchanged':'different';
  let question='What has your inquiry helped you understand, qualify or ask more precisely? You do not need to change your worldview to demonstrate discovery.';
  if(!before||!after)question='Record your working thesis and revisit it after drafting. What might your evidence help you understand more precisely?';
  else if(!first)question='Your earliest thesis is not separately recorded. Compare the saved working and later thesis without assuming that the first version is available.';
@@ -1346,7 +1346,7 @@ function intellectualTrail(st){
  else if(added.length)question='Your later thesis introduces wording not found in the earliest saved thesis: '+added.join(', ')+'. Does this reflect a new insight, a more precise expression of the same idea, or something else? Explain what led you there.';
  else question='Your thesis wording differs. What changed in the meaning, if anything? Consider a particular experience, passage or conversation that helps explain why.';
  const movement=diachronicInquiry(st,before,after);
- if(movement&&movement.id!=='stable'&&movement.id!=='unclassified')question=movement.prompt;
+ if(movement&&movement.id!=='unclassified')question=movement.prompt;
  return {provenance:intellectualProvenance(st,before,after),movement,intermediate:strengthened&&cmp(strengthened)!==cmp(before)&&cmp(strengthened)!==cmp(after)?strengthened:'',encounter:original||saved,encounterLabel:original?(st.firstEncounterRecovered?'Earliest available saved encounter':'Opening freewrite saved before research'):'Saved freewrite (earliest version not separately retained)',before,beforeLabel:first?'First saved working thesis':'Working thesis (earliest version not separately retained)',after,afterLabel:current?'Reconsidered thesis':strengthened?'Strengthened working thesis':'Current working thesis',relation,added,retained,material,reflection,last,question};
 }
 function intellectualTrailPanel(root){
@@ -1464,11 +1464,11 @@ function semanticCues(value){
  const text=String(value||'').replace(/[’‘]/g,"'");
  const rules=[
  {id:'listening',pattern:/\b(?:wait(?:ed|s|ing)? until (?:I|we|he|she|they|someone) (?:had )?(?:finished|finish|stopped) (?:talking|speaking)|let (?:me|us|him|her|them) finish|(?:did not|didn't|does not|doesn't|never) interrupt(?:ed|s)? (?:me|us|him|her|them))\b/i},
- {id:'sharedpractice',pattern:/\b(?:nobody|no one|none of us) (?:had|needed|has|needs) to explain (?:why|what|how)\b/i},
- {id:'absence',pattern:/\b(?:room|house|home|kitchen|place)\b[^.!?]{0,70}\b(?:felt|feels|seemed|seems) different\b[^.!?]{0,50}\b(?:gone|left|died|away)\b/i},
- {id:'signals',pattern:/\b(?:dog|cat|bird|animal)s?\b[^.!?]{0,55}\b(?:knew|knows|noticed|notices|reacted|responded)\b[^.!?]{0,35}\bbefore (?:I|we) (?:said|say|spoke|speak|moved|move)\b/i},
- {id:'public',pattern:/\b(?:everyone|everybody|people|staff|regulars) (?:knew|knows|remembered|remember|recognized|recognize) (?:my|our) name\b/i},
- {id:'sensory',pattern:/\b(?:couldn't|could not|can't|cannot|unable to|hard to) (?:think|concentrate|focus)\b[^.!?]{0,55}\b(?:noise|loud sounds?|crowd noise)\b|\b(?:noise|loud sounds?)\b[^.!?]{0,55}\b(?:couldn't|could not|can't|cannot) (?:think|concentrate|focus)\b/i}
+ {id:'sharedpractice',pattern:/\b(?:nobody|no one|none of us) (?:had|have|needed|need|has|needs) to explain (?:why|what|how)\b/i},
+ {id:'absence',pattern:/\b(?:room|house|home|kitchen|place)\b[^.!?]{0,70}\b(?:feel|felt|feels|seem|seemed|seems) different\b[^.!?]{0,50}\b(?:gone|left|died|away)\b/i},
+ {id:'signals',pattern:/\b(?:dog|cat|bird|animal)s?\b[^.!?]{0,55}\b(?:know|knew|knows|notice|noticed|notices|react|reacted|respond|responded)\b[^.!?]{0,35}\bbefore (?:I|we) (?:said|say|spoke|speak|moved|move)\b/i},
+ {id:'public',pattern:/\b(?:everyone|everybody|people|staff|regulars) (?:know|knew|knows|remembered|remember|recognized|recognize) (?:my|our) name\b/i},
+ {id:'sensory',pattern:/\b(?:couldn't|could not|can't|cannot|unable to|hard to) (?:(?:I|we|he|she|they) )?(?:think|concentrate|focus)\b[^.!?]{0,55}\b(?:noise|loud sounds?|crowd noise)\b|\b(?:noise|loud sounds?)\b[^.!?]{0,55}\b(?:couldn't|could not|can't|cannot) (?:think|concentrate|focus)\b/i}
  ];
  return rules.filter(r=>r.pattern.test(text)).map(r=>r.id);
 }
