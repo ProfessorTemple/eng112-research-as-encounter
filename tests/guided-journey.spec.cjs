@@ -716,3 +716,22 @@ test('visual hierarchy keeps optional planning and formatting tools collapsed',a
  const format=page.getByText('Word document formatting',{exact:true}).locator('..');
  await expect(format).not.toHaveAttribute('open','');
 });
+
+test('visual journey and braid reflect saved work without altering it',async({page})=>{
+ await seed(page,{...fixture,step:23});
+ await page.getByText('My Journey',{exact:true}).click();
+ const current=page.locator('.journey-node[aria-current="step"]');
+ await expect(current).toContainText('Braiding Map');
+ await page.getByText('See my selected strands as a braid',{exact:true}).click();
+ await expect(page.locator('.braid-strands')).toContainText('Garden study');
+ await expect(page.locator('.braid-center')).toContainText('Garden memory');
+ await page.getByLabel('What is this section really about?',{exact:true}).fill('Family belonging');
+ await expect(page.locator('.braid-center')).toContainText('Family belonging');
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.essayDraft).toBe(essay);
+ expect(saved.notes).toEqual(fixture.notes);
+ await seed(page,{...fixture,step:12,storyOne:'My observation',storyTwo:'',storyThree:''});
+ await expect(page.locator('.floor-1')).toContainText('Draft recorded');
+ await expect(page.locator('.floor-2')).toContainText('Still to explore');
+ await expect(page.locator('.floor-3')).toContainText('Still to explore');
+});
