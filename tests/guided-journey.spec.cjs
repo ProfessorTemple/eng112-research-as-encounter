@@ -542,3 +542,24 @@ test('contextual discernment distinguishes silence and preserves unresolved mean
   expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).question,KEY)).toBe(question);
  }
 });
+
+test('diachronic trail distinguishes possible growth from mere wording changes',async({page})=>{
+ const cases=[
+ ['Older generations teach younger ones.','We learn from each other.','','one-directional relationship'],
+ ['Nature always calms us.','Nature may not calm everyone.','','condition, exception or limit'],
+ ['Gardens carry memory.','Gardens carry memory.','The reading deepened my understanding.','specific evidence deepened'],
+ ['Silence means care.','Silence means care.','I still do not know why he was silent.','What remains unresolved'],
+ ['Silence means care.','Silence can mean conflict.','I initially assumed silence was supportive.','earlier assumption'],
+ ['Gardens carry memory.','Gardens carry memory!','','wording differs']
+ ];
+ for(const [before,after,reflection,prompt] of cases){
+  await seed(page,{...fixture,step:21,initialThesis:before,workingThesis:before,strengthenedThesis:'An intermediate formulation.',reconsideredThesis:after,thesisReflection:reflection,notes:[{id:'n1',title:'Unrelated astronomy',reflection:'Telescopes measure orbital periods.'}],connections:[],strands:[],assumptionPlan:'',alternativePlan:''});
+  await page.getByText('How my thinking changed',{exact:true}).click();
+  await expect(page.getByText(prompt,{exact:false}).first()).toBeVisible();
+  await expect(page.getByText('No reflection or material selected yet',{exact:true})).toBeVisible();
+  await page.getByText('Compare my intermediate thesis',{exact:true}).click();
+  await expect(page.getByText('An intermediate formulation.',{exact:true})).toBeVisible();
+  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+  expect(saved.initialThesis).toBe(before);expect(saved.reconsideredThesis).toBe(after);expect(saved.thesisReflection).toBe(reflection);
+ }
+});
