@@ -3,7 +3,7 @@
 <style>
 :root{color-scheme:light;--ink:#203e34;--muted:#526c60;--green:#245d4c;--line:#c5d3c8;--paper:#faf9f2;--soft:#eef3ea}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}header{background:#203f34;color:white;padding:1rem max(1rem,calc((100% - 640px)/2))}header small{color:#dce5db;display:block;letter-spacing:.08em;font-size:.72rem}header strong{font-size:1.12rem}main{max-width:650px;margin:0 auto;padding:1.15rem 1rem 2rem}h1{font-family:Georgia,serif;font-size:clamp(1.75rem,5vw,2.35rem);line-height:1.14;margin:.5rem 0 .9rem;font-weight:500}h2{font-size:1.12rem;margin:.9rem 0 .35rem}p{margin:.55rem 0 1rem}small,.hint{font-size:.88rem;color:var(--muted)}button,input,textarea,select,a.action{font:inherit}button,a.action{cursor:pointer;min-height:48px;border:1px solid var(--green);border-radius:9px;padding:.7rem .85rem;background:transparent;color:var(--green);font-weight:650;text-align:center;text-decoration:none}button.primary,a.primary{display:block;width:100%;background:var(--green);color:#fff;margin-top:1rem}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a26d28;outline-offset:3px}textarea,input[type=text]{display:block;width:100%;border:1px solid #9ab0a2;border-radius:8px;padding:.7rem;background:white;color:var(--ink);margin:.35rem 0 .8rem;font:inherit}textarea{resize:vertical}label{font-weight:600}fieldset{border:0;padding:0;margin:.75rem 0;min-width:0}legend{font-weight:650;margin-bottom:.4rem}.option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:9px;padding:.7rem;margin:.45rem 0;background:#fff;font-weight:500;cursor:pointer}.option:has(input:checked){background:var(--soft);border-color:var(--green)}.option input{margin:.3rem 0 0;flex:none;width:20px;height:20px;accent-color:var(--green)}.option span{min-width:0}.option small{display:block;margin-top:.2rem}.progress{display:flex;gap:5px;margin:.4rem 0 1.1rem}.progress span{flex:1;height:5px;background:#dce5db;border-radius:6px}.progress .done{background:#398063}.progress .current{background:#245d4c}.topline{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.85rem}.callout{background:var(--soft);border-left:3px solid #608976;padding:.75rem .9rem;margin:.8rem 0}.callout p{margin:.25rem 0}.query{font-weight:650;overflow-wrap:anywhere}.choice{display:block;width:100%;text-align:left;margin:.55rem 0;background:#fff}.choice small{display:block;font-weight:400}.secondary{display:inline-block;margin:.4rem 0;max-width:100%;overflow-wrap:anywhere}select{display:block;width:100%;padding:.65rem;margin:.35rem 0 .8rem;border:1px solid #9ab0a2;border-radius:8px;background:#fff;color:var(--ink)}select:focus-visible,summary:focus-visible{outline:3px solid #a26d28;outline-offset:3px}.quiet{border:0;padding:.4rem .15rem;min-height:44px;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:.65rem}.nav button{font-size:.88rem}.notice{font-size:.9rem;color:var(--muted);min-height:1.2em}.notice:empty{display:none}.screenreader{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
  .strength-row{padding:.65rem 0;border-top:1px solid var(--line)}.strength-row p{margin:.2rem 0}.strength-label{font-weight:650;font-size:.85rem}.strength-track{display:flex;gap:4px;margin:.35rem 0}.strength-track span{height:7px;flex:1;border-radius:4px;background:#dce5db}.strength-track .missing{background:#a33a35}.strength-track .developing{background:#a56c17}.strength-track .promising{background:#398063}
-</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 42</small></header><main id="app"></main>
+</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 43</small></header><main id="app"></main>
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
@@ -398,7 +398,7 @@ function thesisResumeStep(state){
 }
 function journalTabLink(){
  const a=el('a','Open Reading Journal in a new tab ↗','action secondary');
- const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided42');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
+ const url=new URL(location.href);url.searchParams.set('view','journal');url.searchParams.set('v','guided43');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';
  return a;
 }
 function renderJournalReference(){
@@ -418,6 +418,48 @@ function refreshReference(){
   state=next;storageOK=true;if(changed)renderJournalReference();
  }catch(e){storageOK=false;renderJournalReference();}
 }
+function significanceModel(st,override={}){
+ const clean=x=>String(x||'').trim();
+ const observation=clean(override.one??st.storyOne),interpretation=clean(override.two??st.storyTwo),significance=clean(override.three??st.storyThree);
+ const scopes=[
+ {name:'Listening and attention',pattern:/\b(?:listen\w*|attentive|attention|being heard)\b/i,prompt:'What does your interpretation reveal about listening or attention that you might carry into another encounter? What difference could it make to a particular relationship?'},
+ {name:'Knowledge across generations',pattern:/\b(?:intergenerational|generations?|ancestry|oral history|passed down|wisdom|family stories|heritage)\b/i,prompt:'What kind of knowledge travels between generations here? Why does preserving, questioning or sharing that knowledge matter, and to whom?'},
+ {name:'Ethics of presence',pattern:/\b(?:companionship|shared presence|being present|silence|quietly|relational ethics|mutual care|responsib\w*|reciproc\w*)\b/i,prompt:'What does the encounter reveal about the value or responsibility of being present with another being? Keep the implication grounded in the particular relationship.'},
+ {name:'Community and cultural significance',pattern:/\b(?:community|communities|cultur\w*|tradition\w*|migration|belong\w*|social inequality|workers?|public spaces?)\b/i,prompt:'What does this reveal about a particular community, shared practice or cultural relationship? Whose experience might differ?'},
+ {name:'Access and lived experience',pattern:/\b(?:accessibility|disability|neurodiver\w*|sensory regulation|sensory overload|environmental fit|ableism|accommodations?)\b/i,prompt:'What does the insight reveal about the relationship between a person’s needs and their surroundings? Avoid assuming everyone experiences the same setting alike.'},
+ {name:'Ecological and material significance',pattern:/\b(?:ecolog\w*|ecosystem\w*|interdependence|symbiosis|habitat\w*|biodiversity|pollination|soil|fungi|mycorrhiz\w*|water quality|animal communication|climate adaptation)\b/i,prompt:'What particular relationship among living beings or material conditions becomes clearer? Distinguish observed or researched relationships from larger implications.'},
+ {name:'Spiritual and existential significance',pattern:/\b(?:miracles?|synchronic\w*|spirit\w*|faith|sacred|religio\w*|transcenden\w*|continuing bonds|grief|mourning|mortality)\b/i,prompt:'What does this interpretation reveal about meaning, belief, uncertainty or relationship? Distinguish lived significance from claims about causes that would need additional evidence.'},
+ {name:'Historical and material memory',pattern:/\b(?:histor\w*|archives?|records?|memories|memory|remembrance|material culture|memorial\w*)\b/i,prompt:'How does the relationship between remembered experience and documented history change what the reader understands about this place or past?'},
+ {name:'Philosophical significance',pattern:/\b(?:philosoph\w*|phenomenolog\w*|ontology|ontological|agency|personhood|meaning-making|meaning making)\b/i,prompt:'What assumption about knowledge, existence or meaning does this insight invite you to reconsider?'},
+ {name:'Personal and relational significance',pattern:/\b(?:trust|care|relationship\w*|advice|family|grandfather|grandmother|friendship|comfort\w*)\b/i,prompt:'What does your insight change about how you understand or participate in a particular relationship? Personal significance can be substantial without becoming a universal claim.'}
+ ];
+ const selected=scopes.find(x=>x.pattern.test(interpretation))||scopes.find(x=>x.pattern.test(clean(st.question)));
+ const broad=/\b(?:everyone|everybody|all people|every person|all humans|humanity|we all|no one|always|never|the only way|must)\b/i.test(significance);
+ const generic=/^(?:this|it|that|my experience|the experience)\s+(?:is|was)\s+(?:very\s+|really\s+|so\s+)?(?:important|meaningful|significant|special|valuable)[.! ]*$/i.test(significance)||/^(?:this matters|it matters|this means a lot|it means a lot|this teaches us a lesson)[.! ]*$/i.test(significance);
+ const shared=continuityTerms(interpretation).filter(w=>continuityTerms(significance).includes(w));
+ const related=!!(interpretation&&significance&&(shared.length>0||conceptLinks(interpretation,significance).length||studentConceptBridge(st,interpretation,significance)||rootMetaphor(interpretation,significance)));
+ const base={scope:selected?.name||'Your own emerging significance',observation,interpretation,significance,shared,related};
+ const make=(kind,label,prompt)=>({...base,kind,label,prompt});
+ if(!interpretation)return make('early','Begin with your interpretation','What does your observation reveal? Develop that interpretation before deciding why it matters.');
+ if(!significance)return make('missing','Move from meaning to significance',selected?.prompt||'If your interpretation is reasonable, what changes in your understanding? Why might that matter to you, a particular relationship or another reader?');
+ if(broad)return make('scope','Check how far the claim travels','Your wording may extend the insight to everyone or establish a universal rule. What does your experience and research actually support? A more particular implication can be just as significant.');
+ if(generic)return make('generic','Name what actually matters','Rather than simply calling the experience important, explain what is at stake. '+(selected?.prompt||'What does this interpretation change about what you understand, value or question?'));
+ if(significance.replace(/\s+/g,' ').toLowerCase()===interpretation.replace(/\s+/g,' ').toLowerCase())return make('repeat','Move beyond restating your interpretation','Your third story repeats the interpretation. Why does that interpretation matter, and what does it invite you to reconsider?');
+ if(!related)return make('bridge','Make the relationship visible','The wording of your third story differs from the interpretation. That may be an important new insight. What evidence or relationship carries you from one to the other? Do not repeat vocabulary merely to satisfy the notebook.');
+ return make('review','Examine the significance you have earned','A possible connection between your interpretation and significance is visible. '+(selected?.prompt||'Why does this insight matter, and to whom?')+' Check that the actual evidence supports the implication. The notebook cannot establish this from wording alone.');
+}
+function endingSignificance(st){
+ const blocks=draftBlocks(st.essayDraft).filter(b=>!/^\[Figure [1-3]\]$/i.test(b.text));if(blocks.length<2)return null;
+ const model=significanceModel(st,{three:blocks.at(-1).text});if(!model.interpretation)return null;
+ return {...model,excerpt:bridgeExcerpt(blocks.at(-1).text),prompt:'Compare your ending with the insight you developed in Story Two. '+model.prompt+' Your conclusion may also communicate significance through an image, a scene or an open question.'};
+}
+function significancePanel(root,ending=false){
+ const host=el('div','','callout');
+ function refresh(){const m=ending?endingSignificance(state):significanceModel(state);host.replaceChildren();if(!m)return;host.append(el('h3',m.label),el('p','Possible direction: '+m.scope,'hint'),el('p',m.prompt));if(ending&&m.excerpt)host.append(el('p',m.excerpt,'query'));host.append(el('p','The notebook suggests questions, not a conclusion or a grade. You decide what your evidence supports.','hint'));}
+ if(ending){const d=el('details');d.append(el('summary','Why does my discovery matter?'),host);d.addEventListener('toggle',()=>{if(d.open)refresh();});root.append(d);}
+ else {root.append(host);refresh();return refresh;}
+}
+
 function thesisDiagnostic(state){
  const draft=String(state.workingThesis||'').trim();
  const sentences=draft.split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean);
@@ -438,7 +480,7 @@ function thesisDiagnostic(state){
  const floors=[
  make('Story One · Observation',!one?'missing':specific?'promising':'developing',!one?'Identify the observation in your current thesis.':specific?'A concrete encounter may be present. Check that it is precise and observable.':'Name one specific encounter, detail or verifiable finding rather than only a general pattern.'),
  make('Story Two · Interpretation',!two?'missing':interpret&&!necessity&&!causal?'promising':'developing',!two?'Make the interpretive turn visible in the current thesis.':necessity||causal?'An explanatory or necessary-condition claim may need stronger evidence. Separate interpretation from demonstrated cause.':interpret?'An interpretive cue is present. Check that a reader could reasonably question the claim.':'Explain what the observation means in light of your research.'),
- make('Story Three · Significance',!three?'missing':implication&&!broad&&shared(two,three)>0?'promising':'developing',!three?'Make the broader implication visible in your current thesis.':broad?'Check whether your evidence supports a generalization about other people.':shared(two,three)===0?'Make the link from your interpretation to its larger significance explicit.':'Check that the significance follows from the interpretation rather than introducing an unrelated claim.')
+ make('Story Three · Significance',!three?'missing':significanceModel(state,{one,two,three}).kind==='review'?'promising':'developing',significanceModel(state,{one,two,three}).prompt)
  ];
  const evidence=[],assumptions=[];
  evidence.push(one?'What specific detail from your encounter or source supports this observation: “'+one+'”?':'Which observed event or finding anchors the claim?');
@@ -1311,7 +1353,7 @@ function storedAttachment(record){if(record?.blob)return record;if(record?.bytes
 
 function layerContext(root,layer){
  if(layer.id==='discovery'){
-  intellectualTrailPanel(root);returnMovementControl(root);
+  intellectualTrailPanel(root);significancePanel(root,true);returnMovementControl(root);
  }else if(layer.id==='structure'){continuityPanel(root);braidSummary(root);creativeBridgeControl(root);}
  else if(layer.id==='braiding'){root.append(journalTabLink());reciprocityPanel(root);braidSummary(root);strandShelf(root);}
  else if(layer.id==='voice'){
@@ -1723,7 +1765,7 @@ function engagementMove(st,id){
   if(e.interview)return {question:'What did this community voice reveal that your research or experience alone could not?',excerpt:e.interview};
   return {question:'Locate the place where McAnulty enters your inquiry. Explain what his writing helps you understand, rather than adding a citation merely to fulfill the requirement.',excerpt:''};
  }
- if(id==='discovery'){const m=intellectualTrail(st);return {question:m.question,excerpt:m.after||m.before||''};}
+ if(id==='discovery'){const sig=endingSignificance(st);if(sig&&['scope','generic','repeat','bridge'].includes(sig.kind))return {question:sig.prompt,excerpt:sig.excerpt};const m=intellectualTrail(st);return {question:m.question,excerpt:m.after||m.before||''};}
  if(id==='experience'){const r=reciprocityCue(st);if(r.kind==='living')return {question:r.question,excerpt:r.excerpt};}
  if(id==='experience'&&e.scene)return {question:'What does this lived moment reveal after you encounter other voices? Develop its significance without inventing details.',excerpt:e.scene};
  if(id==='braid'){const integration=conceptualIntegration(st);if(integration)return {question:integration.question,excerpt:integration.excerpt};const c=continuityScan(st);if(!['open','early'].includes(c.kind))return {question:c.prompt,excerpt:c.excerpt};}
@@ -2060,11 +2102,12 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  }
  if(step===15){
  body.append(el('p','Explain why your interpretation matters. Let the significance grow from your evidence, rather than making a broad claim about everyone.'));
- body.append(el('h2','My interpretation'),el('div',state.storyTwo,'callout'),field('The larger significance','storyThree',4,'What does this insight reveal about relationships, culture, ethics, the living world or human experience?'),btn('Bring my three stories together →',()=>{
+ body.append(el('h2','My interpretation'),el('div',state.storyTwo,'callout'));const refreshSignificance=significancePanel(body);body.append(field('The larger significance','storyThree',4,'Why does this insight matter, and to whom?'),btn('Bring my three stories together →',()=>{
   if(!state.storyThree.trim()){notice('Write the significance of your interpretation first.');return;}
   if(!state.workingThesis.trim())state.workingThesis=assembleThreeStories([state.storyOne,state.storyTwo,state.storyThree]);
   go(16);
  }));
+ document.getElementById('input-storyThree').addEventListener('blur',refreshSignificance);
  thesisEvidence(body);
  }
  if(step===16){
