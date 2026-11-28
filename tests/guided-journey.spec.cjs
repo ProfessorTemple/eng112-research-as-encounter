@@ -18,6 +18,7 @@ test('guided writing, revision, APA, figure and DOCX journey',async({page})=>{
  await expect(page.getByRole('heading',{name:'My Living Braiding Map',exact:true})).toBeVisible();
  await click(page,'Begin drafting my essay →');
  await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
+ await page.getByText('Writing tools and research',{exact:true}).click();
  await page.getByText('Essay Strength Meter · review my writing',{exact:true}).click();
  await page.getByLabel('Lived experience and reflection',{exact:true}).selectOption('developing');
  await expect(page.getByText('1 of 7 dimensions reviewed by you.',{exact:true})).toBeVisible();
@@ -100,6 +101,7 @@ test('intellectual trail preserves student text and permits an unchanged thesis'
  await expect(page.getByText('My reading reflection · Garden study',{exact:true})).toBeVisible();
  await click(page,'Save my writing and reflection →');
  await click(page,'Begin my layered revision →');
+ await page.getByText('More revision tools',{exact:true}).click();
  await page.getByText('How my thinking changed',{exact:true}).click();
  await expect(page.getByText('First saved working thesis',{exact:true})).toBeVisible();
  await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(essay);
@@ -112,6 +114,7 @@ test('continuity review identifies a possible crossing without changing the essa
  const draft=[first,tangent,last].join('\n\n');
  await seed(page,{...fixture,step:25,question:'How does garden memory shape belonging?',workingThesis:'Garden memory shapes belonging.',strengthenedThesis:'',reconsideredThesis:'',essayDraft:draft});
  await expect(page.getByRole('heading',{name:'Check one change of direction',exact:true})).toBeVisible();
+ await page.getByText('More revision tools',{exact:true}).click();
  await page.getByText('Follow my central inquiry',{exact:true}).click();
  await page.getByLabel('My critical lens (optional)',{exact:true}).fill('Cultural studies and family belonging');
  await page.getByLabel('My critical lens (optional)',{exact:true}).blur();
@@ -127,6 +130,7 @@ test('conceptual connections are not confused with a repeated original thesis',a
  const draft=['Ancestry and kinship helped shape belonging in our family.','Displacement, migration and cultural memory shaped heritage. Across the generations, people crossed borders, carried traditions, shared meals, taught children their songs, kept letters, remembered rituals, and maintained ties to distant homelands despite economic hardship.','Ancestry and kinship still shape belonging in the family.'].join('\n\n');
  await seed(page,{...fixture,step:25,question:'How do ancestry and kinship shape belonging?',workingThesis:'Ancestry and kinship sustain belonging.',strengthenedThesis:'',reconsideredThesis:'',essayDraft:draft});
  await expect(page.getByRole('heading',{name:'A possible conceptual relationship',exact:true})).toBeVisible();
+ await page.getByText('More revision tools',{exact:true}).click();
  await page.getByText('Follow my central inquiry',{exact:true}).click();
  await expect(page.getByRole('heading',{name:'Cultural memory, kinship and belonging',exact:true})).toBeVisible();
  await expect(page.getByText('Second set of wording: cultural memory, heritage, displacement, migration',{exact:true})).toBeVisible();
@@ -146,6 +150,7 @@ test('conceptual translation offers editable searches and preserves student voic
  expect(saved.search).toBe('woods AND sensory regulation');expect(saved.question).toBe(question);expect(saved.encounter).toBe(encounter);
  const draft='Phenomenology helps me describe this walk. I notice the birds.';
  await seed(page,{...fixture,step:27,essayDraft:draft});
+ await page.getByText('More revision tools',{exact:true}).click();
  await page.getByText('Make academic language my own',{exact:true}).click();
  await expect(page.getByRole('heading',{name:'phenomenology',exact:true})).toBeVisible();
  await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
@@ -156,6 +161,7 @@ test('conceptual integration invites interpretation without changing the draft',
  await seed(page,{...fixture,step:26,essayDraft:draft});
  await expect(page.getByRole('heading',{name:'Bring two concepts into conversation',exact:true})).toBeVisible();
  await expect(page.getByText('Consider the difference between explaining a sensory response',{exact:false})).toBeVisible();
+ await page.getByText('More revision tools',{exact:true}).click();
  await page.getByText('What did my encounters teach me?',{exact:true}).click();
  await expect(page.getByRole('heading',{name:'sensory regulation',exact:true})).toBeVisible();
  await expect(page.getByRole('heading',{name:'phenomenology',exact:true})).toBeVisible();
@@ -232,6 +238,7 @@ test('particularity guides observation and abstract prose without changing stude
  const draft='Intergenerational communication is essential for the preservation of cultural knowledge.';
  await seed(page,{...fixture,step:27,encounter,storyOne:'',essayDraft:draft});
  await expect(page.getByRole('heading',{name:'Reconnect the idea with a particular',exact:true})).toBeVisible();
+ await page.getByText('More revision tools',{exact:true}).click();
  await page.getByText('Keep my experience and evidence particular',{exact:true}).click();
  await page.getByText('Revisit a saved particular',{exact:true}).click();
  await expect(page.getByText(encounter,{exact:true}).last()).toBeVisible();
@@ -243,6 +250,7 @@ test('intellectual presence prompts interpretation without judging authorship or
  const interpretation='Family learning and cultural knowledge can shape how I listen.';
  await seed(page,{...fixture,step:27,essayDraft:draft,storyTwo:interpretation});
  await expect(page.getByRole('heading',{name:'Make room for your interpretation',exact:true})).toBeVisible();
+ await page.getByText('More revision tools',{exact:true}).click();
  await page.getByText('Where is my thinking visible?',{exact:true}).click();
  const panel=page.locator('details').filter({has:page.locator('summary').filter({hasText:'Where is my thinking visible?'})});
  await expect(panel.getByText(interpretation,{exact:true})).toBeVisible();
@@ -261,6 +269,7 @@ test('students may decline a revision suggestion and retain their own reasoning'
  await page.getByLabel('My reason (optional)',{exact:true}).fill('The recurrence is deliberate.');
  await expect(page.getByText('Your decision: This suggestion does not fit my intention. You can continue.',{exact:true})).toBeVisible();
  await page.reload();
+ await page.getByText('Suggestion already considered · revisit if useful',{exact:true}).click();
  await page.getByText('My decision about this suggestion · saved',{exact:true}).click();
  await expect(page.getByLabel('My reason (optional)',{exact:true})).toHaveValue('The recurrence is deliberate.');
  await expect(page.getByRole('radio',{name:'This suggestion does not fit my intention',exact:true})).toBeChecked();
@@ -269,4 +278,26 @@ test('students may decline a revision suggestion and retain their own reasoning'
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.step).toBe(26);expect(saved.essayDraft).toBe(draft);
  expect(saved.agencyDecisions[0].choice).toBe('decline');expect(saved.agencyDecisions[0].reason).toBe('The recurrence is deliberate.');
+});
+
+test('quiet revision and grouped tools preserve student control and required checks',async({page})=>{
+ await seed(page,{...fixture,step:20,quietRevision:false});
+ const drawer=page.locator('details').filter({has:page.locator('summary').filter({hasText:'Writing tools and research'})});
+ await expect(drawer).not.toHaveAttribute('open','');
+ await expect(page.getByRole('button',{name:'Save draft and reconsider my working thesis →',exact:true})).toBeVisible();
+ await page.getByText('Writing tools and research',{exact:true}).click();
+ await expect(page.getByRole('button',{name:'Find evidence connections for this paragraph',exact:true})).toBeVisible();
+ await seed(page,{...fixture,step:25,quietRevision:false});
+ await page.getByRole('checkbox',{name:'Quiet revision · show suggestions only when I open them'}).check();
+ await expect(page.getByText('Open revision guidance when needed',{exact:true})).toBeVisible();
+ await page.reload();
+ await expect(page.getByRole('checkbox',{name:'Quiet revision · show suggestions only when I open them'})).toBeChecked();
+ await page.getByText('Open revision guidance when needed',{exact:true}).click();
+ await expect(page.getByRole('heading',{name:'One next revision move',exact:true})).toBeVisible();
+ await click(page,'Save this review and continue →');
+ await expect(page.getByText('Open revision guidance when needed',{exact:true})).toBeVisible();
+ await click(page,'Save this review and continue →');await click(page,'Save and check assignment completeness →');
+ await expect(page.getByText('Check your submission document yourself',{exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Save my revision review →',exact:true})).toBeVisible();
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);expect(saved.essayDraft).toBe(essay);
 });
