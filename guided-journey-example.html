@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>My Living Field Notebook | Guided Journey example</title>
 <style>
 :root{color-scheme:light;--ink:#203e34;--muted:#526c60;--green:#245d4c;--line:#c5d3c8;--paper:#faf9f2;--soft:#eef3ea}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}header{background:#203f34;color:white;padding:1rem max(1rem,calc((100% - 640px)/2))}header small{color:#dce5db;display:block;letter-spacing:.08em;font-size:.72rem}header strong{font-size:1.12rem}main{max-width:650px;margin:0 auto;padding:1.15rem 1rem 2rem}h1{font-family:Georgia,serif;font-size:clamp(1.75rem,5vw,2.35rem);line-height:1.14;margin:.5rem 0 .9rem;font-weight:500}h2{font-size:1.12rem;margin:.9rem 0 .35rem}p{margin:.55rem 0 1rem}small,.hint{font-size:.88rem;color:var(--muted)}button,input,textarea,select,a.action{font:inherit}button,a.action{cursor:pointer;min-height:48px;border:1px solid var(--green);border-radius:9px;padding:.7rem .85rem;background:transparent;color:var(--green);font-weight:650;text-align:center;text-decoration:none}button.primary,a.primary{display:block;width:100%;background:var(--green);color:#fff;margin-top:1rem}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a26d28;outline-offset:3px}textarea,input[type=text]{display:block;width:100%;border:1px solid #9ab0a2;border-radius:8px;padding:.7rem;background:white;color:var(--ink);margin:.35rem 0 .8rem;font:inherit}textarea{resize:vertical}label{font-weight:600}fieldset{border:0;padding:0;margin:.75rem 0;min-width:0}legend{font-weight:650;margin-bottom:.4rem}.option{display:flex;align-items:flex-start;gap:.65rem;border:1px solid var(--line);border-radius:9px;padding:.7rem;margin:.45rem 0;background:#fff;font-weight:500;cursor:pointer}.option:has(input:checked){background:var(--soft);border-color:var(--green)}.option input{margin:.3rem 0 0;flex:none;width:20px;height:20px;accent-color:var(--green)}.option span{min-width:0}.option small{display:block;margin-top:.2rem}.progress{display:flex;gap:5px;margin:.4rem 0 1.1rem}.progress span{flex:1;height:5px;background:#dce5db;border-radius:6px}.progress .done{background:#398063}.progress .current{background:#245d4c}.topline{display:flex;justify-content:space-between;gap:.5rem;color:var(--muted);font-size:.85rem}.callout{background:var(--soft);border-left:3px solid #608976;padding:.75rem .9rem;margin:.8rem 0}.callout p{margin:.25rem 0}.query{font-weight:650;overflow-wrap:anywhere}.choice{display:block;width:100%;text-align:left;margin:.55rem 0;background:#fff}.choice small{display:block;font-weight:400}.secondary{display:inline-block;margin:.4rem 0}.quiet{border:0;padding:.4rem .15rem;min-height:44px;text-decoration:underline;text-underline-offset:3px;font-size:.88rem}.nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.75rem;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:.65rem}.nav button{font-size:.88rem}.notice{font-size:.9rem;color:var(--muted);min-height:1.2em}.notice:empty{display:none}.screenreader{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
-</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 7</small></header><main id="app"></main>
+</style></head><body><header><small>ENG 112 · WRITING THE LIVING WORLD</small><strong>My Living Field Notebook</strong><small style="color:#dce5db;letter-spacing:0;margin-top:.15rem">Guided Journey · revision 8</small></header><main id="app"></main>
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
@@ -70,22 +70,62 @@ function extractArticleCitation(info={},lines=[],xmp={},links=[]){
  const keywords=k?k.split(/[;,•]/).map(clean).filter(x=>x.length>1&&x.length<100&&!/^(abstract|keywords)$/i.test(x)).slice(0,15):[];
  return {title:firstUsable(t,coverTitle,title),author:usable(a)?a:usable(author)?author:'',publication:usable(publication)?publication:'',year,doi:doi?'https://doi.org/'+doi.replace(/[.,;]+$/,''):stableUrl,keywords,hasText:lines.join('').length>20};
 }
+function firstPageCitation(items,height){
+ const clean=x=>String(x||'').replace(/\s+/g,' ').trim();
+ const rows=[];
+ for(const item of items){
+  const text=clean(item.str),t=item.transform;
+  if(!text||!t||t.length<6)continue;
+  const size=Math.hypot(t[2],t[3])||Math.abs(item.height||0);
+  const y=height-t[5],x=t[4];
+  if(!Number.isFinite(y)||!Number.isFinite(x)||size<=0)continue;
+  // Keep widely separated columns/logos distinct.
+  let row=rows.find(r=>Math.abs(r.y-y)<2.5&&Math.abs(r.size-size)<1.2&&x>=r.x-3&&x<=r.right+24);
+  if(!row){row={y,x,right:x,size,parts:[]};rows.push(row);}
+  row.parts.push({x,text});row.right=Math.max(row.right,x+(Number(item.width)||text.length*size*.45));
+ }
+ const lines=rows.map(r=>({...r,text:clean(r.parts.sort((a,b)=>a.x-b.x).map(p=>p.text).join(' '))})).sort((a,b)=>a.y-b.y||a.x-b.x);
+ const header=lines.filter(r=>r.y<height*.24);
+ const doiRow=header.find(r=>/^(?:https?:\/\/(?:dx\.)?doi\.org\/|doi\s*:?\s*)10\.\d{4,9}\//i.test(r.text));
+ if(!doiRow)return {};
+ const doi=(doiRow.text.match(/10\.\d{4,9}\/[-._;()/:A-Z0-9]+/i)||[])[0]?.replace(/[.,;]+$/,'');
+ if(!doi)return {};
+ const abstract=lines.find(r=>r.y>doiRow.y&&r.y<height*.6&&/^abstract\s*$/i.test(r.text));
+ if(!abstract)return {doi:'https://doi.org/'+doi};
+ const band=lines.filter(r=>r.y>doiRow.y+8&&r.y<abstract.y-4&&Math.abs(r.x-doiRow.x)<45&&!/^(?:open access|check for updates|research article|original article|article|review|routledge|taylor\s*&\s*francis|crossmark)$/i.test(r.text));
+ const titleCandidates=band.filter(r=>r.text.length>=18&&r.size>=doiRow.size*1.4);
+ if(!titleCandidates.length)return {doi:'https://doi.org/'+doi};
+ const head=titleCandidates.sort((a,b)=>b.size-a.size||a.y-b.y)[0];
+ const group=band.filter(r=>Math.abs(r.x-head.x)<18&&Math.abs(r.size-head.size)<1.0&&r.y>=head.y-1&&r.y<=head.y+head.size*2.8).sort((a,b)=>a.y-b.y);
+ const title=group.map(r=>r.text).join(' ');
+ const last=group[group.length-1];
+ const after=band.filter(r=>r.y>last.y+3&&r.y<abstract.y-4&&Math.abs(r.x-head.x)<25).sort((a,b)=>a.y-b.y);
+ const author=after.find(r=>r.size>=head.size*.58&&r.size<head.size&&r.text.length>=5&&r.text.length<=200&&/^[\p{L}][\p{L}\p{M} .,'’&;*-]+$/u.test(r.text)&&!/\b(?:university|department|centre|center|institute|school|college|faculty|hospital|affiliation|received|accepted|published|copyright|abstract)\b/i.test(r.text));
+ const journal=header.filter(r=>r.y<doiRow.y&&doiRow.y-r.y<40&&Math.abs(r.x-doiRow.x)<30&&r.text.length>2&&r.text.length<150&&!/^(?:open access|routledge|taylor|copyright|www\.|https?:)/i.test(r.text)).sort((a,b)=>b.y-a.y)[0];
+ const copyright=lines.find(r=>/^(?:©|copyright)\s*(?:19|20)\d{2}\b/i.test(r.text));
+ const year=(copyright?.text.match(/\b(?:19|20)\d{2}\b/)||[])[0]||'';
+ return {title,author:author?.text||'',publication:journal?.text||'',year,doi:'https://doi.org/'+doi};
+}
 async function readArticlePDF(file){
  // PDF bytes are passed to the reader in this browser, not to a citation or AI service.
  if(!pdfLibrary){pdfLibrary=import(pdfBase+'pdf.min.mjs').catch(e=>{pdfLibrary=null;throw e;});}
  const lib=await pdfLibrary;lib.GlobalWorkerOptions.workerSrc=pdfBase+'pdf.worker.min.mjs';
  const task=lib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false,enableXfa:false});
  try{
-  const pdf=await task.promise,meta=await pdf.getMetadata().catch(()=>({})),lines=[],links=[];
+  const pdf=await task.promise,meta=await pdf.getMetadata().catch(()=>({})),lines=[],links=[];let layout={};
   for(let p=1;p<=Math.min(3,pdf.numPages);p++){
    const page=await pdf.getPage(p),content=await page.getTextContent();
+   if(p===1){layout=firstPageCitation(content.items,page.getViewport({scale:1}).height);}
    if(p===1){const annotations=await page.getAnnotations().catch(()=>[]);for(const a of annotations)if(a.url||a.unsafeUrl)links.push(a.url||a.unsafeUrl);}
    let line='',lastY=null;
    for(const item of content.items){if(typeof item.str!=='string')continue;const y=item.transform?.[5];if(line&&lastY!==null&&typeof y==='number'&&Math.abs(y-lastY)>3){lines.push(line.trim());line='';}line+=(line?' ':'')+item.str;if(item.hasEOL){lines.push(line.trim());line='';}lastY=typeof y==='number'?y:null;}
    if(line.trim())lines.push(line.trim());
   }
   const xmp={title:meta.metadata?.get('dc:title'),author:meta.metadata?.get('dc:creator'),doi:meta.metadata?.get('prism:doi')||meta.metadata?.get('doi:doi')};
-  return extractArticleCitation(meta.info||{},lines.filter(Boolean),xmp,links);
+  const extracted=extractArticleCitation(meta.info||{},lines.filter(Boolean),xmp,links);
+  // First-page header is stronger evidence than generic document metadata.
+  for(const k of ['title','author','publication','year','doi'])if(layout[k])extracted[k]=layout[k];
+  return extracted;
  }finally{await task.destroy().catch(()=>{});}
 }
 function doiIdentifier(value){
@@ -339,19 +379,22 @@ function render(focus=false){app.replaceChildren();const step=state.step;
    let found=await readArticlePDF(selected);
    if(token!==pdfRequest||state.step!==6||!file.isConnected)return;
    let registry=null,lookupFailed=false;
-   // Preserve the extracted identifier immediately, even if network lookup is interrupted.
-   if(found.doi&&!state.doi){state.doi=found.doi;document.getElementById('input-doi').value=found.doi;save();}
+   // Save all locally extracted citation fields before attempting a network request.
+   const localConflict=['title','author','doi'].some(k=>found[k]&&String(state[k]||'').trim()&&norm(state[k])!==norm(found[k]));
+   if(localConflict){state.pdfImportStatus='The new PDF differs from the existing citation. No fields were changed.';save();fileStatus.textContent=state.pdfImportStatus;return;}
+   const localFilled=[];for(const key of ['title','author','year','publication','doi']){if(found[key]&&!String(state[key]||'').trim()){state[key]=found[key];document.getElementById('input-'+key).value=found[key];localFilled.push(key);}}
+   state.pdfKeywords=found.keywords||[];renderKeywords();state.pdfImportStatus='PDF read. Check the citation details.';save();
    const extracted=doiIdentifier(found.doi);
-   if(extracted&&(!state.doi||doiIdentifier(state.doi).toLowerCase()===extracted.toLowerCase())){
+   if(extracted&&['title','author','year','publication'].some(k=>!state[k])&&(!state.doi||doiIdentifier(state.doi).toLowerCase()===extracted.toLowerCase())){
     fileStatus.textContent='DOI found. Looking up the article citation…';
     try{registry=await resolveDOI(extracted);}catch(error){lookupFailed=true;}
     if(token!==pdfRequest||state.step!==6||!file.isConnected)return;
     if(state.doi&&doiIdentifier(state.doi).toLowerCase()!==extracted.toLowerCase()){fileStatus.textContent='The DOI changed during lookup. Existing entries were kept.';return;}
-    found=mergeCitation(found,registry);
+    if(registry){for(const k of ['title','author','year','publication','doi'])if(!found[k]&&registry[k])found[k]=registry[k];}
    }
    const conflict=['title','author','doi'].some(k=>found[k]&&String(state[k]||'').trim()&&norm(state[k])!==norm(found[k]));
    if(conflict){fileStatus.textContent='The PDF details differ from your existing citation. Nothing was changed. Compare the article with the fields below and edit them yourself.';return;}
-   const filled=[],existing=[];
+   const filled=[...localFilled],existing=[];
    for(const key of ['title','author','year','publication','doi']){
     if(!found[key])continue;
     const input=document.getElementById('input-'+key);
