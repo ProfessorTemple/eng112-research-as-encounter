@@ -523,3 +523,22 @@ test('everyday phrases suggest bounded concepts without assigning a lens',async(
   expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).question,KEY)).toBe(question);
  }
 });
+
+test('contextual discernment distinguishes silence and preserves unresolved meaning',async({page})=>{
+ const cases=[
+ ['Why did my grandfather sit quietly with me because he understood?','Communication studies / supportive relationships'],
+ ['Why did my grandfather sit quietly because he was angry with me?','Communication studies / interpersonal conflict'],
+ ['My grandfather sat quietly, and I never understood why.','Interpretation / interpersonal communication'],
+ ['He sat quietly and I felt safe, but later I felt hurt.','Communication studies / relational complexity'],
+ ['He sat quietly but I did not feel safe.','Communication studies / interpersonal conflict'],
+ ['He sat quietly and was not angry.','Interpretation / interpersonal communication']
+ ];
+ for(const [question,lens] of cases){
+  await seed(page,{...fixture,step:3,encounter:question,question,words:[],search:'',criticalLens:'',notes:[],history:[],keywords:[]});
+  await page.getByText('My working critical lens (optional)',{exact:true}).click();
+  await expect(page.getByRole('heading',{name:lens,exact:true})).toBeVisible();
+  if(!lens.includes('supportive'))await expect(page.getByRole('heading',{name:'Phenomenology / relational ethics',exact:true})).toHaveCount(0);
+  await expect(page.getByLabel('My working lens',{exact:true})).toHaveValue('');
+  expect(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).question,KEY)).toBe(question);
+ }
+});
