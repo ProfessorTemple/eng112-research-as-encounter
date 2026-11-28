@@ -564,6 +564,30 @@ function particularityCues(text){
  const findings=/\b(?:participants?|respondents?|samples?|observations?|records?|findings?|measurements?|specimens?|plots?|sites?|archives?|interviews?)\b/i;
  return {action:action.test(t),setting:setting.test(t)||named.test(t),measure:measure.test(t),quote:quote.test(t),detail:detail.test(t),relationship:relationship.test(t),finding:research.test(t)&&findings.test(t),grounded:quote.test(t)||measure.test(t)||research.test(t)&&findings.test(t)||action.test(t)&&(setting.test(t)||named.test(t)||detail.test(t)||relationship.test(t))};
 }
+function intellectualAgency(st){
+ const blocks=draftBlocks(st.essayDraft).filter(b=>!/^\[Figure [1-3]\]$/i.test(b.text));
+ if(!blocks.length)return null;
+ const attributed=/\b(?:according to|personal communication|(?:author|researcher|study|article|research|interviewee|report) (?:argues?|shows?|finds?|suggests?|reports?|describes?|explains?|states?|concludes?))\b|\b(?:18|19|20)\d{2}[a-z]?\s*[,)]/i;
+ const moves=[
+ {id:'question',re:/\b(?:raises? (?:a|the|another) question|I wonder (?:if|whether|why)|what remains (?:unclear|unknown)|leaves? open the question)\b/i,label:'An inquiry you are opening',prompt:'What does this question invite you or another reader to investigate? A carefully grounded unanswered question can be a contribution.'},
+ {id:'complicate',re:/\b(?:challenges? (?:the|this|that|my) (?:assumption|claim|idea|interpretation)|complicates? (?:the|this|that|my) (?:claim|idea|interpretation|understanding)|does not account for|doesn't account for|does not fully explain|not necessarily|in contrast to (?:the|this) (?:study|claim|argument))\b/i,label:'A possible complication',prompt:'Which part of the source’s claim are you questioning or qualifying? Explain what your evidence supports, including where the original claim still holds.'},
+ {id:'synthesize',re:/\b(?:taken together|read together|bring(?:s|ing)? (?:these|the two) (?:sources|perspectives|accounts) together|the connection between[^.!?]{5,100}(?:suggests|reveals|opens))\b/i,label:'A possible contribution through synthesis',prompt:'What becomes visible when these materials meet that neither reveals alone? Name the relationship in your own words and distinguish it from each source’s claim.'},
+ {id:'apply',re:/\b(?:helps? (?:me|us) (?:understand|interpret|recognize|notice)|in (?:my|our) (?:own )?experience|this concept (?:illuminates|helps explain)|this (?:idea|concept|framework) helps)\b/i,label:'A possible application of knowledge',prompt:'What does applying this idea to your particular experience reveal? Does the encounter confirm, extend or complicate the idea?'}
+ ];
+ const stripQuoted=t=>String(t||'').replace(/“[^”]*”|"[^"]*"/g,' ');
+ const profile=blocks.map((b,i)=>({b,i,source:attributed.test(b.text),text:stripQuoted(b.text)}));
+ for(const p of profile){
+  const neighbors=[profile[p.i-1],profile[p.i+1]].filter(Boolean);
+  const linked=neighbors.find(n=>n.source&&bridgeOverlap(p.text,n.text).length>=1);
+  if(!p.source&&!linked)continue;
+  // In a source-attributed sentence, an interpretive marker may belong to the source rather than the student.
+  const sentences=p.text.split(/(?<=[.!?])\s+/).filter(t=>!attributed.test(t));
+  for(const m of moves){if(sentences.some(t=>m.re.test(t)))return {id:m.id,label:m.label,question:m.prompt,excerpt:bridgeExcerpt(p.b.text),context:linked?'Nearby source discussion: '+bridgeExcerpt(linked.b.text):'',candidate:true};}
+ }
+ const source=profile.find(p=>p.source);
+ if(source)return {id:'report',label:'Make a place for your response',question:'Choose one source claim in this passage. What does it help you see, what might it leave out, or what question does it open? If your response appears elsewhere, keep this passage as it is. Summary is a legitimate part of an essay.',excerpt:bridgeExcerpt(source.b.text),context:'',candidate:false};
+ return {id:'open',label:'Recognize your own contribution',question:'What particular observation, connection, interpretation or question are you bringing to this inquiry? You do not need to claim originality or use first person. A source may not be needed in every passage.',excerpt:bridgeExcerpt(blocks[0].text),context:'',candidate:false};
+}
 function voicePresenceModel(st){
  const blocks=draftBlocks(st.essayDraft).filter(b=>!/^\[Figure [1-3]\]$/i.test(b.text));
  if(!blocks.length)return null;
@@ -599,6 +623,7 @@ function voicePresencePanel(root){
  function refresh(){const m=voicePresenceModel(state);host.replaceChildren();if(!m){host.append(el('p','Begin with a draft before revisiting your voice.','hint'));return;}
  host.append(el('h3',m.label),el('p',m.question),el('p',m.excerpt,'query'));
  if(m.reference)host.append(el('h4',m.origin),el('p',m.reference));
+ const agency=intellectualAgency(state);if(agency){const review=el('details');review.append(el('summary','How am I contributing to this conversation?'),el('h4',agency.label),el('p',agency.question),el('p',agency.excerpt,'query'));if(agency.context)review.append(el('p',agency.context,'hint'));review.append(el('p','This is a possible reading of your wording, not a judgment of originality or authorship. You decide whether it fits.','hint'));host.append(review);}
  host.append(el('p','This is a revision prompt based on wording, not a judgment of authorship, AI use, honesty or writing style. It does not establish that your interpretation is absent.','hint'));}
  d.addEventListener('toggle',()=>{if(d.open)refresh();});root.append(d);
 }
@@ -1702,6 +1727,7 @@ function revisionCue(state,layer){
  }
  if(layer==='voice'){
   const v=voicePresenceModel(state);if(v?.kind==='sources'||v?.kind==='concept')return cue(v.label,v.question,v.excerpt,v.reference?v.origin+': '+v.reference:'');
+  const agency=intellectualAgency(state);if(agency?.candidate)return cue(agency.label,agency.question,agency.excerpt,agency.context);
   const p=particularityModel(state);if(p?.kind==='abstract')return cue(p.label,p.question,p.excerpt,p.reference?(p.origin+': '+p.reference):'');
   const sensory=/\b(?:heard|sound|smell|scent|touched|felt|texture|light|shadow|warm|cold|voice|color|colour|wind|rain|taste)\b/i;
   const scene=/\b(?:I (?:saw|noticed|remember|remembered|walked|stood|watched|felt|heard|experienced)|my (?:childhood|grandmother|grandfather|mother|father))\b/i;
