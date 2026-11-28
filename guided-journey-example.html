@@ -189,10 +189,10 @@ function inquiryFocusCue(question){
  if(!q)return '';
  const vague=/\b(?:important|meaningful|special|interesting|matter(?:s|ed)?|significant)\b/i;
  const specific=/\b(?:because|through|shape\w*|influenc\w*|affect\w*|change\w*|learn\w*|remember\w*|belong\w*|listen\w*|trust|care|identity|tradition\w*|memory|memories|grief|loss|communicat\w*|perceiv\w*|responsib\w*|advice|community|stories|story)\b/i;
- return vague.test(q)&&!specific.test(q)?'Your question asks why the encounter mattered. What aspect do you want to understand more specifically: something someone shared, a relationship, a change in your understanding, or the role of a particular place? Use your own words.':'';
+ return vague.test(q)&&!specific.test(q)&&!contextDiscernment(q)&&!semanticCues(q).length?'Your question asks why the encounter mattered. What aspect do you want to understand more specifically: something someone shared, a relationship, a change in your understanding, or the role of a particular place? Use your own words.':'';
 }
 function possibleLenses(options){
- const names={sensory:'Psychology / disability studies',embodied:'Phenomenology / philosophy',signals:'Animal behavior and communication',ecology:'Ecology',memory:'Cultural memory / oral history',place:'Place studies / cultural memory',spiritual:'Religious studies / meaning-making',loss:'Grief and memory studies',labor:'Environmental justice',reciprocity:'Relational ethics',ontology:'Philosophy / relational ontology',attention:'Digital culture / attention',urban:'Urban ecology',weather:'Environmental and community studies',narrative:'Narrative studies',food:'Cultural studies / foodways',wellbeing:'Environmental psychology',time:'Phenology / ecology',ethnography:'Anthropology / ethnography',history:'Public history / material culture',conversation:'Intergenerational learning',presence:'Phenomenology / relational ethics',public:'Sociology / cultural studies',workhuman:'Labor studies / social inequality',listening:'Communication studies / relational ethics',sharedpractice:'Anthropology / cultural studies',absence:'Place studies / memory'};
+ const names={sensory:'Psychology / disability studies',embodied:'Phenomenology / philosophy',signals:'Animal behavior and communication',ecology:'Ecology',memory:'Cultural memory / oral history',place:'Place studies / cultural memory',spiritual:'Religious studies / meaning-making',loss:'Grief and memory studies',labor:'Environmental justice',reciprocity:'Relational ethics',ontology:'Philosophy / relational ontology',attention:'Digital culture / attention',urban:'Urban ecology',weather:'Environmental and community studies',narrative:'Narrative studies',food:'Cultural studies / foodways',wellbeing:'Environmental psychology',time:'Phenology / ecology',ethnography:'Anthropology / ethnography',history:'Public history / material culture',conversation:'Intergenerational learning',presence:'Phenomenology / relational ethics',public:'Sociology / cultural studies',workhuman:'Labor studies / social inequality',listening:'Communication studies / relational ethics',sharedpractice:'Anthropology / cultural studies',absence:'Place studies / memory',supportivesilence:'Communication studies / supportive relationships',conflictsilence:'Communication studies / interpersonal conflict',uncertainmeaning:'Interpretation / interpersonal communication',mixedmeaning:'Communication studies / relational complexity'};
  return options.filter(x=>x.id&&names[x.id]).map(x=>({id:x.id,name:names[x.id],term:x.term,definition:x.definition,question:x.question})).slice(0,2);
 }
 function earlyLensPanel(root,options){
@@ -653,7 +653,8 @@ function significanceModel(st,override={}){
  ];
  const semanticScope={listening:'Listening and attention',sharedpractice:'Community and cultural significance',absence:'Historical and material memory',signals:'Ecological and material significance',public:'Community and cultural significance',sensory:'Access and lived experience'};
  const implied=semanticCues(interpretation).map(id=>semanticScope[id]);
- const selected=scopes.map((x,i)=>({...x,i,score:(implied.includes(x.name)?3:0)+(interpretation.match(new RegExp(x.pattern.source,'gi'))||[]).length*3+(clean(st.question).match(new RegExp(x.pattern.source,'gi'))||[]).length})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.i-b.i)[0];
+ const discerned=contextDiscernment(interpretation);
+ const selected=discerned?{name:({supportivesilence:'Supportive relationships',conflictsilence:'Interpersonal conflict',uncertainmeaning:'Interpretive uncertainty',mixedmeaning:'Relational complexity'})[discerned.id],prompt:discerned.question+' What might this change about how you understand this particular relationship?'}:scopes.map((x,i)=>({...x,i,score:(implied.includes(x.name)?3:0)+(interpretation.match(new RegExp(x.pattern.source,'gi'))||[]).length*3+(clean(st.question).match(new RegExp(x.pattern.source,'gi'))||[]).length})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.i-b.i)[0];
  const claim=significance.replace(/[“"][^”"]*[”"]/g,'');const broad=/\b(?:everyone|everybody|all people|every person|all humans|humanity|we all|no one|always|never|the only way)\b/i.test(claim)||/\b(?:people|humans|society|we|they|students|communities)\s+must\b/i.test(claim);
  const generic=/^(?:this|it|that|my experience|the experience)\s+(?:is|was)\s+(?:very\s+|really\s+|so\s+)?(?:important|meaningful|significant|special|valuable)[.! ]*$/i.test(significance)||/^(?:this matters|it matters|this means a lot|it means a lot|this teaches us a lesson)[.! ]*$/i.test(significance);
  const shared=continuityTerms(interpretation).filter(w=>continuityTerms(significance).includes(w));
@@ -1391,6 +1392,31 @@ function semanticModels(){return [
  {id:'sharedpractice',term:'tacit cultural knowledge',definition:'Shared understanding learned through participation rather than explicit explanation.',companion:'cultural practices',companionDef:'Repeated activities through which people express and transmit shared meanings.',question:'What did participants seem to understand without explanation, and might someone new experience it differently?'},
  {id:'absence',term:'place attachment',definition:'Emotional and social bonds with particular places.',companion:'memory and place',companionDef:'How remembered experiences and places shape one another.',question:'What changed in your experience of the place? Avoid assuming why the person was absent.'}
 ].map(m=>({...m,groups:[]}));}
+function contextDiscernment(value){
+ const t=String(value||'').replace(/[’‘]/g,"'");
+ const silence=/\b(?:silence|silent|quiet(?:ly)?|said nothing|didn't speak|did not speak|stopped talking)\b/i;
+ const positive=/\b(?:felt (?:safe|heard|understood|comforted|at ease)|comfort(?:ed|ing)?|peaceful|reassur\w*|because (?:he|she|they) understood|shared presence|companionship)\b/i;
+ const negative=/\b(?:angry|anger|upset|resent\w*|argument|conflict|punish\w*|ignored|dismiss\w*|afraid|hurt|uncomfortable|shut (?:me|us) out|didn't listen|did not listen|not listening|felt unheard)\b/i;
+ const uncertain=/\b(?:never understood why|(?:didn't|did not|don't|do not|couldn't|could not) (?:know|understand|tell) (?:why|what|whether|if)|not sure|unsure|uncertain|perhaps|maybe|wonder(?:ed|ing)? (?:why|whether|if))\b/i;
+ const contrast=/\b(?:but|although|yet|however|even though|at first|later)\b/i;
+ const negatedPositive=/\b(?:not|never|didn't feel|did not feel|wasn't|was not|felt no)\s+(?:safe|heard|understood|comforted|comfortable|peaceful|reassured|at ease)\b/i;
+ const negatedNegative=/\b(?:not|never|wasn't|was not|weren't|were not)\s+(?:angry|upset|afraid|hurt|uncomfortable)\b/i;
+ const pos=positive.test(t)&&!negatedPositive.test(t),neg=negative.test(t)&&!negatedNegative.test(t)||negatedPositive.test(t), unsure=uncertain.test(t);
+ const relevant=silence.test(t)||semanticCues(t).includes('listening');
+ if(!relevant)return null;
+ if(pos&&neg||contrast.test(t)&&(pos||neg)&&unsure)return {id:'mixedmeaning',question:'What changed between these moments or interpretations? Which details support each reading, and what remains uncertain?'};
+ if(unsure)return {id:'uncertainmeaning',question:'What did you observe directly, and what remains unknown about the other person’s experience? You can investigate uncertainty without resolving it.'};
+ if(neg)return {id:'conflictsilence',question:'What made the silence or exchange feel difficult? Distinguish what the person actually did or said from what you inferred about their feelings.'};
+ if(pos)return {id:'supportivesilence',question:'What particular action or shared moment made the quiet feel supportive to you?'};
+ if(silence.test(t))return {id:'uncertainmeaning',question:'What did the silence mean to you, if anything? What details might support different interpretations?'};
+ return null;
+}
+function contextualModels(){return [
+ {id:'supportivesilence',term:'supportive communication',definition:'Communication experienced as offering care, understanding or reassurance.',companion:'relational ethics',companionDef:'An approach to responsibility grounded in relationships.'},
+ {id:'conflictsilence',term:'interpersonal conflict',definition:'Tension or disagreement between people, including how it is expressed or managed.',companion:'nonverbal communication',companionDef:'Meaning conveyed through behavior, gesture or other cues beyond spoken words.'},
+ {id:'uncertainmeaning',term:'interpretive uncertainty',definition:'The limits of what can be known about the meaning of an experience or another person’s actions.',companion:'nonverbal communication',companionDef:'Meaning conveyed through behavior, gesture or other cues beyond spoken words.'},
+ {id:'mixedmeaning',term:'relational ambivalence',definition:'Coexisting or changing feelings and interpretations within a relationship.',companion:'interpersonal communication',companionDef:'How people exchange meaning in relationships.'}
+].map(m=>({...m,groups:[],question:'What did you observe, how did you interpret it, and what other readings remain possible?'}));}
 function translationDirections(question,encounter='',words=[]){
  const q=String(question||'').trim();if(!q)return [];
  const qterms=new Set(continuityTerms(q));
@@ -1399,13 +1425,16 @@ function translationDirections(question,encounter='',words=[]){
  const contexts=[q,...linkedWords];if(anchored)contexts.push(String(encounter||''));
  const text=contexts.join(' ');
  const cues=new Set(semanticCues(q));
- return [...translationModels(),...extraTranslationModels(),...additionalHumanModels(),...semanticModels()].map((m,i)=>{
+ const context=contextDiscernment(q);if(context)cues.add(context.id);
+ return [...translationModels(),...extraTranslationModels(),...additionalHumanModels(),...semanticModels(),...contextualModels()].map((m,i)=>{
   const exact=m.groups.length>0&&m.groups.every(g=>g.test(q)),natureSpecific=['ecology','urban','wellbeing','time','weather','reciprocity','ontology','labor'].includes(m.id),grounded=m.groups.every(g=>g.test(text))&&m.groups.some(g=>g.test(q))&&(!natureSpecific||m.groups.every(g=>g.test(q)));
-  return {...m,i,rank:exact?3:cues.has(m.id)?2:grounded?1:0};
+  const contextual=context&&m.id===context.id;
+  const misleading=context&&['conflictsilence','uncertainmeaning','mixedmeaning'].includes(context.id)&&['presence','listening'].includes(m.id);
+  return {...m,question:contextual?context.question:m.question,i,rank:misleading?0:contextual?4:exact?3:cues.has(m.id)?2:grounded?1:0};
  }).filter(m=>m.rank>0).sort((a,b)=>b.rank-a.rank||a.i-b.i).slice(0,2).map(m=>{const subject=translationSubject(q,words,m);return {...m,q:subject?'"'+subject+'" AND "'+m.term+'"':'"'+m.term+'" AND "'+m.companion+'"',d:m.term+': '+m.definition+' '+m.companion+': '+m.companionDef+' '+m.question};});
 }
 function translationReview(st){
- const models=[...translationModels(),...extraTranslationModels(),...additionalHumanModels(),...semanticModels()],blocks=draftBlocks(st.essayDraft);
+ const models=[...translationModels(),...extraTranslationModels(),...additionalHumanModels(),...semanticModels(),...contextualModels()],blocks=draftBlocks(st.essayDraft);
  for(const b of blocks){
   for(const m of models){
    const hits=conceptHits(b.text,[m.term,m.companion]);if(hits.length){
@@ -1427,7 +1456,7 @@ function integrationGlossary(st){
  const lenses={sensory:['Psychology / sensory experience','Disability studies / access'],embodied:['Embodied experience','Philosophy'],signals:['Animal behavior','Animal behavior'],ecology:['Ecology','Ecology'],memory:['Cultural memory','History'],place:['Place and experience','Cultural memory'],spiritual:['Interpretation','Religious studies'],loss:['Grief and relationship','Interpretation'],labor:['Labor and society','Environmental justice'],reciprocity:['Ethics','Ethics'],ontology:['Philosophy','Worldviews'],attention:['Attention and perception','Digital culture'],urban:['Ecology','Built environment'],weather:['Environmental studies','Community studies'],narrative:['Literary studies','Narrative inquiry'],food:['Cultural studies','Cultural studies'],wellbeing:['Human–nature relationships','Environmental psychology'],time:['Ecology','Ecology'],ethnography:['Anthropology','Anthropology'],history:['History','Material culture']};
  const entries=new Map();
  const put=(term,definition,lens,origin='Notebook glossary')=>{const key=conceptNormalize(term);if(key&&!entries.has(key))entries.set(key,{term,definition,lens,origin,key});};
- for(const m of [...translationModels(),...extraTranslationModels(),...additionalHumanModels(),...semanticModels()]){const [a,b]=lenses[m.id]||['',''];put(m.term,m.definition,a);put(m.companion,m.companionDef,b);}
+ for(const m of [...translationModels(),...extraTranslationModels(),...additionalHumanModels(),...semanticModels(),...contextualModels()]){const [a,b]=lenses[m.id]||['',''];put(m.term,m.definition,a);put(m.companion,m.companionDef,b);}
  const extra=[
  ['neurodiversity','Variation in human minds and ways of processing information.','Disability studies / access'],
  ['sensory overload','A situation in which sensory input becomes overwhelming.','Disability studies / access'],
