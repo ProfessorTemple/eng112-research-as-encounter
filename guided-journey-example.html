@@ -6,7 +6,7 @@
 <script>
 'use strict';
 const KEY='eng112-guided-journey-example-v1', SAMPLE="I remember getting caught in a traffic jam on the way to a holiday visit to my parents. I am always late, and it looked like I'd be late again. I didn't want to call and let them know to go ahead with the holiday dinner without me. I was waiting for a holiday miracle to happen.";
-const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:''});
+const blank=()=>({step:0,encounter:'',words:[],question:'',search:'',history:[],library:'copy',outcome:'',keywords:[],title:'',author:'',passage:'',location:'',reflection:'',pdfName:'',year:'',publication:'',doi:'',pdfKeywords:[],journalStage:'details'});
 let state=blank(),storageOK=true;try{const saved=localStorage.getItem(KEY);if(saved)state={...blank(),...JSON.parse(saved)};}catch(e){storageOK=false;}
 const app=document.getElementById('app');
 const el=(tag,txt='',cls='')=>{const n=document.createElement(tag);n.textContent=txt;if(cls)n.className=cls;return n;};
@@ -29,6 +29,40 @@ function directions(text){const q=norm(text);if(/\bmiracles?\b/.test(q))return [
 function choices(text,exclude=false){const prior=new Set([...state.history,state.search].map(norm));const all=[...directions(text)];const anchor=state.search.split(/\s+AND\s+/i)[0]||state.words[0];for(const w of state.keywords)if(anchor&&norm(anchor)!==norm(w))all.unshift({q:anchor+' AND '+w,d:'Combine an earlier topic with a word you found.'});const seen=new Set();return all.filter(x=>{const k=norm(x.q);if(seen.has(k)||exclude&&prior.has(k))return false;seen.add(k);return true;}).slice(0,3);}
 function makeSearch(q){if(!q.trim()){notice('Enter at least one search word.');return;}if(state.search&&!state.history.includes(state.search))state.history.push(state.search);state.search=q.trim();state.library='copy';state.outcome='';go(4);}
 function showOptions(root,list){if(!list.length){root.append(el('p','No new modeled combination is available. Try your own search below.','hint'));}let picked=list[0]?.q||'';const group=el('fieldset'),legend=el('legend','Choose a research direction');group.append(legend);for(const item of list){const l=el('label','','option'),r=el('input');r.type='radio';r.name='direction';r.value=item.q;r.checked=item.q===picked;r.addEventListener('change',()=>{picked=item.q;custom.value=picked;});const body=el('span',item.q);body.append(el('small',item.d));l.append(r,body);group.append(l);}if(list.length)root.append(group);const label=el('label','Search words (you can edit these)');label.htmlFor='query';const custom=el('input');custom.type='text';custom.id='query';custom.value=picked;root.append(label,custom,btn('Use this search →',()=>makeSearch(custom.value)));}
+let pdfRequest=0;
+const pdfBase='https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/legacy/build/';
+let pdfLibrary;
+function extractArticleCitation(info={},lines=[],xmp={}){
+ const clean=v=>String(Array.isArray(v)?v.join('; '):v||'').replace(/\s+/g,' ').trim();
+ const usable=v=>v.length>2&&v.length<600&&!/^(?:untitled|unknown|anonymous|none|microsoft word|ebsco(?:host)?|pdf|full text|article|administrator|user|dell|adobe acrobat)(?:\b|$)/i.test(v)&&!/\.pdf$/i.test(v);
+ const title=clean(xmp.title||info.Title),author=clean(xmp.author||info.Author);
+ const readLabel=pattern=>{const i=lines.findIndex(line=>pattern.test(line));if(i<0)return '';const match=lines[i].match(pattern);return clean(match?.[1]||lines[i+1]||'');};
+ const t=readLabel(/^(?:article title|title)\s*:\s*(.*)$/i),a=readLabel(/^(?:authors?|by)\s*:\s*(.*)$/i);
+ const pub=readLabel(/^(?:source|journal|publication(?: title)?)\s*:\s*(.*)$/i);
+ const date=readLabel(/^(?:publication date|published|date|year)\s*:\s*(.*)$/i);
+ const year=(date.match(/\b(?:19|20)\d{2}\b/)||[])[0]||'';
+ const doi=(lines.join(' ').match(/(?:doi\s*:\s*|https?:\/\/(?:dx\.)?doi\.org\/)(10\.\d{4,9}\/[-._;()/:A-Z0-9]+)/i)||[])[1]||'';
+ const k=readLabel(/^(?:(?:author[- ]supplied|author|subject)\s+)?keywords?\s*:\s*(.*)$/i);
+ const keywords=k?k.split(/[;,]/).map(clean).filter(x=>x.length>1&&x.length<100&&!/^(abstract|keywords)$/i.test(x)).slice(0,15):[];
+ return {title:usable(t)?t:usable(title)?title:'',author:usable(a)?a:usable(author)?author:'',publication:usable(pub)?pub:'',year,doi:doi?'https://doi.org/'+doi.replace(/[.,;]+$/,''):'',keywords,hasText:lines.join('').length>20};
+}
+async function readArticlePDF(file){
+ // PDF bytes are passed to the reader in this browser, not to a citation or AI service.
+ if(!pdfLibrary){pdfLibrary=import(pdfBase+'pdf.min.mjs').catch(e=>{pdfLibrary=null;throw e;});}
+ const lib=await pdfLibrary;lib.GlobalWorkerOptions.workerSrc=pdfBase+'pdf.worker.min.mjs';
+ const task=lib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false,enableXfa:false});
+ try{
+  const pdf=await task.promise,meta=await pdf.getMetadata().catch(()=>({})),lines=[];
+  for(let p=1;p<=Math.min(2,pdf.numPages);p++){
+   const page=await pdf.getPage(p),content=await page.getTextContent();
+   let line='',lastY=null;
+   for(const item of content.items){if(typeof item.str!=='string')continue;const y=item.transform?.[5];if(line&&lastY!==null&&typeof y==='number'&&Math.abs(y-lastY)>3){lines.push(line.trim());line='';}line+=(line?' ':'')+item.str;if(item.hasEOL){lines.push(line.trim());line='';}lastY=typeof y==='number'?y:null;}
+   if(line.trim())lines.push(line.trim());
+  }
+  const xmp={title:meta.metadata?.get('dc:title'),author:meta.metadata?.get('dc:creator')};
+  return extractArticleCitation(meta.info||{},lines.filter(Boolean),xmp);
+ }finally{await task.destroy().catch(()=>{});}
+}
 function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===0){app.append(el('p','GUIDED JOURNEY · WORKING EXAMPLE','hint'),el('h1','Start here'),el('p','Begin with something you experienced. Follow one small step at a time.'));app.append(btn(state.encounter?'Continue my example →':'Try the holiday miracle example →',()=>{if(!state.encounter)state.encounter=SAMPLE;go(1);}),btn('Start with my own experience',()=>{if(state.encounter&&!confirm('Replace this separate example?'))return;state=blank();go(1);},'secondary'));return;}
  const top=el('div','','topline');top.append(el('span',step<=5?'Research journey · '+step+' of 5':'Reading Journal'),el('span',storageOK?'Saved on this device':'Backup recommended'));top.lastChild.id='save-state';const progress=el('div','','progress');progress.setAttribute('aria-label','Research journey progress');for(let i=1;i<=5;i++)progress.append(el('span','',i<step?'done':i===step?'current':''));app.append(top,progress);
@@ -39,7 +73,40 @@ function render(focus=false){app.replaceChildren();const step=state.step;
  if(step===3){body.append(el('p','Turn your curiosity into a question.'));if(state.words.length)body.append(el('p','Your words: '+state.words.join(' · '),'hint'));if(!state.question&&state.words.some(x=>/miracle/i.test(x)))body.append(el('div','Example question: How do people understand unexpected events in difficult situations?','callout'));body.append(field('My research question','question',3,'What do I want to understand?'));const suggestion=el('div');suggestion.hidden=!state.question.trim();body.append(suggestion);const update=()=>{suggestion.replaceChildren();suggestion.hidden=!state.question.trim();if(!suggestion.hidden){suggestion.append(el('h2','Find academic language'),el('p','Search with short concepts rather than your whole question.','hint'));showOptions(suggestion,choices(state.question));}};const find=btn('Find research directions →',()=>{if(!state.question.trim()){notice('Write a question first.');return;}update();find.hidden=true;suggestion.scrollIntoView({block:'nearest'});});body.append(find);document.getElementById('input-question').addEventListener('input',()=>{suggestion.hidden=true;find.hidden=false;});if(state.question.trim()){update();find.hidden=true;}}
  if(step===4){body.append(el('div',state.search,'callout query'));if(state.library==='copy'){body.append(el('p','Copy these keywords to search in the library.'),btn('Copy search and continue →',async()=>{try{await navigator.clipboard.writeText(state.search);state.library='open';save();render(true);}catch(e){notice('Automatic copying is unavailable. Select the search words and copy them manually.');document.getElementById('manual-copy').hidden=false;}}));const manual=btn('I copied it myself →',()=>{state.library='open';save();render(true);},'secondary');manual.id='manual-copy';manual.hidden=true;body.append(manual);}else if(state.library==='open'){body.append(el('p','Search copied. Paste it into Academic Search Complete.'));const link=el('a','Open Academic Search Complete ↗','action primary');link.href='https://libguides.pittcc.edu/asc';link.target='_blank';link.rel='noopener noreferrer';link.addEventListener('click',()=>{state.library='away';save();setTimeout(()=>render(false),0);});body.append(link,el('p','Read a title and abstract (short summary). Return to this tab after searching.','hint'));}else{body.append(el('p','When you return from the library, tell the notebook what happened.'),btn('I’m back from the library →',()=>go(5)));}if(state.library!=='away')body.append(btn('Already searched? Continue',()=>go(5),'quiet'));}
  if(step===5){if(!state.outcome){body.append(el('p','Choose what happened.'));for(const [id,label,desc] of [['article','I found an article','Bring a useful source into my notebook.'],['words','I found new keywords','Learn the words and search again.'],['retry','My search did not work','Try a more meaningful combination.'],['question','My question is changing','Reconsider what I want to understand.']]){const b=btn(label,()=>{state.outcome=id;save();render(true);},'choice');b.append(el('small',desc));body.append(b);}}else if(state.outcome==='article'){body.append(el('p','Add your source and record one useful passage.'),btn('Open my Reading Journal →',()=>go(6)));}else if(state.outcome==='words'){body.append(el('p','Paste keywords from a title or abstract. Separate them with semicolons or new lines.'));const t=el('textarea');t.rows=3;t.setAttribute('aria-label','New keywords');t.value=state.keywords.join('; ');body.append(t,btn('Find new combinations →',()=>{state.keywords=[...new Set(t.value.split(/[;\n]+/).map(x=>x.trim()).filter(x=>x&&!/^(abstract|author[- ]supplied keywords|keywords)$/i.test(x)))].slice(0,20);state.outcome='retry';save();render(true);}));}else if(state.outcome==='retry'){body.append(el('p','Your earlier search is kept. Choose a different direction.'));showOptions(body,choices(state.question,true));if(state.keywords.length){const defs={'anthropogenic effects':'Effects caused by human activities.','communication disruption':'Interference with signals.','intraspecific interaction':'Interaction within a species.','interspecific interaction':'Interaction between species.','light pollution':'Artificial light that alters nighttime conditions.'};body.append(el('h2','Words you discovered'));for(const w of state.keywords)body.append(el('p',w+(defs[norm(w)]?': '+defs[norm(w)]:' · Check its meaning in your source.'),'hint'));}}else{body.append(field('My revised question','question',3),btn('Explore my revised question →',()=>go(3)));}if(state.outcome)body.append(btn('Choose a different outcome',()=>{state.outcome='';save();render(true);},'quiet'));}
- if(step===6){body.append(el('p','Record the source you found, then reflect on one passage.'));const label=el('label','Choose your downloaded PDF (optional)');label.htmlFor='pdf';const file=el('input');file.id='pdf';file.type='file';file.accept='.pdf,application/pdf';file.addEventListener('change',()=>{state.pdfName=file.files[0]?.name||'';save();notice('Selected: '+state.pdfName+'. This example records the file name only. Keep the original PDF.');});body.append(label,file,el('p',state.pdfName?'Previously selected: '+state.pdfName:'Prototype: only the file name is saved, not the PDF contents.','hint'),field('Article title','title'),field('Author','author'),field('Page or section','location'),field('One meaningful passage','passage',3),field('What does it help you understand?','reflection',3),btn('Save my reading note',()=>{save();notice('Reading note saved in this example.');}));}
+ if(step===6){
+ body.append(el('p','Add your PDF. Check the source details before choosing a passage.'));
+ const label=el('label','Choose your downloaded PDF (optional)');label.htmlFor='pdf';
+ const file=el('input');file.id='pdf';file.type='file';file.accept='.pdf,application/pdf';
+ const fileStatus=el('p',state.pdfName?'Previously selected: '+state.pdfName:'Select an article from your downloads.','hint');fileStatus.id='pdf-status';fileStatus.setAttribute('role','status');
+ body.append(label,file,fileStatus,el('h2','1. Check my source details'),field('Article title','title'),field('Author(s)','author'),field('Publication year','year'),field('Journal or publication','publication'),field('DOI or article link','doi'));
+ const wordsBox=el('div');wordsBox.id='pdf-keywords';body.append(wordsBox);
+ function renderKeywords(){wordsBox.replaceChildren();if(!state.pdfKeywords?.length)return;wordsBox.append(el('p','Keywords found in this PDF: '+state.pdfKeywords.join(' · '),'hint'));}
+ renderKeywords();
+ const next=btn('Confirm details and choose a passage →',()=>{if(!state.title.trim()||!state.author.trim()){notice('Enter or check the title and author first.');return;}state.journalStage='passage';save();render(true);});
+ body.append(next);
+ const passage=el('section');passage.hidden=state.journalStage!=='passage';passage.append(el('h2','2. Notice a meaningful passage'),el('p','Read your article. Choose a passage that matters to your question.'),field('Page or section','location'),field('One meaningful passage','passage',3),field('What does it help you understand?','reflection',3),btn('Save my reading note',()=>{if(!state.passage.trim()||!state.reflection.trim()){notice('Add a passage and your own reflection first.');return;}save();notice('Reading note saved in this example.');}));body.append(passage);
+ if(state.journalStage==='passage'){for(const n of [...body.children])if(n!==passage)n.hidden=true;body.append(btn('Review my source details',()=>{state.journalStage='details';save();render(true);},'quiet'));}
+ file.addEventListener('change',async()=>{
+  const selected=file.files[0];if(!selected)return;
+  const token=++pdfRequest;state.pdfName=selected.name;save();
+  if(selected.size>20*1024*1024){fileStatus.textContent='This example reads PDFs up to 20 MB. Enter the citation manually for a larger file.';return;}
+  fileStatus.textContent='Reading citation details from your PDF…';next.disabled=true;
+  try{
+   const found=await readArticlePDF(selected);
+   if(token!==pdfRequest||state.step!==6||!file.isConnected)return;
+   const filled=[],existing=[];
+   for(const key of ['title','author','year','publication','doi']){
+    if(!found[key])continue;
+    const input=document.getElementById('input-'+key);
+    if(!String(state[key]||'').trim()){state[key]=found[key];if(input)input.value=found[key];filled.push(key);}
+    else if(norm(state[key])!==norm(found[key]))existing.push(key);
+   }
+   state.pdfKeywords=found.keywords||[];renderKeywords();save();
+   fileStatus.textContent=(filled.length?'Suggested '+filled.length+' citation field(s). Check them against the article. ':'No reliable new citation details were identified. Enter any missing details yourself. ')+(existing.length?'Your existing entries were kept. ':'')+(found.hasText?'':'This PDF may be scanned or image-based. Automatic text reading is unavailable. ');
+  }catch(error){if(token===pdfRequest&&file.isConnected)fileStatus.textContent='Automatic PDF reading was unavailable. Your original PDF is unchanged; enter its citation details below.';}
+  finally{if(token===pdfRequest&&file.isConnected)next.disabled=false;}
+ });
+}
  const message=el('p','','notice');message.id='notice';message.setAttribute('role','status');app.append(message);
  const nav=el('nav','','nav');nav.setAttribute('aria-label','Notebook navigation');nav.append(btn('← Previous page',()=>go(step===6?5:step-1),'quiet'),btn('Save backup',backup,'quiet'));app.append(nav);if(focus){title.focus({preventScroll:true});window.scrollTo({top:0,behavior:'auto'});}save();
 }
