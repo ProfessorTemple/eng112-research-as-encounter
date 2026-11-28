@@ -650,3 +650,22 @@ test('revised inquiry preserves intellectual history without automatically recyc
  let saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.notes).toEqual(notes);expect(saved.essayDraft).toBe(essay);expect(saved.nextSearch).toBe('');
 });
+
+test('guidance orchestration respects related prior decisions without suppressing new writing',async({page})=>{
+ await seed(page,{...fixture,step:27,quietRevision:false,independentRevision:false,agencyDecisions:[]});
+ const results=await page.evaluate(()=>{
+  const a={label:'Make room for your interpretation',question:'What do the sources reveal?',excerpt:'The same paragraph.',context:''};
+  const b={label:'Think with another voice',question:'What does the author reveal?',excerpt:'The same paragraph.',context:''};
+  const c={label:'A possible complication',question:'What does your evidence complicate?',excerpt:'The same paragraph.',context:''};
+  const st={agencyDecisions:agencyRecord({},'braiding',a,'decline')};
+  return {
+   distinct:orchestrateGuidance(st,'voice',[{priority:90,model:b},{priority:80,model:c}]).label,
+   repeat:restraintMode(st,'voice',b).open,
+   changed:restraintMode(st,'voice',{...b,excerpt:'A revised paragraph.'}).open,
+   quiet:restraintMode({...st,quietRevision:true},'voice',c).open,
+   required:restraintMode({...st,quietRevision:true},'completeness',b).open,
+   preserved:orchestrateGuidance(st,'braiding',[{priority:90,model:a},{priority:80,model:c}]).label
+  };
+ });
+ expect(results).toEqual({distinct:'A possible complication',repeat:false,changed:true,quiet:false,required:true,preserved:'Make room for your interpretation'});
+});
