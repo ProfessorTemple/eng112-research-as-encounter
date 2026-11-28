@@ -252,3 +252,21 @@ test('intellectual presence prompts interpretation without judging authorship or
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.essayDraft).toBe(draft);expect(saved.storyTwo).toBe(interpretation);
 });
+
+test('students may decline a revision suggestion and retain their own reasoning',async({page})=>{
+ const draft='The garden carries family memory and belonging.\n\nThe garden and belonging return through family memory.';
+ await seed(page,{...fixture,step:25,essayDraft:draft,agencyDecisions:[]});
+ await page.getByText('Decide how to use this suggestion',{exact:true}).click();
+ await page.getByRole('radio',{name:'This suggestion does not fit my intention',exact:true}).check();
+ await page.getByLabel('My reason (optional)',{exact:true}).fill('The recurrence is deliberate.');
+ await expect(page.getByText('Your decision: This suggestion does not fit my intention. You can continue.',{exact:true})).toBeVisible();
+ await page.reload();
+ await page.getByText('My decision about this suggestion · saved',{exact:true}).click();
+ await expect(page.getByLabel('My reason (optional)',{exact:true})).toHaveValue('The recurrence is deliberate.');
+ await expect(page.getByRole('radio',{name:'This suggestion does not fit my intention',exact:true})).toBeChecked();
+ await expect(page.getByLabel('My essay draft',{exact:true})).toHaveValue(draft);
+ await click(page,'Save this review and continue →');
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.step).toBe(26);expect(saved.essayDraft).toBe(draft);
+ expect(saved.agencyDecisions[0].choice).toBe('decline');expect(saved.agencyDecisions[0].reason).toBe('The recurrence is deliberate.');
+});
