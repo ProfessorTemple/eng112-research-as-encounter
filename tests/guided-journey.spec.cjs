@@ -178,7 +178,7 @@ test('a vague encounter invites attention without requiring private disclosure o
  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.encounter).toBe(expanded);
  await seed(page,{...fixture,step:3,encounter:expanded,question:'How do advice and stories from my grandfather help me learn?',words:['grandfather','advice'],keywords:[],notes:[]});
- await expect(page.getByText('intergenerational learning: Learning through exchanges',{exact:false})).toBeVisible();
+ await expect(page.locator('fieldset').getByText('intergenerational learning: Learning through exchanges',{exact:false})).toBeVisible();
  await expect(page.getByText('environmental justice:',{exact:false})).toHaveCount(0);
 });
 
@@ -202,4 +202,20 @@ test('bounded follow-up preserves original experience and permits a student-sele
  await click(page,'Use this search →');
  saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
  expect(saved.criticalLens).toContain('Intergenerational learning');expect(saved.encounter).toBe(expanded);
+});
+
+test('third story supports earned significance without forcing a universal claim',async({page})=>{
+ const one='I spoke with my grandfather at Waffle House.';
+ const two='Listening to my grandfather helped me notice his perspective.';
+ await seed(page,{...fixture,step:15,storyOne:one,storyTwo:two,storyThree:'',workingThesis:'',question:'How does listening shape relationships?'});
+ await expect(page.getByText('Possible direction: Listening and attention',{exact:true})).toBeVisible();
+ const third=page.getByLabel('The larger significance',{exact:true});
+ await third.fill('Everyone must listen the same way.');await third.blur();
+ await expect(page.getByRole('heading',{name:'Check how far the claim travels',exact:true})).toBeVisible();
+ await third.fill('Listening can make room for my grandfather’s perspective.');await third.blur();
+ await expect(page.getByRole('heading',{name:'Examine the significance you have earned',exact:true})).toBeVisible();
+ await click(page,'Bring my three stories together →');
+ const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.storyThree).toBe('Listening can make room for my grandfather’s perspective.');
+ expect(saved.workingThesis).toContain(two);
 });
