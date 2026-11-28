@@ -13,11 +13,12 @@
 Verified in the current development session:
 - Application and regression-test JavaScript syntax.
 - 120/120 direct checks of the actual application functions: 35 snapshot round trips, 35 visual journey states, 35 progress mappings, seven lens choices, five research returns, two independent revision paths, one inquiry pivot.
-- 39 browser regression cases are present. The dedicated Chromium workflow is committed; completed results are not yet available. Older research-option selectors were aligned with the simplified interface.
+- Browser evidence: two Ubuntu 24.04 runs at `c8c08ea` reported 35 passed and four failed. The four test assertions were corrected for current wording, collapsed panels and duplicate text at `d86217f59ae344e36c64a760cfc56935bb449426`. Instructor-provided screenshot confirms Classroom readiness #8 (attempt 2) succeeded for that exact commit on November 28, 2026, in 1m 3s. The 39-case suite is present and the workflow succeeded; the final detailed test count has not separately been inspected. A non-blocking Node.js action deprecation warning remains.
+- The earlier successful cases cover backup/restore including attachment bytes, final DOCX generation, keyboard focus, narrow viewport reflow, student text preservation and six representative inquiry scenarios. The bibliography test was among the four corrected cases; the successful rerun establishes workflow-level success.
 
 Remaining release gates:
-- Execute the browser suite; investigate every failure and rerun. A missing workflow result is not a pass.
-- Verify real PDF import, backup/restore with attachments, bibliography and final DOCX downloads, keyboard navigation, 320px reflow, visible focus, and student text preservation.
+- Retain the detailed successful test log when available; verify the exact final count and any skips.
+- Verify actual PDF text extraction and retrieval, generated Word documents in a real word processor, and cross-browser behavior (especially Safari/WebKit).
 - Perform manual screen-reader and representative student usability checks; do not claim ADA/WCAG conformance from syntax or automated tests alone.
 - Verify the public Pages deployment matches the candidate and opens without runtime errors. Do not replace the stable link before validation.
 - Freeze feature work except for release-blocking fixes. Retain the same localStorage key and provide backup instructions before any migration.
