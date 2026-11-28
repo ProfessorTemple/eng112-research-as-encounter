@@ -30,6 +30,7 @@ function validateNotebook(raw){
  for(const k of ['notes','connections','strands','braidSections','figures','agencyDecisions'])if(next[k].some(x=>!x||typeof x!=='object'||Array.isArray(x)))throw Error('Invalid saved record: '+k);
  for(const n of next.notes)if(typeof n.id!=='string'||!n.id||['title','author','year','publication','doi','pdfName','pdfId','location','passage','reflection','sourceOrigin'].some(k=>n[k]!=null&&typeof n[k]!=='string')||n.pdfKeywords!=null&&(!Array.isArray(n.pdfKeywords)||n.pdfKeywords.some(x=>typeof x!=='string')))throw Error('Invalid reading note.');
  for(const n of next.strands)if(typeof n.id!=='string'||!Object.prototype.hasOwnProperty.call(strandTypes(),n.type)||typeof n.title!=='string'||typeof n.passage!=='string')throw Error('Invalid saved material.');
+ if(next.bibEntries.length>5||next.bibCarry.some(x=>typeof x!=='string')||next.bibEntries.some(x=>!x||typeof x.id!=='string'||['reference','annotation','role','link'].some(k=>typeof x[k]!=='string')||typeof x.verified!=='boolean')||new Set(next.bibEntries.map(x=>x.id)).size!==next.bibEntries.length)throw Error('Invalid bibliography records.');
  for(const n of next.braidSections)if(typeof n.id!=='string'||!Array.isArray(n.keys)||n.keys.some(x=>typeof x!=='string'))throw Error('Invalid braiding section.');
  for(const f of next.figures)if(typeof f.id!=='string'||![1,2,3].includes(f.number)||!['png','jpg'].includes(f.ext)||!Number.isInteger(f.width)||!Number.isInteger(f.height)||f.width<=0||f.height<=0||f.width*f.height>40000000)throw Error('Invalid figure metadata.');
  if(new Set(next.figures.map(f=>f.number)).size!==next.figures.length)throw Error('Duplicate figure number.');
@@ -2263,6 +2264,8 @@ function bibNote(st,id){return (st.notes||[]).find(n=>n.id===id);}
 function bibEntries(st){return (Array.isArray(st.bibEntries)?st.bibEntries:[]).filter(x=>x&&bibNote(st,x.id)).slice(0,5);}
 function bibSelected(st){const ids=new Set(bibEntries(st).map(x=>x.id));return [...new Set((st.bibCarry||[]).filter(x=>ids.has(x)))].slice(0,3);}
 function bibCount(t){return String(t||'').trim().split(/\s+/).filter(Boolean).length;}
+function bibOverviewText(st){const t=String(st.bibOverview||'').trim(),thesis=String(st.bibThesis||'').trim();return thesis&&!t.includes(thesis)?[t,thesis].filter(Boolean).join('\n\n'):t;}
+function bibStateText(st){const t=String(st.bibState||'').trim(),q=String(st.bibQuestion||'').trim();return q&&!t.endsWith(q)?[t,q].filter(Boolean).join('\n\n'):t;}
 function bibEntryReady(x){return !!(x.verified&&x.reference?.trim()&&x.annotation?.trim()&&bibRoles().includes(x.role));}
 function bibAudit(st){
  const entries=bibEntries(st),ids=new Set(entries.map(x=>x.id)),db=entries.filter(x=>bibNote(st,x.id)?.sourceOrigin==='database').length;
@@ -2273,10 +2276,10 @@ function bibAudit(st){
  if(new Set(entries.map(x=>x.role).filter(x=>bibRoles().includes(x))).size<3)issues.push('Identify at least three different source roles.');
  if(!entries.some(x=>x.role==='Complication or counterpoint'))issues.push('Identify a source that complicates an assumption.');
  if(links<3)issues.push('Identify direct connections to another bibliography source in at least three annotations.');
- if(bibCount(st.bibOverview)<200||bibCount(st.bibOverview)>300||!st.bibThesis?.trim()||!st.bibLens?.trim())issues.push('Review the 200–300 word overview, primary lens and working thesis.');
- const keywords=String(st.bibKeywords||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean);
+ if(bibCount(bibOverviewText(st))<200||bibCount(bibOverviewText(st))>300||!st.bibThesis?.trim()||!st.bibLens?.trim())issues.push('Review the 200–300 word overview, primary lens and working thesis.');
+ const keywords=[...new Set(String(st.bibKeywords||'').split(/[,;\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean))];
  if(keywords.length<5||keywords.length>8)issues.push('List five to eight research keywords.');
- if(bibCount(st.bibState)<150||bibCount(st.bibState)>200||!st.bibQuestion?.trim())issues.push('Review the 150–200 word State of the Research Path and revised question.');
+ if(bibCount(bibStateText(st))<150||bibCount(bibStateText(st))>200||!st.bibQuestion?.trim())issues.push('Review the 150–200 word State of the Research Path and revised question.');
  if(bibSelected(st).length!==3)issues.push('Select three annotated outside sources to carry forward.');
  if(!st.bibDisclosure?.trim()||!st.paperName?.trim()||!st.courseSection?.trim()||!st.bibDate?.trim())issues.push('Complete title page and AI Use Disclosure.');
  return {entries,db,links,issues};
@@ -2294,20 +2297,18 @@ function bibBody(st){
  const title='Annotated Bibliography: Mapping the Research Conversation';
  const prose=x=>String(x||'').split(/\r?\n\s*\r?\n/).filter(p=>p.trim()).map(p=>wordP(p,{indent:true})).join('');
  let body=wordP(title,{bold:true,align:'center',before:1440,after:480})+[st.paperName,'Department of English, Pitt Community College',st.courseSection,'Professor Temple',st.bibDate].filter(Boolean).map(x=>wordP(x,{align:'center'})).join('');
- body+=wordP('Research Path Overview',{bold:true,align:'center',page:true,keep:true})+prose(st.bibOverview);
- if(st.bibThesis?.trim()&&!String(st.bibOverview||'').includes(st.bibThesis.trim()))body+=prose(st.bibThesis);
+ body+=wordP('Research Path Overview',{bold:true,align:'center',page:true,keep:true})+prose(bibOverviewText(st));
  body+=wordP('Research Keywords: '+(st.bibKeywords||''));
  body+=wordP('Annotated Bibliography',{bold:true,align:'center',page:true,keep:true});
  for(const x of bibOrdered(st))body+=wordReference(x.reference||'')+prose(x.annotation);
- body+=wordP('State of the Research Path',{bold:true,align:'center',keep:true})+prose(st.bibState);
- if(st.bibQuestion?.trim()&&!String(st.bibState||'').trimEnd().endsWith(st.bibQuestion.trim()))body+=prose(st.bibQuestion);
+ body+=wordP('State of the Research Path',{bold:true,align:'center',keep:true})+prose(bibStateText(st));
  body+=wordP('AI Use Disclosure',{bold:true,align:'center',keep:true})+prose(st.bibDisclosure);
  return body;
 }
 function bibCarryForward(){
  if(state.bibQuestion.trim()&&state.question!==state.bibQuestion&&confirm('Use your revised bibliography question as the current research question?'))state.question=state.bibQuestion;
  if(state.bibLens.trim()&&state.criticalLens!==state.bibLens&&confirm('Use the bibliography’s primary lens as your working critical lens?'))state.criticalLens=state.bibLens;
- if(state.bibThesis.trim()&&state.workingThesis!==state.bibThesis&&confirm('Carry your bibliography thesis into the working-thesis field? Your saved essay and later thesis drafts will not be replaced.')){if(!state.initialThesis)state.initialThesis=state.workingThesis||state.bibThesis;state.workingThesis=state.bibThesis;}
+ if(state.bibThesis.trim()&&state.workingThesis!==state.bibThesis&&confirm('Carry your bibliography thesis into the working-thesis field? Your saved essay and later thesis drafts will not be replaced.')){if(!state.initialThesis)state.initialThesis=state.workingThesis||state.bibThesis;state.workingThesis=state.bibThesis;state.thesisSaved=false;state.inquiryReviewed=false;}
  save();bibLeave();
 }
 function bibEditor(root){
@@ -2322,7 +2323,7 @@ function bibEditor(root){
   const d=el('details');d.append(el('summary','Revisit my inquiry'),el('p',state.encounter||''),el('p',state.question||''),el('p',state.evidencePlan||''),el('p',state.assumptionPlan||''));root.append(d);
   root.append(field('Primary critical lens','bibLens',2),field('My working Living Three-Story Thesis','bibThesis',4),el('p','Write the overview in your own words: central presence, question, lens, what the experience may reveal, what research needs to explain or complicate, and an assumption to examine. The saved thesis is included in the overview at export unless already present.','hint'),field('My Research Path Overview','bibOverview',6),field('Research keywords (five to eight)','bibKeywords',2),btn('Choose my outside sources →',advance));
  }else if(phase===1){
-  const list=el('details');list.open=bibEntries(state).length===0;list.append(el('summary','Choose five outside sources from my Reading Journal'));
+  const list=el('details');list.open=bibEntries(state).length<5;list.append(el('summary','Choose five outside sources from my Reading Journal'));
   for(const n of state.notes||[]){
    const label=el('label','','option'),c=el('input');c.type='checkbox';c.checked=bibEntries(state).some(x=>x.id===n.id);
    c.addEventListener('change',()=>{let entries=bibEntries(state);if(c.checked){if(entries.length>=5){c.checked=false;notice('Choose five outside sources.');return;}entries.push({id:n.id,reference:'',annotation:'',role:'',link:'',verified:false});}else{const old=entries.find(x=>x.id===n.id);if(old&&(old.annotation||old.reference)&&!confirm('Remove this source from the bibliography selection? Its reading note remains saved, but its annotation draft will be removed.')){c.checked=true;return;}entries=entries.filter(x=>x.id!==n.id);state.bibCarry=(state.bibCarry||[]).filter(id=>id!==n.id);}state.bibEntries=entries;state.bibActive=c.checked?n.id:'';save();render(true);});
