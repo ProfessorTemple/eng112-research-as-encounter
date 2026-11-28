@@ -669,3 +669,29 @@ test('guidance orchestration respects related prior decisions without suppressin
  });
  expect(results).toEqual({distinct:'A possible complication',repeat:false,changed:true,quiet:false,required:true,preserved:'Make room for your interpretation'});
 });
+
+test('research detours from thesis stages return to the exact original stage',async({page})=>{
+ for(const step of [16,17]){
+  await seed(page,{...fixture,step,thesisStep:step,researchReturn:0,evidencePlan:'Consult family history.',assumptionPlan:'Check my assumptions.',alternativePlan:'Consider another account.'});
+  await click(page,'Return to my research');
+  await page.reload();
+  await click(page,'Return to my writing journey');
+  const saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+  expect(saved.step).toBe(step);expect(saved.researchReturn).toBe(0);
+  expect(saved.essayDraft).toBe(essay);expect(saved.notes).toEqual(fixture.notes);
+  expect(saved.braidSections).toEqual(fixture.braidSections);expect(saved.evidencePlan).toBe('Consult family history.');
+ }
+});
+test('bibliography carry-forward applies inquiry relevance without replacing later drafts',async({page})=>{
+ const question='How does attentive listening shape family relationships?';
+ await seed(page,{...fixture,step:34,bibInitialized:true,bibPhase:3,bibReturn:23,bibQuestion:question,bibLens:'Communication studies',bibThesis:'Listening shapes family relationships.',criticalLens:'Place studies',nextSearch:'garden AND memory',bibEntries:[{id:'n1',reference:'Smith (2020).',annotation:'My annotation.',role:'Context',link:'',verified:true}],bibCarry:['n1']});
+ page.on('dialog',d=>d.accept());
+ await click(page,'Carry my inquiry into the final essay →');
+ let saved=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+ expect(saved.step).toBe(23);expect(saved.question).toBe(question);expect(saved.nextSearch).toBe('');
+ expect(saved.criticalLens).toBe('Communication studies');expect(saved.lensNeedsReview).toBe(false);
+ expect(saved.essayDraft).toBe(essay);expect(saved.reconsideredThesis).toBe(fixture.reconsideredThesis);
+ expect(saved.bibCarry).toEqual(['n1']);expect(saved.notes).toEqual(fixture.notes);
+ await click(page,'Begin drafting my essay →');
+ await expect(page.getByText('Compare my bibliography thesis with my current thesis',{exact:true})).toBeVisible();
+});
