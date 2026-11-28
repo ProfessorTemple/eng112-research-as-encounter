@@ -1243,6 +1243,24 @@ function downloadEssayOnly(){
  const a=el('a');const text=[state.essayTitle||'My creative nonfiction research essay','',state.essayDraft||''].join('\n');
  a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));a.download='my-revised-essay.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
+function diachronicInquiry(st,before,after){
+ const clean=x=>String(x||'').trim(),normalize=x=>clean(x).toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();
+ const b=clean(before),a=clean(after),reflection=clean(st.thesisReflection);
+ if(!b||!a||!clean(st.initialThesis))return null;
+ const signals=[
+ {id:'reconsideration',re:/\b(?:I (?:used to|initially|originally|first) (?:think|thought|believe|believed|assume|assumed)|I (?:no longer|now) (?:think|believe|understand)|changed my (?:mind|assumption|interpretation))\b/i,prompt:'What earlier assumption did you reconsider, and what particular encounter or source made reconsideration possible?'},
+ {id:'qualification',re:/\b(?:not always|not necessarily|only when|depends on|in some (?:cases|circumstances)|may not|cannot assume|could also|more complicated|limits? of)\b/i,prompt:'What condition, exception or limit did you discover? How does it make the earlier interpretation more precise?'},
+ {id:'reciprocity',re:/\b(?:learn(?:ed|ing|s)? from (?:each other|one another|me too)|both (?:of us|people|generations) learn|mutual learning|two-way|reciprocal learning|learning goes both ways)\b/i,prompt:'How does the change from a one-directional relationship to a possible reciprocal one affect your interpretation? What evidence supports that reading?'},
+ {id:'uncertainty',re:/\b(?:I (?:still )?(?:do not|don't|cannot|can't) know|remains uncertain|not sure|unanswered question|I wonder whether)\b/i,prompt:'What remains unresolved, and how did your inquiry help you recognize the limits of what you can claim?'},
+ {id:'continuity',re:/\b(?:confirmed|reinforced|deepened|strengthened|still believe|still think|same position|more clearly)\b/i,prompt:'What specific evidence deepened or confirmed your understanding? What do you understand more clearly even if your position remains the same?'}
+ ];
+ const same=normalize(b)===normalize(a);
+ const candidates=signals.filter(x=>x.re.test(reflection)||(!same&&x.re.test(a)&&!x.re.test(b)));
+ const chosen=candidates[0];
+ if(chosen)return {...chosen,origin:chosen.re.test(reflection)?'Your saved reflection':'Your later thesis',excerpt:chosen.re.test(reflection)?reflection:a};
+ if(same)return {id:'stable',prompt:'Your thesis wording is unchanged or nearly identical after normalization. What did your reading help you understand more precisely, or what question remains?',origin:'Saved thesis comparison',excerpt:''};
+ return {id:'unclassified',prompt:'The saved wording changed. Did your interpretation change, become more precise, or simply become easier to express? Identify one particular reason in your own words.',origin:'Saved thesis comparison',excerpt:''};
+}
 function intellectualTrail(st){
  const clean=x=>String(x||'').trim(),cmp=x=>clean(x).replace(/\s+/g,' ');
  const original=clean(st.firstEncounter),saved=clean(st.encounter),first=clean(st.initialThesis),working=clean(st.workingThesis),strengthened=clean(st.strengthenedThesis),current=clean(st.reconsideredThesis),reflection=clean(st.thesisReflection);
@@ -1259,7 +1277,7 @@ function intellectualTrail(st){
  for(const n of strands){if(n?.type==='interview'&&n.permission===true&&clean(n.passage))candidates.push({title:clean(n.title)||'Community interview',text:clean(n.passage),kind:'Approved interview material'});else if(['course','diary','lived','history'].includes(n?.type)&&clean(n.passage))candidates.push({title:clean(n.title)||'Saved material',text:clean(n.passage),kind:'Saved material'});}
  const target=new Set(bridgeTerms([after,reflection,last].join(' ')));
  const ranked=candidates.map((x,i)=>({...x,i,score:bridgeTerms(x.text).filter(t=>target.has(t)).length})).sort((a,b)=>b.score-a.score||a.i-b.i);
- const material=ranked[0]||null;
+ const material=ranked.find(x=>x.score>0)||null;
  const relation=!before||!after?'incomplete':cmp(before)===cmp(after)?'unchanged':'different';
  let question='What has your inquiry helped you understand, qualify or ask more precisely? You do not need to change your worldview to demonstrate discovery.';
  if(!before||!after)question='Record your working thesis and revisit it after drafting. What might your evidence help you understand more precisely?';
@@ -1267,7 +1285,9 @@ function intellectualTrail(st){
  else if(relation==='unchanged')question='Your thesis wording is unchanged. What evidence helped you retain it, what limits did you recognize, or what question remains? Deepening a position can be as meaningful as changing it.';
  else if(added.length)question='Your later thesis introduces wording not found in the earliest saved thesis: '+added.join(', ')+'. Does this reflect a new insight, a more precise expression of the same idea, or something else? Explain what led you there.';
  else question='Your thesis wording differs. What changed in the meaning, if anything? Consider a particular experience, passage or conversation that helps explain why.';
- return {encounter:original||saved,encounterLabel:original?(st.firstEncounterRecovered?'Earliest available saved encounter':'Opening freewrite saved before research'):'Saved freewrite (earliest version not separately retained)',before,beforeLabel:first?'First saved working thesis':'Working thesis (earliest version not separately retained)',after,afterLabel:current?'Reconsidered thesis':strengthened?'Strengthened working thesis':'Current working thesis',relation,added,retained,material,reflection,last,question};
+ const movement=diachronicInquiry(st,before,after);
+ if(movement&&movement.id!=='stable'&&movement.id!=='unclassified')question=movement.prompt;
+ return {movement,intermediate:strengthened&&cmp(strengthened)!==cmp(before)&&cmp(strengthened)!==cmp(after)?strengthened:'',encounter:original||saved,encounterLabel:original?(st.firstEncounterRecovered?'Earliest available saved encounter':'Opening freewrite saved before research'):'Saved freewrite (earliest version not separately retained)',before,beforeLabel:first?'First saved working thesis':'Working thesis (earliest version not separately retained)',after,afterLabel:current?'Reconsidered thesis':strengthened?'Strengthened working thesis':'Current working thesis',relation,added,retained,material,reflection,last,question};
 }
 function intellectualTrailPanel(root){
  const d=el('details');d.append(el('summary','How my thinking changed'));const host=el('div');d.append(host);
@@ -1276,6 +1296,8 @@ function intellectualTrailPanel(root){
   for(const [label,title,value] of [['1 · My encounter',m.encounterLabel,m.encounter],['2 · My starting interpretation',m.beforeLabel,m.before],['3 · A material to revisit',m.material?m.material.kind+' · '+m.material.title:'No reflection or material selected yet',m.material?.text||''],['4 · My current understanding',m.afterLabel,m.after]]){
    const card=el('div','','callout');card.append(el('h3',label),el('p',title,'hint'));if(value){const p=el('p',value);p.style.whiteSpace='pre-wrap';card.append(p);}else card.append(el('p','Not yet recorded.','hint'));if(label.startsWith('3'))card.append(el('p','This is a suggested comparison based on shared words or saved order, not a finding about what caused your thinking to change.','hint'));host.append(card);
   }
+  if(m.intermediate){const intermediate=el('details');intermediate.append(el('summary','Compare my intermediate thesis'),el('p',m.intermediate));host.append(intermediate);}
+  if(m.movement&& !['stable','unclassified'].includes(m.movement.id)){host.append(el('p','Possible development noticed in '+m.movement.origin.toLowerCase()+'. Check whether this describes your own thinking; the notebook cannot establish a change of belief.','hint'));}
   if(m.last){const end=el('details');end.append(el('summary','Compare my current ending'),el('p',m.last));host.append(end);}
   if(m.reflection){const reflection=el('details');reflection.append(el('summary','My reflection on the change'),el('p',m.reflection));host.append(reflection);}
   host.append(el('h3','One next move'),el('p',m.question));
